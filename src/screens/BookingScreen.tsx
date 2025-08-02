@@ -73,7 +73,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation, route 
     if (!selectedTimeSlot) {
       Alert.alert(
         t('booking.error'),
-        t('booking.selectTime'),
+        t('booking.selectTimeMessage'),
         [{ text: t('common.ok') }]
       );
       return;
@@ -124,7 +124,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation, route 
           <MaterialIcons name="arrow-back" size={24} color={colors.text.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
-          {language === 'en' ? 'Book a Session' : 'Đặt Lịch Học'}
+          {t('booking.bookSession')}
         </Text>
       </View>
 
@@ -137,7 +137,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation, route 
 
         {/* Date Selection */}
         <Text style={styles.sectionTitle}>
-          {language === 'en' ? 'Select Date' : 'Chọn Ngày'}
+          {t('booking.selectDate')}
         </Text>
         <ScrollView 
           horizontal 
@@ -176,7 +176,7 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation, route 
 
         {/* Time Selection */}
         <Text style={styles.sectionTitle}>
-          {language === 'en' ? 'Select Time' : 'Chọn Giờ'}
+          {t('booking.selectTime')}
         </Text>
         <View style={styles.timeGrid}>
           {timeSlots.map((slot) => (
@@ -212,8 +212,8 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation, route 
         >
           <Text style={styles.bookButtonText}>
             {loading 
-              ? (language === 'en' ? 'Booking...' : 'Đang đặt...')
-              : (language === 'en' ? 'Book Session' : 'Đặt Lịch')}
+              ? t('booking.booking')
+              : t('booking.bookSessionButton')}
           </Text>
         </TouchableOpacity>
       </ScrollView>

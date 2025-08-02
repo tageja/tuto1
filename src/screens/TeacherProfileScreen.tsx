@@ -63,7 +63,7 @@ export const TeacherProfileScreen: React.FC<TeacherProfileScreenProps> = ({
           <MaterialIcons name="arrow-back" size={24} color={colors.text.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
-          {language === 'en' ? 'Teacher Profile' : 'Hồ Sơ Gia Sư'}
+          {t('teacherProfile.title')}
         </Text>
       </View>
 
@@ -95,21 +95,21 @@ export const TeacherProfileScreen: React.FC<TeacherProfileScreenProps> = ({
             <MaterialIcons name="school" size={24} color={colors.primary} />
             <Text style={styles.statValue}>{experience}+</Text>
             <Text style={styles.statLabel}>
-              {language === 'en' ? 'Years\nExperience' : 'Năm\nKinh Nghiệm'}
+              {t('teacherProfile.yearsExperience')}
             </Text>
           </View>
           <View style={styles.statItem}>
             <MaterialIcons name="people" size={24} color={colors.primary} />
             <Text style={styles.statValue}>{reviews}+</Text>
             <Text style={styles.statLabel}>
-              {language === 'en' ? 'Students\nTaught' : 'Học Sinh\nĐã Dạy'}
+              {t('teacherProfile.studentsTaught')}
             </Text>
           </View>
           <View style={styles.statItem}>
             <MaterialIcons name="attach-money" size={24} color={colors.primary} />
             <Text style={styles.statValue}>${hourlyRate}</Text>
             <Text style={styles.statLabel}>
-              {language === 'en' ? 'Hourly\nRate' : 'Học Phí\nMỗi Giờ'}
+              {t('teacherProfile.hourlyRate')}
             </Text>
           </View>
         </View>
@@ -117,7 +117,7 @@ export const TeacherProfileScreen: React.FC<TeacherProfileScreenProps> = ({
         {/* About Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            {language === 'en' ? 'About' : 'Giới Thiệu'}
+            {t('teacherProfile.about')}
           </Text>
           <Text style={styles.aboutText}>
             {language === 'en' 
@@ -129,7 +129,7 @@ export const TeacherProfileScreen: React.FC<TeacherProfileScreenProps> = ({
         {/* Subjects Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            {language === 'en' ? 'Subjects' : 'Môn Học'}
+            {t('teacherProfile.subjects')}
           </Text>
           <View style={styles.subjectTags}>
             <View style={styles.subjectTag}>
@@ -144,7 +144,7 @@ export const TeacherProfileScreen: React.FC<TeacherProfileScreenProps> = ({
           onPress={handleBooking}
         >
           <Text style={styles.bookButtonText}>
-            {language === 'en' ? 'Book a Session' : 'Đặt Lịch Học'}
+            {t('teacherProfile.bookSession')}
           </Text>
           <MaterialIcons name="arrow-forward" size={20} color={colors.secondary} />
         </TouchableOpacity>

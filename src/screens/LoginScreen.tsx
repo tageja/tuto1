@@ -15,6 +15,7 @@ import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import { colors, spacing, borderRadius, typography } from '../theme';
 import { useAirtable } from '../hooks/useAirtable';
+import { useUser } from '../contexts/UserContext';
 
 interface LoginScreenProps {
   navigation: any;
@@ -23,6 +24,7 @@ interface LoginScreenProps {
 export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const { t } = useLanguage();
   const { loading, error, clearError } = useAirtable();
+  const { setUserType } = useUser();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -54,21 +56,33 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     if (!validateForm()) return;
 
     try {
-      // For now, we'll simulate login
-      // In a real app, you'd verify credentials against Airtable
       console.log('Login attempt:', formData.email);
       
-      // Simulate successful login
-      Alert.alert(
-        t('auth.loginSuccess'),
-        t('auth.welcomeBack'),
-        [
-          {
-            text: t('common.ok'),
-            onPress: () => navigation.navigate('Home'),
-          },
-        ]
-      );
+      // Dummy account validation
+      const dummyAccounts = {
+        'parent@admin.com': { type: 'parent', password: 'password' },
+        'student@admin.com': { type: 'student', password: 'password' },
+        'teacher@admin.com': { type: 'teacher', password: 'password' },
+      };
+
+      const account = dummyAccounts[formData.email as keyof typeof dummyAccounts];
+      
+      if (account && account.password === formData.password) {
+        // Store user type in context
+        await setUserType(account.type as 'parent' | 'student' | 'teacher');
+        Alert.alert(
+          t('auth.loginSuccess'),
+          `${t('auth.welcomeBack')} (${account.type})`,
+          [
+            {
+              text: t('common.ok'),
+              onPress: () => navigation.navigate('Home'),
+            },
+          ]
+        );
+      } else {
+        Alert.alert(t('auth.loginError'), t('auth.invalidCredentials'));
+      }
     } catch (error) {
       Alert.alert(t('auth.loginError'), t('auth.invalidCredentials'));
     }

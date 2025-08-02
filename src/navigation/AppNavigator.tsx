@@ -7,6 +7,8 @@ import { AllSubjectsScreen } from '../screens/AllSubjectsScreen';
 import { SubjectResultsScreen } from '../screens/SubjectResultsScreen';
 import { TeacherProfileScreen } from '../screens/TeacherProfileScreen';
 import { BookingScreen } from '../screens/BookingScreen';
+import { UserProfileScreen } from '../screens/UserProfileScreen';
+import { NotificationsScreen } from '../screens/NotificationsScreen';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -28,6 +30,8 @@ export type RootStackParamList = {
     teacherName: string;
     subject: string;
   };
+  UserProfile: undefined;
+  Notifications: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -66,6 +70,16 @@ export const AppNavigator = () => {
         <Stack.Screen 
           name="Booking" 
           component={BookingScreen} 
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="UserProfile" 
+          component={UserProfileScreen} 
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="Notifications" 
+          component={NotificationsScreen} 
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
