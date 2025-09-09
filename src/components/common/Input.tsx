@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity, ViewStyle, TextStyle } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity, ViewStyle, TextStyle, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors, spacing, borderRadius, typography } from '../../theme';
 
@@ -11,6 +11,10 @@ interface InputProps {
   secureTextEntry?: boolean;
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'number-pad';
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  autoComplete?: string;
+  textContentType?: string;
+  autoCorrect?: boolean;
+  autoFocus?: boolean;
   error?: string;
   disabled?: boolean;
   multiline?: boolean;
@@ -19,6 +23,7 @@ interface InputProps {
   labelStyle?: TextStyle;
   inputStyle?: TextStyle;
   rightIcon?: React.ReactNode;
+  disableAutofill?: boolean;
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -29,17 +34,23 @@ export const Input: React.FC<InputProps> = ({
   secureTextEntry = false,
   keyboardType = 'default',
   autoCapitalize = 'sentences',
+  autoComplete,
+  textContentType,
+  autoCorrect,
   error,
   disabled = false,
   multiline = false,
   numberOfLines = 1,
+  autoFocus,
   style,
   labelStyle,
   inputStyle,
   rightIcon,
+  disableAutofill = false,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const inputRef = useRef<TextInput>(null);
 
   const handleFocus = () => setIsFocused(true);
   const handleBlur = () => setIsFocused(false);
@@ -59,13 +70,18 @@ export const Input: React.FC<InputProps> = ({
         </Text>
       )}
       
-      <View style={[
-        styles.inputContainer,
-        isFocused && styles.inputContainerFocused,
-        error && styles.inputContainerError,
-        disabled && styles.inputContainerDisabled,
-      ]}>
+      <View
+        style={[
+          styles.inputContainer,
+          isFocused && styles.inputContainerFocused,
+          error && styles.inputContainerError,
+          disabled && styles.inputContainerDisabled,
+        ]}
+        onStartShouldSetResponder={() => true}
+        onResponderGrant={() => inputRef.current?.focus()}
+      >
         <TextInput
+          ref={inputRef}
           style={[
             styles.input,
             multiline && styles.inputMultiline,
@@ -78,11 +94,19 @@ export const Input: React.FC<InputProps> = ({
           secureTextEntry={isPasswordField && !showPassword}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
+          autoComplete={(disableAutofill ? 'off' : (autoComplete as any))}
+          textContentType={(disableAutofill ? (Platform.OS === 'ios' ? ('oneTimeCode' as any) : ('none' as any)) : (textContentType as any))}
+          importantForAutofill={disableAutofill ? 'no' : undefined}
+          autoCorrect={autoCorrect}
           editable={!disabled}
           multiline={multiline}
           numberOfLines={numberOfLines}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          autoFocus={autoFocus}
+          blurOnSubmit={false}
+          returnKeyType={multiline ? 'default' : 'next'}
+          onPressIn={() => inputRef.current?.focus()}
         />
         
         <View style={styles.rightContainer}>

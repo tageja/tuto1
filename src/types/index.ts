@@ -72,10 +72,15 @@ export interface Booking {
 
 export interface Subject {
   id: string;
+  key: string;
   name: string;
+  nameEn: string;
   nameVi: string;
   icon: string;
   category: 'academic' | 'extracurricular';
+  color?: string;
+  description?: string;
+  descriptionVi?: string;
 }
 
 export interface Review {

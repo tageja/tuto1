@@ -33,8 +33,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
     address: '',
     role: 'parent' as 'parent' | 'teacher',
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // Password visibility handled inside common Input component
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
@@ -85,6 +84,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
           email: formData.email,
           phone: formData.phone,
           address: formData.address,
+          password: formData.password,
         });
 
         Alert.alert(
@@ -121,11 +121,13 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.select({ ios: 0, android: 100 })}
     >
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { flexGrow: 1 }]}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
         <View style={styles.header}>
@@ -193,6 +195,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
               setFormData({ ...formData, name: text });
               if (errors.name) setErrors({ ...errors, name: '' });
             }}
+            disableAutofill
             error={errors.name}
             style={styles.input}
           />
@@ -202,11 +205,12 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
             placeholder={t('auth.emailPlaceholder')}
             value={formData.email}
             onChangeText={(text) => {
-              setFormData({ ...formData, email: text });
+              setFormData({ ...formData, email: text.toLowerCase() });
               if (errors.email) setErrors({ ...errors, email: '' });
             }}
             keyboardType="email-address"
             autoCapitalize="none"
+            disableAutofill
             error={errors.email}
             style={styles.input}
           />
@@ -220,6 +224,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
               if (errors.phone) setErrors({ ...errors, phone: '' });
             }}
             keyboardType="phone-pad"
+            disableAutofill
             error={errors.phone}
             style={styles.input}
           />
@@ -232,21 +237,14 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
               setFormData({ ...formData, password: text });
               if (errors.password) setErrors({ ...errors, password: '' });
             }}
-            secureTextEntry={!showPassword}
+            secureTextEntry
+            autoCapitalize="none"
+            autoComplete="off"
+            textContentType="none"
+            autoCorrect={false}
+            disableAutofill
             error={errors.password}
             style={styles.input}
-            rightIcon={
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.eyeIcon}
-              >
-                <MaterialIcons
-                  name={showPassword ? 'visibility' : 'visibility-off'}
-                  size={20}
-                  color={colors.text.secondary}
-                />
-              </TouchableOpacity>
-            }
           />
 
           <Input
@@ -257,21 +255,14 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
               setFormData({ ...formData, confirmPassword: text });
               if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: '' });
             }}
-            secureTextEntry={!showConfirmPassword}
+            secureTextEntry
+            autoCapitalize="none"
+            autoComplete="off"
+            textContentType="none"
+            autoCorrect={false}
+            disableAutofill
             error={errors.confirmPassword}
             style={styles.input}
-            rightIcon={
-              <TouchableOpacity
-                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                style={styles.eyeIcon}
-              >
-                <MaterialIcons
-                  name={showConfirmPassword ? 'visibility' : 'visibility-off'}
-                  size={20}
-                  color={colors.text.secondary}
-                />
-              </TouchableOpacity>
-            }
           />
 
           <Input
@@ -284,6 +275,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
             }}
             multiline
             numberOfLines={3}
+            disableAutofill
             error={errors.address}
             style={styles.input}
           />

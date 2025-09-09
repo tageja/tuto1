@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,15 +9,18 @@ import {
   ImageBackground,
   ViewStyle,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useUser } from '../contexts/UserContext';
+import { useSchool } from '../contexts/SchoolContext';
 import { colors, spacing, typography } from '../theme';
 import { LanguageToggle } from '../components/LanguageToggle';
 import { subjects } from '../data/subjects';
-import { dummyTeachers } from '../data/dummyTeachers';
+import { useAirtable } from '../hooks/useAirtable';
+import { PostCard } from '../components/feed/PostCard';
 
 const { width } = Dimensions.get('window');
 
@@ -39,8 +42,31 @@ const shadowStyle: ViewStyle = {
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { language, t } = useLanguage();
   const { userType, clearUser } = useUser();
+  const { isSchoolMode, currentSchool, joinedSchools } = useSchool();
+  const { getTeachers, getPosts, loading, error } = useAirtable();
+  
+  const [teachers, setTeachers] = useState<any[]>([]);
+  const [posts, setPosts] = useState<any[]>([]);
+  
   const popularSubjects = subjects.slice(0, 4);
-  const recommendedTeachers = dummyTeachers.slice(0, 3);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch teachers
+        const teachersData = await getTeachers({ maxRecords: 3 });
+        setTeachers(teachersData);
+        
+        // Fetch posts
+        const postsData = await getPosts({ maxRecords: 3 });
+        setPosts(postsData);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+      }
+    };
+
+    fetchData();
+  }, [getTeachers, getPosts]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -62,12 +88,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const renderQuickActions = () => {
     const actions = [];
     
-    // Common actions for all user types
+    // Common actions for all user types (always show these)
     actions.push(
       { key: 'dashboard', icon: 'dashboard', title: t('home.learningDashboard'), color: colors.primary },
+      { key: 'feed', icon: 'forum', title: t('feed.title'), color: '#9C27B0' },
       { key: 'ask', icon: 'help', title: t('home.ask'), color: '#FF6B35' },
-      { key: 'chats', icon: 'chat', title: t('home.chats'), color: '#4CAF50' },
-      { key: 'forum', icon: 'forum', title: t('home.forum'), color: '#9C27B0' }
+      { key: 'chats', icon: 'chat', title: t('home.chats'), color: '#4CAF50' }
     );
 
     // Role-specific actions
@@ -85,6 +111,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       actions.push(
         { key: 'schedule', icon: 'schedule', title: t('home.mySchedule'), color: '#FF9800' },
         { key: 'earnings', icon: 'account-balance-wallet', title: t('home.earnings'), color: '#2196F3' }
+      );
+    }
+
+    // Add School Dashboard as 7th action if user has joined schools
+    if (joinedSchools.length > 0) {
+      actions.push(
+        { key: 'schoolDashboard', icon: 'school', title: t('school.dashboard.schoolDashboard'), color: '#673AB7' }
       );
     }
 
@@ -150,6 +183,36 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           />
         </View>
 
+        {/* School Banner - Always show for all users */}
+        <View style={styles.schoolBanner}>
+          <View style={styles.schoolBannerContent}>
+            <MaterialIcons name="school" size={24} color={colors.background.primary} />
+            <Text style={styles.schoolBannerText}>
+              {joinedSchools.length === 0 
+                ? t('school.invitation.title')
+                : `You have ${joinedSchools.length} school${joinedSchools.length > 1 ? 's' : ''} joined`
+              }
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.schoolBannerButton}
+            onPress={() => {
+              if (joinedSchools.length === 0) {
+                navigation.navigate('SchoolInvitation');
+              } else {
+                navigation.navigate('SchoolSelection');
+              }
+            }}
+          >
+            <Text style={styles.schoolBannerButtonText}>
+              {joinedSchools.length === 0 
+                ? t('school.invitation.joinButton')
+                : 'Select School'
+              }
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Quick Actions */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -172,32 +235,52 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                     case 'dashboard':
                       navigation.navigate('Dashboard');
                       break;
+                    case 'feed':
+                      navigation.navigate('Feed');
+                      break;
                     case 'ask':
-                      // TODO: Navigate to Ask screen
+                      navigation.navigate('Feed');
                       break;
                     case 'chats':
-                      // TODO: Navigate to Chats screen
-                      break;
-                    case 'forum':
-                      // TODO: Navigate to Forum screen
+                      navigation.navigate('Notifications');
                       break;
                     case 'children':
-                      // TODO: Navigate to Children screen
+                      navigation.navigate('UserProfile');
                       break;
                     case 'payments':
-                      // TODO: Navigate to Payments screen
+                      navigation.navigate('Payments');
                       break;
                     case 'assignments':
-                      // TODO: Navigate to Assignments screen
+                      navigation.navigate('Homework');
                       break;
                     case 'progress':
-                      // TODO: Navigate to Progress screen
+                      navigation.navigate('Progress');
                       break;
                     case 'schedule':
                       navigation.navigate('Schedule');
                       break;
                     case 'earnings':
-                      // TODO: Navigate to Earnings screen
+                      navigation.navigate('TutoStore');
+                      break;
+                    // School actions
+                    case 'schoolDashboard':
+                      if (joinedSchools.length > 0) {
+                        // If user has joined schools, navigate to school selection
+                        navigation.navigate('SchoolSelection');
+                      } else {
+                        // If user hasn't joined any school, show alert and navigate to invitation
+                        Alert.alert(
+                          t('school.dashboard.noSchoolJoined'),
+                          t('school.dashboard.noSchoolJoinedMessage'),
+                          [
+                            { text: t('common.cancel'), style: 'cancel' },
+                            { 
+                              text: t('school.invitation.joinButton'), 
+                              onPress: () => navigation.navigate('SchoolInvitation')
+                            }
+                          ]
+                        );
+                      }
                       break;
                     default:
                       break;
@@ -243,40 +326,34 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </ScrollView>
         </View>
 
-        {/* Book Session Banner */}
-        <TouchableOpacity
-          style={styles.bookingBanner}
-          onPress={() => navigation.navigate('TeacherProfile', {
-            teacherId: recommendedTeachers[0].id,
-            teacherName: recommendedTeachers[0].name,
-            subject: recommendedTeachers[0].subjects[0],
-            imageUrl: recommendedTeachers[0].imageUrl,
-            rating: recommendedTeachers[0].rating,
-            reviews: recommendedTeachers[0].reviews,
-            experience: recommendedTeachers[0].experience,
-            hourlyRate: recommendedTeachers[0].hourlyRate,
-          })}
-        >
-          <ImageBackground
-            source={require('../../assets/images/partial-react-logo.png')}
-            style={styles.bannerBackground}
-            resizeMode="cover"
-          >
-            <View style={styles.bannerContent}>
-              <Text style={styles.bannerTitle}>
-                {t('booking.bookSession')}
+        {/* Community Feed */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>
+              {t('feed.title')}
+            </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Feed')}>
+              <Text style={styles.viewAll}>
+                {t('home.viewAll')}
               </Text>
-              <Text style={styles.bannerSubtitle}>
-                {t('home.trialDescription')}
-              </Text>
-              <View style={styles.bannerButton}>
-                <Text style={styles.bannerButtonText}>
-                  {t('home.bookTrial')}
-                </Text>
-              </View>
+            </TouchableOpacity>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.feedRow}>
+              {posts.map((post) => (
+                <View key={post.id} style={styles.feedCard}>
+                  <PostCard
+                    post={post}
+                    onLike={() => console.log('Like pressed')}
+                    onComment={() => console.log('Comment pressed')}
+                    onShare={() => console.log('Share pressed')}
+                    onSave={() => console.log('Save pressed')}
+                  />
+                </View>
+              ))}
             </View>
-          </ImageBackground>
-        </TouchableOpacity>
+          </ScrollView>
+        </View>
 
         {/* Recommended Teachers */}
         <View style={styles.section}>
@@ -284,48 +361,58 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             <Text style={styles.sectionTitle}>
               {t('home.recommendedTeachers')}
             </Text>
-          </View>
-          {recommendedTeachers.map((teacher) => (
-            <TouchableOpacity
-              key={teacher.id}
-              style={[styles.teacherCard, shadowStyle]}
-              onPress={() => navigation.navigate('TeacherProfile', {
-                teacherId: teacher.id,
-                teacherName: teacher.name,
-                subject: teacher.subjects[0],
-                imageUrl: teacher.imageUrl,
-                rating: teacher.rating,
-                reviews: teacher.reviews,
-                experience: teacher.experience,
-                hourlyRate: teacher.hourlyRate,
-              })}
-            >
-              <Image
-                source={require('../../assets/images/default-teacher.png.png')}
-                style={styles.teacherImage}
-              />
-              <View style={styles.teacherInfo}>
-                <Text style={styles.teacherName}>{teacher.name}</Text>
-                <Text style={styles.teacherSubjects}>
-                  {teacher.subjects.map(subject => {
-                    const subjectData = subjects.find(s => s.key === subject);
-                    return language === 'en' ? subjectData?.nameEn : subjectData?.nameVi;
-                  }).join(' • ')}
-                </Text>
-                <View style={styles.ratingContainer}>
-                  <MaterialIcons name="star" size={16} color={colors.rating.filled} />
-                  <Text style={styles.rating}>{teacher.rating.toFixed(1)}</Text>
-                  <Text style={styles.reviews}>
-                    ({teacher.reviews} {t('common.reviews')})
-                  </Text>
-                </View>
-                <Text style={styles.price}>
-                  {formatCurrency(teacher.hourlyRate)}/{t('common.perHour')}
-                </Text>
-              </View>
+            <TouchableOpacity onPress={() => navigation.navigate('AllSubjects')}>
+              <Text style={styles.viewAll}>
+                {t('home.viewAll')}
+              </Text>
             </TouchableOpacity>
-          ))}
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.teachersRow}>
+              {teachers.map((teacher) => (
+                <TouchableOpacity
+                  key={teacher.id}
+                  style={[styles.teacherCardHorizontal, shadowStyle]}
+                  onPress={() => navigation.navigate('TeacherProfile', {
+                    teacherId: teacher.id,
+                    teacherName: teacher.name,
+                    subject: teacher.subjects[0] || 'math',
+                    imageUrl: teacher.avatar,
+                    rating: teacher.rating,
+                    reviews: teacher.reviewCount,
+                    experience: teacher.experience,
+                    hourlyRate: teacher.hourlyRate,
+                  })}
+                >
+                  <Image
+                    source={require('../../assets/images/default-teacher.png.png')}
+                    style={styles.teacherImageHorizontal}
+                  />
+                  <View style={styles.teacherInfoHorizontal}>
+                    <Text style={styles.teacherNameHorizontal}>{teacher.name}</Text>
+                    <Text style={styles.teacherSubjectsHorizontal}>
+                      {teacher.subjects.map((subject: string) => {
+                        const subjectData = subjects.find(s => s.key === subject);
+                        return language === 'en' ? subjectData?.nameEn : subjectData?.nameVi;
+                      }).join(' • ')}
+                    </Text>
+                    <View style={styles.ratingContainerHorizontal}>
+                      <MaterialIcons name="star" size={16} color={colors.rating.filled} />
+                      <Text style={styles.ratingHorizontal}>{teacher.rating.toFixed(1)}</Text>
+                      <Text style={styles.reviewsHorizontal}>
+                        ({teacher.reviews} {t('common.reviews')})
+                      </Text>
+                    </View>
+                    <Text style={styles.priceHorizontal}>
+                      {formatCurrency(teacher.hourlyRate)}/{t('common.perHour')}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
         </View>
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -415,6 +502,68 @@ const styles = StyleSheet.create({
   subjectsRow: {
     flexDirection: 'row',
     paddingHorizontal: spacing.lg,
+  },
+  feedRow: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.lg,
+  },
+  feedCard: {
+    width: 300,
+    marginRight: spacing.md,
+  },
+  teachersRow: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.lg,
+  },
+  teacherCardHorizontal: {
+    backgroundColor: colors.background.primary,
+    borderRadius: 12,
+    padding: spacing.md,
+    marginRight: spacing.md,
+    width: 280,
+    borderWidth: 1,
+    borderColor: colors.border.light,
+    ...shadowStyle,
+  },
+  teacherImageHorizontal: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginBottom: spacing.sm,
+  },
+  teacherInfoHorizontal: {
+    flex: 1,
+  },
+  teacherNameHorizontal: {
+    fontSize: typography.fontSize.md,
+    fontFamily: typography.fontFamily.semiBold,
+    color: colors.text.primary,
+    marginBottom: spacing.xs,
+  },
+  teacherSubjectsHorizontal: {
+    fontSize: typography.fontSize.sm,
+    color: colors.text.secondary,
+    marginBottom: spacing.xs,
+  },
+  ratingContainerHorizontal: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
+  },
+  ratingHorizontal: {
+    marginLeft: spacing.xs,
+    fontSize: typography.fontSize.sm,
+    color: colors.text.primary,
+  },
+  reviewsHorizontal: {
+    marginLeft: spacing.xs,
+    fontSize: typography.fontSize.sm,
+    color: colors.text.secondary,
+  },
+  priceHorizontal: {
+    fontSize: typography.fontSize.md,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.primary,
   },
   subjectCard: {
     alignItems: 'center',
@@ -563,9 +712,41 @@ const styles = StyleSheet.create({
     borderColor: colors.background.primary,
   },
   notificationBadgeText: {
-    color: colors.background.primary,
-    fontSize: 10,
+    fontSize: typography.fontSize.xs,
     fontFamily: typography.fontFamily.bold,
-    fontWeight: 'bold',
+    color: colors.background.primary,
+  },
+  schoolBanner: {
+    backgroundColor: colors.primary,
+    marginHorizontal: spacing.lg,
+    marginVertical: spacing.md,
+    borderRadius: 12,
+    padding: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    ...shadowStyle,
+  },
+  schoolBannerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  schoolBannerText: {
+    color: colors.background.primary,
+    fontSize: typography.fontSize.md,
+    fontFamily: typography.fontFamily.medium,
+    marginLeft: spacing.sm,
+  },
+  schoolBannerButton: {
+    backgroundColor: colors.background.primary,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 8,
+  },
+  schoolBannerButtonText: {
+    color: colors.primary,
+    fontSize: typography.fontSize.sm,
+    fontFamily: typography.fontFamily.semiBold,
   },
 });

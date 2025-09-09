@@ -38,10 +38,10 @@ interface UserData {
   // Student specific
   age?: number;
   grade?: string;
-  subjects?: string[];
+  studentSubjects?: string[];
   learningPreferences?: string[];
   // Teacher specific
-  subjects?: string[];
+  teacherSubjects?: string[];
   experience?: number;
   hourlyRate?: number;
   qualifications?: string[];
@@ -79,7 +79,7 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ navigation
           address: '123 Đường ABC, Quận 1, TP.HCM',
           age: 15,
           grade: 'Lớp 10',
-          subjects: ['math', 'english', 'physics'],
+          studentSubjects: ['math', 'english', 'physics'],
           learningPreferences: ['Visual', 'Interactive', 'Group Study'],
         };
       case 'teacher':
@@ -90,7 +90,7 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ navigation
           email: 'teacher@admin.com',
           phone: '+84 912 345 680',
           address: '456 Đường XYZ, Quận 2, TP.HCM',
-          subjects: ['english', 'literature'],
+          teacherSubjects: ['english', 'literature'],
           experience: 7,
           hourlyRate: 700000,
           qualifications: ['TESOL Certificate', 'BA in English Literature'],
@@ -159,7 +159,7 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ navigation
           <TextInput
             style={styles.textInput}
             value={editedData.email}
-            onChangeText={(text) => setEditedData({...editedData, email: text})}
+            onChangeText={(text) => setEditedData({...editedData, email: text.toLowerCase()})}
             placeholder={t('profile.emailPlaceholder')}
             keyboardType="email-address"
           />
@@ -262,7 +262,7 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ navigation
       <View style={styles.fieldContainer}>
         <Text style={styles.fieldLabel}>{t('profile.subjects')}</Text>
         <Text style={styles.fieldValue}>
-          {userData.subjects?.join(', ')}
+          {userData.studentSubjects?.join(', ')}
         </Text>
       </View>
 
@@ -296,7 +296,7 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ navigation
       <View style={styles.fieldContainer}>
         <Text style={styles.fieldLabel}>{t('profile.subjects')}</Text>
         <Text style={styles.fieldValue}>
-          {userData.subjects?.join(', ')}
+          {userData.teacherSubjects?.join(', ')}
         </Text>
       </View>
 

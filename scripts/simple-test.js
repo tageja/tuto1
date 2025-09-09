@@ -1,47 +1,55 @@
-const Airtable = require('airtable');
+import 'dotenv/config';
+import fetch from 'node-fetch';
 
-// Load environment variables
-require('dotenv').config();
-
-const AIRTABLE_API_KEY = process.env.EXPO_PUBLIC_AIRTABLE_API_KEY;
-const AIRTABLE_BASE_ID = process.env.EXPO_PUBLIC_AIRTABLE_BASE_ID;
+const API_KEY = process.env.AIRTABLE_API_KEY
+             || process.env.EXPO_PUBLIC_AIRTABLE_API_KEY;
+const BASE_ID = process.env.AIRTABLE_BASE_ID
+             || process.env.EXPO_PUBLIC_AIRTABLE_BASE_ID;
 
 console.log('🧪 Simple Airtable Test');
 console.log('=======================\n');
 
 console.log('📋 Credentials:');
-console.log(`   API Key: ${AIRTABLE_API_KEY.substring(0, 20)}...`);
-console.log(`   Base ID: ${AIRTABLE_BASE_ID}\n`);
-
-// Initialize Airtable
-const base = new Airtable({ apiKey: AIRTABLE_API_KEY }).base(AIRTABLE_BASE_ID);
+console.log(`   API Key: ${API_KEY.substring(0, 20)}...`);
+console.log(`   Base ID: ${BASE_ID}\n`);
 
 async function simpleTest() {
   try {
     console.log('🔍 Testing basic read access...');
     
-    // Try to read from the default table (usually "Table 1")
-    const records = await base('Table 1').select({
-      maxRecords: 1
-    }).firstPage();
+    // Try to read from the TutoTeachers table
+    const url = `https://api.airtable.com/v0/${BASE_ID}/TutoTeachers`;
     
-    console.log('✅ Success! Can read from base.');
-    console.log(`📊 Found ${records.length} records`);
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    console.log(`🛑 Status: ${response.status} ${response.statusText}`);
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('✅ Success! Can read from TutoTeachers table.');
+      console.log(`📊 Found ${data.records.length} records`);
+      
+      if (data.records.length > 0) {
+        console.log('\n📋 Sample record:');
+        console.log(JSON.stringify(data.records[0], null, 2));
+      }
+      
+    } else {
+      console.log('❌ Error reading from table');
+      
+      // Show response body for debugging
+      const text = await response.text();
+      console.log('📄 Response Body:', text);
+    }
     
   } catch (error) {
-    console.log('❌ Error:', error.message);
-    
-    if (error.message.includes('Table not found')) {
-      console.log('\n💡 The base exists but has no tables yet.');
-      console.log('This is normal for a new base.');
-      console.log('✅ Your connection is working!');
-    } else if (error.message.includes('You are not authorized')) {
-      console.log('\n🔧 Authorization issue detected.');
-      console.log('Possible solutions:');
-      console.log('1. Check if you created the base with the same account');
-      console.log('2. Verify the API key is from the same account');
-      console.log('3. Try creating a new API key');
-    }
+    console.log('❌ Error testing read access:', error.message);
   }
 }
 

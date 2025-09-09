@@ -13,17 +13,33 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tuto.app",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "We need access to your photo library to let you attach images to posts.",
+        "NSCameraUsageDescription": "We need access to your camera to let you capture photos and videos for posts.",
+        "PHPhotoLibraryPreventAutomaticLimitedAccessAlert": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "softwareKeyboardLayoutMode": "resize",
+      "package": "com.tuto.app",
+      "permissions": [
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.CAMERA"
+      ]
     },
+    "scheme": "tuto",
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-image-picker"
+    ]
   }
 }

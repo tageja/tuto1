@@ -1,0 +1,84 @@
+Project: Tuto – Social Media Feed Feature
+
+Objective:
+Introduce a community-driven educational feed for parents, students, and teachers to share achievements, learning tips, and bite-sized educational content. The feature should drive engagement, increase daily app usage, and strengthen user connection to learning outcomes.
+
+Users:
+- Parents can post milestones or browse tips and ideas.
+- Students (age 9–15) can share academic work and encourage peers.
+- Teachers can share micro-lessons, answer questions, and post class updates.
+
+Core Features:
+
+1. Feed Views:
+   - Following feed: Posts by users you're connected to.
+   - Discover feed: Trending posts across subjects and centers.
+   - Filters: Subject, role (Parent/Student/Teacher), search.
+
+2. Post Types:
+   - Text (with subject tags)
+   - Image carousel (e.g. homework photos)
+   - Short video (max 60s)
+   - Polls (one question, 4 options)
+   - Resource links (PDFs, external articles)
+
+3. Post Interactions:
+   - Like, comment, share, save.
+   - Educational emoji reactions (e.g., 🌟, 📚).
+   - Nested comments for Q&A.
+
+4. Post Creation Flow:
+   - Floating “+” button on feed.
+   - Modal to add post: select media, add text, tag subject.
+   - Subject suggestions auto-filled via i18n (🇻🇳/🇬🇧).
+   - Optional: set post privacy (public, center-only, network-only).
+
+5. Gamification:
+   - XP tokens awarded for posting, commenting.
+   - Badges: “First Post”, “Top Math Contributor”, etc.
+   - Tuto leaderboard by subject or center.
+
+6. Notifications:
+   - “X commented on your post”
+   - “New post in #math”
+   - Daily digest: “Top 5 posts in your subjects”
+
+7. Moderation & Safety:
+   - AI-based inappropriate content filtering.
+   - Flag/report buttons on each post/comment.
+   - Parental approval flow for underage student posting.
+   - Admin moderation dashboard (Phase 2).
+
+Backend Notes:
+- New "Posts" collection/table (fields: authorID, role, mediaURL, content, tags, type, privacy, timestamp).
+- Store media in Cloudinary/S3.
+- APIs:
+   - GET /feed?filter=...
+   - POST /feed/create
+   - POST /feed/interaction (like/comment)
+   - GET /feed/:id/comments
+
+Frontend Notes:
+- Create FeedScreen in tabs navigation.
+- Use components:
+   - <PostCard />
+   - <CreatePostModal />
+   - <ReactionBar />
+   - <CommentSection />
+- Integrate with existing theme.ts and i18n system.
+- Infinite scroll and local cache for performance.
+- Role badge and avatar UI should match existing design.
+
+Task Guidelines:
+- Break into isolated features (Feed UI, Post Create Modal, Interactions, Filtering).
+- Do not modify global layout or shared components unless scoped.
+- Keep logic modular – separate <FeedHeader />, <PostCard />, etc.
+- Use TypeScript and folder conventions under src/screens/ and src/components/.
+- Write logic for role-based post display (e.g. only teachers, only classmates).
+- Store XP tokens using the same reward system logic from the Dashboard/XP tracker.
+
+Roadmap:
+Phase 1 (MVP): Text + image posts, like/comment/save, role filters, post modal.
+Phase 2: Short video, polls, reactions, badge display, moderation filters.
+Phase 3: Group posts, live Q&A, stories, algorithmic feed.
+

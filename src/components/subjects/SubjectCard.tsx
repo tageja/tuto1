@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Subject } from '../../data/subjects';
 import { colors, spacing, borderRadius, typography } from '../../theme';
@@ -64,13 +65,10 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
       activeOpacity={0.7}
     >
       <View style={styles.iconContainer}>
-        <Image
-          source={subject.icon}
-          style={[
-            styles.icon,
-            { width: getIconSize(), height: getIconSize() },
-          ]}
-          resizeMode="contain"
+        <MaterialIcons
+          name={subject.icon}
+          size={getIconSize()}
+          color={colors.text.primary}
         />
       </View>
       
@@ -149,9 +147,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  icon: {
-    tintColor: colors.text.primary,
   },
   defaultText: {
     fontSize: typography.fontSize.sm,

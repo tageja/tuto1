@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -7,11 +7,13 @@ import {
   TouchableOpacity,
   Image,
   ViewStyle,
+  TextInput,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
 import { colors, spacing, typography } from '../theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 import { subjects, Subject } from '../data/subjects';
 
 interface AllSubjectsScreenProps {
@@ -20,10 +22,17 @@ interface AllSubjectsScreenProps {
 
 export const AllSubjectsScreen: React.FC<AllSubjectsScreenProps> = ({ navigation }) => {
   const { language } = useLanguage();
+  const [query, setQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<'all' | 'academic' | 'extracurricular'>('all');
 
-  // Group subjects by category
-  const academicSubjects = subjects.filter(subject => subject.category === 'academic');
-  const extracurricularSubjects = subjects.filter(subject => subject.category === 'extracurricular');
+  const academicSubjects = useMemo(() => subjects.filter(subject => subject.category === 'academic'), []);
+  const extracurricularSubjects = useMemo(() => subjects.filter(subject => subject.category === 'extracurricular'), []);
+  const filtered = useMemo(() => {
+    const list = activeTab === 'academic' ? academicSubjects : activeTab === 'extracurricular' ? extracurricularSubjects : subjects;
+    const q = query.trim().toLowerCase();
+    if (!q) return list;
+    return list.filter(s => (language === 'en' ? s.nameEn : s.nameVi).toLowerCase().includes(q));
+  }, [activeTab, query, language]);
 
   const SubjectPill = ({ subject }: { subject: Subject }) => (
     <TouchableOpacity
@@ -39,6 +48,7 @@ export const AllSubjectsScreen: React.FC<AllSubjectsScreenProps> = ({ navigation
 
   return (
     <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
@@ -54,11 +64,29 @@ export const AllSubjectsScreen: React.FC<AllSubjectsScreenProps> = ({ navigation
         />
       </View>
 
-      {/* Title */}
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>
-          {language === 'en' ? 'Find Your Perfect Tutor' : 'Tìm Gia Sư Phù Hợp'}
-        </Text>
+      {/* Search & Tabs */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchBar}>
+          <MaterialIcons name="search" size={20} color={colors.text.secondary} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder={language === 'en' ? 'Search subjects...' : 'Tìm kiếm môn học...'}
+            placeholderTextColor={colors.text.secondary}
+            value={query}
+            onChangeText={setQuery}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+        </View>
+        <View style={styles.tabs}>
+          {(['all','academic','extracurricular'] as const).map((tab) => (
+            <TouchableOpacity key={tab} style={[styles.tab, activeTab === tab && styles.tabActive]} onPress={() => setActiveTab(tab)}>
+              <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>
+                {tab === 'all' ? (language === 'en' ? 'All' : 'Tất cả') : language === 'en' ? (tab === 'academic' ? 'Academic' : 'Extracurricular') : (tab === 'academic' ? 'Học thuật' : 'Ngoại khóa')}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
       {/* Content */}
@@ -66,31 +94,23 @@ export const AllSubjectsScreen: React.FC<AllSubjectsScreenProps> = ({ navigation
         style={styles.content}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
-        {/* Academic Subjects */}
+        {/* Grid */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            {language === 'en' ? 'Academic Subjects' : 'Môn Học Chính'}
+            {language === 'en' ? 'Browse Subjects' : 'Khám Phá Môn Học'}
           </Text>
           <View style={styles.pillGrid}>
-            {academicSubjects.map((subject) => (
-              <SubjectPill key={subject.key} subject={subject} />
-            ))}
-          </View>
-        </View>
-
-        {/* Extracurricular Activities */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            {language === 'en' ? 'Extracurricular Activities' : 'Hoạt Động Ngoại Khóa'}
-          </Text>
-          <View style={styles.pillGrid}>
-            {extracurricularSubjects.map((subject) => (
-              <SubjectPill key={subject.key} subject={subject} />
+            {filtered.map((subject) => (
+              <View key={subject.key} style={styles.pillWrapper}>
+                <SubjectPill subject={subject} />
+              </View>
             ))}
           </View>
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -145,6 +165,58 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: spacing.lg,
   },
+  searchContainer: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.sm,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.background.secondary,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border.light,
+  },
+  searchPlaceholder: {
+    marginLeft: spacing.sm,
+    color: colors.text.secondary,
+    fontSize: typography.fontSize.md,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: spacing.sm,
+    color: colors.text.primary,
+    fontSize: typography.fontSize.md,
+    paddingVertical: 0,
+  },
+  tabs: {
+    flexDirection: 'row',
+    marginTop: spacing.sm,
+    gap: spacing.sm,
+  },
+  tab: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.border.light,
+    backgroundColor: colors.background.primary,
+  },
+  tabActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  tabText: {
+    fontSize: typography.fontSize.sm,
+    color: colors.text.secondary,
+    fontFamily: typography.fontFamily.medium,
+  },
+  tabTextActive: {
+    color: colors.background.primary,
+  },
   section: {
     marginBottom: spacing.xl,
   },
@@ -157,7 +229,12 @@ const styles = StyleSheet.create({
   pillGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.md,
+    marginHorizontal: -spacing.sm,
+  },
+  pillWrapper: {
+    width: '50%',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
   },
   subjectPill: {
     flexDirection: 'row',
@@ -166,7 +243,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: 12,
-    width: '48%',
+    minHeight: 48,
   },
   subjectText: {
     color: colors.background.primary,
@@ -174,5 +251,6 @@ const styles = StyleSheet.create({
     fontFamily: typography.fontFamily.medium,
     marginLeft: spacing.xs,
     flex: 1,
+    flexShrink: 1,
   },
 });

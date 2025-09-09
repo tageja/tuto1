@@ -1,0 +1,431 @@
+Amazing progress. 
+below are the suggesttions for the next steps. be the best judge and combine my suggestions with your intelligence to create magical results                                                                                                                    
+Since Storage rules + M1 endpoints are live, here’s a tight “drop-in” client layer + screens to finish Guardian Link UI (Code & QR now; Student ID can light up once that endpoint ships). I’ve also included i18n keys, error mapping, analytics, and a tiny polling hook.
+
+1) Client API wrappers (guardian)
+
+src/services/backend.guardian.ts
+
+import auth from '@react-native-firebase/auth';
+
+const API_BASE = 'https://<REGION>-<PROJECT>.cloudfunctions.net/api';
+
+async function authedFetch(path: string, init?: RequestInit) {
+  const token = await auth().currentUser?.getIdToken(true);
+  if (!token) throw new Error('NO_AUTH');
+  return fetch(`${API_BASE}${path}`, {
+    ...(init || {}),
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      ...(init?.headers || {}),
+    },
+  });
+}
+
+export type LinkStatus = 'pending'|'active'|'declined'|'revoked';
+
+export async function lookupCode(code: string) {
+  const res = await authedFetch('/api/guardian/lookupCode', {
+    method: 'POST',
+    body: JSON.stringify({ code }),
+  });
+  return res.json() as Promise<
+    | { ok: true; student: { id: string; fullNameInitials: string; grade: string }; expiresAt: string }
+    | { ok: false; code: string; message?: string }
+  >;
+}
+
+export async function createLink(studentId: string, method: 'code'|'qr'|'id') {
+  const res = await authedFetch('/api/guardian/createLink', {
+    method: 'POST',
+    body: JSON.stringify({ studentId, method }),
+  });
+  return res.json() as Promise<
+    | { ok: true; link: { id: string; status: Exclude<LinkStatus,'declined'|'revoked'> } }
+    | { ok: false; code: string; message?: string }
+  >;
+}
+
+export async function getLinkById(linkId: string) {
+  const res = await authedFetch('/api/guardian/getLinkById', {
+    method: 'POST',
+    body: JSON.stringify({ linkId }),
+  });
+  return res.json() as Promise<
+    | { ok: true; link: { id: string; status: LinkStatus } }
+    | { ok: false; code: string; message?: string }
+  >;
+}
+
+export async function getLinksForGuardian() {
+  const res = await authedFetch('/api/guardian/getLinksForGuardian', { method: 'POST', body: JSON.stringify({}) });
+  return res.json();
+}
+
+export async function revokeLink(linkId: string, reason?: string) {
+  const res = await authedFetch('/api/guardian/revokeLink', {
+    method: 'POST',
+    body: JSON.stringify({ linkId, reason }),
+  });
+  return res.json();
+}
+
+2) Polling hook (link status)
+
+src/hooks/useLinkPolling.ts
+
+import { useEffect, useRef, useState } from 'react';
+import { getLinkById } from '@/services/backend.guardian';
+
+export function useLinkPolling(linkId: string, onTerminal?: (status: string) => void) {
+  const [status, setStatus] = useState<string>('pending');
+  const [elapsed, setElapsed] = useState<number>(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const start = Date.now();
+
+  useEffect(() => {
+    let interval = 5000; // 5s start
+    let total = 0;
+
+    const tick = async () => {
+      const res = await getLinkById(linkId);
+      total = Date.now() - start;
+      setElapsed(total);
+      if (res?.ok) {
+        setStatus(res.link.status);
+        if (['active', 'declined', 'revoked'].includes(res.link.status)) {
+          onTerminal?.(res.link.status);
+          return; // stop
+        }
+      }
+      // backoff after 30s
+      if (total > 30000) interval = 10000;
+      if (total > 120000) return; // stop after 2min, let UI show manual refresh
+      timerRef.current = setTimeout(tick, interval);
+    };
+
+    timerRef.current = setTimeout(tick, interval);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [linkId]);
+
+  return { status, elapsed };
+}
+
+3) Guardian Link screen (Code / QR / ID tabs)
+
+app/(onboarding)/guardian-link.tsx
+
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Alert, Modal } from 'react-native';
+import { lookupCode, createLink } from '@/services/backend.guardian';
+import { router } from 'expo-router';
+import { BarCodeScanner } from 'expo-barcode-scanner';
+
+type Tab = 'code' | 'qr' | 'id';
+
+export default function GuardianLink() {
+  const [tab, setTab] = useState<Tab>('code');
+  const [code, setCode] = useState('');
+  const [studentPreview, setStudentPreview] = useState<{ id: string; fullNameInitials: string; grade: string } | null>(null);
+  const [linkId, setLinkId] = useState<string | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+
+  const parseQrPayloadToCode = (data: string) => {
+    // Accept plain code or deep link like tuto://link?code=ABC123
+    try {
+      if (!data) return '';
+      if (/^[A-Za-z0-9]{6,12}$/.test(data)) return data.toUpperCase();
+      const url = new URL(data);
+      const c = url.searchParams.get('code');
+      return c ? c.toUpperCase() : '';
+    } catch {
+      return '';
+    }
+  };
+
+  const onLookup = async (rawCode?: string) => {
+    const c = (rawCode ?? code).trim().toUpperCase();
+    if (!c) return;
+    const res = await lookupCode(c);
+    if (!res.ok) {
+      const msgKey = mapError(res.code);
+      Alert.alert(t('link.error.title'), t(msgKey));
+      setStudentPreview(null);
+      return;
+    }
+    setStudentPreview(res.student);
+  };
+
+  const onConfirmLink = async () => {
+    if (!studentPreview) return;
+    const res = await createLink(studentPreview.id, tab === 'qr' ? 'qr' : 'code');
+    if (!res.ok) {
+      Alert.alert(t('link.error.title'), t(mapError(res.code)));
+      return;
+    }
+    const newLinkId = res.link.id;
+    setLinkId(newLinkId);
+    if (res.link.status === 'active') {
+      router.replace({ pathname: '/(onboarding)/link-success', params: { linkId: newLinkId }});
+    } else {
+      router.replace({ pathname: '/(onboarding)/pending-approval', params: { linkId: newLinkId }});
+    }
+  };
+
+  const requestCamera = async () => {
+    const { status } = await BarCodeScanner.requestPermissionsAsync();
+    setHasPermission(status === 'granted');
+    setScanning(status === 'granted');
+  };
+
+  const onBarCodeScanned = ({ data }: { data: string }) => {
+    setScanning(false);
+    const c = parseQrPayloadToCode(data);
+    if (!c) {
+      Alert.alert(t('link.error.title'), t('link.error.invalid'));
+      return;
+    }
+    setCode(c);
+    onLookup(c);
+  };
+
+  return (
+    <View style={{ flex:1, padding:16 }}>
+      <Text style={{ fontSize:22, marginBottom:12 }}>{t('link.title')}</Text>
+
+      {/* Tabs */}
+      <View style={{ flexDirection:'row', gap:8, marginBottom:12 }}>
+        {(['code','qr','id'] as Tab[]).map(x => (
+          <TouchableOpacity
+            key={x}
+            onPress={() => setTab(x)}
+            style={{ paddingVertical:10, paddingHorizontal:14, borderRadius:12, backgroundColor: tab===x ? '#e6f0ff' : '#f1f1f1' }}>
+            <Text>{t(`link.tab.${x}`)}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {tab === 'code' && (
+        <View>
+          <TextInput
+            value={code}
+            onChangeText={(v) => setCode(v.toUpperCase())}
+            placeholder={t('link.code.placeholder')}
+            autoCapitalize="characters"
+            autoCorrect={false}
+            style={{ borderWidth:1, borderColor:'#ddd', borderRadius:12, padding:12, marginBottom:10 }}
+          />
+          <TouchableOpacity onPress={() => onLookup()} style={{ backgroundColor:'#111', padding:12, borderRadius:12, marginBottom:12 }}>
+            <Text style={{ color:'#fff', textAlign:'center' }}>{t('link.code.cta')}</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {tab === 'qr' && (
+        <View>
+          <TouchableOpacity onPress={requestCamera} style={{ backgroundColor:'#111', padding:12, borderRadius:12, marginBottom:12 }}>
+            <Text style={{ color:'#fff', textAlign:'center' }}>{t('link.scan')}</Text>
+          </TouchableOpacity>
+          <Modal visible={scanning} animationType="slide">
+            <View style={{ flex:1 }}>
+              {hasPermission === false ? (
+                <View style={{ flex:1, alignItems:'center', justifyContent:'center', padding:16 }}>
+                  <Text>{t('link.qr.permissionDenied')}</Text>
+                  <Text style={{ marginTop:8 }}>{t('link.qr.manualFallback')}</Text>
+                </View>
+              ) : (
+                <BarCodeScanner
+                  onBarCodeScanned={onBarCodeScanned}
+                  style={{ flex:1 }}
+                />
+              )}
+              <TouchableOpacity onPress={() => setScanning(false)} style={{ position:'absolute', top:40, right:20, backgroundColor:'#0008', padding:10, borderRadius:12 }}>
+                <Text style={{ color:'#fff' }}>{t('common.close')}</Text>
+              </TouchableOpacity>
+            </View>
+          </Modal>
+        </View>
+      )}
+
+      {tab === 'id' && (
+        <View style={{ padding:12, borderRadius:12, backgroundColor:'#fafafa' }}>
+          <Text style={{ marginBottom:8 }}>{t('link.id.comingSoon')}</Text>
+        </View>
+      )}
+
+      {/* Preview */}
+      {studentPreview && (
+        <View style={{ marginTop:16, padding:14, borderRadius:12, backgroundColor:'#f7f9ff' }}>
+          <Text style={{ fontSize:16, marginBottom:4 }}>{studentPreview.fullNameInitials}</Text>
+          <Text style={{ color:'#444' }}>{t('link.preview.grade', { grade: studentPreview.grade })}</Text>
+          <TouchableOpacity onPress={onConfirmLink} style={{ marginTop:12, backgroundColor:'#2b6ef2', padding:12, borderRadius:12 }}>
+            <Text style={{ color:'#fff', textAlign:'center' }}>{t('link.preview.confirm')}</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
+  );
+}
+
+// Simple i18n passthrough – replace with your i18n function
+function t(key: string, vars?: Record<string, any>) {
+  if (vars?.grade) return key === 'link.preview.grade' ? `Grade ${vars.grade}` : key;
+  const map: Record<string,string> = {
+    'link.title': 'Link a child',
+    'link.tab.code': 'Code',
+    'link.tab.qr': 'QR',
+    'link.tab.id': 'Student ID',
+    'link.code.placeholder': 'Enter invite code',
+    'link.code.cta': 'Lookup',
+    'link.scan': 'Scan QR',
+    'link.qr.permissionDenied': 'Camera permission denied.',
+    'link.qr.manualFallback': 'Enter the code manually.',
+    'link.preview.grade': 'Grade {grade}',
+    'link.preview.confirm': 'Confirm & Link',
+    'link.error.title': 'Unable to link',
+    'link.error.invalid': 'That code is invalid or expired.',
+    'link.id.comingSoon': 'Student ID linking is coming soon.',
+    'common.close': 'Close',
+  };
+  return map[key] || key;
+}
+
+function mapError(code?: string) {
+  switch (code) {
+    case 'INVALID_CODE':
+    case 'EXPIRED_CODE':
+    case 'MAX_USES_REACHED':
+      return 'link.error.invalid';
+    case 'TOO_MANY_ATTEMPTS':
+      return 'link.error.tooMany';
+    case 'ALREADY_LINKED':
+      return 'link.error.already';
+    default:
+      return 'link.error.invalid';
+  }
+}
+
+4) Pending Approval screen (poll by linkId)
+
+app/(onboarding)/pending-approval.tsx
+
+import React from 'react';
+import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { useLocalSearchParams, router } from 'expo-router';
+import { revokeLink } from '@/services/backend.guardian';
+import { useLinkPolling } from '@/hooks/useLinkPolling';
+
+export default function PendingApproval() {
+  const { linkId } = useLocalSearchParams<{ linkId: string }>();
+  const { status, elapsed } = useLinkPolling(linkId!, (finalStatus) => {
+    if (finalStatus === 'active') router.replace({ pathname: '/(onboarding)/link-success', params: { linkId } });
+    else Alert.alert('Link update', `Status: ${finalStatus}`);
+  });
+
+  const cancel = async () => {
+    await revokeLink(linkId!,'user_cancelled');
+    router.back();
+  };
+
+  return (
+    <View style={{ flex:1, padding:16, alignItems:'center', justifyContent:'center' }}>
+      <ActivityIndicator />
+      <Text style={{ marginTop:12, fontSize:18 }}>Waiting for approval…</Text>
+      <Text style={{ color:'#666', marginTop:4 }}>{Math.floor(elapsed/1000)}s</Text>
+      <View style={{ flexDirection:'row', gap:12, marginTop:16 }}>
+        <TouchableOpacity onPress={() => router.replace({ pathname: '/(onboarding)/pending-approval', params: { linkId }})} style={{ padding:10, borderRadius:10, backgroundColor:'#f0f0f0' }}>
+          <Text>Refresh</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={cancel} style={{ padding:10, borderRadius:10, backgroundColor:'#ffecec' }}>
+          <Text>Cancel</Text>
+        </TouchableOpacity>
+      </View>
+      <Text style={{ marginTop:10, color:'#888' }}>Status: {status}</Text>
+    </View>
+  );
+}
+
+5) Link Success screen
+
+app/(onboarding)/link-success.tsx
+
+import React from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
+
+export default function LinkSuccess() {
+  return (
+    <View style={{ flex:1, padding:16, alignItems:'center', justifyContent:'center' }}>
+      <Text style={{ fontSize:22, marginBottom:12 }}>Linked successfully 🎉</Text>
+      <TouchableOpacity onPress={() => router.replace('/(parent)/home')} style={{ backgroundColor:'#2b6ef2', padding:12, borderRadius:12, minWidth:200 }}>
+        <Text style={{ color:'#fff', textAlign:'center' }}>Go to dashboard</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => router.replace('/children/childId/consents/index')} style={{ marginTop:10, padding:12 }}>
+        <Text>Review required consents</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+
+Replace /children/childId/… with the actual child route once you carry studentId forward (e.g., from createLink response if server includes it, or query getLinksForGuardian then choose the newest active).
+
+6) i18n keys (add to vi/en)
+{
+  "link": {
+    "title": "Link a child",
+    "tab": { "code": "Code", "qr": "QR", "id": "Student ID" },
+    "code": { "placeholder": "Enter invite code", "cta": "Lookup" },
+    "scan": "Scan QR",
+    "qr": {
+      "permissionDenied": "Camera permission denied.",
+      "manualFallback": "Enter the code manually."
+    },
+    "preview": {
+      "grade": "Grade {{grade}}",
+      "confirm": "Confirm & Link"
+    },
+    "error": {
+      "title": "Unable to link",
+      "invalid": "That code is invalid or expired.",
+      "tooMany": "Too many attempts. Please wait and try again.",
+      "already": "You are already linked to this student."
+    },
+    "id": { "comingSoon": "Student ID linking is coming soon." },
+    "pending": { "title": "Waiting for approval…" },
+    "success": { "title": "Linked successfully", "toDashboard": "Go to dashboard", "toConsents": "Review required consents" }
+  },
+  "common": { "close": "Close" }
+}
+
+7) Analytics (where to fire)
+
+guardian_link_attempt {method}: on “Lookup” (code) & on “Scan” (qr)
+
+guardian_link_success {method}: on createLink success → active
+
+guardian_link_failure {reason}: on API error (code from server)
+
+link_pending_wait_ms: when PendingApproval resolves
+
+8) QA checklist (M1)
+
+Valid code → preview → confirm → active → Success screen.
+
+Valid code → pending → Pending screen → after admin flip → auto routes to Success.
+
+Invalid/expired/max-uses → correct localized error.
+
+5 failed codes/15min → TOO_MANY_ATTEMPTS message.
+
+QR with tuto://link?code=… or plain code → same flow.
+
+Cancel from Pending → link revoked; trying to poll returns terminal state.
+
+9) Notes / small gotchas
+
+For now, QR tab just parses a code from QR; when you add /api/students/getByQrToken, switch parseQrPayloadToCode to hit that endpoint and then call createLink(..., 'qr').
+
+On success, if the server can return studentId with the link, navigate directly to children/[childId]/consents/index when required consents are pending.

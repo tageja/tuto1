@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ViewStyle } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
 import { colors, spacing, typography } from '../theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Subject, getSubjectsByCategory } from '../data/subjects';
+import { useAirtable } from '../hooks/useAirtable';
 
 interface SubjectsScreenProps {
   navigation: any;
@@ -23,16 +23,33 @@ const shadowStyle: ViewStyle = {
 
 export const SubjectsScreen: React.FC<SubjectsScreenProps> = ({ navigation }) => {
   const { language } = useLanguage();
-  const academicSubjects = getSubjectsByCategory('academic');
-  const extracurricularSubjects = getSubjectsByCategory('extracurricular');
+  const { getSubjectsByCategory, loading, error } = useAirtable();
+  const [academicSubjects, setAcademicSubjects] = useState<any[]>([]);
+  const [extracurricularSubjects, setExtracurricularSubjects] = useState<any[]>([]);
 
-  const SubjectCard = ({ subject }: { subject: Subject }) => (
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        const academic = await getSubjectsByCategory('academic');
+        const extracurricular = await getSubjectsByCategory('extracurricular');
+        
+        setAcademicSubjects(academic);
+        setExtracurricularSubjects(extracurricular);
+      } catch (err) {
+        console.error('Error fetching subjects:', err);
+      }
+    };
+
+    fetchSubjects();
+  }, [getSubjectsByCategory]);
+
+  const SubjectCard = ({ subject }: { subject: any }) => (
     <TouchableOpacity
       style={[styles.subjectCard, shadowStyle]}
-      onPress={() => navigation.navigate('SubjectResults', { subjectKey: subject.key })}
+      onPress={() => navigation.navigate('SubjectResults', { subjectKey: subject.nameEn?.toLowerCase() || subject.key })}
     >
       <MaterialIcons 
-        name={subject.icon}
+        name={subject.icon as any}
         size={32}
         color={colors.primary}
       />

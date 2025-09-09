@@ -1,0 +1,244 @@
+Yes—please proceed. Here’s everything you need to finish the Student ID tab integration and add basic tests right now.
+
+1) Client: wire Student ID tab
+a) API wrapper
+
+Create src/services/backend.students.ts:
+
+import auth from '@react-native-firebase/auth';
+
+const API_BASE = 'https://<REGION>-<PROJECT>.cloudfunctions.net/api';
+
+async function authedFetch(path: string, init?: RequestInit) {
+  const token = await auth().currentUser?.getIdToken(true);
+  if (!token) throw new Error('NO_AUTH');
+  return fetch(`${API_BASE}${path}`, {
+    ...(init || {}),
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      ...(init?.headers || {}),
+    },
+  });
+}
+
+export async function searchStudentById(studentCode: string) {
+  const res = await authedFetch('/api/students/searchById', {
+    method: 'POST',
+    body: JSON.stringify({ studentCode }),
+  });
+  return res.json() as Promise<
+    | { ok: true; student: { id: string; fullNameInitials: string; grade: string } }
+    | { ok: false; code: string; message?: string }
+  >;
+}
+
+b) Hook the ID tab into the existing screen
+
+Update app/(onboarding)/guardian-link.tsx:
+
+Import:
+
+import { searchStudentById } from '@/services/backend.students';
+
+
+Replace the current “ID” placeholder with working UI:
+
+{tab === 'id' && (
+  <View>
+    <TextInput
+      value={code}
+      onChangeText={(v) => setCode(v.trim().toUpperCase())}
+      placeholder={t('link.id.placeholder')}
+      autoCapitalize="characters"
+      autoCorrect={false}
+      style={{ borderWidth:1, borderColor:'#ddd', borderRadius:12, padding:12, marginBottom:10 }}
+    />
+    <TouchableOpacity
+      onPress={async () => {
+        const res = await searchStudentById(code);
+        if (!res.ok) {
+          Alert.alert(t('link.error.title'), t(mapError(res.code)));
+          setStudentPreview(null);
+          return;
+        }
+        setStudentPreview(res.student);
+      }}
+      style={{ backgroundColor:'#111', padding:12, borderRadius:12, marginBottom:12 }}
+    >
+      <Text style={{ color:'#fff', textAlign:'center' }}>{t('link.id.cta')}</Text>
+    </TouchableOpacity>
+  </View>
+)}
+
+
+Reuse the same preview + onConfirmLink() flow, but pass 'id':
+
+const onConfirmLink = async () => {
+  if (!studentPreview) return;
+  const method = tab === 'qr' ? 'qr' : tab === 'id' ? 'id' : 'code';
+  const res = await createLink(studentPreview.id, method);
+  ...
+};
+
+c) Analytics for the ID path
+
+Where you already call track():
+
+On ID “Lookup” CTA: track('guardian_link_attempt', { method: 'id' });
+
+On /api/students/searchById error: track('guardian_link_failure', { method: 'id', reason: serverCode });
+
+On createLink(...,'id') → success/pendings: same events as code/qr paths.
+
+d) i18n keys (add to vi/en)
+{
+  "link": {
+    "id": {
+      "placeholder": "Enter Student ID",
+      "cta": "Find student"
+    }
+  }
+}
+
+e) Error mapping (extend your switch)
+function mapError(code?: string) {
+  switch (code) {
+    case 'INVALID_CODE':
+    case 'EXPIRED_CODE':
+    case 'MAX_USES_REACHED':
+      return 'link.error.invalid';
+    case 'TOO_MANY_ATTEMPTS':
+      return 'link.error.tooMany';
+    case 'NOT_FOUND':
+      return 'link.error.invalid';
+    case 'ALREADY_LINKED':
+      return 'link.error.already';
+    default:
+      return 'link.error.invalid';
+  }
+}
+
+2) Server tests (Functions) — minimal but meaningful
+
+Create functions/test/guardian.spec.ts (using Jest + supertest). If you don’t have supertest yet:
+
+npm i -D jest ts-jest supertest @types/jest @types/supertest
+
+
+functions/jest.config.js:
+
+module.exports = {
+  testEnvironment: 'node',
+  testMatch: ['**/test/**/*.spec.ts'],
+  transform: { '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.json' }] },
+};
+
+
+Example tests:
+
+import request from 'supertest';
+import * as admin from 'firebase-admin';
+
+// Helper to mint an ID token for test user (use emulator or a fixed test token)
+async function getTokenFor(uid: string) {
+  // With emulator, you can sign a custom token then exchange; else stub a header in dev-only routes.
+  const custom = await admin.auth().createCustomToken(uid);
+  // In emulator tests, you can allow custom tokens or mock middleware.
+  return custom; // replace with real idToken if needed
+}
+
+describe('Guardian linking endpoints', () => {
+  const base = 'http://127.0.0.1:5001/<PROJECT>/<REGION>/api'; // emulator URL
+
+  it('lookupCode returns masked preview for valid code', async () => {
+    const token = await getTokenFor('test-guardian-uid');
+    const res = await request(base)
+      .post('/api/guardian/lookupCode')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ code: 'ABC123' });
+    expect([200,404,410]).toContain(res.status);
+    if (res.status === 200) {
+      expect(res.body.ok).toBe(true);
+      expect(res.body.student).toHaveProperty('fullNameInitials');
+      expect(res.body.student).not.toHaveProperty('dob');
+    }
+  });
+
+  it('createLink is idempotent', async () => {
+    const token = await getTokenFor('test-guardian-uid');
+    const first = await request(base)
+      .post('/api/guardian/createLink')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ studentId: 'stu_1', method: 'code' });
+    expect(first.body.ok).toBe(true);
+    const linkId = first.body.link.id;
+
+    const second = await request(base)
+      .post('/api/guardian/createLink')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ studentId: 'stu_1', method: 'code' });
+    expect(second.body.ok).toBe(true);
+    expect(second.body.link.id).toBe(linkId);
+  });
+
+  it('getLinkById returns terminal status after approval', async () => {
+    const token = await getTokenFor('test-guardian-uid');
+    const res = await request(base)
+      .post('/api/guardian/getLinkById')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ linkId: 'lnk_1' });
+    expect(res.status).toBe(200);
+    expect(res.body.link).toHaveProperty('status');
+  });
+});
+
+
+Tip: If you’re not on the emulator, mock the auth middleware and call the underlying handlers with a fake uid. The goal is to smoke the contracts, not to build a full integration rig today.
+
+3) Client UI tests (React Native Testing Library)
+
+Install:
+
+npm i -D @testing-library/react-native @testing-library/jest-native jest
+
+
+app/(onboarding)/__tests__/guardian-link.spec.tsx:
+
+import React from 'react';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import GuardianLink from '../guardian-link';
+
+jest.mock('@/services/backend.guardian', () => ({
+  lookupCode: jest.fn(async (code: string) =>
+    code === 'GOOD123'
+      ? { ok: true, student: { id: 'stu1', fullNameInitials: 'N. A.', grade: '5' } }
+      : { ok: false, code: 'INVALID_CODE' }
+  ),
+  createLink: jest.fn(async () => ({ ok: true, link: { id: 'lnk1', status: 'active' } })),
+}));
+
+test('Code tab: lookup → preview → confirm', async () => {
+  const { getByPlaceholderText, getByText, queryByText } = render(<GuardianLink />);
+
+  fireEvent.press(getByText('Code'));
+  fireEvent.changeText(getByPlaceholderText('Enter invite code'), 'GOOD123');
+  fireEvent.press(getByText('Lookup'));
+
+  await waitFor(() => expect(queryByText('Confirm & Link')).toBeTruthy());
+  fireEvent.press(getByText('Confirm & Link'));
+  // Expect navigation or success message — depending on your router mocks
+});
+
+
+You can add a similar test for the ID tab once wired to searchStudentById.
+
+4) Definition of Done for this task
+
+Student ID tab calls /api/students/searchById, shows masked preview, and confirms via createLink(...,'id').
+
+Analytics events for “id” path are firing.
+
+Basic server tests for lookupCode / createLink / getLinkById are passing (emulator or mocked).
+
+Basic UI test for Code path is passing; ID path test added once wired.

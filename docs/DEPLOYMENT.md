@@ -255,6 +255,38 @@ npm run test:e2e
 
 ## 📊 **Performance Optimization**
 
+### ✅ Production Release Checklist (Quick)
+
+1) Identifiers & Branding
+- iOS `bundleIdentifier`, Android `package` set in `app.json`
+- Icons, splash, adaptive icon verified; run `npx expo optimize`
+
+2) Env & Secrets (.env)
+- `EXPO_PUBLIC_FIREBASE_*`, `EXPO_PUBLIC_FUNCTIONS_*`, `EXPO_PUBLIC_SENTRY_DSN` (optional)
+- `EXPO_PUBLIC_AIRTABLE_API_KEY`, `EXPO_PUBLIC_AIRTABLE_BASE_ID`
+
+3) Analytics & Monitoring
+- Sentry DSN configured (optional)
+- expo-firebase-analytics installed; screen tracking enabled
+
+4) Quality Gates
+- `npm run typecheck` -> 0 errors
+- ESLint/Prettier on save; assets optimized
+
+5) Backend
+- Firebase project + functions API reachable
+- Airtable schema ensured via scripts
+
+6) Build & Submit
+- iOS: `eas build -p ios --profile production`
+- Android: `eas build -p android --profile production`
+- Submit with `eas submit`
+
+7) QA Smoke
+- Auth, role selection, school selection
+- Teachers/classes/attendance; homework/progress/events
+- Payments/health/medicine/activities; feed post modal
+
 ### **Bundle Optimization**
 ```bash
 # Analyze bundle size

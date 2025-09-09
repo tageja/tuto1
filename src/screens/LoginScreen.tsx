@@ -12,77 +12,94 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Button } from '../components/common/Button';
-import { Input } from '../components/common/Input';
+import { FormTextInput } from '../components/common/FormTextInput';
 import { colors, spacing, borderRadius, typography } from '../theme';
 import { useAirtable } from '../hooks/useAirtable';
 import { useUser } from '../contexts/UserContext';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 interface LoginScreenProps {
   navigation: any;
 }
 
+const schema = yup.object({
+  email: yup.string().email().required().transform(value => value?.toLowerCase()),
+  password: yup.string().min(6).required(),
+});
+
 export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const { t } = useLanguage();
-  const { loading, error, clearError } = useAirtable();
-  const { setUserType } = useUser();
+  const { loading, error, clearError, authenticate } = useAirtable();
+  const { setUserType, setUserData } = useUser();
   
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const { control, handleSubmit } = useForm<{ email: string; password: string }>({
+    defaultValues: { email: '', password: '' },
+    resolver: yupResolver(schema),
+    mode: 'onBlur',
+  });
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.email) {
-      newErrors.email = t('auth.emailRequired');
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = t('auth.emailInvalid');
-    }
-
-    if (!formData.password) {
-      newErrors.password = t('auth.passwordRequired');
-    } else if (formData.password.length < 6) {
-      newErrors.password = t('auth.passwordTooShort');
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleLogin = async () => {
-    if (!validateForm()) return;
-
+  const onSubmit = async ({ email, password }: { email: string; password: string }) => {
     try {
-      console.log('Login attempt:', formData.email);
+      const normalizedEmail = email.toLowerCase();
+      console.log('Login attempt:', normalizedEmail);
       
-      // Dummy account validation
-      const dummyAccounts = {
-        'parent@admin.com': { type: 'parent', password: 'password' },
-        'student@admin.com': { type: 'student', password: 'password' },
-        'teacher@admin.com': { type: 'teacher', password: 'password' },
-      };
-
-      const account = dummyAccounts[formData.email as keyof typeof dummyAccounts];
-      
-      if (account && account.password === formData.password) {
-        // Store user type in context
-        await setUserType(account.type as 'parent' | 'student' | 'teacher');
+      // 1) Try Airtable-backed authentication for parents
+      const user = await authenticate(normalizedEmail, password);
+      if (user) {
+        // Store complete user data
+        const userData = {
+          id: user.id || `user_${Date.now()}`,
+          name: user.name || 'Parent User',
+          email: user.email || normalizedEmail,
+          type: 'parent' as const
+        };
+        await setUserData(userData);
         Alert.alert(
           t('auth.loginSuccess'),
-          `${t('auth.welcomeBack')} (${account.type})`,
+          `${t('auth.welcomeBack')} ${userData.name}`,
           [
             {
               text: t('common.ok'),
-              onPress: () => navigation.navigate('Home'),
+              onPress: () => navigation.navigate('RoleSelection'),
             },
           ]
         );
-      } else {
-        Alert.alert(t('auth.loginError'), t('auth.invalidCredentials'));
+        return;
       }
+
+      // 2) Fallback to dummy accounts for student/teacher testing
+      const dummyAccounts: Record<string, { type: 'parent' | 'student' | 'teacher'; password: string; name: string }> = {
+        'parent@admin.com': { type: 'parent', password: 'password', name: 'Demo Parent' },
+        'student@admin.com': { type: 'student', password: 'password', name: 'Demo Student' },
+        'teacher@admin.com': { type: 'teacher', password: 'password', name: 'Demo Teacher' },
+      };
+      const account = dummyAccounts[normalizedEmail];
+      if (account && account.password === password) {
+        // Store complete user data for dummy accounts
+        const userData = {
+          id: `${account.type}_${Date.now()}`,
+          name: account.name,
+          email: normalizedEmail,
+          type: account.type
+        };
+        await setUserData(userData);
+        Alert.alert(
+          t('auth.loginSuccess'),
+          `${t('auth.welcomeBack')} ${userData.name}`,
+          [
+            {
+              text: t('common.ok'),
+              onPress: () => navigation.navigate('RoleSelection'),
+            },
+          ]
+        );
+        return;
+      }
+
+      Alert.alert(t('auth.loginError'), t('auth.invalidCredentials'));
     } catch (error) {
       Alert.alert(t('auth.loginError'), t('auth.invalidCredentials'));
     }
@@ -107,11 +124,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.select({ ios: 0, android: 100 })}
     >
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { flexGrow: 1 }]}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
         <View style={styles.header}>
@@ -121,41 +140,26 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
         {/* Login Form */}
         <View style={styles.form}>
-          <Input
+          <FormTextInput
+            control={control}
+            name="email"
             label={t('auth.email')}
             placeholder={t('auth.emailPlaceholder')}
-            value={formData.email}
-            onChangeText={(text) => {
-              setFormData({ ...formData, email: text });
-              if (errors.email) setErrors({ ...errors, email: '' });
-            }}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            error={errors.email}
-            style={styles.input}
+            // Auto focus first field to ensure keyboard shows reliably
+            autoFocus
+            
           />
 
-          <Input
+          <FormTextInput
+            control={control}
+            name="password"
             label={t('auth.password')}
             placeholder={t('auth.passwordPlaceholder')}
-            value={formData.password}
-            onChangeText={(text) => {
-              setFormData({ ...formData, password: text });
-              if (errors.password) setErrors({ ...errors, password: '' });
-            }}
             secureTextEntry={!showPassword}
-            error={errors.password}
-            style={styles.input}
+            
             rightIcon={
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.eyeIcon}
-              >
-                <MaterialIcons
-                  name={showPassword ? 'visibility' : 'visibility-off'}
-                  size={20}
-                  color={colors.text.secondary}
-                />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+                <MaterialIcons name={showPassword ? 'visibility' : 'visibility-off'} size={20} color={colors.text.secondary} />
               </TouchableOpacity>
             }
           />
@@ -171,12 +175,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
 
           {/* Login Button */}
-          <Button
-            title={t('auth.login')}
-            onPress={handleLogin}
-            loading={loading}
-            style={styles.loginButton}
-          />
+          <Button title={t('auth.login')} onPress={handleSubmit(onSubmit)} loading={loading} style={styles.loginButton} />
 
           {/* Error Display */}
           {error && (

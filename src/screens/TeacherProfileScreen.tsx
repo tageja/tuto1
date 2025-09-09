@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLanguage } from '../contexts/LanguageContext';
 import { colors, spacing, typography } from '../theme';
+import { useAirtable } from '../hooks/useAirtable';
 
 interface TeacherProfileScreenProps {
   navigation: any;
@@ -32,22 +33,28 @@ export const TeacherProfileScreen: React.FC<TeacherProfileScreenProps> = ({
   navigation, 
   route 
 }) => {
+  const { teacherId, teacherName, subject, imageUrl, rating = 4.5, reviews = 127, experience = 5, hourlyRate = 25 } = route.params;
   const { language, t } = useLanguage();
-  const { 
-    teacherId,
-    teacherName,
-    subject,
-    imageUrl,
-    rating = 4.5,
-    reviews = 127,
-    experience = 5,
-    hourlyRate = 25,
-  } = route.params;
+  const { getTeacherById, loading, error } = useAirtable();
+  const [teacher, setTeacher] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchTeacher = async () => {
+      try {
+        const teacherData = await getTeacherById(teacherId);
+        setTeacher(teacherData);
+      } catch (err) {
+        console.error('Error fetching teacher:', err);
+      }
+    };
+
+    fetchTeacher();
+  }, [teacherId, getTeacherById]);
 
   const handleBooking = () => {
     navigation.navigate('Booking', {
       teacherId,
-      teacherName,
+      teacherName: teacher?.name || teacherName,
       subject,
     });
   };
@@ -78,14 +85,14 @@ export const TeacherProfileScreen: React.FC<TeacherProfileScreenProps> = ({
             }
             style={styles.profileImage}
           />
-          <Text style={styles.teacherName}>{teacherName}</Text>
+          <Text style={styles.teacherName}>{teacher?.name || teacherName}</Text>
           <Text style={styles.subject}>{subject}</Text>
 
           {/* Rating */}
           <View style={styles.ratingContainer}>
             <MaterialIcons name="star" size={20} color={colors.rating.filled} />
-            <Text style={styles.rating}>{rating.toFixed(1)}</Text>
-            <Text style={styles.reviews}>({reviews} {t('common.reviews')})</Text>
+            <Text style={styles.rating}>{(teacher?.rating || rating).toFixed(1)}</Text>
+            <Text style={styles.reviews}>({teacher?.reviewCount || reviews} {t('common.reviews')})</Text>
           </View>
         </View>
 
@@ -93,21 +100,21 @@ export const TeacherProfileScreen: React.FC<TeacherProfileScreenProps> = ({
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
             <MaterialIcons name="school" size={24} color={colors.primary} />
-            <Text style={styles.statValue}>{experience}+</Text>
+            <Text style={styles.statValue}>{teacher?.experience || experience}+</Text>
             <Text style={styles.statLabel}>
               {t('teacherProfile.yearsExperience')}
             </Text>
           </View>
           <View style={styles.statItem}>
             <MaterialIcons name="people" size={24} color={colors.primary} />
-            <Text style={styles.statValue}>{reviews}+</Text>
+            <Text style={styles.statValue}>{teacher?.reviewCount || reviews}+</Text>
             <Text style={styles.statLabel}>
               {t('teacherProfile.studentsTaught')}
             </Text>
           </View>
           <View style={styles.statItem}>
             <MaterialIcons name="attach-money" size={24} color={colors.primary} />
-            <Text style={styles.statValue}>${hourlyRate}</Text>
+            <Text style={styles.statValue}>${teacher?.hourlyRate || hourlyRate}</Text>
             <Text style={styles.statLabel}>
               {t('teacherProfile.hourlyRate')}
             </Text>

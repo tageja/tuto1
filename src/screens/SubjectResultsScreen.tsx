@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
 import { colors, spacing, typography } from '../theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { dummyTeachers } from '../data/dummyTeachers';
+import { useAirtable } from '../hooks/useAirtable';
 
 interface SubjectResultsScreenProps {
   navigation: any;
@@ -53,22 +53,35 @@ export const SubjectResultsScreen: React.FC<SubjectResultsScreenProps> = ({
 }) => {
   const { subjectKey } = route.params;
   const { language } = useLanguage();
+  const { getTeachers, loading, error } = useAirtable();
+  const [teachers, setTeachers] = useState<any[]>([]);
 
-  // Filter teachers by subject
-  const teachers = dummyTeachers.filter(teacher => 
-    teacher.subjects.includes(subjectKey)
-  );
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        const teachersData = await getTeachers({
+          filterByFormula: `SEARCH('${subjectKey}', ARRAYJOIN({Subjects}))`,
+          maxRecords: 20,
+        });
+        setTeachers(teachersData);
+      } catch (err) {
+        console.error('Error fetching teachers:', err);
+      }
+    };
 
-  const TeacherCard = ({ teacher }: { teacher: typeof dummyTeachers[0] }) => (
+    fetchTeachers();
+  }, [subjectKey, getTeachers]);
+
+  const TeacherCard = ({ teacher }: { teacher: any }) => (
     <TouchableOpacity
       style={[styles.teacherCard, shadowStyle]}
       onPress={() => navigation.navigate('TeacherProfile', {
         teacherId: teacher.id,
         teacherName: teacher.name,
         subject: subjectKey,
-        imageUrl: teacher.imageUrl,
+        imageUrl: teacher.avatar,
         rating: teacher.rating,
-        reviews: teacher.reviews,
+        reviews: teacher.reviewCount,
         experience: teacher.experience,
         hourlyRate: teacher.hourlyRate,
       })}
@@ -86,7 +99,7 @@ export const SubjectResultsScreen: React.FC<SubjectResultsScreenProps> = ({
           <MaterialIcons name="star" size={16} color={colors.rating.filled} />
           <Text style={styles.rating}>{teacher.rating.toFixed(1)}</Text>
           <Text style={styles.reviews}>
-            ({teacher.reviews} {language === 'en' ? 'reviews' : 'đánh giá'})
+            ({teacher.reviewCount} {language === 'en' ? 'reviews' : 'đánh giá'})
           </Text>
         </View>
         <View style={styles.priceContainer}>

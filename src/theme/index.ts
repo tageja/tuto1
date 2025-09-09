@@ -2,6 +2,10 @@ export const colors = {
   primary: '#0B5FFF',
   secondary: '#FFFFFF',
   accent: '#F9FAFC',
+  surface: '#F9FAFC',
+  onSurface: '#333333',
+  disabled: '#888888',
+  white: '#FFFFFF',
   text: {
     primary: '#1A1A1A',
     secondary: '#666666',
@@ -23,6 +27,9 @@ export const colors = {
     error: '#F44336',
     info: '#2196F3',
   },
+  // convenience aliases for status colors at top-level
+  warning: '#FF9800',
+  error: '#F44336',
   rating: {
     filled: '#FFD700',
     empty: '#E0E0E0',

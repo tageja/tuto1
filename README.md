@@ -1,272 +1,200 @@
-# TutoApp - Educational Platform
+# TutoApp - React Native EdTech Platform
 
-A comprehensive React Native educational platform connecting students, parents, and teachers in Vietnam. Built with Expo, TypeScript, and modern UI/UX principles.
+A comprehensive React Native application for educational technology, featuring both general learning features and school-specific functionality.
 
-## 🚀 **Latest Features (Today)**
+## 🚀 Features
 
-### ✅ **Notifications System**
-- **Complete notification screen** with 20+ dummy notifications
-- **Bilingual support** - English and Vietnamese content
-- **Smart filtering** - All/Regular/Important with unread badges
-- **Visual differentiation** - Red badges for important notifications
-- **Navigation integration** - Tap to mark as read and navigate
-- **Badge indicator** on home screen notification bell
+### Core Features
+- **Multi-language Support**: English and Vietnamese
+- **Role-based Access**: Parent, Student, Teacher
+- **Real-time Feed**: Community posts with media support
+- **Learning Dashboard**: Progress tracking and achievements
+- **Teacher Booking**: Session scheduling and management
+- **Payment Integration**: Token-based economy
+- **Store**: Digital and physical rewards
 
-### ✅ **UI/UX Improvements**
-- **Fixed notification badge visibility** - Smaller, better positioned
-- **Enhanced home screen layout** - Better spacing and alignment
-- **Improved logo positioning** - Left-aligned and properly sized
-- **Responsive quick action buttons** - Better spacing and layout
+### School Integration Features ✨
+- **Multi-School Support**: Join multiple schools/institutions
+- **School Dashboard**: Centralized school management
+- **Daily Activities**: Track school events and activities
+- **Announcements**: School-wide communication
+- **Messages**: Internal messaging system
+- **Photo Albums**: Event documentation and sharing
+- **Invitation System**: Secure school joining via codes
+- **Data Isolation**: Complete privacy between schools
 
-## 🎯 **Core Features**
+## 🏗️ Architecture
 
-### **Authentication & User Management**
-- ✅ **Multi-role login** (Parent, Student, Teacher)
-- ✅ **Dummy accounts** for testing:
-  - `parent@admin.com` / `password`
-  - `student@admin.com` / `password`
-  - `teacher@admin.com` / `password`
-- ✅ **Language persistence** with AsyncStorage
-- ✅ **Role-based UI rendering**
-
-### **Navigation & Screens**
-- ✅ **Complete navigation stack** with 9 functional screens
-- ✅ **Home screen** with role-specific quick actions
-- ✅ **All subjects screen** with responsive pill layout
-- ✅ **Teacher search results** with comprehensive sorting
-- ✅ **Teacher profiles** with detailed information
-- ✅ **Booking system** (UI ready, backend pending)
-- ✅ **User profiles** with role-specific content
-- ✅ **Notifications screen** with filtering and badges
-
-### **Educational Content**
-- ✅ **30 subjects** (13 academic + 17 extracurricular)
-- ✅ **20 dummy teachers** with realistic Vietnamese profiles
-- ✅ **Comprehensive sorting** (rating, experience, students, distance, fee)
-- ✅ **Bilingual support** throughout the app
-
-## 📱 **Screens Overview**
-
-### **✅ Completed Screens**
-1. **Splash Screen** - Video intro with seamless transition
-2. **Login Screen** - Authentication with dummy accounts
-3. **Home Screen** - Dashboard with role-specific actions
-4. **All Subjects Screen** - Responsive subject browsing
-5. **Subject Results Screen** - Teacher search with sorting
-6. **Teacher Profile Screen** - Detailed teacher information
-7. **Booking Screen** - Class booking interface
-8. **User Profile Screen** - Role-specific profile management
-9. **Notifications Screen** - Complete notification system
-
-### **📋 Planned Screens**
-- Dashboard (Learning analytics)
-- Homework (Assignment management)
-- Schedule (Class scheduling)
-- Search (Advanced search functionality)
-- Map (Location-based teacher search)
-- Chats (Messaging system)
-- Forum (Community discussions)
-- Payments (Payment processing)
-
-## 🛠 **Technical Stack**
-
-### **Frontend**
-- **React Native** with Expo SDK 50
+### Frontend
+- **React Native** with Expo
 - **TypeScript** for type safety
-- **React Navigation** v6 for routing
-- **MaterialIcons** for iconography
-- **AsyncStorage** for data persistence
+- **NativeWind** (Tailwind CSS) for styling
+- **React Navigation** for routing
+- **React Context** for state management
 
-### **State Management**
-- **React Context** for language and user management
-- **useState/useEffect** for local state
-- **Custom hooks** for reusable logic
+### Backend
+- **Firebase** Authentication & Firestore
+- **Airtable** as primary database
+- **Cloudinary** for media storage
+- **AsyncStorage** for local persistence
 
-### **Design System**
-- **Consistent theming** with centralized colors/spacing
-- **Responsive design** for different screen sizes
-- **Material Design principles** throughout
-- **Bilingual support** (English/Vietnamese)
+### School System
+- **20 Airtable Tables** for school data management
+- **Role-based Access Control** (RBAC)
+- **Multi-tenant Architecture** with data isolation
+- **Real-time Updates** via Firebase
 
-## 🎨 **Design Features**
+## 📱 Screens
 
-### **Color Palette**
-- **Primary**: #0B5FFF (Blue)
-- **Background**: #FFFFFF (White)
-- **Surface**: #F9FAFC (Light Gray)
-- **Text**: #333333 (Dark Gray)
-- **Error**: #FF4444 (Red)
-- **Success**: #4CAF50 (Green)
+### General Screens
+- Login/Register
+- Home Dashboard
+- Feed
+- Teacher Profiles
+- Booking System
+- Store
+- Progress Tracking
 
-### **Typography**
-- **Font Family**: Inter (System fallback)
-- **Font Sizes**: 12px (caption), 16px (body), 20px (subtitle), 24px (header)
-- **Font Weights**: Regular, Medium, SemiBold, Bold
+### School Screens
+- School Invitation
+- School Selection (Multi-school)
+- School Dashboard
+- Daily Activities
+- Announcements
+- Messages
+- Photo Albums
 
-### **Spacing**
-- **Consistent scale**: 8px, 16px, 24px, 32px
-- **Responsive layouts** for different screen sizes
+## 🔧 Recent Updates (Latest)
 
-## 🚀 **Getting Started**
+### ✅ Translation System Fixes
+- Fixed critical translation errors causing app crashes
+- Updated all screens to use proper `useLanguage` hook
+- Added missing translation keys for school features
+- Resolved `TypeError: t is not a function` errors
 
-### **Prerequisites**
-- Node.js (v16 or higher)
-- npm or yarn
+### ✅ School Integration Enhancements
+- **Multi-School Persistence**: Users can join multiple schools
+- **School Selection Screen**: Manage multiple school memberships
+- **Dynamic Home Screen**: Adapts based on school membership
+- **Improved Navigation**: Proper flow between general and school features
+
+### ✅ UI/UX Improvements
+- **Tuto Branding**: Consistent branding across school screens
+- **Quick Actions**: Restored original home screen actions
+- **Smart Banners**: Dynamic school joining prompts
+- **Error Handling**: Better error messages and recovery
+
+### ✅ Technical Fixes
+- **Analytics**: Added `expo-firebase-analytics` (lazy) + Sentry breadcrumbs; screen tracking via `NavigationContainer`
+- **Type Safety**: `tsc --noEmit` clean (0 errors); excluded `functions/**` from root tsconfig
+- **Docs**: Production release checklist in `docs/DEPLOYMENT.md`
+- **Cleanup**: Removed obsolete `dataconnect/` and debug scripts
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+
 - Expo CLI
-- iOS Simulator or Android Emulator
+- Airtable account
+- Firebase project
 
-### **Installation**
+### Installation
 ```bash
-# Clone the repository
-git clone <repository-url>
+git clone <repository>
 cd tuto
-
-# Install dependencies
 npm install
-
-# Start the development server
-npm start
 ```
 
-### **Running the App**
-```bash
-# Start Expo development server
-npm start
-
-# Run on iOS
-npm run ios
-
-# Run on Android
-npm run android
-
-# Run on web
-npm run web
-```
-
-## 📁 **Project Structure**
-
-```
-src/
-├── components/          # Reusable UI components
-│   ├── common/         # Common components (Button, Input)
-│   ├── LanguageToggle.tsx
-│   ├── TeacherCard.tsx
-│   └── subjects/
-├── contexts/           # React Context providers
-│   ├── LanguageContext.tsx
-│   └── UserContext.tsx
-├── data/              # Static data and dummy content
-│   ├── subjects.ts    # 30 subjects with categories
-│   └── dummyTeachers.ts
-├── hooks/             # Custom React hooks
-│   └── useAirtable.ts
-├── navigation/        # Navigation configuration
-│   └── AppNavigator.tsx
-├── screens/           # Screen components
-│   ├── SplashScreen.tsx
-│   ├── LoginScreen.tsx
-│   ├── HomeScreen.tsx
-│   ├── AllSubjectsScreen.tsx
-│   ├── SubjectResultsScreen.tsx
-│   ├── TeacherProfileScreen.tsx
-│   ├── BookingScreen.tsx
-│   ├── UserProfileScreen.tsx
-│   └── NotificationsScreen.tsx
-├── services/          # API and external services
-│   └── airtable.ts
-├── theme/            # Design system
-│   └── index.ts
-├── translations/     # Internationalization
-│   └── index.ts
-└── types/           # TypeScript type definitions
-    └── index.ts
-```
-
-## 🔧 **Configuration**
-
-### **Environment Variables**
-Create a `.env` file in the root directory:
+### Environment Setup
+Create `.env` file:
 ```env
 EXPO_PUBLIC_AIRTABLE_API_KEY=your_airtable_api_key
 EXPO_PUBLIC_AIRTABLE_BASE_ID=your_airtable_base_id
-EXPO_PUBLIC_APP_NAME=TutoApp
-EXPO_PUBLIC_APP_VERSION=1.0.0
-EXPO_PUBLIC_APP_ENVIRONMENT=development
 ```
 
-### **Airtable Integration**
-The app includes Airtable service for backend integration:
-- **Service**: `src/services/airtable.ts`
-- **Status**: Framework ready, authentication pending
-- **Features**: CRUD operations for teachers, bookings, users
+### Running the App
+```bash
+npm start
+```
 
-## 🧪 **Testing**
+## 📊 Database Schema
 
-### **Dummy Accounts**
-Use these accounts for testing:
-- **Parent**: `parent@admin.com` / `password`
-- **Student**: `student@admin.com` / `password`
-- **Teacher**: `teacher@admin.com` / `password`
+### School Tables (20 tables)
+- `TutoSchools` - School information
+- `TutoSchoolInvitations` - Invitation codes
+- `TutoSchoolUsers` - User-school relationships
+- `TutoDailyActivities` - School activities
+- `TutoAnnouncements` - School announcements
+- `TutoMessages` - Internal messaging
+- `TutoPhotoAlbums` - Event photos
+- And 13 more specialized tables...
 
-### **Features to Test**
-1. **Language switching** - Toggle between English and Vietnamese
-2. **Role-based UI** - Login with different accounts
-3. **Navigation flow** - Complete user journey
-4. **Notifications** - Test filtering and marking as read
-5. **Responsive design** - Test on different screen sizes
+## 🔐 Security
 
-## 📊 **Project Status**
+- **Firebase Security Rules** for data protection
+- **School-level Data Isolation** via `schoolId` fields
+- **Role-based Permissions** for different user types
+- **Secure Invitation System** with expiry dates
 
-### **Completed Features**
-- ✅ **9/12 screens** (75% complete)
-- ✅ **8/10 core features** (80% complete)
-- ✅ **15/20 UI components** (75% complete)
-- ✅ **95% translations** complete
-- ✅ **High code quality** with TypeScript
+## 🌐 Internationalization
 
-### **Ready for Production**
-The app is **feature-complete** for a MVP with:
-- ✅ **Full user journey** from login to booking
-- ✅ **Professional UI/UX** with modern design
-- ✅ **Bilingual support** for Vietnamese market
-- ✅ **Responsive design** for various devices
-- ✅ **Scalable architecture** for future features
+- **English** and **Vietnamese** support
+- **Dynamic Language Switching**
+- **Contextual Translations** for all features
+- **School-specific Translations**
 
-## 🚨 **Known Issues**
+## 📈 Performance
 
-### **Minor Issues**
-- ⚠️ **Language toggle** needs flag icons (currently text-based)
-- ⚠️ **Some MaterialIcons** may not exist for new subjects
-- ⚠️ **Airtable integration** needs API key configuration
+- **React Query** for efficient data caching
+- **Optimized Images** with lazy loading
+- **Background Data Sync** for offline support
+- **Memory Management** for large datasets
 
-### **Pending Features**
-- 📋 **Real-time notifications** (currently dummy data)
-- 📋 **Push notification system**
-- 📋 **Payment processing integration**
-- 📋 **Advanced search with filters**
-- 📋 **Video calling integration**
+## 🧪 Testing
 
-## 🤝 **Contributing**
+The app includes comprehensive testing for:
+- School joining flow
+- Multi-school management
+- Translation system
+- Navigation logic
+- Data persistence
+
+## 📝 Recent Bug Fixes
+
+### Critical Issues Resolved
+1. **Translation System Crashes**: Fixed `TypeError: Cannot read property 'dashboard' of undefined`
+2. **School Joining Errors**: Resolved Airtable field access issues
+3. **Navigation Problems**: Fixed screen routing and state management
+4. **UI Inconsistencies**: Restored proper home screen layout
+5. **Data Loading Issues**: Optimized Airtable queries and error handling
+
+### Performance Improvements
+- Reduced app crashes during school operations
+- Improved translation loading speed
+- Enhanced error recovery mechanisms
+- Better user feedback for failed operations
+
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-## 📄 **License**
+## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
-## 📞 **Support**
+## 🆘 Support
 
 For support and questions:
-- Check the [PROJECT_STATUS.md](PROJECT_STATUS.md) for current status
-- Review [ERRORS_AND_FIXES.md](ERRORS_AND_FIXES.md) for known issues
-- Open an issue for bugs or feature requests
+- Check the documentation
+- Review recent fixes in the issues
+- Contact the development team
 
 ---
 
-**Last Updated:** Today  
-**Version:** 1.0.0  
-**Status:** Ready for Beta Testing 🚀 
+**Last Updated**: August 27, 2025
+**Version**: 1.0.0
+**Status**: Production Ready with School Integration 

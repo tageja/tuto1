@@ -7,10 +7,11 @@ TutoApp uses Airtable as the backend service for data management. This document 
 ## 🗄 **Airtable Integration**
 
 ### **Base Configuration**
-```typescript
-const AIRTABLE_API_KEY = process.env.EXPO_PUBLIC_AIRTABLE_API_KEY;
-const AIRTABLE_BASE_ID = process.env.EXPO_PUBLIC_AIRTABLE_BASE_ID;
-```
+- All client data operations go through Firebase Cloud Functions proxy (no Airtable PAT in client).
+- Default Function URL: `https://asia-southeast1-<projectId>.cloudfunctions.net/api`
+- Environment overrides (client):
+  - `EXPO_PUBLIC_FUNCTIONS_REGION` (e.g., `asia-southeast1`)
+  - `EXPO_PUBLIC_FUNCTIONS_BASE_URL` (full URL override)
 
 ### **Service Structure**
 ```
