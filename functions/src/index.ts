@@ -64,6 +64,31 @@ const normalizeRecord = (r: any) => {
   return out;
 };
 
+// --- Security middleware for generic CRUD routes ---
+// Require Firebase Auth for any write to /tables; GET remains temporarily open to avoid regressions.
+// Adds deprecation headers to all /tables requests to encourage migration to specific versioned endpoints.
+app.use('/tables', async (req, res, next) => {
+  try {
+    res.setHeader('Deprecation', 'true');
+    res.setHeader('Sunset', new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toUTCString());
+    // Enforce auth for write operations immediately
+    if (req.method !== 'GET') {
+      const authHeader = req.header('authorization') || req.header('Authorization') || '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : undefined;
+      if (!token) return res.status(401).json({ ok: false, code: 'NO_TOKEN' });
+      try {
+        const decoded = await admin.auth().verifyIdToken(token);
+        (req as any).user = { uid: decoded.uid };
+      } catch (_) {
+        return res.status(401).json({ ok: false, code: 'INVALID_TOKEN' });
+      }
+    }
+    return next();
+  } catch (e) {
+    return res.status(500).json({ ok: false, code: 'INTERNAL' });
+  }
+});
+
 // Simple schema ensure endpoint (adds missing fields); can be extended to create tables via Metadata API
 // POST /ensure-schema { table: string, fields: Array<{ name: string, type: string, options?: any }> }
 app.post('/ensure-schema', async (req: Request, res: Response) => {
