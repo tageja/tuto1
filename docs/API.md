@@ -9,9 +9,17 @@ TutoApp uses Airtable as the backend service for data management. This document 
 ### **Base Configuration**
 - All client data operations go through Firebase Cloud Functions proxy (no Airtable PAT in client).
 - Default Function URL: `https://asia-southeast1-<projectId>.cloudfunctions.net/api`
+- Versioned endpoints under `/v1` are stable: use `/v1/tables/:table` for allow‑listed tables with auth.
+- Legacy `/tables/*` endpoints are deprecated and return 410 with `Deprecation` and `Sunset` headers.
 - Environment overrides (client):
   - `EXPO_PUBLIC_FUNCTIONS_REGION` (e.g., `asia-southeast1`)
   - `EXPO_PUBLIC_FUNCTIONS_BASE_URL` (full URL override)
+
+### **API Versioning Policy**
+- Current stable: `/v1`.
+- Backwards compatibility: breaking changes ship in a new version (`/v2`), `/v1` continues during a migration window.
+- Deprecation: deprecated routes include `Deprecation: true` and a `Sunset` date ≥ 90 days out.
+- Client pinning: the mobile app pins to a specific version path to avoid surprise breakage.
 
 ### **Service Structure**
 ```
