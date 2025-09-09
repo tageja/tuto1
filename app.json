@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "tuto",
+    "name": "Tuto",
     "slug": "tuto",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -14,10 +14,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.tuto.app",
+      "bundleIdentifier": "com.tutoapp.mobile",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "We need access to your photo library to let you attach images to posts.",
         "NSCameraUsageDescription": "We need access to your camera to let you capture photos and videos for posts.",
+        "NSLocationWhenInUseUsageDescription": "We use your location to show nearby teachers and map distance.",
         "PHPhotoLibraryPreventAutomaticLimitedAccessAlert": false
       }
     },
@@ -28,10 +29,12 @@
       },
       "edgeToEdgeEnabled": true,
       "softwareKeyboardLayoutMode": "resize",
-      "package": "com.tuto.app",
+      "package": "com.tutoapp.mobile",
       "permissions": [
         "android.permission.READ_MEDIA_IMAGES",
-        "android.permission.CAMERA"
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
       ]
     },
     "scheme": "tuto",
@@ -39,7 +42,8 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-image-picker"
+      "expo-image-picker",
+      "react-native-maps"
     ]
   }
 }
