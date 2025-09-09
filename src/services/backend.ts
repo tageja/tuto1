@@ -91,6 +91,10 @@ export const Backend = {
     await http(`/tables/${encodeURIComponent(table)}/${encodeURIComponent(id)}`, { method: 'DELETE' });
     return true;
   },
+
+  listNearbyTeachers: async (params: { lat: number; lng: number; radiusKm?: number; max?: number }): Promise<{ ok: boolean; teachers: any[] }> => {
+    return http('/api/teachers/nearby', { method: 'POST', body: JSON.stringify(params) });
+  },
 };
 
 

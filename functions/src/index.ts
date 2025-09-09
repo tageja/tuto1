@@ -376,6 +376,73 @@ app.post('/api/users/getByUid', async (req: Request, res: Response) => {
 	}
 });
 
+// --- Nearby Teachers: distance filter & sorting ---
+// POST /api/teachers/nearby { lat, lng, radiusKm, max? }
+app.post('/api/teachers/nearby', async (req: Request, res: Response) => {
+  try {
+    const lat = Number(req.body?.lat);
+    const lng = Number(req.body?.lng);
+    const radiusKm = Number(req.body?.radiusKm || 5);
+    const max = Number(req.body?.max || 50);
+    if (!isFinite(lat) || !isFinite(lng)) return res.status(400).json({ ok: false, code: 'INVALID_COORDS' });
+
+    const all: any[] = [];
+    let offset: string | undefined = undefined;
+    do {
+      const page = await withSecrets(async (pat, base) =>
+        airtableRequest<any>(
+          'get',
+          `/TutoTeachers`,
+          undefined,
+          offset ? { pageSize: 100, offset } : { pageSize: 100 },
+          pat,
+          base,
+        ),
+      );
+      (page?.records || []).forEach((r: any) => all.push(r));
+      offset = page?.offset;
+    } while (offset && all.length < 1000);
+
+    const toRad = (deg: number) => (deg * Math.PI) / 180;
+    const haversineKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+      const R = 6371; // km
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    };
+
+    const items = all
+      .map((r: any) => {
+        const f = r.fields || {};
+        const tLat = Number(f.Latitude ?? f.latitude ?? f.lat);
+        const tLng = Number(f.Longitude ?? f.longitude ?? f.lng);
+        if (!isFinite(tLat) || !isFinite(tLng)) return null;
+        const distanceKm = haversineKm(lat, lng, tLat, tLng);
+        return {
+          id: r.id,
+          name: f.Name || f.displayName || '',
+          latitude: tLat,
+          longitude: tLng,
+          hourlyRate: Number(f['Hourly Rate'] ?? f.hourlyRate ?? 0) || 0,
+          rating: Number(f.Rating ?? f.rating ?? 0) || 0,
+          reviewCount: Number(f['Review Count'] ?? f.reviewCount ?? 0) || 0,
+          distanceKm,
+        };
+      })
+      .filter(Boolean)
+      .filter((t: any) => t.distanceKm <= radiusKm)
+      .sort((a: any, b: any) => a.distanceKm - b.distanceKm)
+      .slice(0, Math.max(1, max));
+
+    return res.json({ ok: true, teachers: items });
+  } catch (e) {
+    const err = e as Error;
+    return res.status(500).json({ ok: false, code: 'INTERNAL', message: err.message });
+  }
+});
+
 // POST /api/users/upsertRole { uid, role }
 app.post('/api/users/upsertRole', async (req: Request, res: Response) => {
 	try {
