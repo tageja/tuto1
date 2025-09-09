@@ -65,6 +65,19 @@ export function track(event: string, props: Props = {}) {
   } catch {}
 }
 
+// --- Performance helpers ---
+export function mark(name: string): number {
+  // Returns a start time for duration measurement
+  // Use Date.now to avoid requiring Performance API across environments
+  return Date.now();
+}
+
+export async function measureAndLog(name: string, startMs: number, extra?: AnalyticsParams) {
+  const durationMs = Math.max(0, Date.now() - startMs);
+  Sentry.addBreadcrumb({ category: 'performance', message: name, data: { durationMs, ...extra } });
+  await logEvent(`perf_${name}`, { durationMs, ...(extra || {}) });
+}
+
 
 
 

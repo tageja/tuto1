@@ -9,12 +9,13 @@ import { UserProvider } from './src/contexts/UserContext';
 import { SchoolProvider } from './src/contexts/SchoolContext';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { SplashScreen } from './src/screens/SplashScreen';
-import { initMonitoring } from './src/services/analytics';
+import { initMonitoring, mark, measureAndLog } from './src/services/analytics';
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [queryClient] = useState(() => new QueryClient());
+  const appStart = React.useRef(mark('app_start')).current;
 
   // Initialize monitoring once
   React.useEffect(() => {
@@ -32,6 +33,7 @@ export default function App() {
 
   const handleSplashEnd = () => {
     setShowSplash(false);
+    void measureAndLog('time_to_splash_end', appStart);
   };
 
   return (
