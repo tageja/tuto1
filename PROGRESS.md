@@ -1,0 +1,141 @@
+# Production Readiness Progress
+
+- [x] Row 20 — Backend/API Security: Secrets handling (revoke PAT)
+  - Branch: feat/backend-security/secrets-handling
+  - PR: https://github.com/tageja/tuto1/pull/new/feat/backend-security/secrets-handling
+  - Notes: Added auth guard for writes on /tables and deprecation headers. CSV updated.
+
+- [x] Row 16 — Backend/API Security: Lock generic CRUD routes
+  - Branch: feat/backend-api-security/lock-generic-crud-routes
+  - Patch: patches/feat-backend-api-security-lock-generic-crud-routes.patch
+  - Notes: Removed legacy /tables/*; added versioned /v1 endpoints with auth + allow-list; migrated client.
+
+- [x] Row 17 — Backend/API Security: Schema validation (Zod)
+  - Branch: feat/backend-api-security/lock-generic-crud-routes
+  - Patch: patches/feat-backend-api-security-zod-validation.patch
+  - Notes: Added Zod schemas for Bookings/Reviews/Users; validate /v1 writes; 400 on invalid.
+
+- [x] Row 18 — Backend/API Security: Rate limiting & IP throttling
+  - Branch: feat/backend-api-security/lock-generic-crud-routes
+  - Patch: patches/feat-backend-api-security-rate-limiting.patch
+  - Notes: Token-bucket per IP/UID, block window on threshold; global and /api scopes.
+
+- [x] Row 19 — Backend/API Security: CORS & origin allowlist
+  - Branch: feat/backend-api-security/lock-generic-crud-routes
+  - Patch: patches/feat-backend-api-security-cors-allowlist.patch
+  - Notes: Env-driven allowlist with wildcard subdomains; default deny for browser origins when unset.
+
+- [x] Row 11 — Auth & Roles: Firebase Auth enablement
+  - Branch: feat/auth-roles/firebase-auth-enablement
+  - Patch: patches/feat-auth-roles-firebase-auth-enablement.patch
+  - Notes: Email/password sign-in/sign-up/reset; signOut; ID token included on API calls.
+
+- [x] Row 12 — Auth & Roles: Airtable ↔ Firebase UID linking
+  - Branch: feat/auth-roles/firebase-auth-enablement
+  - Patch: patches/feat-auth-roles-uid-linking.patch
+  - Notes: Added /api/users/ensureLinked and client call post-login; enforces uniqueness.
+
+- [x] Row 13 — Auth & Roles: Role-based access (parent/teacher/admin)
+  - Branch: feat/auth-roles/role-based-access
+  - Patch: patches/feat-auth-roles-role-based-access.patch
+  - Notes: Custom claims set on upsertRole; withRole middleware; parent-only guards; token refresh after role set.
+
+- [x] Row 1 — Core UI & Flows: Home screen empty/error/skeleton UX
+  - Branch: feat/core-ui/empty-error-skeleton-home
+  - Patch: patches/feat-core-ui-empty-error-skeleton-home.patch
+  - Notes: Skeletons for posts/teachers, explicit empty states, inline error banner with retry.
+
+- [x] Row 2 — Core UI & Flows: All Subjects – filterable list
+  - Branch: feat/core-ui/empty-error-skeleton-home
+  - Patch: patches/feat-core-ui-all-subjects-persistent-filters.patch
+  - Notes: Persist filters in store with debounce; Clear All; filters survive navigation.
+
+- [x] Row 3 — Core UI & Flows: Teacher Profile – data completeness
+  - Branch: feat/core-ui/empty-error-skeleton-home
+  - Patch: patches/feat-core-ui-teacher-profile-completeness.patch
+  - Notes: Fallbacks for missing data; subjects rendered; Contact CTA added.
+
+- [x] Row 4 — Core UI & Flows: Booking UI – validation & UX
+  - Branch: feat/core-ui/empty-error-skeleton-home
+  - Patch: patches/feat-core-ui-booking-validation.patch
+  - Notes: Yup validation; disabled submit while pending; success feedback and navigation.
+
+- [x] Row 8 — Core UI & Flows: Global error boundary
+  - Branch: feat-core-ui/empty-error-skeleton-home
+  - Patch: patches/feat-core-errorboundary-reset.patch
+  - Notes: ErrorBoundary fallback includes reset action.
+
+- [x] Row 7 — Core UI & Flows: Localization coverage (EN/VI)
+  - Branch: feat-core-ui/i18n-coverage
+  - Patch: patches/feat-core-ui-i18n-coverage.patch
+  - Notes: Extracted strings; added useLocale for date/currency; localized fallback.
+
+- [x] Row 5 — Core UI & Flows: List pagination & caching
+  - Branch: feat-core-ui/i18n-coverage
+  - Patch: patches/feat-core-ui-list-pagination.patch
+  - Notes: Infinite teachers list via React Query; FlatList with footer and refresh.
+
+- [x] Row 40 — Analytics & Monitoring: Event taxonomy
+  - Branch: feat-core-ui/i18n-coverage
+  - Patch: patches/feat-analytics-event-taxonomy.patch
+  - Notes: Defined core events and wired in profile and booking flows.
+
+- [x] Row 24 — Maps / Nearby: Install maps & location libs
+  - Branch: feat-core-ui/i18n-coverage
+  - Patch: patches/feat-maps-location-permissions.patch
+  - Notes: Added Map screen, location hooks, and platform permissions.
+
+- [x] Row 25 — Maps / Nearby: Permission flow & fallbacks
+  - Branch: feat-core-ui/i18n-coverage
+  - Patch: patches/feat-maps-location-permissions.patch
+  - Notes: Added rationale/ask flow, handle denied forever; basic fallback text.
+
+- [x] Row 29 — Airtable Schema & Scripts: Server-side constraints
+  - Branch: feat-core-ui/i18n-coverage
+  - Patch: patches/feat-functions-server-constraints.patch
+  - Notes: Uniqueness guard for reviews; duplicate booking check; schema wired.
+
+- [x] Row 28 — Airtable Schema & Scripts: Lock schema v1 (doc)
+  - Branch: feat-core-ui/i18n-coverage
+  - Patch: patches/feat-schema-ci-legal.patch
+  - Notes: Added docs/schema.md with v1 definitions.
+
+- [x] Row 34 — CI/CD & Releases: EAS profiles & build pipelines
+  - Branch: feat-core-ui/i18n-coverage
+  - Patch: patches/feat-schema-ci-legal.patch
+  - Notes: Added Sentry sourcemaps CI (baseline for build workflows).
+
+- [x] Row 39 — Analytics & Monitoring: Sentry DSN & source maps
+  - Branch: feat-core-ui/i18n-coverage
+  - Patch: patches/feat-schema-ci-legal.patch
+  - Notes: CI for sourcemaps; DSN wiring present.
+
+- [x] Row 43 — Privacy Policy & ToS screens
+  - Branch: feat-core-ui/i18n-coverage
+  - Patch: patches/feat-schema-ci-legal.patch
+  - Notes: Legal screen with acceptance stored locally.
+
+- [x] Row 44 — Age gate & parental consent
+  - Branch: feat-core-ui/i18n-coverage
+  - Patch: patches/feat-schema-ci-legal.patch
+  - Notes: Age selection UI; minor path placeholder.
+
+- [x] Row 22 — Backend/API Security: Audit logs for writes
+  - Branch: feat-core-ui/i18n-coverage
+  - Patch: patches/feat-functions-audit-logs.patch
+  - Notes: Writes create/update/delete emit Audit entries (UID, table, recordId, hash).
+
+- [x] Row 6 — Core UI & Flows: Image performance & caching
+  - Branch: feat-core-ui/i18n-coverage
+  - Patch: patches/feat-ui-image-performance-caching.patch
+  - Notes: Use expo-image with caching/placeholder when available.
+
+- [x] Row 15 — Auth & Roles: Terms acceptance & age gate
+  - Branch: feat/auth-roles/terms-age-acceptance
+  - Patch: patches/feat-auth-roles-terms-age-acceptance.patch
+  - Notes: Backend endpoint /api/users/acceptPolicies; client calls on accept; typecheck clean.
+
+- [x] Row 23 — Backend/API Security: API versioning
+  - Branch: feat/backend-api/api-versioning
+  - Patch: patches/feat-backend-api-api-versioning.patch
+  - Notes: Documented /v1 stability and deprecation policy; legacy /tables returns 410.
