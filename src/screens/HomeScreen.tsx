@@ -21,6 +21,8 @@ import { LanguageToggle } from '../components/LanguageToggle';
 import { subjects } from '../data/subjects';
 import { useAirtable } from '../hooks/useAirtable';
 import { PostCard } from '../components/feed/PostCard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNetwork } from '../hooks/network';
 
 const { width } = Dimensions.get('window');
 
@@ -47,6 +49,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   
   const [teachers, setTeachers] = useState<any[]>([]);
   const [posts, setPosts] = useState<any[]>([]);
+  const { isOffline, retryNow } = useNetwork();
   
   const popularSubjects = subjects.slice(0, 4);
 
@@ -56,12 +59,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         // Fetch teachers
         const teachersData = await getTeachers({ maxRecords: 3 });
         setTeachers(teachersData);
+        await AsyncStorage.setItem('cache_teachers_home', JSON.stringify(teachersData));
         
         // Fetch posts
         const postsData = await getPosts({ maxRecords: 3 });
         setPosts(postsData);
+        await AsyncStorage.setItem('cache_posts_home', JSON.stringify(postsData));
       } catch (err) {
         console.error('Error fetching data:', err);
+        // Try load from cache on failure
+        const t = await AsyncStorage.getItem('cache_teachers_home');
+        const p = await AsyncStorage.getItem('cache_posts_home');
+        if (t) setTeachers(JSON.parse(t));
+        if (p) setPosts(JSON.parse(p));
       }
     };
 
@@ -162,6 +172,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
       </View>
 
+      {isOffline && (
+        <View style={styles.offlineBanner}>
+          <MaterialIcons name="cloud-off" size={20} color={colors.background.primary} />
+          <Text style={styles.offlineText}>{t('common.offline') || 'You are offline. Showing last known data.'}</Text>
+          <TouchableOpacity style={styles.offlineRetry} onPress={retryNow}>
+            <Text style={styles.offlineRetryText}>{t('common.tryAgain') || 'Retry'}</Text>
+          </TouchableOpacity>
+        </View>
+      )}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Search Bar */}
         <TouchableOpacity
@@ -748,5 +767,30 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: typography.fontSize.sm,
     fontFamily: typography.fontFamily.semiBold,
+  },
+  offlineBanner: {
+    backgroundColor: colors.disabled,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: 8,
+  },
+  offlineText: {
+    color: colors.background.primary,
+    flex: 1,
+  },
+  offlineRetry: {
+    backgroundColor: colors.background.primary,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: 8,
+  },
+  offlineRetryText: {
+    color: colors.primary,
+    fontFamily: typography.fontFamily.medium,
   },
 });
