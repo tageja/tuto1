@@ -18,7 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { useLanguage } from '../contexts/LanguageContext';
-import { PaymentService, Currency, PaymentMethodType, PaymentResult } from '../services/payments';
+import { PaymentService, Currency, PaymentMethodType, PaymentResult, PaymentIntent } from '../services/payments';
 
 // Theme constants
 const colors = {
@@ -81,6 +81,8 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({ navigation, route 
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethodType | null>(null);
   const [loading, setLoading] = useState(false);
   const [availableMethods, setAvailableMethods] = useState<PaymentMethodType[]>([]);
+  const [paymentIntent, setPaymentIntent] = useState<PaymentIntent | null>(null);
+  const [paymentStep, setPaymentStep] = useState<'method' | 'processing' | 'result'>('method');
 
   useEffect(() => {
     loadAvailablePaymentMethods();
@@ -116,8 +118,21 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({ navigation, route 
     }
 
     setLoading(true);
+    setPaymentStep('processing');
 
     try {
+      // Step 1: Create payment intent
+      const intent = await PaymentService.createPaymentIntent(
+        amount,
+        currency,
+        description,
+        { bookingId: bookingId || '' },
+        bookingId
+      );
+
+      setPaymentIntent(intent);
+
+      // Step 2: Confirm payment based on method
       let result: PaymentResult;
 
       switch (selectedMethod) {
@@ -128,28 +143,41 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({ navigation, route 
           result = await PaymentService.payWithGooglePay(amount, currency, description);
           break;
         default:
-          // For card payments, we would typically show a card input form
-          result = await PaymentService.confirmPayment('mock_client_secret');
+          // For card payments, confirm with the payment intent
+          result = await PaymentService.confirmPayment(intent.id);
           break;
       }
 
+      setPaymentStep('result');
+
       if (result.success) {
-        Alert.alert(
-          'Payment Successful',
-          'Your payment has been processed successfully.',
-          [
-            {
-              text: 'OK',
-              onPress: () => navigation.goBack(),
-            },
-          ]
-        );
+        // Payment successful
+        setTimeout(() => {
+          Alert.alert(
+            'Payment Successful',
+            'Your payment has been processed successfully.',
+            [
+              {
+                text: 'OK',
+                onPress: () => navigation.goBack(),
+              },
+            ]
+          );
+        }, 1000);
       } else {
-        Alert.alert('Payment Failed', result.error || 'Payment could not be processed');
+        // Payment failed
+        setTimeout(() => {
+          Alert.alert('Payment Failed', result.error || 'Payment could not be processed');
+          setPaymentStep('method');
+        }, 1000);
       }
     } catch (error) {
       console.error('Payment error:', error);
-      Alert.alert('Error', 'An error occurred during payment processing');
+      setPaymentStep('result');
+      setTimeout(() => {
+        Alert.alert('Error', 'An error occurred during payment processing');
+        setPaymentStep('method');
+      }, 1000);
     } finally {
       setLoading(false);
     }
@@ -191,6 +219,73 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({ navigation, route 
     };
     return icons[method];
   };
+
+  // Render processing state
+  if (paymentStep === 'processing') {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <MaterialIcons name="arrow-back" size={24} color={colors.text.primary} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Processing Payment</Text>
+          <View style={{ width: 24 }} />
+        </View>
+        
+        <View style={styles.processingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={styles.processingTitle}>Processing Your Payment</Text>
+          <Text style={styles.processingText}>
+            Please wait while we process your payment securely...
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Render result state
+  if (paymentStep === 'result') {
+    const isSuccess = paymentIntent?.status === 'succeeded';
+    
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <MaterialIcons name="arrow-back" size={24} color={colors.text.primary} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Payment Result</Text>
+          <View style={{ width: 24 }} />
+        </View>
+        
+        <View style={styles.resultContainer}>
+          <MaterialIcons 
+            name={isSuccess ? "check-circle" : "error"} 
+            size={64} 
+            color={isSuccess ? colors.success : colors.error} 
+          />
+          <Text style={styles.resultTitle}>
+            {isSuccess ? 'Payment Successful' : 'Payment Failed'}
+          </Text>
+          <Text style={styles.resultText}>
+            {isSuccess 
+              ? 'Your payment has been processed successfully.' 
+              : 'There was an issue processing your payment. Please try again.'
+            }
+          </Text>
+          {paymentIntent && (
+            <View style={styles.paymentDetails}>
+              <Text style={styles.paymentDetailsText}>
+                Amount: {PaymentService.formatAmount(paymentIntent.amount, paymentIntent.currency)}
+              </Text>
+              <Text style={styles.paymentDetailsText}>
+                Payment ID: {paymentIntent.id}
+              </Text>
+            </View>
+          )}
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -379,5 +474,55 @@ const styles = StyleSheet.create({
     color: colors.background.primary,
     fontSize: typography.fontSize.lg,
     fontFamily: typography.fontFamily.bold,
+  },
+  processingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xl,
+  },
+  processingTitle: {
+    fontSize: typography.fontSize.xl,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.text.primary,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+  },
+  processingText: {
+    fontSize: typography.fontSize.md,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  resultContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xl,
+  },
+  resultTitle: {
+    fontSize: typography.fontSize.xl,
+    fontFamily: typography.fontFamily.bold,
+    color: colors.text.primary,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+  },
+  resultText: {
+    fontSize: typography.fontSize.md,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: spacing.lg,
+  },
+  paymentDetails: {
+    backgroundColor: colors.surface,
+    padding: spacing.lg,
+    borderRadius: 12,
+    width: '100%',
+  },
+  paymentDetailsText: {
+    fontSize: typography.fontSize.sm,
+    color: colors.text.secondary,
+    marginBottom: spacing.xs,
   },
 });

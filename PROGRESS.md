@@ -219,3 +219,8 @@
   - Branch: feat/payments/choose-gateway-region-setup
   - Patch: patches/feat-payments-choose-gateway-region-setup.patch
   - Notes: Established payment system foundation with Stripe gateway selection, multi-currency support, and comprehensive documentation.
+
+- [x] Row 53 — Payments / Fees: Create Payment Intent backend
+  - Branch: feat/payments/create-payment-intent-backend
+  - Patch: patches/feat-payments-create-payment-intent-backend.patch
+  - Notes: Implemented server-side payment intent creation with amount validation, currency support, and idempotency for price integrity.
