@@ -139,3 +139,53 @@
   - Branch: feat/backend-api/api-versioning
   - Patch: patches/feat-backend-api-api-versioning.patch
   - Notes: Documented /v1 stability and deprecation policy; legacy /tables returns 410.
+
+- [x] Row 35 — CI/CD & Releases: OTA updates policy
+  - Branch: feat/cicd/ota-updates-policy
+  - Patch: patches/feat-cicd-ota-updates-policy.patch
+  - Notes: Added eas.json channels and docs/release.md rollout strategy.
+
+- [x] Row 37 — CI/CD & Releases: Pre-release QA checklist
+  - Branch: feat/cicd/pre-release-checklist
+  - Patch: patches/feat-cicd-pre-release-checklist.patch
+  - Notes: Checklist covering devices, locales, offline, core flows, Sentry.
+
+- [x] Row 38 — CI/CD & Releases: Store listings (ASO)
+  - Branch: feat/cicd/store-listings
+  - Patch: patches/feat-cicd-store-listings.patch
+  - Notes: Drafted EN/VI copy, keywords, privacy labels, and screenshot placeholders.
+
+- [x] Row 41 — Analytics & Monitoring: Funnel dashboards
+  - Branch: feat/analytics/funnel-dashboards
+  - Patch: patches/feat-analytics-funnel-dashboards.patch
+  - Notes: Documented funnels and dashboards; segmentation and alerting guidance.
+
+- [x] Row 42 — Analytics & Monitoring: Performance metrics (TTI, list time)
+  - Branch: feat/analytics/performance-metrics
+  - Patch: patches/feat-analytics-performance-metrics.patch
+  - Notes: Added perf helpers and SLO docs; logging splash end time as initial metric.
+
+- [x] Row 21 — Backend/API Security: Least-privilege Airtable PAT
+  - Branch: feat/backend-security/least-privilege-pat
+  - Patch: patches/feat-backend-security-least-privilege-pat.patch
+  - Notes: Added PAT policy doc; scope reduced to required tables; rotation guidance.
+
+- [x] Row 9 — Core UI & Flows: Offline fallback
+  - Branch: feat/core-ui/offline-fallback
+  - Patch: patches/feat-core-ui-offline-fallback.patch
+  - Notes: NetInfo banner, AsyncStorage cached lists, retry control.
+
+- [x] Row 27 — Maps / Nearby: Open in Maps deep link
+  - Branch: feat/maps/open-in-maps
+  - Patch: patches/feat-maps-open-in-maps.patch
+  - Notes: Deep links to Apple/Google Maps from TeacherProfile using coordinates.
+
+- [x] Row 26 — Maps / Nearby: Distance filter & sorting
+  - Branch: feat/maps/distance-filter-sorting
+  - Patch: patches/feat-maps-distance-filter.patch
+  - Notes: Haversine on server; filtering and sorting; client helper added.
+
+- [x] Row 36 — CI/CD & Releases: App identifiers & store assets
+  - Branch: feat/cicd/app-identifiers-assets
+  - Patch: patches/feat-cicd-app-identifiers-assets.patch
+  - Notes: Updated bundle/package IDs, added location permissions and maps plugin.

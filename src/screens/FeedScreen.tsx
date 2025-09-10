@@ -26,6 +26,7 @@ import { CreatePostModal } from '../components/feed/CreatePostModal';
 import { useAirtable } from '../hooks/useAirtable';
 import { uploadImageAuto } from '../services/upload';
 import { logDebug, logError } from '../services/logger';
+import { Backend } from '../services/backend';
 
 const { width } = Dimensions.get('window');
 
@@ -85,7 +86,36 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
 
   const fetchPosts = async () => {
     try {
-      const postsData = await getPosts({ maxRecords: 50, sort: [{ field: 'Timestamp', direction: 'desc' }] });
+      const response = await Backend.getFeedPosts(1, 50) as any;
+      const postsData = response.records?.map((record: any) => ({
+        id: record.id,
+        author: {
+          id: record.fields['Author ID'] || '',
+          name: record.fields['Author Name'] || 'Unknown User',
+          role: record.fields['Author Role'] || 'parent',
+          avatar: record.fields['Author Avatar'] || '',
+        },
+        content: {
+          text: record.fields['Content Text'] || '',
+          media: record.fields['Content Media Type'] ? {
+            type: record.fields['Content Media Type'] as 'image' | 'video',
+            url: record.fields['Content Media URL'] || '',
+            thumbnail: record.fields['Content Media Thumbnail'] || '',
+          } : undefined,
+        },
+        type: record.fields['Post Type'] || 'text',
+        subjects: record.fields['Subjects'] || [],
+        timestamp: new Date(record.fields['Timestamp'] || new Date()),
+        interactions: {
+          likes: record.fields['Likes Count'] || 0,
+          comments: record.fields['Comments Count'] || 0,
+          shares: record.fields['Shares Count'] || 0,
+          saves: record.fields['Saves Count'] || 0,
+        },
+        isLiked: false, // Will be determined by user state
+        isSaved: false, // Will be determined by user state
+        privacy: record.fields['Privacy'] || 'public',
+      })) || [];
       setPosts(postsData);
     } catch (err) {
       console.error('Error fetching posts:', err);
@@ -132,6 +162,24 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
     setShowCreatePostModal(false);
   };
 
+  const handleReportPost = async (postId: string, reason: string) => {
+    try {
+      await Backend.reportFeedPost(postId, reason);
+      Alert.alert(
+        t('feed.reportSubmitted'),
+        t('feed.reportThankYou'),
+        [{ text: t('common.ok') }]
+      );
+    } catch (error) {
+      console.error('Error reporting post:', error);
+      Alert.alert(
+        t('feed.reportError'),
+        t('feed.reportFailed'),
+        [{ text: t('common.ok') }]
+      );
+    }
+  };
+
   const handleSubmitPost = async (postData: {
     text: string;
     subjects: string[];
@@ -151,20 +199,16 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
           logDebug('Feed submit: uploaded mediaUrl', mediaUrl);
         }
       }
+      
       const payload = {
-        authorId: userData?.id || 'guest-user',
-        authorName: userData?.name || 'Guest User',
-        authorRole: userType || 'parent',
-        authorAvatar: 'https://via.placeholder.com/40',
         contentText: postData.text,
         contentMediaType: mediaType,
         contentMediaUrl: mediaUrl,
-        postType: mediaType || 'text',
         subjects: postData.subjects,
         privacy: 'public',
       };
       logDebug('Feed submit: creating post payload', payload);
-      const created = await createPost(payload);
+      const created = await Backend.createFeedPost(payload);
       logDebug('Feed submit: create result', created);
 
       // Refresh posts after creating new one
@@ -239,11 +283,8 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
             <PostCardErrorBoundary postId={item.id}>
               <PostCard
                 post={itemWithUserState}
-                onLike={() => {
-                  // Get current user's like state from client storage
-                  const userLikes = (globalThis as any).__userLikes || new Map();
-                  const postUserLikes = userLikes.get(item.id) || new Set();
-                  const currentUserLiked = postUserLikes.has(userData?.id || 'guest-user');
+                onLike={async () => {
+                  const currentUserLiked = itemWithUserState.isLiked;
                   const newLikeState = !currentUserLiked;
                   
                   console.log(`[FEED] Like pressed for post ${item.id}, currentUserLiked: ${currentUserLiked}`);
@@ -266,11 +307,11 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
                   }));
                   
                   // Background API call - don't await
-                  setPostLike(item.id, newLikeState)
-                    .then(success => {
-                      console.log(`[FEED] setPostLike result: ${success}`);
-                      if (!success) {
-                        console.error(`[FEED] setPostLike failed, reverting optimistic update`);
+                  Backend.likeFeedPost(item.id, newLikeState)
+                    .then((response: any) => {
+                      console.log(`[FEED] likeFeedPost result:`, response);
+                      if (!response.success) {
+                        console.error(`[FEED] likeFeedPost failed, reverting optimistic update`);
                         // Revert optimistic update on failure
                         setPosts(prev => prev.map(p => {
                           if (p.id === item.id) {
@@ -374,6 +415,31 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
                   return p;
                 }));
               }
+                }}
+                onReport={async () => {
+                  Alert.alert(
+                    t('feed.reportPost'),
+                    t('feed.reportReason'),
+                    [
+                      { text: t('common.cancel'), style: 'cancel' },
+                      { 
+                        text: t('feed.spam'), 
+                        onPress: () => handleReportPost(item.id, 'spam')
+                      },
+                      { 
+                        text: t('feed.inappropriate'), 
+                        onPress: () => handleReportPost(item.id, 'inappropriate')
+                      },
+                      { 
+                        text: t('feed.harassment'), 
+                        onPress: () => handleReportPost(item.id, 'harassment')
+                      },
+                      { 
+                        text: t('feed.other'), 
+                        onPress: () => handleReportPost(item.id, 'other')
+                      },
+                    ]
+                  );
                 }}
               />
             </PostCardErrorBoundary>

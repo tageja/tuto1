@@ -5,6 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { colors, spacing, typography } from '../theme';
 import { useAirtable } from '../hooks/useAirtable';
 import { useUser } from '../contexts/UserContext';
+import { Backend } from '../services/backend';
 
 interface CommentsScreenProps {
   navigation: any;
@@ -22,13 +23,13 @@ export const CommentsScreen: React.FC<CommentsScreenProps> = ({ navigation, rout
   const fetchComments = async () => {
     try {
       console.log(`[${new Date().toISOString()}] [COMMENTS_SCREEN] Fetching comments for post:`, postId);
-      const fetchedComments = await getComments(postId);
-      const formattedComments = fetchedComments.map((comment: any) => ({
-        id: comment.id,
-        author: comment.authorName,
-        text: comment.content,
-        createdAt: comment.createdAt,
-      }));
+      const response = await Backend.getFeedComments(postId, 1, 50) as any;
+      const formattedComments = response.records?.map((record: any) => ({
+        id: record.id,
+        author: record.fields['Author Name'] || 'Unknown User',
+        text: record.fields['Content'] || '',
+        createdAt: record.fields['Created At'] || new Date().toISOString(),
+      })) || [];
       setComments(formattedComments);
       console.log(`[${new Date().toISOString()}] [COMMENTS_SCREEN] Loaded ${formattedComments.length} comments`);
     } catch (error) {
@@ -44,16 +45,17 @@ export const CommentsScreen: React.FC<CommentsScreenProps> = ({ navigation, rout
     const trimmed = text.trim();
     if (!trimmed) return;
     
-    const authorName = userData?.name || 'Guest User';
-    const authorId = userData?.id || 'guest-user';
+    console.log(`[${new Date().toISOString()}] [COMMENT] Adding comment: ${trimmed}`);
     
-    console.log(`[${new Date().toISOString()}] [COMMENT] Adding comment by ${authorName} (${authorId}): ${trimmed}`);
-    
-    const ok = await addComment(postId, trimmed, authorId, authorName);
-    if (ok) {
-      setText('');
-      // Refresh comments to show the new one with proper timestamp
-      await fetchComments();
+    try {
+      const response = await Backend.addFeedComment(postId, trimmed);
+      if (response) {
+        setText('');
+        // Refresh comments to show the new one with proper timestamp
+        await fetchComments();
+      }
+    } catch (error) {
+      console.error('Error adding comment:', error);
     }
   };
 

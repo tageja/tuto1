@@ -95,6 +95,48 @@ export const Backend = {
   listNearbyTeachers: async (params: { lat: number; lng: number; radiusKm?: number; max?: number }): Promise<{ ok: boolean; teachers: any[] }> => {
     return http('/api/teachers/nearby', { method: 'POST', body: JSON.stringify(params) });
   },
+
+  // Feed endpoints
+  getFeedPosts: async (page: number = 1, limit: number = 20, filterByFormula?: string) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    if (filterByFormula) {
+      params.append('filterByFormula', filterByFormula);
+    }
+    return http(`/api/feed/posts?${params.toString()}`);
+  },
+
+  createFeedPost: async (postData: {
+    contentText: string;
+    contentMediaType?: string;
+    contentMediaUrl?: string;
+    subjects: string[];
+    privacy?: string;
+  }) => {
+    return http('/api/feed/posts', { method: 'POST', body: JSON.stringify(postData) });
+  },
+
+  likeFeedPost: async (postId: string, like: boolean) => {
+    return http(`/api/feed/posts/${postId}/like`, { method: 'POST', body: JSON.stringify({ like }) });
+  },
+
+  addFeedComment: async (postId: string, content: string) => {
+    return http(`/api/feed/posts/${postId}/comments`, { method: 'POST', body: JSON.stringify({ content }) });
+  },
+
+  getFeedComments: async (postId: string, page: number = 1, limit: number = 50) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    return http(`/api/feed/posts/${postId}/comments?${params.toString()}`);
+  },
+
+  reportFeedPost: async (postId: string, reason: string, details?: string) => {
+    return http(`/api/feed/posts/${postId}/report`, { method: 'POST', body: JSON.stringify({ reason, details }) });
+  },
 };
 
 

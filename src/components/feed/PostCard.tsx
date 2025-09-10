@@ -23,6 +23,7 @@ interface PostCardProps {
   onComment: () => void;
   onShare: () => void;
   onSave: () => void;
+  onReport?: () => void;
 }
 
 const getRoleBadge = (role: string) => {
@@ -56,6 +57,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   onComment,
   onShare,
   onSave,
+  onReport,
 }) => {
   const { t } = useLanguage();
   const roleBadge = getRoleBadge(post.author.role);
@@ -300,6 +302,13 @@ export const PostCard: React.FC<PostCardProps> = ({
           />
           <Text style={styles.interactionCount}>{post.interactions.saves}</Text>
         </TouchableOpacity>
+
+        {onReport && (
+          <TouchableOpacity style={styles.interactionButton} onPress={onReport}>
+            <MaterialIcons name="flag" size={20} color={colors.text.secondary} />
+            <Text style={styles.interactionCount}>Report</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
