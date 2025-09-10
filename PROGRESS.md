@@ -199,3 +199,8 @@
   - Branch: feat/maps/marker-clustering-callouts
   - Patch: patches/feat-maps-marker-clustering-callouts.patch
   - Notes: Implemented marker clustering with react-native-clusterer, custom MapMarker component with teacher callouts, location permissions, and navigation to profiles.
+
+- [x] Row 35 — Airtable Schema & Scripts: Seed & sample data scripts
+  - Branch: feat/airtable-schema/seed-sample-data-scripts
+  - Patch: patches/feat-airtable-schema-seed-sample-data-scripts.patch
+  - Notes: Created TypeScript seed scripts with realistic sample data, production guards, reset functionality, and comprehensive documentation.

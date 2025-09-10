@@ -4,6 +4,9 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import axios, { AxiosError } from 'axios';
 
+// Import backup functions
+export { nightlyBackup, manualBackup } from './cron/backups';
+
 admin.initializeApp();
 
 // Config (kept in Functions env, not client)

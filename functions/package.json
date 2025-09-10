@@ -12,6 +12,7 @@
     "lint": "eslint --ext .ts src"
   },
   "dependencies": {
+    "@google-cloud/storage": "^7.17.0",
     "axios": "^1.7.7",
     "cors": "^2.8.5",
     "express": "^4.19.2",
