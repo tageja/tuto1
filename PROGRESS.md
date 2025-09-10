@@ -209,3 +209,8 @@
   - Branch: feat/airtable-schema/backups-export-routine
   - Patch: patches/feat-airtable-schema-backups-export-routine.patch
   - Notes: Implemented nightly backup system with AES-256-GCM encryption, PII redaction, Google Cloud Storage, and 30-day retention policy.
+
+- [x] Row 50 — Legal/Compliance/Moderation: Report/block & content guidelines
+  - Branch: feat/legal-compliance/report-block-content-guidelines
+  - Patch: patches/feat-legal-compliance-report-block-content-guidelines.patch
+  - Notes: Implemented comprehensive content moderation system with reporting, user blocking, admin review queue, and community guidelines.
