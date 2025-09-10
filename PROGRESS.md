@@ -175,6 +175,11 @@
   - Patch: patches/feat-core-ui-offline-fallback.patch
   - Notes: NetInfo banner, AsyncStorage cached lists, retry control.
 
+- [x] Row 10 — Core UI & Flows: Feed (posts, comments, likes)
+  - Branch: feat/core-ui/feed-posts-comments-likes
+  - Patch: patches/feat-core-ui-feed-posts-comments-likes.patch
+  - Notes: Protected backend endpoints, optimistic UI with server reconciliation, abuse/report hooks, one-like-per-user rule.
+
 - [x] Row 27 — Maps / Nearby: Open in Maps deep link
   - Branch: feat/maps/open-in-maps
   - Patch: patches/feat-maps-open-in-maps.patch
