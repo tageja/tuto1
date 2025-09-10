@@ -7,6 +7,15 @@ import axios, { AxiosError } from 'axios';
 // Import backup functions
 export { nightlyBackup, manualBackup } from './cron/backups';
 
+// Import moderation functions
+export {
+  reportContent,
+  blockUser,
+  unblockUser,
+  getModerationQueue,
+  resolveReport
+} from './moderation/index';
+
 admin.initializeApp();
 
 // Config (kept in Functions env, not client)

@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Backend } from '../services/backend';
 import { getAuthSafe } from '../config/firebase';
 
-type UserType = 'parent' | 'student' | 'teacher';
+type UserType = 'parent' | 'student' | 'teacher' | 'admin';
 
 interface UserData {
   id: string;

@@ -204,3 +204,8 @@
   - Branch: feat/airtable-schema/seed-sample-data-scripts
   - Patch: patches/feat-airtable-schema-seed-sample-data-scripts.patch
   - Notes: Created TypeScript seed scripts with realistic sample data, production guards, reset functionality, and comprehensive documentation.
+
+- [x] Row 36 — Airtable Schema & Scripts: Backups & export routine
+  - Branch: feat/airtable-schema/backups-export-routine
+  - Patch: patches/feat-airtable-schema-backups-export-routine.patch
+  - Notes: Implemented nightly backup system with AES-256-GCM encryption, PII redaction, Google Cloud Storage, and 30-day retention policy.
