@@ -30,6 +30,7 @@
     "add:school:fields": "node scripts/add-school-table-fields.js",
     "seed": "ts-node scripts/seed.ts seed",
     "seed:reset": "ts-node scripts/seed.ts reset",
+    "add-computed-fields": "ts-node scripts/add-computed-fields.ts",
     "add:all:school:fields": "node scripts/add-all-school-fields.js",
     "add:school:fields:simple": "node scripts/add-school-fields-simple.js",
     "recreate:school:tables": "node scripts/recreate-school-tables.js",

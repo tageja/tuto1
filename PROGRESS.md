@@ -234,3 +234,8 @@
   - Branch: feat/payments/webhooks-reconciliation
   - Patch: patches/feat-payments-webhooks-reconciliation.patch
   - Notes: Implemented Stripe webhook handler with signature verification, payment event processing, receipt creation, and admin reconciliation tools.
+
+- [x] Row 56 — Payments / Fees: Refunds & admin actions
+  - Branch: feat/payments/refunds-admin-actions
+  - Patch: patches/feat-payments-refunds-admin-actions.patch
+  - Notes: Implemented comprehensive refund management system with admin controls, partial/full refunds, audit logging, and user notifications.
