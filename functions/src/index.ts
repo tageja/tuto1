@@ -25,6 +25,9 @@ export {
   getPaymentHistory
 } from './payments';
 
+// Import webhook functions
+export { stripeWebhook, reconcilePayments } from './webhooks/payments';
+
 admin.initializeApp();
 
 // Config (kept in Functions env, not client)

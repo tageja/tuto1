@@ -224,3 +224,8 @@
   - Branch: feat/payments/create-payment-intent-backend
   - Patch: patches/feat-payments-create-payment-intent-backend.patch
   - Notes: Implemented server-side payment intent creation with amount validation, currency support, and idempotency for price integrity.
+
+- [x] Row 54 — Payments / Fees: Client collect & confirm payment
+  - Branch: feat/payments/client-collect-confirm-payment
+  - Patch: patches/feat-payments-client-collect-confirm-payment.patch
+  - Notes: Implemented complete client-side payment collection with multi-step UI, error handling, and accessibility compliance.
