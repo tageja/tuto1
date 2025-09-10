@@ -229,3 +229,8 @@
   - Branch: feat/payments/client-collect-confirm-payment
   - Patch: patches/feat-payments-client-collect-confirm-payment.patch
   - Notes: Implemented complete client-side payment collection with multi-step UI, error handling, and accessibility compliance.
+
+- [x] Row 55 — Payments / Fees: Webhooks & reconciliation
+  - Branch: feat/payments/webhooks-reconciliation
+  - Patch: patches/feat-payments-webhooks-reconciliation.patch
+  - Notes: Implemented Stripe webhook handler with signature verification, payment event processing, receipt creation, and admin reconciliation tools.

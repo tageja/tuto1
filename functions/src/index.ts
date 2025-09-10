@@ -22,7 +22,10 @@ export {
   confirmPaymentIntent,
   getPaymentIntentStatus,
   cancelPaymentIntent,
-  getPaymentHistory
+  getPaymentHistory,
+  createRefund,
+  getRefundHistory,
+  cancelRefund
 } from './payments';
 
 // Import webhook functions

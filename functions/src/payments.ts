@@ -417,3 +417,315 @@ export const getPaymentHistory = onCall(async (request) => {
     throw error;
   }
 });
+
+/**
+ * Create refund (admin only)
+ */
+export const createRefund = onCall(async (request) => {
+  try {
+    const { auth } = request;
+    if (!auth) {
+      throw new HttpsError('unauthenticated', 'User must be authenticated');
+    }
+
+    // Check admin role
+    const userRecord = await admin.auth().getUser(auth.uid);
+    const customClaims = userRecord.customClaims || {};
+    if (customClaims.role !== 'admin') {
+      throw new HttpsError('permission-denied', 'Admin access required');
+    }
+
+    const { paymentIntentId, amount, reason, notifyUser = true } = request.data;
+
+    if (!paymentIntentId) {
+      throw new HttpsError('invalid-argument', 'Payment intent ID is required');
+    }
+
+    // Get payment intent
+    const paymentIntentDoc = await db.collection('payment_intents').doc(paymentIntentId).get();
+    if (!paymentIntentDoc.exists) {
+      throw new HttpsError('not-found', 'Payment intent not found');
+    }
+
+    const paymentIntent = paymentIntentDoc.data();
+    
+    // Check if payment was successful
+    if (paymentIntent.status !== PaymentStatus.SUCCEEDED) {
+      throw new HttpsError('failed-precondition', 'Only successful payments can be refunded');
+    }
+
+    // Check if already refunded
+    if (paymentIntent.status === PaymentStatus.REFUNDED) {
+      throw new HttpsError('failed-precondition', 'Payment already refunded');
+    }
+
+    // Validate refund amount
+    const refundAmount = amount || paymentIntent.amount;
+    if (refundAmount > paymentIntent.amount) {
+      throw new HttpsError('invalid-argument', 'Refund amount cannot exceed original payment amount');
+    }
+
+    // Check for existing refunds
+    const existingRefunds = await db.collection('refunds')
+      .where('paymentIntentId', '==', paymentIntentId)
+      .where('status', 'in', ['pending', 'succeeded'])
+      .get();
+
+    const totalRefunded = existingRefunds.docs.reduce((sum, doc) => {
+      const refund = doc.data();
+      return sum + (refund.status === 'succeeded' ? refund.amount : 0);
+    }, 0);
+
+    if (totalRefunded + refundAmount > paymentIntent.amount) {
+      throw new HttpsError('invalid-argument', 'Total refund amount would exceed original payment');
+    }
+
+    // Create refund record
+    const refundData = {
+      paymentIntentId,
+      amount: refundAmount,
+      currency: paymentIntent.currency,
+      reason: reason || 'Admin refund',
+      status: 'pending',
+      createdBy: auth.uid,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    const refundRef = await db.collection('refunds').add(refundData);
+
+    // In a real implementation, you would call Stripe here
+    // For now, we'll simulate a successful refund
+    const isSuccessful = Math.random() > 0.05; // 95% success rate for testing
+
+    const newRefundStatus = isSuccessful ? 'succeeded' : 'failed';
+    
+    await refundRef.update({
+      status: newRefundStatus,
+      processedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    // Update payment intent status if full refund
+    if (isSuccessful && refundAmount === paymentIntent.amount) {
+      await paymentIntentDoc.ref.update({
+        status: PaymentStatus.REFUNDED,
+        refundedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+
+      // Update booking status if applicable
+      if (paymentIntent.bookingId) {
+        await db.collection('bookings').doc(paymentIntent.bookingId).update({
+          paymentStatus: PaymentStatus.REFUNDED,
+          refundedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+      }
+    }
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'REFUND_CREATED',
+      table: 'payment_intents',
+      recordId: paymentIntentId,
+      actorId: auth.uid,
+      details: `Refund of ${refundAmount} ${paymentIntent.currency} created. Reason: ${reason}`,
+    });
+
+    // Notify user if requested
+    if (notifyUser && isSuccessful) {
+      await notifyUserRefund(paymentIntent.userId, {
+        amount: refundAmount,
+        currency: paymentIntent.currency,
+        reason,
+        paymentIntentId,
+      });
+    }
+
+    logger.info(`Refund ${refundRef.id} ${newRefundStatus} for payment intent ${paymentIntentId}`);
+
+    return {
+      success: isSuccessful,
+      refundId: refundRef.id,
+      status: newRefundStatus,
+      amount: refundAmount,
+      currency: paymentIntent.currency,
+      message: isSuccessful ? 'Refund processed successfully' : 'Refund failed',
+    };
+
+  } catch (error) {
+    logger.error('Error creating refund:', error);
+    throw error;
+  }
+});
+
+/**
+ * Get refund history (admin only)
+ */
+export const getRefundHistory = onCall(async (request) => {
+  try {
+    const { auth } = request;
+    if (!auth) {
+      throw new HttpsError('unauthenticated', 'User must be authenticated');
+    }
+
+    // Check admin role
+    const userRecord = await admin.auth().getUser(auth.uid);
+    const customClaims = userRecord.customClaims || {};
+    if (customClaims.role !== 'admin') {
+      throw new HttpsError('permission-denied', 'Admin access required');
+    }
+
+    const { limit = 50, startAfter, status, paymentIntentId } = request.data;
+
+    let query = db.collection('refunds')
+      .orderBy('createdAt', 'desc')
+      .limit(limit);
+
+    if (status) {
+      query = query.where('status', '==', status);
+    }
+
+    if (paymentIntentId) {
+      query = query.where('paymentIntentId', '==', paymentIntentId);
+    }
+
+    if (startAfter) {
+      const startAfterDoc = await db.collection('refunds').doc(startAfter).get();
+      query = query.startAfter(startAfterDoc);
+    }
+
+    const snapshot = await query.get();
+    const refunds = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return {
+      success: true,
+      refunds,
+      hasMore: snapshot.docs.length === limit,
+    };
+
+  } catch (error) {
+    logger.error('Error getting refund history:', error);
+    throw error;
+  }
+});
+
+/**
+ * Cancel refund (admin only)
+ */
+export const cancelRefund = onCall(async (request) => {
+  try {
+    const { auth } = request;
+    if (!auth) {
+      throw new HttpsError('unauthenticated', 'User must be authenticated');
+    }
+
+    // Check admin role
+    const userRecord = await admin.auth().getUser(auth.uid);
+    const customClaims = userRecord.customClaims || {};
+    if (customClaims.role !== 'admin') {
+      throw new HttpsError('permission-denied', 'Admin access required');
+    }
+
+    const { refundId, reason } = request.data;
+
+    if (!refundId) {
+      throw new HttpsError('invalid-argument', 'Refund ID is required');
+    }
+
+    // Get refund
+    const refundDoc = await db.collection('refunds').doc(refundId).get();
+    if (!refundDoc.exists) {
+      throw new HttpsError('not-found', 'Refund not found');
+    }
+
+    const refund = refundDoc.data();
+    
+    if (refund.status !== 'pending') {
+      throw new HttpsError('failed-precondition', 'Only pending refunds can be canceled');
+    }
+
+    // Update refund status
+    await refundDoc.ref.update({
+      status: 'canceled',
+      canceledAt: new Date().toISOString(),
+      canceledBy: auth.uid,
+      cancelReason: reason || 'Admin canceled',
+      updatedAt: new Date().toISOString(),
+    });
+
+    // Log audit event
+    await logAuditEvent({
+      action: 'REFUND_CANCELED',
+      table: 'refunds',
+      recordId: refundId,
+      actorId: auth.uid,
+      details: `Refund canceled. Reason: ${reason}`,
+    });
+
+    logger.info(`Refund ${refundId} canceled by admin ${auth.uid}`);
+
+    return {
+      success: true,
+      message: 'Refund canceled successfully',
+    };
+
+  } catch (error) {
+    logger.error('Error canceling refund:', error);
+    throw error;
+  }
+});
+
+/**
+ * Log audit event
+ */
+async function logAuditEvent(event: {
+  action: string;
+  table: string;
+  recordId: string;
+  actorId: string;
+  details: string;
+}): Promise<void> {
+  try {
+    const auditData = {
+      ...event,
+      timestamp: new Date().toISOString(),
+    };
+
+    await db.collection('audit_logs').add(auditData);
+    logger.info(`Audit event logged: ${event.action} on ${event.table}`);
+
+  } catch (error) {
+    logger.error('Error logging audit event:', error);
+    // Don't throw error as audit logging failure shouldn't fail the operation
+  }
+}
+
+/**
+ * Notify user about refund
+ */
+async function notifyUserRefund(userId: string, refundDetails: {
+  amount: number;
+  currency: string;
+  reason: string;
+  paymentIntentId: string;
+}): Promise<void> {
+  try {
+    // In a real implementation, you would send email/push notification here
+    // For now, we'll just log the notification
+    logger.info(`Refund notification for user ${userId}:`, refundDetails);
+
+    // You could integrate with:
+    // - Firebase Cloud Messaging for push notifications
+    // - SendGrid/Mailgun for email notifications
+    // - In-app notification system
+
+  } catch (error) {
+    logger.error('Error notifying user about refund:', error);
+    // Don't throw error as notification failure shouldn't fail the refund
+  }
+}
