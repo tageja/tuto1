@@ -16,6 +16,15 @@ export {
   resolveReport
 } from './moderation/index';
 
+// Import payment functions
+export {
+  createPaymentIntent,
+  confirmPaymentIntent,
+  getPaymentIntentStatus,
+  cancelPaymentIntent,
+  getPaymentHistory
+} from './payments';
+
 admin.initializeApp();
 
 // Config (kept in Functions env, not client)

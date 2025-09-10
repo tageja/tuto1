@@ -214,3 +214,8 @@
   - Branch: feat/legal-compliance/report-block-content-guidelines
   - Patch: patches/feat-legal-compliance-report-block-content-guidelines.patch
   - Notes: Implemented comprehensive content moderation system with reporting, user blocking, admin review queue, and community guidelines.
+
+- [x] Row 52 — Payments / Fees: Choose gateway & region setup
+  - Branch: feat/payments/choose-gateway-region-setup
+  - Patch: patches/feat-payments-choose-gateway-region-setup.patch
+  - Notes: Established payment system foundation with Stripe gateway selection, multi-currency support, and comprehensive documentation.

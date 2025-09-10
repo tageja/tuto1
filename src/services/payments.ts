@@ -6,6 +6,8 @@
 
 // Stripe integration will be added when the package is installed
 // import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../config/firebase';
 
 // Payment configuration
 export const PAYMENT_CONFIG = {
@@ -67,6 +69,13 @@ export interface PaymentResult {
   nextAction?: any;
 }
 
+// Firebase Functions
+const createPaymentIntentFn = httpsCallable(functions, 'createPaymentIntent');
+const confirmPaymentIntentFn = httpsCallable(functions, 'confirmPaymentIntent');
+const getPaymentIntentStatusFn = httpsCallable(functions, 'getPaymentIntentStatus');
+const cancelPaymentIntentFn = httpsCallable(functions, 'cancelPaymentIntent');
+const getPaymentHistoryFn = httpsCallable(functions, 'getPaymentHistory');
+
 export class PaymentService {
   /**
    * Initialize Stripe
@@ -83,23 +92,21 @@ export class PaymentService {
     amount: number,
     currency: Currency = Currency.VND,
     description?: string,
-    metadata?: Record<string, string>
+    metadata?: Record<string, string>,
+    bookingId?: string
   ): Promise<PaymentIntent> {
     try {
-      // This would typically call your backend API
-      // For now, return a mock response
-      const mockPaymentIntent: PaymentIntent = {
-        id: `pi_${Date.now()}`,
+      const result = await createPaymentIntentFn({
         amount,
         currency,
-        status: PaymentStatus.PENDING,
-        clientSecret: `pi_${Date.now()}_secret_${Math.random().toString(36).substr(2, 9)}`,
         description,
         metadata,
-      };
+        bookingId,
+      });
 
-      console.log('Created payment intent:', mockPaymentIntent);
-      return mockPaymentIntent;
+      const paymentIntent = (result.data as any).paymentIntent;
+      console.log('Created payment intent:', paymentIntent);
+      return paymentIntent;
     } catch (error) {
       console.error('Error creating payment intent:', error);
       throw error;
@@ -110,19 +117,23 @@ export class PaymentService {
    * Confirm payment with Stripe
    */
   static async confirmPayment(
-    clientSecret: string,
+    paymentIntentId: string,
     paymentMethodId?: string
   ): Promise<PaymentResult> {
     try {
-      // This would use the Stripe SDK to confirm payment
-      // For now, return a mock response
-      const mockResult: PaymentResult = {
-        success: true,
-        paymentIntentId: `pi_${Date.now()}`,
-      };
+      const result = await confirmPaymentIntentFn({
+        paymentIntentId,
+        paymentMethodId,
+      });
 
-      console.log('Payment confirmed:', mockResult);
-      return mockResult;
+      const isSuccess = (result.data as any).success;
+      console.log('Payment confirmed:', result.data);
+      
+      return {
+        success: isSuccess,
+        paymentIntentId,
+        error: isSuccess ? undefined : (result.data as any).message,
+      };
     } catch (error) {
       console.error('Error confirming payment:', error);
       return {
@@ -303,6 +314,45 @@ export class PaymentService {
     } catch (error) {
       console.error('Error checking payment method availability:', error);
       return false;
+    }
+  }
+
+  /**
+   * Get payment intent status
+   */
+  static async getPaymentIntentStatus(paymentIntentId: string): Promise<PaymentIntent | null> {
+    try {
+      const result = await getPaymentIntentStatusFn({ paymentIntentId });
+      return (result.data as any).paymentIntent;
+    } catch (error) {
+      console.error('Error getting payment intent status:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Cancel payment intent
+   */
+  static async cancelPaymentIntent(paymentIntentId: string): Promise<boolean> {
+    try {
+      const result = await cancelPaymentIntentFn({ paymentIntentId });
+      return (result.data as any).success;
+    } catch (error) {
+      console.error('Error canceling payment intent:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get payment history
+   */
+  static async getPaymentHistory(limit: number = 50, startAfter?: string): Promise<PaymentIntent[]> {
+    try {
+      const result = await getPaymentHistoryFn({ limit, startAfter });
+      return (result.data as any).payments;
+    } catch (error) {
+      console.error('Error getting payment history:', error);
+      return [];
     }
   }
 }
