@@ -194,3 +194,8 @@
   - Branch: feat/cicd/app-identifiers-assets
   - Patch: patches/feat-cicd-app-identifiers-assets.patch
   - Notes: Updated bundle/package IDs, added location permissions and maps plugin.
+
+- [x] Row 30 — Maps / Nearby: Marker clustering & callouts
+  - Branch: feat/maps/marker-clustering-callouts
+  - Patch: patches/feat-maps-marker-clustering-callouts.patch
+  - Notes: Implemented marker clustering with react-native-clusterer, custom MapMarker component with teacher callouts, location permissions, and navigation to profiles.
