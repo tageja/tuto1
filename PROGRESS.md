@@ -239,3 +239,8 @@
   - Branch: feat/payments/refunds-admin-actions
   - Patch: patches/feat-payments-refunds-admin-actions.patch
   - Notes: Implemented comprehensive refund management system with admin controls, partial/full refunds, audit logging, and user notifications.
+
+- [x] Row 37 — Airtable Schema & Scripts: Indices / computed fields
+  - Branch: feat/airtable-schema/indices-computed-fields
+  - Patch: patches/feat-airtable-schema-indices-computed-fields.patch
+  - Notes: Added computed fields across all tables for performance optimization, including avgRating, studentCount, geoHash, engagementScore, and other pre-calculated metrics.
