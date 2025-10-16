@@ -5,9 +5,9 @@ import path from 'path';
 // Serve static assets from the monorepo root assets/images directory
 // Example: /api/assets/images/tuto-logo.png -> ../../assets/images/tuto-logo.png
 
-export async function GET(req: NextRequest, ctx: { params: { path: string[] } }) {
+export async function GET(req: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
   try {
-    const { params } = await Promise.resolve(ctx);
+    const params = await ctx.params;
     const segments = (params?.path || []) as string[];
     // Only allow access under images/ to avoid arbitrary FS reads
     if (segments[0] !== 'images') {
