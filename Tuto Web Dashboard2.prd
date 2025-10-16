@@ -1,0 +1,298 @@
+# Tuto Web Dashboard — Product Requirements Document (PRD v1)
+
+**Audience:** Cursor acting as a *senior* full‑stack engineer (web) and release captain.
+**Scope:** A new **web dashboard/website** for Tuto Schools (school admins & teachers) and Tuto Ops (platform admins), built alongside the existing mobile app.
+**Non‑negotiable constraint:** **Do not modify** the **mobile app** code (apps/mobile) while working on web. Shared packages may be added/updated *without breaking mobile* (see Guardrails).
+**Always read this file whenever continuing for the web version**
+---
+Create new files,
+1. web version progress tracker - update this file after every session to update the progress by date, don't delete anything in this file but add for the next session in a seperate entry by date
+2. new chat summary file for the web version to have clear and detailed information on the session for the new chat window
+3. features checklist file - use this file to keep and update on the features that are listed below and which have been implemented and update for any challenges and tasks which need my involvement
+
+## 1) Problem & Goals
+
+### 1.1 What are we solving?
+
+School admins need a browser‑based control center to manage teachers, students, classes, bookings, payments, and reporting. Tuto Ops needs moderation, approvals, and platform analytics. Parents may optionally get read‑only access later.
+
+### 1.2 Why now?
+
+Mobile is not efficient for back‑office workflows, bulk operations, or analysis. Web unlocks productivity (tables, exports), oversight (dashboards), and compliance (audit, data retention) needed for production readiness and monetization.
+
+### 1.3 Primary goals (P0)
+
+* **Secure, role‑aware** web portal for School Admins and Tuto Admins.
+* Daily operations: **Teachers, Classes, Students, Bookings, Payments** (read → manage).
+* **Reporting** starter dashboards for core KPIs.
+* **Moderation** starter for reviews/UGC.
+* Ship with **Sentry**, **analytics**, **CI**, and strict **API security**.
+
+### 1.4 Non‑goals (for v1)
+
+* Parent self‑service portal (P2).
+* Deep LMS authoring (basic assignments only in P1).
+* Replatforming the backend away from Airtable (future).
+
+---
+
+## 2) Users & Roles
+
+* **Tuto Admin** (platform‑wide ops): approvals, moderation, global payments/analytics.
+* **School Admin** (tenant): manages the school, teachers, classes, students, bookings, invoices.
+* **Teacher** (tenant staff): limited access to own classes/students (read, attendance, assignments).
+* **Parent** (optional P2): read‑only student schedule, payments, progress.
+
+> Authorization derives from Firebase Auth custom claims `{ role, schoolIds[] }`.
+
+---
+
+## 3) Success Metrics
+
+* Admin time to perform common tasks (target −50%).
+* Booking pipeline visibility (all states visible, actionable).
+* Crash‑free sessions ≥ 99.5%, P95 page load < 2.5s.
+* Security: no public generic CRUD, strict CORS, server validation for writes.
+
+---
+
+## 4) Product Surface (Information Architecture)
+
+### 4.1 Global
+
+* **/login**, **/logout**, **/onboarding**
+* **/** (role‑aware landing)
+* **/settings** (profile, school/org settings, billing, legal)
+* **/help** (FAQ/docs links)
+
+### 4.2 School Admin workspace
+
+* **/schools/[id]/overview** — KPIs: active students, classes this week, revenue MTD, pending invoices, churn risk.
+* **/schools/[id]/teachers** — list, filter, create/edit, verification status, availability, ratings.
+* **/schools/[id]/students** — CRM: profiles, contacts, enrollment, progress flags, fees status.
+* **/schools/[id]/classes** — courses, schedules, capacity, roster, attendance.
+* **/schools/[id]/bookings** — pipeline view (pending/confirmed/cancelled/no‑show), actions.
+* **/schools/[id]/payments** — invoices/receipts, payouts, refunds, reconciliation.
+* **/schools/[id]/lms** — basic assignments to class/student, results roll‑up.
+* **/schools/[id]/reviews** — ratings, comments, replies, hide/show.
+* **/schools/[id]/reports** — exports (CSV/PDF) for teachers, students, bookings, revenue.
+
+### 4.3 Tuto Admin workspace
+
+* **/admin/approvals** — teacher/school approvals.
+* **/admin/moderation** — UGC triage (posts, comments, reviews, reports, blocks).
+* **/admin/payments** — platform‑level reconciliation, refund policies.
+* **/admin/analytics** — marketplace KPIs by city/subject.
+* **/admin/schemas** — read‑only schema v1 doc & migrations.
+
+---
+
+## 5) Functional Requirements (WHAT & brief HOW)
+
+> **API rule:** All web calls go through **Firebase Functions /v1** (no direct Airtable from client). Requests include **Firebase ID token**; server enforces **role + schoolId** authorization and **Zod** validation.
+
+### 5.1 Auth & Tenancy (P0)
+
+**What:** Web login via Firebase Auth; role‑aware navigation; school context switcher.
+**Why:** Single identity with mobile, least friction; secure multi‑tenant access.
+**How (brief):** Next.js client uses Firebase Auth; on login, fetch claims; store school context in URL or provider; protect routes (HOC/middleware) and menu by role.
+**DoD:** Unauthed users cannot access protected pages; wrong role/tenant can’t see or call restricted endpoints.
+
+### 5.2 Teachers (P0)
+
+**What:** List, filter/sort, create/edit teacher; view verification, ratings, availability.
+**Why:** School ops require quick teacher management.
+**How:** Data table with pagination; drawer for create/edit; optimistic updates reconcile with server truth.
+**DoD:** CRUD works with validation; list states (loading/empty/error) present; audit log entries appear for writes.
+
+### 5.3 Students (P0)
+
+**What:** List + profile; enrollment, contact info, fees status; CSV export.
+**Why:** CRM basics for schools.
+**How:** Data table + profile page; server validation; export button calling a report endpoint.
+**DoD:** Accurate filtering/export; no PII leaks in client logs.
+
+### 5.4 Classes (P0)
+
+**What:** Create/edit class; schedule, capacity; roster & attendance.
+**Why:** Operational heart of teaching.
+**How:** Form with validation; schedule visual; roster tab; attendance toggles.
+**DoD:** Class shows in schedules; attendance persisted; constraints enforced server‑side.
+
+### 5.5 Bookings (P0)
+
+**What:** Pipeline across states (pending/confirmed/cancelled/no‑show) with actions.
+**Why:** Visibility and fast resolution drive revenue.
+**How:** Kanban/table hybrid; action drawers (confirm/cancel/no‑show); optimistic + reconcile.
+**DoD:** State changes audit‑logged; totals match reports; no phantom states.
+
+### 5.6 Payments (P0)
+
+**What:** List invoices/receipts; basic reconciliation view.
+**Why:** Financial clarity & support.
+**How:** Read‑first; later actions in P1; webhook data reflected in UI.
+**DoD:** Records match gateway events; mismatches flagged.
+
+### 5.7 Reviews & Moderation (P0)
+
+**What:** List reviews; approve/hide; see reports.
+**Why:** Trust & safety.
+**How:** Table with bulk actions; role‑gated.
+**DoD:** Actions reflected immediately; audit present; non‑admins cannot access.
+
+### 5.8 Reporting (P0)
+
+**What:** Overview dashboard (KPIs) + CSV exports.
+**Why:** Operability and insight.
+**How:** Recharts for KPIs; export endpoints for CSV.
+**DoD:** KPIs accurate for selected time range; exports open in Excel.
+
+### 5.9 LMS Basics (P1)
+
+**What:** Assign exercises to class/student; track completion.
+**Why:** Learning outcomes and retention.
+**How:** Assignment templates, assign modal, results tab.
+**DoD:** Assignment → completion visible on student profile and class view.
+
+### 5.10 Refunds & Reconciliation (P1)
+
+**What:** Issue refunds; reconcile discrepancies; receipts/ledger reflect status.
+**Why:** Support and finance hygiene.
+**How:** Refund action (role‑gated), webhook confirmation, idempotent handlers.
+**DoD:** Refunds appear in ledger; bookings updated; audit present.
+
+### 5.11 Advanced Moderation (P1)
+
+**What:** UGC triage queue, severity filters, batch actions.
+**Why:** Scale trust & safety.
+**How:** Queue page; actions logged; rate‑limits enforced server‑side.
+**DoD:** SLAs met; repeat abusers blocked; false positives minimized.
+
+### 5.12 Analytics Dashboards (P1)
+
+**What:** Funnels (search → booking) and retention; segment by city/subject.
+**Why:** Marketplace health.
+**How:** Embedded charts; shared taxonomy with mobile.
+**DoD:** Dashboards match event data; deltas explained.
+
+---
+
+## 6) Architecture & Repo Strategy
+
+* **Monorepo** (Workspaces): keep web and mobile together but isolated.
+
+```
+/apps
+  /mobile        # existing mobile app (DO NOT MODIFY)
+  /dashboard     # NEW Next.js app (web)
+/packages
+  /ui            # shared theme/components (non‑breaking for mobile)
+  /schemas       # Zod schemas shared across apps & functions
+  /api           # typed SDK for /v1 endpoints + React Query hooks
+  /config        # shared eslint/tsconfig/tailwind
+/functions       # Firebase Functions (secure /v1)
+/docs            # schema.md v1, release, analytics, privacy, etc.
+```
+
+* **Backend contract**: Introduce **/v1** endpoints with auth, role checks, Zod validation, strict CORS, rate limiting, and audit logs. Deprecate old generic CRUD.
+* **Data**: Airtable remains source of truth in v1; no client secrets.
+
+---
+
+## 7) Security & Compliance Requirements (hard)
+
+* No public generic CRUD; only specific **/v1** endpoints.
+* Every write validated (Zod) and **audit‑logged**.
+* **Strict CORS** allowlist (dashboard + admin origins only).
+* **Rate limiting** per UID/IP on sensitive endpoints.
+* **Sentry** enabled with source maps; no PII in breadcrumbs.
+* **Legal**: ToS/Privacy accessible; acceptance logged; age gate & consent flows (when applicable).
+
+---
+
+## 8) UX/UI Requirements (modern, smooth)
+
+* **Design language**: minimal, airy, **rounded‑2xl**, consistent spacing scale, subtle shadows.
+* **Components**: shadcn/ui primitives; DataTable with column visibility, sticky header, virtualization for large lists.
+* **Icons**: lucide‑react; use meaningful affordances.
+* **Animations**: **Framer Motion** for page transitions, drawers, toasts, skeleton fades. Keep durations short (120–240ms), easeOut.
+* **States**: Every data surface has **loading** (skeletons), **empty** (illustration + helpful copy), **error** (actionable).
+* **A11y**: keyboard focus rings, ARIA for tables/forms; high‑contrast mode acceptable.
+* **Performance budgets**: First content < 2.5s (p95); smooth scroll on low‑end laptops; images sized responsively.
+* **i18n**: EN/VI parity; numbers, currency (VND), distances localized.
+
+---
+
+## 9) Delivery Plan & Milestones
+
+### Milestone P0 (4–6 sprints)
+
+1. **Scaffold**: apps/dashboard, shared packages, auth shell, protected routes, design tokens.
+2. **API contract**: /v1 endpoints for teachers, students, classes, bookings (read/write), payments (read), reviews (read+moderation), with auth/Zod/CORS/rate limit/audit.
+3. **School Admin core**: Teachers, Classes, Students, Bookings (full CRUD/flows), Payments (read), Reviews (moderation lite), Overview KPIs, CSV exports.
+4. **Ops**: Approvals & Moderation starter.
+5. **Observability**: Sentry + analytics taxonomy; CI (lint/type/test/build) + Vercel previews.
+
+**Exit criteria P0**: Guardrails met (Security & Compliance), no unauth routes, no crashes, core flows usable end‑to‑end.
+
+### Milestone P1
+
+* LMS basics (assignments → results), Refunds & reconciliation actions, Advanced moderation, Analytics dashboards.
+
+### Milestone P2
+
+* Parent portal (read‑only), timetable planner, email automations, white‑label theming.
+
+---
+
+## 10) Guardrails for Cursor (operate like a senior engineer)
+
+* **Do not modify** mobile app code. If a *shared package* change is needed, ensure **no breaking changes** and run a mobile smoke build locally; if risky, fork a new shared component variant.
+* **Small, cohesive PRs**: one feature or endpoint slice at a time, with tests and docs.
+* **Branch naming**: `feat/<area>/<slug>`, `fix/<area>/<slug>`; Conventional Commits.
+* **Quality gates per PR**:
+
+  * Typecheck (tsc), ESLint/Prettier clean.
+  * Unit tests and at least one smoke test for changed flows.
+  * Sentry symbolication in preview build.
+  * i18n strings extracted; VI/EN verified.
+  * No client secrets; environment variables documented.
+* **Safety first**: If a step would break mobile or production data, stop, mark **BLOCKED**, and continue with the next task.
+* **Docs**: Update `/docs/schema.md` (if payloads change), `/docs/release.md`, `/docs/analytics.md`.
+* **Non‑interactive execution**: Proceed through backlog without asking for confirmations; summarize at the end (Done/Blocked with reasons).
+
+---
+
+## 11) Acceptance Criteria (cross‑cutting)
+
+* All protected pages require auth; unauthorized/forbidden states render friendly screens.
+* Each list supports loading/empty/error/pagination; back/forward navigation preserves filters.
+* Writes are validated and audit‑logged; errors actionable.
+* Sentry shows symbolicated traces; analytics events align with taxonomy.
+* Dashboard UI is modern, smooth, accessible, and consistent with mobile brand.
+
+---
+
+## 12) Risks & Mitigations
+
+* **Backend gaps** (generic CRUD, lax CORS): address before enabling writes from web.
+* **Tenant leaks**: enforce schoolId checks on every call; include unit tests for authorization.
+* **Performance**: use virtualization for large tables; cache and paginate; image constraints.
+* **Schema drift**: publish `docs/schema.md` v1 and gate changes via PR review.
+
+---
+
+## 13) Out of Scope (v1)
+
+* Real‑time collaborative editing.
+* External SSO for schools (consider later).
+* Deep LMS authoring tools.
+
+---
+
+## 14) Handoff Notes
+
+* Start in **monorepo** with `/apps/dashboard` and shared packages.
+* Introduce `/v1` endpoints in Functions first; deprecate legacy routes with headers.
+* Keep a running `PROGRESS.md` with links to PRs and notable decisions.
+* Produce a brief end‑of‑sprint demo checklist and screenshots.

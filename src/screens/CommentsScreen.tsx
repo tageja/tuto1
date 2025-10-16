@@ -5,7 +5,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { colors, spacing, typography } from '../theme';
 import { useAirtable } from '../hooks/useAirtable';
 import { useUser } from '../contexts/UserContext';
-import { Backend } from '../services/backend';
 
 interface CommentsScreenProps {
   navigation: any;
@@ -23,13 +22,13 @@ export const CommentsScreen: React.FC<CommentsScreenProps> = ({ navigation, rout
   const fetchComments = async () => {
     try {
       console.log(`[${new Date().toISOString()}] [COMMENTS_SCREEN] Fetching comments for post:`, postId);
-      const response = await Backend.getFeedComments(postId, 1, 50) as any;
-      const formattedComments = response.records?.map((record: any) => ({
-        id: record.id,
-        author: record.fields['Author Name'] || 'Unknown User',
-        text: record.fields['Content'] || '',
-        createdAt: record.fields['Created At'] || new Date().toISOString(),
-      })) || [];
+      const response = await getComments(postId);
+      const formattedComments = response.map((comment: any) => ({
+        id: comment.id,
+        author: comment.authorName || 'Unknown User',
+        text: comment.content || '',
+        createdAt: comment.createdAt || new Date().toISOString(),
+      }));
       setComments(formattedComments);
       console.log(`[${new Date().toISOString()}] [COMMENTS_SCREEN] Loaded ${formattedComments.length} comments`);
     } catch (error) {
@@ -48,7 +47,7 @@ export const CommentsScreen: React.FC<CommentsScreenProps> = ({ navigation, rout
     console.log(`[${new Date().toISOString()}] [COMMENT] Adding comment: ${trimmed}`);
     
     try {
-      const response = await Backend.addFeedComment(postId, trimmed);
+      const response = await addComment(postId, trimmed, userData?.id, userData?.name);
       if (response) {
         setText('');
         // Refresh comments to show the new one with proper timestamp

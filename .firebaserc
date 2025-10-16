@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "Tuto1"
-  }
+    "default": "tuto1-73fc4"
+  },
+  "targets": {},
+  "etags": {}
 }

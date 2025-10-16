@@ -1,0 +1,19 @@
+# Guides
+
+- AIRTABLE_SETUP.md
+- AUTOMATED_SETUP_GUIDE.md
+- AUTOMATED_AIRTABLE_SETUP_GUIDE.md
+- DATABASE_SETUP_GUIDE.md
+- SCHOOL_INTEGRATION_SETUP.md
+- SCHOOL_TABLES_CREATION_GUIDE.md
+- SCHOOL_FIELDS_CREATION_GUIDE.md
+- ONBOARDING_TECH_NOTES.md
+- scripts/README.md
+- scripts/airtable-setup-guide.md
+- apps/dashboard/QUICK_START.md
+- apps/dashboard/SETUP_INSTRUCTIONS.md
+- apps/dashboard/LOCAL_SETUP_GUIDE.md
+
+
+
+

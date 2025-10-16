@@ -42,8 +42,7 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-image-picker",
-      "react-native-maps"
+      "expo-image-picker"
     ]
   }
 }

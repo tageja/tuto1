@@ -1,0 +1,6692 @@
+{
+  "tables": [
+    {
+      "id": "tblyQHaIDP4yP7ppJ",
+      "name": "Teachers",
+      "primaryFieldId": "fldrP4fx1ZtosDXBG",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldrP4fx1ZtosDXBG",
+          "name": "Teacher Name"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldnXOyuMIZNOWDNL",
+          "name": "Qualifications"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldnKOHdUdoHNSgfv",
+          "name": "Subjects Taught"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldrTeOv4DydoIgqR",
+          "name": "Availability"
+        },
+        {
+          "type": "multipleAttachments",
+          "options": {
+            "isReversed": true
+          },
+          "id": "fldPU43L9QhWeFU9H",
+          "name": "Profile Photo"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl1XRPop3NNcAaxF",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldbpGN6QJdo4BbBs"
+          },
+          "id": "fldB2IAYy6ADVQxbq",
+          "name": "Institute"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldJhAZItSH7x6HqR",
+          "name": "Contact Information"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl1cOkQ1qMbeZgn4",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fld7K9mDZUoOBWmE5"
+          },
+          "id": "fld4ArahWCLVcyrh7",
+          "name": "Students"
+        },
+        {
+          "type": "rating",
+          "options": {
+            "icon": "star",
+            "max": 5,
+            "color": "yellowBright"
+          },
+          "id": "fldldz65m1IZKKuh6",
+          "name": "Rating"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldMCq25Et6bqXzis",
+          "name": "Fee"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldxVZHEL755zogIc",
+          "name": "Distance"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldqtSQZYqB0CF1aZ",
+          "name": "Course 1"
+        },
+        {
+          "type": "singleLineText",
+          "id": "flddkUoosshmz7YMB",
+          "name": "Course 2"
+        },
+        {
+          "type": "singleLineText",
+          "id": "flddpLAazN5nTZR5z",
+          "name": "Institute Name"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblPJkcyttJNPf82U",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "flddbfA6SEAq5LfEf"
+          },
+          "id": "fldJcVuAQ7J2uo5li",
+          "name": "Booking"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwha6avoOHPlZ22c",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tbl1XRPop3NNcAaxF",
+      "name": "Institutes",
+      "primaryFieldId": "fldShbsSJnlz2U6Fq",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldShbsSJnlz2U6Fq",
+          "name": "Institute Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldVmbv29SSct6F9K",
+          "name": "Location"
+        },
+        {
+          "type": "multipleSelects",
+          "options": {
+            "choices": [
+              {
+                "id": "selZqqeNHpPPy2CXo",
+                "name": "Mathematics",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selAqGS7mEBb0xCTy",
+                "name": "Science",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selw3zZUcgkDY24Js",
+                "name": "Arts",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selfEvt4SOG6iXdk0",
+                "name": "Technology",
+                "color": "greenLight2"
+              },
+              {
+                "id": "sel3N6eIyKJ7hXDbX",
+                "name": "Languages",
+                "color": "yellowLight2"
+              },
+              {
+                "id": "selfoc5CwSXqST6iD",
+                "name": "Business",
+                "color": "orangeLight2"
+              },
+              {
+                "id": "seltsXRC3z7nlA7sB",
+                "name": "Humanities",
+                "color": "redLight2"
+              }
+            ]
+          },
+          "id": "fldt9nZ41H8Ww2jOG",
+          "name": "Courses Offered"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldMIFTFDqJtz3Tlz",
+          "name": "Contact Details"
+        },
+        {
+          "type": "multipleAttachments",
+          "options": {
+            "isReversed": true
+          },
+          "id": "fld82GYbuV1ZaK80D",
+          "name": "Institute Photo"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblyQHaIDP4yP7ppJ",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldB2IAYy6ADVQxbq"
+          },
+          "id": "fldbpGN6QJdo4BbBs",
+          "name": "Teachers"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl1cOkQ1qMbeZgn4",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldnEj0jFPLU7QTOB"
+          },
+          "id": "fldp1l5G158WuyN5Q",
+          "name": "Students"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblTh2jUWSVxg4iUz",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldjPwF8upGi7Omu8"
+          },
+          "id": "fldUNARrhHlZA7BVk",
+          "name": "Courses"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldl9HPPWVgTNbDiN",
+          "name": "Teachers 2"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldiehZyWt0DjFXaR",
+          "name": "Teachers 3"
+        }
+      ],
+      "views": [
+        {
+          "id": "viw53c7puaFHw07gq",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tbl1cOkQ1qMbeZgn4",
+      "name": "Students",
+      "primaryFieldId": "fldwsLgTjJqwHqnFk",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldwsLgTjJqwHqnFk",
+          "name": "Student ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldz8To83a7o5Jzi6",
+          "name": "First Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldSSTq4VbvSCxOMU",
+          "name": "Last Name"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldqG9PE5KN0WRkpL",
+          "name": "Date of Birth"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldpySwzTaTtwIeoq",
+          "name": "Email"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld3gvucGZiEb9JqT",
+          "name": "Phone Number"
+        },
+        {
+          "type": "multipleAttachments",
+          "options": {
+            "isReversed": true
+          },
+          "id": "fldzskg1LTXP9lltV",
+          "name": "Profile Photo"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl1XRPop3NNcAaxF",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldp1l5G158WuyN5Q"
+          },
+          "id": "fldnEj0jFPLU7QTOB",
+          "name": "Enrolled Courses"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldLE3FuulRngZgKG",
+          "name": "Address"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldiT6dM59Oq1E2d5",
+          "name": "Emergency Contact"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblyQHaIDP4yP7ppJ",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fld4ArahWCLVcyrh7"
+          },
+          "id": "fld7K9mDZUoOBWmE5",
+          "name": "Teacher"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbluIGW2rsO1lhDf9",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldliPcxL9XrK99UK"
+          },
+          "id": "fld0oXDRFDK0glQM9",
+          "name": "Performance Records"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblQQ6TNTxJhV88sl",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldYW0tzNeEwXXhx3"
+          },
+          "id": "fldGuc6hmF8PB7SFF",
+          "name": "Attendance Records"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl0tbIWrxn8olVWJ",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldcFvC29jPUSOJlM"
+          },
+          "id": "fldKi4G3Nb8N5juch",
+          "name": "Assignments"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblXiMEfCxenxGCLq",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldJ2DTp2QYzBTHTr"
+          },
+          "id": "fld6LrtfyL8sLEucy",
+          "name": "Class Schedules"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl65zvwLPaytsFjU",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldT41mtQWcloZCI7"
+          },
+          "id": "fldFaSNjJkuPgB8ve",
+          "name": "Parents"
+        }
+      ],
+      "views": [
+        {
+          "id": "viw3EINbQw4lco9QW",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tbluIGW2rsO1lhDf9",
+      "name": "Student Performance Records",
+      "primaryFieldId": "fldbk2HGqYamIJuB6",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldbk2HGqYamIJuB6",
+          "name": "Course"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl1cOkQ1qMbeZgn4",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fld0oXDRFDK0glQM9"
+          },
+          "id": "fldliPcxL9XrK99UK",
+          "name": "Student"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldf3S4V58icvHpoS",
+          "name": "Subject"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selNh9cjbcmXoXT4P",
+                "name": "A",
+                "color": "blueLight2"
+              },
+              {
+                "id": "seld6GIWdibKs9FPa",
+                "name": "B",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selYbTHOnqFuNBXjs",
+                "name": "C",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selkSdEyoWgKLEV2F",
+                "name": "D",
+                "color": "greenLight2"
+              },
+              {
+                "id": "selgyuicB4jMWvrXS",
+                "name": "F",
+                "color": "yellowLight2"
+              }
+            ]
+          },
+          "id": "fld8PybOvfjDHNKFP",
+          "name": "Grade"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldUtaERtu0e24yBP",
+          "name": "Feedback"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldmF02o1HHI4Pjc0",
+          "name": "Progress Report Date"
+        },
+        {
+          "type": "multipleAttachments",
+          "options": {
+            "isReversed": true
+          },
+          "id": "fldA8mluR9Mk6kHZE",
+          "name": "Performance Photo"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwzV882CNvp3WnBT",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblTh2jUWSVxg4iUz",
+      "name": "Courses",
+      "primaryFieldId": "fldyadmLe2Nvf3HxA",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldyadmLe2Nvf3HxA",
+          "name": "Course Name"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldUf4i2AyrTkDVFJ",
+          "name": "Course Duration"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldePoyiE4Yx75fqU",
+          "name": "Syllabus"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblXiMEfCxenxGCLq",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldrBRtnLlYzB73Ur"
+          },
+          "id": "fldgMzQG9bZRCCXt5",
+          "name": "Schedule"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldDdwdAMNpeX4fxq",
+          "name": "Instructor"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl1XRPop3NNcAaxF",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldUNARrhHlZA7BVk"
+          },
+          "id": "fldjPwF8upGi7Omu8",
+          "name": "Institute"
+        },
+        {
+          "type": "multipleAttachments",
+          "options": {
+            "isReversed": true
+          },
+          "id": "fldoqrBhYjN5Z86sd",
+          "name": "Course Materials"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblQQ6TNTxJhV88sl",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldWVnsC7G3JNbKnn"
+          },
+          "id": "fldBKQdJCaBDBtZVY",
+          "name": "Attendance Records"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl0tbIWrxn8olVWJ",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldrJ2JjhqSAurRYx"
+          },
+          "id": "fldOgSzraJh5ZXEOE",
+          "name": "Assignments"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldAQTSOaBPxS4lu4",
+          "name": "Teachers"
+        }
+      ],
+      "views": [
+        {
+          "id": "viw9vfB8P9aafRmF6",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tbl0tbIWrxn8olVWJ",
+      "name": "Assignments",
+      "primaryFieldId": "fldnaCHRqLWjtvVjN",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldnaCHRqLWjtvVjN",
+          "name": "Assignment Title"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldRlMg5upno638XV",
+          "name": "Due Date"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selP0BJ9TNpWYdG63",
+                "name": "Not Submitted",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selDRj0iL9uqKAgqZ",
+                "name": "Submitted",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selLbrp9n6fqtbApo",
+                "name": "Graded",
+                "color": "tealLight2"
+              }
+            ]
+          },
+          "id": "fldkdQoRQpbc7u0k0",
+          "name": "Submission Status"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblTh2jUWSVxg4iUz",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldOgSzraJh5ZXEOE"
+          },
+          "id": "fldrJ2JjhqSAurRYx",
+          "name": "Course"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl1cOkQ1qMbeZgn4",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldKi4G3Nb8N5juch"
+          },
+          "id": "fldcFvC29jPUSOJlM",
+          "name": "Student"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 2
+          },
+          "id": "fldl3EJgnRkaZCyzc",
+          "name": "Grade"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldHNGdQRU94cfmtl",
+          "name": "Feedback"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwCqfGkQuRrFYAjp",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblQQ6TNTxJhV88sl",
+      "name": "Attendance Records",
+      "primaryFieldId": "fldYGAQdZUevHGxtc",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldYGAQdZUevHGxtc",
+          "name": "Name"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldzgrBEjm2lydQpD",
+          "name": "Attendance Date"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl1cOkQ1qMbeZgn4",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldGuc6hmF8PB7SFF"
+          },
+          "id": "fldYW0tzNeEwXXhx3",
+          "name": "Student"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblTh2jUWSVxg4iUz",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldBKQdJCaBDBtZVY"
+          },
+          "id": "fldWVnsC7G3JNbKnn",
+          "name": "Course"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selzUlqagBiBr07n6",
+                "name": "Present",
+                "color": "blueLight2"
+              },
+              {
+                "id": "sel4Wp1hZJBNRBV0a",
+                "name": "Absent",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selT5zhe6gKeeL4Wu",
+                "name": "Tardy",
+                "color": "tealLight2"
+              }
+            ]
+          },
+          "id": "fldR2V7Z6s7wmsjtR",
+          "name": "Presence Status"
+        },
+        {
+          "type": "checkbox",
+          "options": {
+            "icon": "thumbsUp",
+            "color": "greenBright"
+          },
+          "id": "fldpyRyGrn2S5wufH",
+          "name": "Excused Absence"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldSrJ0CwCaCMhtsr",
+          "name": "Notes"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwnjXSJlPXxKkA22",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblXiMEfCxenxGCLq",
+      "name": "Class Schedules",
+      "primaryFieldId": "fldTPLurMlOLtXYZ1",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldTPLurMlOLtXYZ1",
+          "name": "Class Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld3aNETpQrdNuh3a",
+          "name": "Teacher"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl1cOkQ1qMbeZgn4",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fld6LrtfyL8sLEucy"
+          },
+          "id": "fldJ2DTp2QYzBTHTr",
+          "name": "Students"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fld8avIGr3BoFxE50",
+          "name": "Start Time"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldrvkRLUbOEmVNmH",
+          "name": "End Time"
+        },
+        {
+          "type": "singleLineText",
+          "id": "flddON6m4S9cgNRGs",
+          "name": "Location"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "sell0rmnUws7gH6AC",
+                "name": "None",
+                "color": "blueLight2"
+              },
+              {
+                "id": "sel89JXPLTawURs64",
+                "name": "Daily",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "sel1DuFxoTgcmOofG",
+                "name": "Weekly",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selaRFQUnziQvrX4X",
+                "name": "Monthly",
+                "color": "greenLight2"
+              }
+            ]
+          },
+          "id": "fldxPxDzRib5yVfGf",
+          "name": "Recurring"
+        },
+        {
+          "type": "multipleSelects",
+          "options": {
+            "choices": [
+              {
+                "id": "selXhB8SGgyN5hkJp",
+                "name": "Projector",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selPzuFzzDFy1yEO9",
+                "name": "Whiteboard",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selSqleIPhaZEy7Ju",
+                "name": "Computer Lab",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selrykOpZtIzIt8Pq",
+                "name": "Science Lab",
+                "color": "greenLight2"
+              }
+            ]
+          },
+          "id": "fldVrJcbexwKg4iqU",
+          "name": "Classroom Resources"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldY2rdGO4mbGvbhg",
+          "name": "Special Notes"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblTh2jUWSVxg4iUz",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldgMzQG9bZRCCXt5"
+          },
+          "id": "fldrBRtnLlYzB73Ur",
+          "name": "Courses"
+        }
+      ],
+      "views": [
+        {
+          "id": "viw5v923D9IpJ9IfR",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblPJkcyttJNPf82U",
+      "name": "Booking",
+      "primaryFieldId": "fldH51uhsIhNOK1So",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldH51uhsIhNOK1So",
+          "name": "Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldcOFCgKU7ocSpFM",
+          "name": "Grade"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldByf8pRKyWr0ANm",
+          "name": "Age"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldAX5EhumyZZdMDj",
+          "name": "Adress"
+        },
+        {
+          "type": "multipleSelects",
+          "options": {
+            "choices": [
+              {
+                "id": "selABAlPNT5xS8RIb",
+                "name": "Sunday",
+                "color": "blueLight2"
+              },
+              {
+                "id": "selBAofuPtutS7a7p",
+                "name": "Monday",
+                "color": "cyanLight2"
+              },
+              {
+                "id": "selNUMBKomvQ3Jjuc",
+                "name": "Tuesday",
+                "color": "tealLight2"
+              },
+              {
+                "id": "selmWrHSmafzF8WMS",
+                "name": "Wednesday",
+                "color": "greenLight2"
+              },
+              {
+                "id": "selDqngXm76MuQZVn",
+                "name": "Friday",
+                "color": "yellowLight2"
+              },
+              {
+                "id": "selR3HiqzM3MPiNns",
+                "name": "Saturday",
+                "color": "orangeLight2"
+              }
+            ]
+          },
+          "id": "fldabzrv8L1YnpwLe",
+          "name": "Preferred Days"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "european",
+              "format": "D/M/YYYY"
+            }
+          },
+          "id": "fld5tqWKWmUqRNzxX",
+          "name": "Trial Lesson Date"
+        },
+        {
+          "type": "phoneNumber",
+          "id": "fldpYYmxoK6vHtf57",
+          "name": "Phone number"
+        },
+        {
+          "type": "email",
+          "id": "fldVaJpVGHj5w6X9V",
+          "name": "Email"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tblyQHaIDP4yP7ppJ",
+            "isReversed": false,
+            "prefersSingleRecordLink": true,
+            "inverseLinkFieldId": "fldJcVuAQ7J2uo5li"
+          },
+          "id": "flddbfA6SEAq5LfEf",
+          "name": "Teacher Name"
+        },
+        {
+          "type": "multipleLookupValues",
+          "options": {
+            "isValid": true,
+            "recordLinkFieldId": "flddbfA6SEAq5LfEf",
+            "fieldIdInLinkedTable": "fldrP4fx1ZtosDXBG",
+            "result": {
+              "type": "singleLineText"
+            }
+          },
+          "id": "flde5Xt7oLfOhC8pC",
+          "name": "Teacher Name (from Teacher Name)"
+        }
+      ],
+      "views": [
+        {
+          "id": "viw2Abh6Kzo2okpY7",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tbl2Y0sJusr3gzf2j",
+      "name": "TestTableScript",
+      "primaryFieldId": "fldFIesJXKUqVwQKM",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldFIesJXKUqVwQKM",
+          "name": "Column1"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldHNN0CPmGajpEgD",
+          "name": "Column2"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldN9sLH12ZMXgPtt",
+          "name": "NewColumnTest"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwk8OcDZPKjQoypI",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblP2nOehMQWfteYp",
+      "name": "Subjects",
+      "description": "Subject catalog with bilingual support",
+      "primaryFieldId": "fld0KfAhCYDKhZv97",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fld0KfAhCYDKhZv97",
+          "name": "Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldHa9z12xNQZkjHp",
+          "name": "Name Vietnamese"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldu0ickGLl3HwpPh",
+          "name": "Icon"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selY2HGd4qboVWt5b",
+                "name": "Academic",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selSwa6vy8wJw6311",
+                "name": "Extracurricular",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldqPemYrfL25zWD4",
+          "name": "Category"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldaQmgxrLHZPRxY8",
+          "name": "Description"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldfdTjyYpRalZ6ll",
+          "name": "Description Vietnamese"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldp1q7ybyL0HYcx3",
+          "name": "Color"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selYkj2nNQjaGaEZZ",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selxoAFz0HSRzGz4O",
+                "name": "Inactive",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fld46jJhwzDSNqpAh",
+          "name": "Status"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwJZmABJWq9HzmCk",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tbl65zvwLPaytsFjU",
+      "name": "Parents",
+      "description": "Parent profiles with payment methods and children",
+      "primaryFieldId": "fld2fiWS9FHf3rcTK",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fld2fiWS9FHf3rcTK",
+          "name": "Name"
+        },
+        {
+          "type": "email",
+          "id": "fldDLyBxEJC5DA4XX",
+          "name": "Email"
+        },
+        {
+          "type": "phoneNumber",
+          "id": "fldNkzZOXb4RE2hyS",
+          "name": "Phone"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldVR0plVSpfsxQYp",
+          "name": "Address"
+        },
+        {
+          "type": "multipleRecordLinks",
+          "options": {
+            "linkedTableId": "tbl1cOkQ1qMbeZgn4",
+            "isReversed": false,
+            "prefersSingleRecordLink": false,
+            "inverseLinkFieldId": "fldFaSNjJkuPgB8ve"
+          },
+          "id": "fldT41mtQWcloZCI7",
+          "name": "Children"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selbODSECMhm2jQFN",
+                "name": "Credit Card",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selzTn2yUyBxrCvce",
+                "name": "Bank Transfer",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selZnTbibRPIEOhgZ",
+                "name": "Cash",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selEMEfuIJXlDlW5J",
+                "name": "Digital Wallet",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel2Aw4yVRM3loHYr",
+                "name": "PayPal",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldzIXiGGERQxM9pS",
+          "name": "Payment Method"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selfZwhv5FPqKRnjf",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selCljo8LUpJjjt14",
+                "name": "Inactive",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldFuMsghOk3bkmmt",
+          "name": "Status"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwRjLwvyXDOYZ2Mq",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tbl1qzFqL6mjFegXN",
+      "name": "Bookings",
+      "description": "Tutoring session bookings and scheduling",
+      "primaryFieldId": "fldfqNUF6DnmA3RK2",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldfqNUF6DnmA3RK2",
+          "name": "Student ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld4PxGDSB4cIyJek",
+          "name": "Teacher ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldEj77g8xLXqcQgh",
+          "name": "Parent ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld3WVhyVPnzfLCCI",
+          "name": "Subject"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldz1fy4uNdUX8Dfq",
+          "name": "Date"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldBSs78p2lrJNGLS",
+          "name": "Time"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fld5XQiz6r2YTfqOZ",
+          "name": "Duration"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selrqgmf0D6ov6nzZ",
+                "name": "Pending",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel36ZCz28tVFDa89",
+                "name": "Confirmed",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selTpkVrTFdEgRenx",
+                "name": "Completed",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selzXQyIz97ysbm3p",
+                "name": "Cancelled",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldbofxb1Rq3clxnk",
+          "name": "Status"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldhBI6XYV7M70lJz",
+          "name": "Notes"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selGHThdfQLlVAFlS",
+                "name": "Pending",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel2pFEHOyoHMdSeN",
+                "name": "Paid",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selguiitgHHfezkao",
+                "name": "Refunded",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldGeUUaLsOR8Wifm",
+          "name": "Payment Status"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "24hour",
+              "format": "HH:mm"
+            },
+            "timeZone": "America/New_York"
+          },
+          "id": "fldYjSUQHjNvX3Mpn",
+          "name": "Created At"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwkb8ZOlTyWx4L5v",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblRSDmXdIQROjVMx",
+      "name": "Reviews",
+      "description": "Teacher reviews and ratings from students/parents",
+      "primaryFieldId": "fldYjF1hqg1QzbCRq",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldYjF1hqg1QzbCRq",
+          "name": "Teacher ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldmhQ4ixJHzDm2uz",
+          "name": "Student ID"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 1
+          },
+          "id": "fldRYdPOYrNSVUGgg",
+          "name": "Rating"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldPfmyYobLGcVR4V",
+          "name": "Comment"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "24hour",
+              "format": "HH:mm"
+            },
+            "timeZone": "America/New_York"
+          },
+          "id": "fldaRluQKX9b1bEMG",
+          "name": "Created At"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwhf0iX8ZdQDefB5",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblokKlDXIF1L48u4",
+      "name": "Payments",
+      "description": "Payment tracking for tutoring sessions",
+      "primaryFieldId": "fldeIduHoO5niL80G",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldeIduHoO5niL80G",
+          "name": "Booking ID"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldAQZvOPrWoqvlww",
+          "name": "Amount"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldp866EQXTDDzoH8",
+          "name": "Currency"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selp7LdX25gVMPZ3T",
+                "name": "Pending",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selJcHQRajRugz7GJ",
+                "name": "Paid",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel43EJW6azZSGfBP",
+                "name": "Refunded",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldXDdbFljykBURvY",
+          "name": "Status"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldzYnwgX0SozUV59",
+          "name": "Payment Method"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldGkvHi1mxsEOcEd",
+          "name": "Transaction ID"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "24hour",
+              "format": "HH:mm"
+            },
+            "timeZone": "America/New_York"
+          },
+          "id": "fldhQdAaQl4Vhe3Jq",
+          "name": "Created At"
+        }
+      ],
+      "views": [
+        {
+          "id": "viw9bheFnXXYnxhdo",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblZYMhJcu59lBDhi",
+      "name": "Homework",
+      "description": "Homework assignments with adaptive learning levels",
+      "primaryFieldId": "fldUVCD4VsqgapaJO",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldUVCD4VsqgapaJO",
+          "name": "Student ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldRde63TXaJfcfje",
+          "name": "Teacher ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldptqgscHh7bpl1h",
+          "name": "Subject"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld66UokqGZW9GtX8",
+          "name": "Title"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldHHC1VVwsw83PJc",
+          "name": "Description"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldAeaVaAXCgnnGao",
+          "name": "Due Date"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selxK4RAE3zUYY5m2",
+                "name": "Assigned",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seloCznT114nbUcwv",
+                "name": "Submitted",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selX1QGsZgbTQDfzB",
+                "name": "Graded",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldjhQqHYC8X4Elw7",
+          "name": "Status"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldQBtVNclvM3IhMR",
+          "name": "Adaptive Level"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "24hour",
+              "format": "HH:mm"
+            },
+            "timeZone": "America/New_York"
+          },
+          "id": "fldSI2W8lCGRVsozZ",
+          "name": "Created At"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwB91oyJ1FoL4PK9",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblASx0vRyooTDNmy",
+      "name": "Posts",
+      "description": "Social feed posts for community engagement",
+      "primaryFieldId": "fldg4LkI9W99yp53I",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldg4LkI9W99yp53I",
+          "name": "Author ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldtwxvlSu6TMJy2u",
+          "name": "Author Name"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selfG1EckP2btJ7HG",
+                "name": "teacher",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selRu4uAOywNResM3",
+                "name": "parent",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selnbErTDzaRDxKnD",
+                "name": "student",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fld6qtnvSIoEO112J",
+          "name": "Author Role"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldzvKa2gn9uDb9r1",
+          "name": "Author Avatar"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldLzOquf7TIaceU3",
+          "name": "Content Text"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selVHXyJmG345nZV3",
+                "name": "image",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seltyBDSCb82eyIDY",
+                "name": "video",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldevusGqmIJKVXMB",
+          "name": "Content Media Type"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldKSRHVz6ZD3VeK1",
+          "name": "Content Media URL"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldZtAen9bq5YFTfA",
+          "name": "Content Media Thumbnail"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selbYgUOuWhMBPddP",
+                "name": "text",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seluFMi2IcykIRRbq",
+                "name": "image",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selk9anzItW4MSyE7",
+                "name": "video",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selTII4BQBoTrRuVQ",
+                "name": "poll",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selUoRbDSJnA7DxNV",
+                "name": "resource",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldB5Pv71IoaEdPi6",
+          "name": "Post Type"
+        },
+        {
+          "type": "multipleSelects",
+          "options": {
+            "choices": [
+              {
+                "id": "selAM7BDvc9kl8uqc",
+                "name": "Mathematics",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selSElcypiukyRztf",
+                "name": "English",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selFBX7lOlfpM85LZ",
+                "name": "Physics",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selM0gH8bxSbFmYBD",
+                "name": "Chemistry",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel2Ud8qPLnb9vWGT",
+                "name": "Literature",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel537jh7g7Nv9QtH",
+                "name": "Biology",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selEKSd3uW6NGytAL",
+                "name": "History",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel7pCKBC4uokElKA",
+                "name": "Geography",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel0iQNXRNV1WLUv2",
+                "name": "Computer Science",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sela5Q0yuWwGEUy7w",
+                "name": "Music",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selWY3nKenc8YtJKI",
+                "name": "Art",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selG9kb4gnJQ1qVn2",
+                "name": "Sports",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selv7CaagJNdyTmXT",
+                "name": "Piano",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selGhRArBZ4WEun1q",
+                "name": "Guitar",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seltaj9aZ5NTRapfL",
+                "name": "Swimming",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selcPkRi79OkCITl9",
+                "name": "Football",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selZLnqPyhF2RcphP",
+                "name": "Basketball",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selTvQ4yU4FgYIQUX",
+                "name": "Drawing",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel4TJ0XhAzEzgGEX",
+                "name": "Education",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selQU2WyVCcHg2sY8",
+                "name": "Writing",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selqbQK55TUvRHU5T",
+                "name": "Creativity",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selAu8ZA29vXcEY94",
+                "name": "Programming",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selHcBEKM2s6vo2KS",
+                "name": "Tutoring",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldRh9Link03UOvF6",
+          "name": "Subjects"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "24hour",
+              "format": "HH:mm"
+            },
+            "timeZone": "America/New_York"
+          },
+          "id": "fldyJDGm7djiKeGXi",
+          "name": "Timestamp"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldfBg2djcem3Pwqt",
+          "name": "Likes Count"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldkYUCvjHod2KCa6",
+          "name": "Comments Count"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldCWev3u1Yh0RFDN",
+          "name": "Shares Count"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldtkKrtv8XtSD1Sp",
+          "name": "Saves Count"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selAF7EYVle9O0Mpw",
+                "name": "public",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sellvKvRDE5tlHdyp",
+                "name": "center-only",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selgzIkY4AdXJGY2e",
+                "name": "network-only",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fld7W19lV2vZgdsNc",
+          "name": "Privacy"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selfyVK8ZDzcU3B3M",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selw7WIS2X7leJiii",
+                "name": "Hidden",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel2bwxOnXfTmV8zV",
+                "name": "Deleted",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "flddWCksxnKTmeRfi",
+          "name": "Status"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwY35e8DUpG4sZXB",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblpr7UDdiC9027S5",
+      "name": "TutoTeachers",
+      "description": "Teacher profiles with qualifications, subjects, and availability",
+      "primaryFieldId": "fld3Q0umrTjhcJyZj",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fld3Q0umrTjhcJyZj",
+          "name": "Name"
+        },
+        {
+          "type": "email",
+          "id": "fldogb6LGVTxM5nFA",
+          "name": "Email"
+        },
+        {
+          "type": "phoneNumber",
+          "id": "fldG8MyQuoph3chmG",
+          "name": "Phone"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldyBdCMRqEeu055q",
+          "name": "Avatar"
+        },
+        {
+          "type": "multipleSelects",
+          "options": {
+            "choices": [
+              {
+                "id": "sel1XvbdzaTCqgocL",
+                "name": "Mathematics",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selBhuVCbX70muOr8",
+                "name": "English",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seln3FrbPPyg9aMoL",
+                "name": "Physics",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selcSZvt7en9fFZ9b",
+                "name": "Chemistry",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selvBWcxv2yFUyH3C",
+                "name": "Literature",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selQ8V01Ee17ag8np",
+                "name": "Biology",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selCMemm4MsRt1SpB",
+                "name": "History",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sellkCC8qGl4ptoVt",
+                "name": "Geography",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selCZqjNuInF4QFDB",
+                "name": "Computer Science",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selvXkEINzn94zDXF",
+                "name": "Music",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel4Mo9Jd5tOWEeNa",
+                "name": "Art",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selEvcKx84rIA5fAM",
+                "name": "Sports",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selI9dhyYc8ySFHGY",
+                "name": "Piano",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selM7bckopWlBlQgx",
+                "name": "Guitar",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selvC8E630dRrTd6N",
+                "name": "Swimming",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selEJlnKAfkzUwRLn",
+                "name": "Football",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seltGZaoKlliIrRBK",
+                "name": "Basketball",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selqzXVidq3FWvP2E",
+                "name": "Drawing",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldtrPWEoWj8TVeFJ",
+          "name": "Subjects"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldv8YQRo0wZSSZJF",
+          "name": "Qualifications"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldT0lKzY7WyywZLE",
+          "name": "Experience"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fld1Wz5Pyp3KkKUfL",
+          "name": "Hourly Rate"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 1
+          },
+          "id": "fldLXBIew9mVoc0Qk",
+          "name": "Rating"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldQWh462GTX0Yo9w",
+          "name": "Review Count"
+        },
+        {
+          "type": "multilineText",
+          "id": "fld6l0NXOZckfxthk",
+          "name": "Location Address"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 6
+          },
+          "id": "fldzaMIuQ7t9YBfAf",
+          "name": "Latitude"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 6
+          },
+          "id": "fldCxAynp4aZp53Zk",
+          "name": "Longitude"
+        },
+        {
+          "type": "multipleSelects",
+          "options": {
+            "choices": [
+              {
+                "id": "sel8y7INAnOi0pIYw",
+                "name": "Monday",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel9W5Pje3VJpTOmn",
+                "name": "Tuesday",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel1zJWxEx14Jx7Cv",
+                "name": "Wednesday",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selHYqB6cHI9wgLai",
+                "name": "Thursday",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selGrRVNiKYjXnygE",
+                "name": "Friday",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selFxCrXThNngh2jq",
+                "name": "Saturday",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selLrSFZ1qMPezVbn",
+                "name": "Sunday",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldZNQTqN5wwNhmd7",
+          "name": "Availability Days"
+        },
+        {
+          "type": "multilineText",
+          "id": "fld5fuNZFnYTKqbno",
+          "name": "Availability Time Slots"
+        },
+        {
+          "type": "multipleSelects",
+          "options": {
+            "choices": [
+              {
+                "id": "selLFcDFoI3K9Aq9D",
+                "name": "Vietnamese",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selUtC9ZjMbkUNTdx",
+                "name": "English",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selPOQmHCAaV8LDYV",
+                "name": "Chinese",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selWlBS4SUc91Zwsd",
+                "name": "French",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selPp4K2yQXwWdHrM",
+                "name": "Korean",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selIRd74epi9Ox9kx",
+                "name": "Japanese",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldoACMN79zm04sFH",
+          "name": "Languages"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldHHTYTvXh8XvzX2",
+          "name": "Description"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selceVqLhpZc0rhIr",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selNBGy81aGqSI12p",
+                "name": "Inactive",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selILIagGoJrTvYLe",
+                "name": "Pending",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldC7ATJycWkvMOJe",
+          "name": "Status"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld0Qi6QQDGsJjk7j",
+          "name": "ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldTAuCAIZaHMivM4",
+          "name": "Location"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld1fYlrzB3VtnK86",
+          "name": "Availability"
+        }
+      ],
+      "views": [
+        {
+          "id": "viw5BLwoxI2mOiXz5",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblLPSq9m8p1vVhTS",
+      "name": "TutoStudents",
+      "description": "Student profiles with academic information and interests",
+      "primaryFieldId": "fld2jDm7Joh8CbPvn",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fld2jDm7Joh8CbPvn",
+          "name": "Name"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fld757qknBQEU0rNa",
+          "name": "Age"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldKUVlmDN8VEs3Pt",
+          "name": "Grade"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld53HNZCW6GwkZ6u",
+          "name": "Parent ID"
+        },
+        {
+          "type": "multipleSelects",
+          "options": {
+            "choices": [
+              {
+                "id": "seldXURfYFHdoJFfh",
+                "name": "Mathematics",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selLRlcxYx1W6W6FR",
+                "name": "English",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel3foIp9sG9eDQgH",
+                "name": "Physics",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seluTIigsvuLJuoAh",
+                "name": "Chemistry",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selvOzMiYssHH0EY3",
+                "name": "Literature",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selrYfGYHTBsfpecU",
+                "name": "Biology",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selx1FO4cLLthvcb3",
+                "name": "History",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selFyxlNQN05qAsaN",
+                "name": "Geography",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selTIkyIdrRxT0w9B",
+                "name": "Computer Science",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel8xnj8j9EMhyjXc",
+                "name": "Music",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selfnU0jkhEZ7P9B7",
+                "name": "Art",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selKQLo4uD2ULaNzU",
+                "name": "Sports",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selzeeG1FiDVmTco1",
+                "name": "Piano",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel0MxNYU6wsiLCS3",
+                "name": "Guitar",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selgSr54s7Uc3uNkQ",
+                "name": "Swimming",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seliwSvGA82HdcQkZ",
+                "name": "Football",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seleRePSXGv0QTYYD",
+                "name": "Basketball",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selG5WdIHRFHDBMwq",
+                "name": "Drawing",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldyn3a2NZudZijMd",
+          "name": "Subjects of Interest"
+        },
+        {
+          "type": "multilineText",
+          "id": "fld1iC5dqUKTwISnj",
+          "name": "Address"
+        },
+        {
+          "type": "phoneNumber",
+          "id": "fldMgGdGu6ceYqHoh",
+          "name": "Phone"
+        },
+        {
+          "type": "email",
+          "id": "fldvFl7rF5JvTFgxJ",
+          "name": "Email"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selmBPVGg5lCpMFIS",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selX3oRhMzJKK85ww",
+                "name": "Inactive",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fld6QzM52bvyKXePu",
+          "name": "Status"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldPSPH7rohEYWRLg",
+          "name": "ID"
+        }
+      ],
+      "views": [
+        {
+          "id": "viw8g0VAc11OHfm0w",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblOlcO32CaHcPpQd",
+      "name": "TutoParents",
+      "description": "Parent profiles with payment methods and children",
+      "primaryFieldId": "fld2sizQSm01osYly",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fld2sizQSm01osYly",
+          "name": "Name"
+        },
+        {
+          "type": "email",
+          "id": "fldpfzzaULqy4nJD0",
+          "name": "Email"
+        },
+        {
+          "type": "phoneNumber",
+          "id": "fldyekUm3iuP1QFvn",
+          "name": "Phone"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldTCGczZuk9OPTul",
+          "name": "Address"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selSyK9YzvudDTyYB",
+                "name": "Credit Card",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selvemv0huRMNQDGZ",
+                "name": "Bank Transfer",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selVlXDgJHcs3eLNT",
+                "name": "Cash",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selsH8taa5UrjOW4i",
+                "name": "Digital Wallet",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel1mBVuiGuuiHY2N",
+                "name": "PayPal",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fld6sAjDbrM70URS4",
+          "name": "Payment Method"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selVR80Fjkwz6rOZ5",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel85GtHvchxiu6cm",
+                "name": "Inactive",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldunyoFBZgQg1bgp",
+          "name": "Status"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldaraZ3SKYuNPeU4",
+          "name": "Password Hash"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldZofRPm4uwP9eAE",
+          "name": "ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldzYX6EfvlGsAJxU",
+          "name": "Children"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwEoSyMT7SkDDmPE",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblqpBtOdhMamwACY",
+      "name": "TutoSubjects",
+      "description": "Subject catalog with bilingual support",
+      "primaryFieldId": "fldYb27cB1nSWF616",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldYb27cB1nSWF616",
+          "name": "Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld7tJsJqr4QIV67C",
+          "name": "Name Vietnamese"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldejocKMaTDQlURS",
+          "name": "Icon"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selb1upe6uyICc4PT",
+                "name": "Academic",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selkb3NMMxvGO7Bow",
+                "name": "Extracurricular",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldTLx0E65yIwYcaf",
+          "name": "Category"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldTMy7W9Xe9QwJsX",
+          "name": "Description"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldSF7S9Ob4rmx5c4",
+          "name": "Description Vietnamese"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld9VOQruhtPL4VeC",
+          "name": "Color"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selEOjRI0Ls1B5DAl",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seltu4hlb8Ju8MsAg",
+                "name": "Inactive",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldhd7Nq603pwWRU1",
+          "name": "Status"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld9p75w6zH6y36JF",
+          "name": "ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldIeqhk2MEjDvoqc",
+          "name": "Name (Vietnamese)"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwG7MhuvJ3wQwzq5",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblzrzLFkqQMvC9vu",
+      "name": "TutoBookings",
+      "description": "Tutoring session bookings and scheduling",
+      "primaryFieldId": "flddFwCkChJIkMM3Z",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "flddFwCkChJIkMM3Z",
+          "name": "Student ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldZK7vgSGepI8UTl",
+          "name": "Teacher ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldzmKJo9G2z6m7oL",
+          "name": "Parent ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldErNuBkpR91qEBY",
+          "name": "Subject"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldRD7dVS4R0MGoYb",
+          "name": "Date"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldCIDbyQTFT1yauY",
+          "name": "Time"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldEE3L3BQwFYELOL",
+          "name": "Duration"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selCbRbfBrxA4gpxl",
+                "name": "Pending",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel3aQuOJcQiTzH4N",
+                "name": "Confirmed",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selLWkHeJMUrmcYeI",
+                "name": "Completed",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selIsPLKP8EogvkOm",
+                "name": "Cancelled",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldFImJBLH6eN3qTa",
+          "name": "Status"
+        },
+        {
+          "type": "multilineText",
+          "id": "fld9OD1JAdnKjMfsF",
+          "name": "Notes"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "sel9NepXXf1D5nAKo",
+                "name": "Pending",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selZG3yl0WyYMzPpd",
+                "name": "Paid",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selS0o8JY9tLGTod0",
+                "name": "Refunded",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldmrxEyy0io4UCj9",
+          "name": "Payment Status"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "24hour",
+              "format": "HH:mm"
+            },
+            "timeZone": "America/New_York"
+          },
+          "id": "fldGGpw2WZMzIqx5D",
+          "name": "Created At"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldyDyKFUXApkTU3Z",
+          "name": "ID"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwuM75vB0VuPSV8Y",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblTbpQT8WOsic358",
+      "name": "TutoReviews",
+      "description": "Teacher reviews and ratings from students/parents",
+      "primaryFieldId": "fldsVAdO17pUQsOu7",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldsVAdO17pUQsOu7",
+          "name": "Teacher ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld0FMfrnAYPM65IG",
+          "name": "Student ID"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 1
+          },
+          "id": "fld1oLZ1ZgZOI8rVP",
+          "name": "Rating"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldPSLtOmQSnwiqrV",
+          "name": "Comment"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "24hour",
+              "format": "HH:mm"
+            },
+            "timeZone": "America/New_York"
+          },
+          "id": "fldwEqgZafjB0HQbL",
+          "name": "Created At"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldzyfF5x2OTTR6Yt",
+          "name": "ID"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwDZekOuo8i6oXRD",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tbl7USIqwvEZxuWcT",
+      "name": "TutoPayments",
+      "description": "Payment tracking for tutoring sessions",
+      "primaryFieldId": "fldQ2Ff30FXyxDknU",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldQ2Ff30FXyxDknU",
+          "name": "Booking ID"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldk0bimXq7xm2TAV",
+          "name": "Amount"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldimIHaGwp5J9w3u",
+          "name": "Currency"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selkUAd3t3jgqq7D1",
+                "name": "Pending",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selNYEVpC6a68a9U5",
+                "name": "Paid",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel7LOJLt2JJOteKc",
+                "name": "Refunded",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldTBj0A6usNlOxtf",
+          "name": "Status"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldZZV13Gr3BP7isF",
+          "name": "Payment Method"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldx8EL36mpMxk0tC",
+          "name": "Transaction ID"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "24hour",
+              "format": "HH:mm"
+            },
+            "timeZone": "America/New_York"
+          },
+          "id": "fldNdYNpzZwPZ5xU5",
+          "name": "Created At"
+        },
+        {
+          "type": "singleLineText",
+          "id": "flde2vy5oEnQ0L2fd",
+          "name": "ID"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwNhMmXzYHF8TPDy",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblLWGXOHXIbIZvYa",
+      "name": "TutoHomework",
+      "description": "Homework assignments with adaptive learning levels",
+      "primaryFieldId": "fldg2R2HZSNjBkLlV",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldg2R2HZSNjBkLlV",
+          "name": "Student ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldff6vG1OO53Riwo",
+          "name": "Teacher ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld4a7Hgm3T7v3WNn",
+          "name": "Subject"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldD1AqGHJSeWhz7R",
+          "name": "Title"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldA5OlQ44EA5jRy9",
+          "name": "Description"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldU383Q5Zs6IEw7Y",
+          "name": "Due Date"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selDOC6kFrgxV4Nyh",
+                "name": "Assigned",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel6qzCRGlh1SaTLX",
+                "name": "Submitted",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selcz70RNldep8awe",
+                "name": "Graded",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldDfOXt0E6aWqVBe",
+          "name": "Status"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldUXeQNRGn788HeH",
+          "name": "Adaptive Level"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "24hour",
+              "format": "HH:mm"
+            },
+            "timeZone": "America/New_York"
+          },
+          "id": "fldCW3AS1bTPIe2l6",
+          "name": "Created At"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldnTlF4pJCaEOa8H",
+          "name": "ID"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwVlUznUTbPDDBD5",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblnFXggvbpx4Xkrm",
+      "name": "TutoPosts",
+      "description": "Social feed posts for community engagement",
+      "primaryFieldId": "fldZxoOvEG9uSLdbD",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldZxoOvEG9uSLdbD",
+          "name": "Author ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldYPUODpKHxmwtly",
+          "name": "Author Name"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selcoRaqVoGuNkjnl",
+                "name": "teacher",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seleCjShE9aKowJmt",
+                "name": "parent",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel8pgCsDGi9BhM0G",
+                "name": "student",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldrl10iRmQFZctVZ",
+          "name": "Author Role"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld7u64WPty4hAtcT",
+          "name": "Author Avatar"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldvA9S1tC5JPnoLj",
+          "name": "Content Text"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selUCRUiHwLsIduFm",
+                "name": "image",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel1Wzazi8GybWAvR",
+                "name": "video",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fld7CIRwGDFL9Cfs1",
+          "name": "Content Media Type"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldUWPz0tdG3KRKC1",
+          "name": "Content Media URL"
+        },
+        {
+          "type": "singleLineText",
+          "id": "flddbANF5WQDQchdf",
+          "name": "Content Media Thumbnail"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selnZouTzeo5c32ML",
+                "name": "text",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selAFiGarHs3sJeMO",
+                "name": "image",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selawTnTaTDjRL5jv",
+                "name": "video",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel58oPBhuZuLAzRc",
+                "name": "poll",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selhrHNAC81MRc6gt",
+                "name": "resource",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldnzOFMjN2nRLcYL",
+          "name": "Post Type"
+        },
+        {
+          "type": "multipleSelects",
+          "options": {
+            "choices": [
+              {
+                "id": "selAtxBNiNeQN3VQU",
+                "name": "Mathematics",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selSGR9ic1ByxY4YT",
+                "name": "English",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selahyO3lKEKfPfJF",
+                "name": "Physics",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selsWWtRvbCK48AeL",
+                "name": "Chemistry",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selIcAuW5kZAtbd3A",
+                "name": "Literature",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selmVv3uETsl7eg6T",
+                "name": "Biology",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selGuxsbw0xiBx5Kv",
+                "name": "History",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selM2yUd7Y5wt5bet",
+                "name": "Geography",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selw7KWtq2PmVR2Vg",
+                "name": "Computer Science",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selZR6uMzIoYR1U9B",
+                "name": "Music",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selSv1vGXKagDNYk4",
+                "name": "Art",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selawjfk9XZQUfoSa",
+                "name": "Sports",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sellU73omK26Qw6xH",
+                "name": "Piano",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selQXG7mfBQq8grYP",
+                "name": "Guitar",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selDINe92AHfkvrRp",
+                "name": "Swimming",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selbTZ88XkuygRIe9",
+                "name": "Football",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel2qvmoKLYLqZo8c",
+                "name": "Basketball",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selsukyS9CdOvEgrj",
+                "name": "Drawing",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel5wSdQrxmdkCL12",
+                "name": "Education",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selDowQvbyH67EvIF",
+                "name": "Writing",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel1REFtUAG1s1rnI",
+                "name": "Creativity",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seliRRFij4hkILsuG",
+                "name": "Programming",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seldcQcfxv88noZdv",
+                "name": "Tutoring",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fld20KLntMcLnE6fz",
+          "name": "Subjects"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            },
+            "timeFormat": {
+              "name": "24hour",
+              "format": "HH:mm"
+            },
+            "timeZone": "America/New_York"
+          },
+          "id": "fld26nwFXPOvT5q7e",
+          "name": "Timestamp"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldvAIlQbMq9Agh4p",
+          "name": "Likes Count"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldmAhXW979XLDSJa",
+          "name": "Comments Count"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldkAksCSlL0MkoLE",
+          "name": "Shares Count"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldinar7aHXDZOo7q",
+          "name": "Saves Count"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selOfMuToLpzsiA3S",
+                "name": "public",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selNZ9O5ihXXXaSNY",
+                "name": "center-only",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selY1OwFbUpIa9MxV",
+                "name": "network-only",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldPjg3doPotudJx1",
+          "name": "Privacy"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "sel5egZ8OJHZZwOey",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selfsQlLAFTGkjgnS",
+                "name": "Hidden",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selUk8Ol8fo9xf9TE",
+                "name": "Deleted",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldukbGrYbR1VGWzY",
+          "name": "Status"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld5QTbZG6oWpR5E1",
+          "name": "ID"
+        },
+        {
+          "type": "checkbox",
+          "options": {
+            "icon": "check",
+            "color": "greenBright"
+          },
+          "id": "fldkjf9O0wZCt4KMT",
+          "name": "Is Liked"
+        },
+        {
+          "type": "checkbox",
+          "options": {
+            "icon": "check",
+            "color": "greenBright"
+          },
+          "id": "flddlVTAsI3R9DD0g",
+          "name": "Is Saved"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldoQHJaeFj9MXyda",
+          "name": "Created At"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwbrYlczyhrFzmPQ",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblq7jTlajXT52Fdh",
+      "name": "TutoComments",
+      "description": "Table to store user comments on posts",
+      "primaryFieldId": "fld3rZvan9qUIj0Le",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fld3rZvan9qUIj0Le",
+          "name": "ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldQ9UcvhUoGPftfU",
+          "name": "Post ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld14r7HVduJdJpfT",
+          "name": "Author ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld1P9lsHXMbyizea",
+          "name": "Author Name"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldXJ0JKLiniqdzCL",
+          "name": "Content"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "iso",
+              "format": "YYYY-MM-DD"
+            },
+            "timeFormat": {
+              "name": "24hour",
+              "format": "HH:mm"
+            },
+            "timeZone": "utc"
+          },
+          "id": "fldAXxC9jGPjCWG4i",
+          "name": "Created At"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwjUpc6MA11SMTDn",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblLkrYGw5vmWuznX",
+      "name": "ConsentTemplates",
+      "description": "Consent templates and versions",
+      "primaryFieldId": "fldechuHmGYB5Sn3A",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldechuHmGYB5Sn3A",
+          "name": "Template ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldGXQx5rjiUiyi9c",
+          "name": "Title"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldia2tAp0sXwuStp",
+          "name": "Version"
+        },
+        {
+          "type": "checkbox",
+          "options": {
+            "icon": "check",
+            "color": "greenBright"
+          },
+          "id": "fldkoyXFw7fCaNDwz",
+          "name": "Active"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwwULpIUpMzQgkqj",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblRgwp5EALW2CSpI",
+      "name": "Users",
+      "description": "App users synced from Firebase Auth",
+      "primaryFieldId": "fldIxBtieGzs4o6K8",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldIxBtieGzs4o6K8",
+          "name": "UID"
+        },
+        {
+          "type": "email",
+          "id": "fldcbOSUjG6VfofFu",
+          "name": "Email"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldruu9IWPkUZBmWQ",
+          "name": "Name"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selgBHy2KKJkMYv5o",
+                "name": "teacher",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selD4UQsNaxuaEuMd",
+                "name": "parent",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel8tacO8IUcQhpGP",
+                "name": "student",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fld7xFkGucjLvq8MZ",
+          "name": "Role"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldhEdMhsylb2ao4s",
+          "name": "PhotoURL"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldS2bWXSMBBUxlYH",
+          "name": "Created At"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwtU1yDRKPfqtCuE",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblG1GuV8KAV8woAP",
+      "name": "GuardianStudentLinks",
+      "description": "Guardian ↔ Student linking records",
+      "primaryFieldId": "fldJwA54aJ9U7pT14",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldJwA54aJ9U7pT14",
+          "name": "Guardian UID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld9DIoSKCZiA8gvE",
+          "name": "Student ID"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selHeiD1w1SFcL0IL",
+                "name": "pending",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selQ1JlboTDfJm4fP",
+                "name": "approved",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seltIkrZajAsQSWJf",
+                "name": "revoked",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldZwOAikjBN5KpGn",
+          "name": "Status"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selqRxGCU87b8q96f",
+                "name": "code",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seltllBQdXgPnkYfF",
+                "name": "qr",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selYpsqlI48RxG2Q7",
+                "name": "id",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fld1zjGj34fe3fyTi",
+          "name": "Method"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldRsGZozevF9yWUP",
+          "name": "Invite Code"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldFPNCXaC6Incctz",
+          "name": "QR Token"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldEzSREkppC2o5mo",
+          "name": "Created At"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldujAeXJERiG73yH",
+          "name": "Approved At"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwPBB4lmGiXFMxaX",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblzQisXKvVt42I7L",
+      "name": "InviteCodes",
+      "description": "One-time or time-bound invite codes for linking",
+      "primaryFieldId": "fldg4GQd9ni0W6W04",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldg4GQd9ni0W6W04",
+          "name": "Code"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldF6SBD7t9HjHKt3",
+          "name": "Student ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldHLzWhZdswI46HS",
+          "name": "Issued By UID"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldxcRHtteQlBfE0u",
+          "name": "Expires At"
+        },
+        {
+          "type": "checkbox",
+          "options": {
+            "icon": "check",
+            "color": "greenBright"
+          },
+          "id": "flduLLykBObJyIHde",
+          "name": "Used"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldncY7O1odQsElYI",
+          "name": "Used At"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwDfJeCwHeHDlv7e",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblkNng9j7AtXooLy",
+      "name": "ConsentRecords",
+      "description": "Signed consent records",
+      "primaryFieldId": "fldRSowd2ZLJXqdEG",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldRSowd2ZLJXqdEG",
+          "name": "Record ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldej6Vo5XmnZxq5c",
+          "name": "Template ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldDXYXbA5jNVZbrc",
+          "name": "Guardian UID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldchnVDiqcetVsKY",
+          "name": "Student ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldG3iqNOQheumzIS",
+          "name": "Signature Path"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldKle6lgJ4iXDvSR",
+          "name": "Signed At"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selJkFva7JPdG1GBT",
+                "name": "signed",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selLQArnVsUUNqsyn",
+                "name": "revoked",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "flduAANgKe0yBp5dM",
+          "name": "Status"
+        }
+      ],
+      "views": [
+        {
+          "id": "viw9DrnOmonGuIkMm",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblM4afsUPoAmvGby",
+      "name": "Providers",
+      "description": "Public marketplace providers (teachers/centers)",
+      "primaryFieldId": "fldQqVnNlBH89y0bT",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldQqVnNlBH89y0bT",
+          "name": "type"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldThDWjm5ARQUo8X",
+          "name": "displayName"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldRyzIhhYb2oaL45",
+          "name": "subjects"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fld5uhU25n5P6AZo3",
+          "name": "priceMin"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldMLVisqMzQgJk43",
+          "name": "priceMax"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldPf8cehcROkoZ0X",
+          "name": "currency"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 1
+          },
+          "id": "fldmqT1GZHegtbb1R",
+          "name": "rating"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fld95Von9c8KN4IZx",
+          "name": "ratingCount"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld1ZDQ7i7oMME7hQ",
+          "name": "lat"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldAgMIlvijLdL1aR",
+          "name": "lng"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldmd0zSccUCr8nIJ",
+          "name": "addressLine"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldBiYiXq9wSbdQEp",
+          "name": "city"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld1tsOJQL1xDETjn",
+          "name": "district"
+        },
+        {
+          "type": "checkbox",
+          "options": {
+            "icon": "check",
+            "color": "greenBright"
+          },
+          "id": "fldrLp0lhbVL17Spa",
+          "name": "modalities.online"
+        },
+        {
+          "type": "checkbox",
+          "options": {
+            "icon": "check",
+            "color": "greenBright"
+          },
+          "id": "fld9ar2HX3OM81fLt",
+          "name": "modalities.in_person"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldzc06SCOLyZMhrD",
+          "name": "bio"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldH6BeJFUdG8x5Kw",
+          "name": "photos"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldVecSgAbMITTvgG",
+          "name": "availability"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fld5TohJfgiZrG83F",
+          "name": "createdAt"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwzEp3yL9cY9sHGw",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblfB0RrF56DPuHms",
+      "name": "StudentProfiles",
+      "description": "Guardian-managed student profiles for booking",
+      "primaryFieldId": "fldo6VzXGuXGaQgb0",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldo6VzXGuXGaQgb0",
+          "name": "guardianUserId"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldYfectvH9EFy2Ey",
+          "name": "fullName"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldULJREMwmsgBrYn",
+          "name": "grade"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldbrAoF73cr1gkyG",
+          "name": "yearOfBirth"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldTLh7Y40TsRFax6",
+          "name": "notes"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldmfldLVXHCaxYKB",
+          "name": "createdAt"
+        }
+      ],
+      "views": [
+        {
+          "id": "viw87FvBBFO4Xrkk3",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblwkNinHVRqy3o6O",
+      "name": "Favorites",
+      "description": "User favorites for providers",
+      "primaryFieldId": "fld4F5TlBPxWbYpe4",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fld4F5TlBPxWbYpe4",
+          "name": "userId"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldaxfsH7jsNrh1m7",
+          "name": "providerId"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldAE6ldRuoA85epv",
+          "name": "createdAt"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwRCIXgMWDT3CzUs",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tbl3VsEFFPDhInsuS",
+      "name": "TutoSchools",
+      "description": "School information and management",
+      "primaryFieldId": "fldfcs2zHeFPPudn4",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldfcs2zHeFPPudn4",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldMbOm2U5pGWVnA1",
+          "name": "School Code"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldOHBnF0NLIw3uxf",
+          "name": "Address"
+        },
+        {
+          "type": "phoneNumber",
+          "id": "fldZv0XZy0wIpg0RR",
+          "name": "Phone"
+        },
+        {
+          "type": "email",
+          "id": "fldsLc1AMX3KDBce2",
+          "name": "Email"
+        },
+        {
+          "type": "url",
+          "id": "fldhrf2Sofe12ivs3",
+          "name": "Website"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldcqxnqf6AlhJMYq",
+          "name": "Principal Name"
+        },
+        {
+          "type": "email",
+          "id": "fldo1dvv1CdtFU75e",
+          "name": "Principal Email"
+        },
+        {
+          "type": "phoneNumber",
+          "id": "fld1ouWwgh4ksmifF",
+          "name": "Principal Phone"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selz1FSIHor3aXrWp",
+                "name": "Public",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selEhsAGYVXdVwAnn",
+                "name": "Private",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seljOqw3mbpDTZj0o",
+                "name": "International",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldlmpcQ5PGSevXDi",
+          "name": "School Type"
+        },
+        {
+          "type": "multipleSelects",
+          "options": {
+            "choices": [
+              {
+                "id": "sel7PkdH8W9jZOFBO",
+                "name": "Pre-K",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seliwAbZYLuZiVBkl",
+                "name": "K",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selIP0DbHCjLeHv5S",
+                "name": "1",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selkJ5E74iWEfhmsv",
+                "name": "2",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selXpn2XU1p2FLhZ6",
+                "name": "3",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selKcexs3XLn141AG",
+                "name": "4",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selHikB1FE8GLbMDP",
+                "name": "5",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selWeFIHf3teIfkQr",
+                "name": "6",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selC8dQ7D6sOxSlu0",
+                "name": "7",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selNy3cg27wX4ykIg",
+                "name": "8",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel337i4N5ghLdDC9",
+                "name": "9",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selttKCqBNTSJVRUH",
+                "name": "10",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel7YKblTHDRDgHDB",
+                "name": "11",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selSBZcNCGrCxzzpz",
+                "name": "12",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldUOaHqQEkfCFxsZ",
+          "name": "Grade Levels"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldR3Qad9eZnq85jY",
+          "name": "Student Count"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldACA7QceGT9dvX4",
+          "name": "Teacher Count"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldtz6alASXTBOQng",
+          "name": "Founded Year"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selktcOME2Hma3ThO",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selRf8a4ebhN1gHdq",
+                "name": "Inactive",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selenzQvNuRHmjU9M",
+                "name": "Pending",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldiMnWEBShvXyUY1",
+          "name": "Status"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fld1h5eFiIkUcSWBy",
+          "name": "Created Date"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldq0MOrDVHJnBd4S",
+          "name": "Updated Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwgleCad7czPYDm3",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tbldI2Q4nangTqYew",
+      "name": "TutoSchoolInvitations",
+      "description": "School invitation codes for access control",
+      "primaryFieldId": "fldmg4GX7JTjby3Nq",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldmg4GX7JTjby3Nq",
+          "name": "Invitation Code"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldK6OHrYaXHx9le9",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldHggSj32Ael8gTw",
+          "name": "Created By"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldwWqsRo9zfVBhFf",
+          "name": "Created Date"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldUtprPY4XntKhen",
+          "name": "Expiry Date"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldeXAjqOoU2lSgFz",
+          "name": "Max Uses"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldFDwEidjq1IXVgy",
+          "name": "Current Uses"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selVCYgIuazPVV406",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selWZOMoO2iwDL6aU",
+                "name": "Expired",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selE3RmtmhMZtrVOR",
+                "name": "Used Up",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldfdieBhVEXyMFwt",
+          "name": "Status"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldoH9CeDCjpkJrFa",
+          "name": "Used By"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwauqxJXB3hT9Unh",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblDjzI5Fg4tUVd3y",
+      "name": "TutoSchoolClasses",
+      "description": "Class information and management",
+      "primaryFieldId": "fldxCBmqw3C22953a",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldxCBmqw3C22953a",
+          "name": "Class Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldTfsgfxnePB0ivH",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld5bkmXODR6NHAaq",
+          "name": "Grade Level"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldoWtPgFr3cjU5gG",
+          "name": "Academic Year"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldwnWxnsB4HFTqGK",
+          "name": "Student Count"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldN65FQLZ7ccOOWO",
+          "name": "Schedule"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldHnMq9HMvJya9is",
+          "name": "Room Number"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selrhNw8GiRInBsG5",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel4ShFcDSaqtC3yb",
+                "name": "Inactive",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selwXE88E1iRwG4Vg",
+                "name": "Completed",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldJOnU7ZwsWfb8Ko",
+          "name": "Status"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldRtwmQnPZA2E6Oj",
+          "name": "Created Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwf5oHolhkcmcipk",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblLoA94R4uBraoPS",
+      "name": "TutoSchoolStudents",
+      "description": "Student information and profiles",
+      "primaryFieldId": "fldXqxmrf3lbup5JG",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldXqxmrf3lbup5JG",
+          "name": "Student Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldCbUOXtShorgE0L",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldH1iEuQgZzR5v5N",
+          "name": "Class Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld684OsJELaKwYXQ",
+          "name": "Student ID"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldCEmCSN9YG05T0a",
+          "name": "Date of Birth"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selo3mEDq8hpwTFyy",
+                "name": "Male",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selFbift3dUk0fVZL",
+                "name": "Female",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selq3wYGhb341i8Hr",
+                "name": "Other",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldKMIKjDR8rYeW8i",
+          "name": "Gender"
+        },
+        {
+          "type": "singleLineText",
+          "id": "flduX5LItbglG1P3a",
+          "name": "Grade Level"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldCgyUYRMkHnE6y8",
+          "name": "Parent Name"
+        },
+        {
+          "type": "email",
+          "id": "fldGSug9pOIKQvrI8",
+          "name": "Parent Email"
+        },
+        {
+          "type": "phoneNumber",
+          "id": "fld97cB4JV6sw8B5a",
+          "name": "Parent Phone"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldQhy3ws1AXLe20S",
+          "name": "Address"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldmi1gzIxDVoJbID",
+          "name": "Emergency Contact"
+        },
+        {
+          "type": "phoneNumber",
+          "id": "fldaddwSOgxeSk09e",
+          "name": "Emergency Phone"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldqIdCBE61EY1Poo",
+          "name": "Medical Notes"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selolIoIzjn2mO4nh",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selWNsTXUxHl2ZdOh",
+                "name": "Inactive",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selQON0lw9WiTgiBr",
+                "name": "Graduated",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldE2owRYXlZVsKyO",
+          "name": "Status"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldWU6m08QM33q3Xo",
+          "name": "Enrollment Date"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldqnjKcjlbPvtKD6",
+          "name": "Created Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwEqGiA0zZu8fmsy",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblcJhHyQA9O6zQzH",
+      "name": "TutoSchoolTeachers",
+      "description": "Teacher information and profiles",
+      "primaryFieldId": "fldGLR9yPybKWKLge",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldGLR9yPybKWKLge",
+          "name": "Teacher Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldI9AdXJWzVZ6vOf",
+          "name": "School Name"
+        },
+        {
+          "type": "email",
+          "id": "fldn7GLzQMiV8GL3I",
+          "name": "Email"
+        },
+        {
+          "type": "phoneNumber",
+          "id": "fld9Ayk0KY2QZF2n2",
+          "name": "Phone"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldOMYLlD3DGVhsTG",
+          "name": "Position"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldYBGrTdFVGVLdBT",
+          "name": "Subjects"
+        },
+        {
+          "type": "multilineText",
+          "id": "flduec91YApZDSYOJ",
+          "name": "Grade Levels"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldgAX3opZPS5cffR",
+          "name": "Experience Years"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldqAvnfba0qLhVfs",
+          "name": "Education"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldjk6EdYiCOk2Jm3",
+          "name": "Bio"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "sel8zKhy1YeAY8lgO",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selncXMavWTLgFA7g",
+                "name": "Inactive",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selZ7lk8TfSmo4JO6",
+                "name": "On Leave",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fld3oHCDfUU0wwGN0",
+          "name": "Status"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldz8vy9JBBRY6B3r",
+          "name": "Hire Date"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fld44ct9cLcJ6hD2W",
+          "name": "Created Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwwzRJMKjiaMiYnK",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblJt0AEJcMRmislo",
+      "name": "TutoDailyActivities",
+      "description": "Daily activities and events tracking",
+      "primaryFieldId": "fld3MNwsYWHYlEufR",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fld3MNwsYWHYlEufR",
+          "name": "Activity Title"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld558zfaJ1CDyf8G",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld0vW1BZO9pv09fQ",
+          "name": "Class Name"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldMoVAJKT9nNRUHh",
+          "name": "Date"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldGi4aUY6mGfy0xn",
+          "name": "Activity Type"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldUFlF8NDaLAhnYu",
+          "name": "Description"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld3w2MlQOT72mgf0",
+          "name": "Location"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld2p5L5XebKPb2KG",
+          "name": "Start Time"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldkVagTTjwnumCna",
+          "name": "End Time"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldk3rvJbuyvyNZoO",
+          "name": "Students Present"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldy2xe19Z4uaglXv",
+          "name": "Notes"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selPt83qoScUhAC3k",
+                "name": "Scheduled",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selL1JNthVEsOhW9o",
+                "name": "In Progress",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selhv9lQ5m3PnRW0w",
+                "name": "Completed",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seltLsGZSWfmAmxLP",
+                "name": "Cancelled",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fld5hDEgPOsnHkFS0",
+          "name": "Status"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fld7EHDHXdloRrVv2",
+          "name": "Created Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwaajT6FwUkYv529",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblGyUdDp8Fz9AmWc",
+      "name": "TutoMessages",
+      "description": "Internal messaging system",
+      "primaryFieldId": "fldh8bAu0uluCHLN8",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldh8bAu0uluCHLN8",
+          "name": "Message Subject"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldDG3ywGwuEUEIMS",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldvPdvD8nmaPSy5u",
+          "name": "From User"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldCPHEIrlOZI1CKH",
+          "name": "From Role"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldNbnvMXxrumkxza",
+          "name": "To User"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld4sWKd3jJSh7Xlc",
+          "name": "To Role"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldIFV0ncWPv508nN",
+          "name": "Message Content"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "sel2b4zseigZ0yMcL",
+                "name": "Low",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selyLmUA2sZ4CUKqr",
+                "name": "Normal",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sels7x3DMRGRRBFLF",
+                "name": "High",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selzaPy8vuVZCzuIb",
+                "name": "Urgent",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fld1sweTZaQ3R9BnI",
+          "name": "Priority"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selYJR6UlR5w2YxvI",
+                "name": "Sent",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel9fOsvHTgTrzvkO",
+                "name": "Delivered",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel43uxGcIKKiTvPk",
+                "name": "Read",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldafj3ga7NafgBuL",
+          "name": "Status"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldMzHQQ76n7rXl6g",
+          "name": "Sent Date"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldP8LqRTqbeo3FUh",
+          "name": "Read Date"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldQ7FBeRW2s3PQE4",
+          "name": "Created Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwfLGIeT69rxP4td",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblsiZ9KcPK3jC0A3",
+      "name": "TutoAbsenceRequests",
+      "description": "Student absence request management",
+      "primaryFieldId": "fldTxW9RKWKUkVluy",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldTxW9RKWKUkVluy",
+          "name": "Request ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldMSLyyet3j1QlRL",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldhhz3AiX2jxEJU2",
+          "name": "Student Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldqFG4dW5L8XpsPF",
+          "name": "Parent Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldKZBCk2gqejRU7t",
+          "name": "Request Type"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldr61JsNpI2sdd2Y",
+          "name": "Start Date"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldJASBeB9ciwAy1a",
+          "name": "End Date"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldjxyYndRPg1r8NJ",
+          "name": "Reason"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selaD7Jlfu7wHmikc",
+                "name": "Pending",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selAWafeUBAYn0nPS",
+                "name": "Approved",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selFCHJWDxe9VTs89",
+                "name": "Rejected",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldaVn9O1VMoKUAqO",
+          "name": "Status"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldgkSEcSXuojhzOt",
+          "name": "Approved By"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fld8jD0d3PLTqL9S0",
+          "name": "Approval Date"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldkvv6hUsoIG9wIC",
+          "name": "Notes"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldmecWhGIHWCqM56",
+          "name": "Created Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwtKD5dGrobWqUWc",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tbl3vZ0CBx66FNVR8",
+      "name": "TutoAnnouncements",
+      "description": "School announcements and notifications",
+      "primaryFieldId": "fldgwQhMVBF6v5Fj5",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldgwQhMVBF6v5Fj5",
+          "name": "Announcement Title"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldGsaGj4gthf26bI",
+          "name": "School Name"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldOTE7iN8g9OY5Ha",
+          "name": "Content"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldeEpAiainwEaeKi",
+          "name": "Category"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldjaBPd57bJ5qQva",
+          "name": "Target Audience"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selCPAThFzkQPNVH5",
+                "name": "Low",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selC55o2g4fmRtnLa",
+                "name": "Normal",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selZ98nzlOzUfN0CW",
+                "name": "High",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selzSqtWCNxCTwlCq",
+                "name": "Urgent",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldRLf34LMmcMcjjd",
+          "name": "Priority"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fld0IS9laeBRaADRR",
+          "name": "Publish Date"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldGbgVAzoeWc4Vpo",
+          "name": "Expiry Date"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldsXqXvfxBJDnvZL",
+          "name": "Author"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selJ7n512NF1sbXe7",
+                "name": "Draft",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selofu6IQYrKSyco1",
+                "name": "Published",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selebyQOIH7lXs0xP",
+                "name": "Archived",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldy7iAfOZQnbR7vm",
+          "name": "Status"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldpaTTe8wcKxAfU6",
+          "name": "Created Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwsxGgtW0wWWm0cw",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblNpLLoO5rT1pakt",
+      "name": "TutoHealthRecords",
+      "description": "Student health records and medical information",
+      "primaryFieldId": "fldylDLk54Lt4P88G",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldylDLk54Lt4P88G",
+          "name": "Record ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldpgZ9dzA1tIb2lo",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld10Borr0tAoBYjO",
+          "name": "Student Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldlrevRENSMZpjGW",
+          "name": "Record Type"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldpzIytOyyHiSd8y",
+          "name": "Date"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldfPKIgxXZKVnmoh",
+          "name": "Description"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld4nCD5prrVnh0wK",
+          "name": "Doctor Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldwWsR5AOgkq0xmY",
+          "name": "Hospital/Clinic"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldyCwKK2WWf0QnjI",
+          "name": "Allergies"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldXmVzryQBL4B2i4",
+          "name": "Medications"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldcnHpdfo9oPwC8a",
+          "name": "Emergency Contact"
+        },
+        {
+          "type": "phoneNumber",
+          "id": "fldaClLsaCao6NCYN",
+          "name": "Emergency Phone"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldreC4B54PITSkvQ",
+          "name": "Notes"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldJg46djXymMTJTd",
+          "name": "Created Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viw97JifZCQEaHrRQ",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblafTRWGEMRoVVu1",
+      "name": "TutoMedicineReminders",
+      "description": "Medicine administration reminders",
+      "primaryFieldId": "fldrufURMg6UkzxBk",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldrufURMg6UkzxBk",
+          "name": "Reminder ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldvA9wP6LRtBBmk0",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld7UkNtJcsFVQfzD",
+          "name": "Student Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldRQkOlosJr6vsQm",
+          "name": "Medicine Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldIG5MUif34wC1zf",
+          "name": "Dosage"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldXKqDsFaOpXb22s",
+          "name": "Frequency"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldPBJ7FXJt7OWreq",
+          "name": "Time"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldNYrBWSiKNGqKCL",
+          "name": "Start Date"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldbTynvE5V7FtyAC",
+          "name": "End Date"
+        },
+        {
+          "type": "multilineText",
+          "id": "fld7X3YAjZg4eHykJ",
+          "name": "Instructions"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldZlg9eTHY7KZvmX",
+          "name": "Administered By"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selnScZrogsgUhmmF",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selUxG1EzESg3qzUI",
+                "name": "Completed",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel1Wq7bejH50AJEu",
+                "name": "Cancelled",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fld2KhUdSddmvAKso",
+          "name": "Status"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldwOvyLkAWGQEZVP",
+          "name": "Notes"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fld0wW6LhoFW8bhua",
+          "name": "Created Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viw4fqxvLg8qRi1RH",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tbl9RO968o4vLZdBR",
+      "name": "TutoPhotoAlbums",
+      "description": "Photo albums and media sharing",
+      "primaryFieldId": "fldzESvO1bxwq1ZO9",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldzESvO1bxwq1ZO9",
+          "name": "Album Title"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld6kAe1hDtUna8a3",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldO72R0Tmw4hFg2W",
+          "name": "Event Type"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldm7kELbzRvXI7EE",
+          "name": "Date"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldTcNsyKPKSSZPcM",
+          "name": "Description"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld3LsR51aueH9Wxo",
+          "name": "Class Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld14umnjEVlbx3wU",
+          "name": "Privacy"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selEkzujQpRKXm04V",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selOxn47VyZRkkQc7",
+                "name": "Archived",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldGtYdf7dpK7mV1f",
+          "name": "Status"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldWLobjdvhmHv211",
+          "name": "Created Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwyPgKlFQl891JGy",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblEQbBYT1tnb2Yzl",
+      "name": "TutoExtracurricularActivities",
+      "description": "Extracurricular activities and clubs",
+      "primaryFieldId": "fldROJAw7RpZaa1nj",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldROJAw7RpZaa1nj",
+          "name": "Activity Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld9m5hypfpYJWT2T",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldnoewjGjP68aDwP",
+          "name": "Activity Type"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldZiOM0dMOCqB54A",
+          "name": "Description"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldvyp6XzOjuwNB7H",
+          "name": "Schedule"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldhBHhhpN5dQYXsT",
+          "name": "Location"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fld1whyQQcgbBtugV",
+          "name": "Max Students"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldC0c3iA7UJrfxwb",
+          "name": "Current Students"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldafHHCBlvkO92zi",
+          "name": "Grade Levels"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fld9TSrqu2Lvrdftw",
+          "name": "Fee"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "sel9PV68ConCdm3ey",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selVgxyOnLl263VqM",
+                "name": "Inactive",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selqSGJU2BoDrbCLr",
+                "name": "Full",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldv2Zi7ncz1iLVfI",
+          "name": "Status"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldkZINxOXYsg8Oqx",
+          "name": "Start Date"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldY5SteCyblbuv8Z",
+          "name": "End Date"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldg6aAz6u91narpu",
+          "name": "Created Date"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld44J74djyTjtqXH",
+          "name": "Name"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwoW8te2mBwwabuw",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblS9FvYMPuTZ0GPO",
+      "name": "TutoSurveys",
+      "description": "Surveys and feedback collection",
+      "primaryFieldId": "fldNOz66b2kFDkvhw",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldNOz66b2kFDkvhw",
+          "name": "Survey Title"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldXtg6KPmItmjMnC",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldhbF7B7QALRlvfw",
+          "name": "Survey Type"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldI9M3eVw2nMqhc9",
+          "name": "Description"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldD5UpNuGT18fZmK",
+          "name": "Questions"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldueUJYWLpGQEj0q",
+          "name": "Target Audience"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldxSshpNANVIT56h",
+          "name": "Start Date"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldrCixdrg7sFSo1G",
+          "name": "End Date"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldQrzVbBEA3wcyog",
+          "name": "Responses"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selcIDWJ0deuV48YW",
+                "name": "Draft",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selfa5nvo14uX67R7",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selrANLTfmRwct4ZS",
+                "name": "Closed",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldsVZhCe6ex7dpb5",
+          "name": "Status"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldgT94qmpgmoAIiy",
+          "name": "Created By"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldqs4r2jjNAEQSDg",
+          "name": "Created Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwkfsALWPcRlRZHT",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblkK77YCF53IKNH8",
+      "name": "TutoSchoolPayments",
+      "description": "School payment tracking and management",
+      "primaryFieldId": "fldADlNWfmHJjbm3q",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldADlNWfmHJjbm3q",
+          "name": "Payment ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld6MVROJv59hc6HO",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldDrpXNmhW3oe7n6",
+          "name": "Student Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldme8PiTroOe1DwF",
+          "name": "Parent Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldmHEnjdmrN4irCT",
+          "name": "Payment Type"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldiGUWk1GTWAt52R",
+          "name": "Amount"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldlxmMUAMRqXE2QF",
+          "name": "Due Date"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldi8AERyxP7NLWC5",
+          "name": "Payment Date"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldGp4P80IY85BUww",
+          "name": "Payment Method"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selB8PajgEvkh7o0N",
+                "name": "Pending",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selTRH3N3ZvhIkYjc",
+                "name": "Paid",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selCrue9dPnRx5GCK",
+                "name": "Overdue",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selWXvYTxN8Inx1gh",
+                "name": "Cancelled",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldfrelS5ByEI4lhZ",
+          "name": "Status"
+        },
+        {
+          "type": "multilineText",
+          "id": "fld469TgnnCrAEl5I",
+          "name": "Notes"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldMdlOZMs1zbiEnA",
+          "name": "Created Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwKIWDgeym6l62tD",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblXLOKmFjaS88VcG",
+      "name": "TutoSubscriptions",
+      "description": "School subscription plans and billing",
+      "primaryFieldId": "fldrVp1wrKvMvOMwU",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldrVp1wrKvMvOMwU",
+          "name": "Subscription ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldW4zJ8eCXStYGBY",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldsuhG5VgNs3SWXg",
+          "name": "Plan Name"
+        },
+        {
+          "type": "multilineText",
+          "id": "fld874S4ZM4h8JaLh",
+          "name": "Features"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldDizq6kvgsTN8DM",
+          "name": "Monthly Price"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fld1H76j3gbvRznCO",
+          "name": "Annual Price"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldJY9nPv4mXKDuKh",
+          "name": "Start Date"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fld3YHrL6wN9XdVhL",
+          "name": "End Date"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selnVATLK3Ir4f5cF",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selTeui7L36FvYqXx",
+                "name": "Inactive",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel1sEjw7epFN6Bow",
+                "name": "Expired",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldV0wDwZXRdH8DLB",
+          "name": "Status"
+        },
+        {
+          "type": "singleLineText",
+          "id": "flde1HlqQ9dj3PVay",
+          "name": "Payment Status"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldUKSMNmFL27dugw",
+          "name": "Next Billing Date"
+        },
+        {
+          "type": "multilineText",
+          "id": "fld5VQBbOg6i6WMeB",
+          "name": "Notes"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "flds3SE3joWeQiCRn",
+          "name": "Created Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwBHKQAZSl9mlqQY",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblO5eMsvn1xRlKSN",
+      "name": "TutoSchoolEvents",
+      "description": "School events and calendar management",
+      "primaryFieldId": "fldCbFUsehzIlDuOU",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldCbFUsehzIlDuOU",
+          "name": "Event Title"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldGiO7DRondNySSg",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldsCv4osV24UKJZt",
+          "name": "Event Type"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldh9CpBspbavX5oB",
+          "name": "Description"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldYyRG50mMuCRVj5",
+          "name": "Start Date"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldiAEblAg5uO348W",
+          "name": "End Date"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldjCPQ4HpOQpy2ej",
+          "name": "Start Time"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldrFJZVj2irv4Nlp",
+          "name": "End Time"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldnJ0n7QQ00DPHsw",
+          "name": "Location"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld6m2n4yuTBHORsD",
+          "name": "Organizer"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldSvDyhHvDvgTWPP",
+          "name": "Target Audience"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldOhYWwkW0yfaXTT",
+          "name": "Registration Required"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldZjBiFw3abI7Gtb",
+          "name": "Max Attendees"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldHiXFkTaWkiGLjC",
+          "name": "Current Attendees"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selvKyrSrWPnSMTnQ",
+                "name": "Scheduled",
+                "color": "grayLight2"
+              },
+              {
+                "id": "seluOxyQmEgf1CIAP",
+                "name": "In Progress",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selIm5V6AM9hDwyyN",
+                "name": "Completed",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selUdkJnQOmNV7S5z",
+                "name": "Cancelled",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldOyFvtYbIpOrBoq",
+          "name": "Status"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "flddHX8recddoZ76s",
+          "name": "Created Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwbF1AJxKYpWqdkR",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblC7gzi3F4xUCXiD",
+      "name": "TutoHomeworkAssignments",
+      "description": "Homework assignments and submissions",
+      "primaryFieldId": "fldWjECwpgIA3pXJT",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldWjECwpgIA3pXJT",
+          "name": "Assignment Title"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld93yPhZrvkMr5li",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldgCUK9EYhId7w7j",
+          "name": "Class Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldacSFdcpwm4HjHa",
+          "name": "Subject"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldA5gefXt6C767Dv",
+          "name": "Description"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldGrg8NBmGIWnuFC",
+          "name": "Due Date"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldcqlf5cmgqwIgU7",
+          "name": "Total Students"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldcXi3KiEB6YFp1R",
+          "name": "Submitted Count"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selKPvDMKyhdcxpDU",
+                "name": "Active",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selFCLkbDPFZ7tZcp",
+                "name": "Due",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selv7dEBHnKHnqGZU",
+                "name": "Completed",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldMkdegeyCC7xXpx",
+          "name": "Status"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldWNPZ7sghjQA0ly",
+          "name": "Created Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwde85StbxkY899w",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tbl0jME1coOHb1dDy",
+      "name": "TutoProgressReports",
+      "description": "Student progress reports and assessments",
+      "primaryFieldId": "fldJYvzRBN1P5WvLF",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldJYvzRBN1P5WvLF",
+          "name": "Report ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldkASTehovRuSuUT",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld5umHX7d945w6qu",
+          "name": "Student Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldRGm0nETPUvqSBK",
+          "name": "Class Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldoYH94AZKkBE84C",
+          "name": "Academic Year"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldjZsxjruka45r1n",
+          "name": "Term"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld1bd3mpkjMbiLQy",
+          "name": "Subject"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld7Evt7aLH2bz4uT",
+          "name": "Grade"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 1
+          },
+          "id": "fldY1jimKGceWwZZ7",
+          "name": "Percentage"
+        },
+        {
+          "type": "multilineText",
+          "id": "flduHGf1D1Ask2amX",
+          "name": "Teacher Comments"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldzhqdPAMlvsawwo",
+          "name": "Parent Comments"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldqoZ9gUH0tRUq56",
+          "name": "Report Date"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "sel3q6Abkoydrtupw",
+                "name": "Draft",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selMbVcIrGShhDx1Y",
+                "name": "Published",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel9TRMhMIHJGGnF7",
+                "name": "Reviewed",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldGL7wSviBSDZXzK",
+          "name": "Status"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "flds3mGtK2UZoQKKN",
+          "name": "Created Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viw2IrVMZzBtHx0Xx",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblXKWzWk1ob3NzNA",
+      "name": "TutoAttendanceRecords",
+      "description": "Student attendance tracking",
+      "primaryFieldId": "fldkyK84vgrHP0tbk",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldkyK84vgrHP0tbk",
+          "name": "Record ID"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldyy0d4FbURMoWRQ",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldEk5EMw5Hv5sA3z",
+          "name": "Class Name"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldy6DjBFBXKqUsIS",
+          "name": "Date"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldl1r4i67uUvvG7K",
+          "name": "Student Name"
+        },
+        {
+          "type": "singleSelect",
+          "options": {
+            "choices": [
+              {
+                "id": "selIHVDjAyCqcWwJD",
+                "name": "Present",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selhMiAuYWXaWKfGU",
+                "name": "Absent",
+                "color": "grayLight2"
+              },
+              {
+                "id": "selva9dAqOK7hgmTr",
+                "name": "Late",
+                "color": "grayLight2"
+              },
+              {
+                "id": "sel9tyTYqMJJer1bF",
+                "name": "Excused",
+                "color": "grayLight2"
+              }
+            ]
+          },
+          "id": "fldjmpXWKVHgwYYxb",
+          "name": "Status"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld6ODSULV83UHY1n",
+          "name": "Arrival Time"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldMqtaA0LX8DuRDt",
+          "name": "Departure Time"
+        },
+        {
+          "type": "multilineText",
+          "id": "fldHLicVGQzBjIRMA",
+          "name": "Notes"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldppsYVPlIwdLcWl",
+          "name": "Recorded By"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "local",
+              "format": "l"
+            }
+          },
+          "id": "fldDHotzrOlBfpPJ8",
+          "name": "Created Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwIZzDWZOzLTgoNL",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblwoyV45OX7CLk7I",
+      "name": "TutoSchoolProgressReports",
+      "primaryFieldId": "fldrQyc0GwkV8ghiA",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldrQyc0GwkV8ghiA",
+          "name": "Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldMuvZLrj8IEkfEQ",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldE62xGlGLPjsM7X",
+          "name": "Student Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldeiWdgW7I1BgJYx",
+          "name": "Subject"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldBbmtTuquNYnXM3",
+          "name": "Grade"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldvAkszTbjUIIGQ0",
+          "name": "Term"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 1
+          },
+          "id": "fldWO4pX2J1eauBCC",
+          "name": "Percentage"
+        },
+        {
+          "type": "date",
+          "options": {
+            "dateFormat": {
+              "name": "iso",
+              "format": "YYYY-MM-DD"
+            }
+          },
+          "id": "fldBICs35383LhuFS",
+          "name": "Report Date"
+        }
+      ],
+      "views": [
+        {
+          "id": "viw4YD9mTg923LuYX",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblL1MUUp6vWaWxwT",
+      "name": "TutoSchoolProgressSubjects",
+      "primaryFieldId": "flddjec65uXlyXFnR",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "flddjec65uXlyXFnR",
+          "name": "Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldzSAZdloSO9LOms",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld6PdFLD9Vr94xLi",
+          "name": "Subject"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 1
+          },
+          "id": "fldIKGUMHoSxCItn9",
+          "name": "Current Percentage"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 1
+          },
+          "id": "fldtZ4TH6wyewJc5r",
+          "name": "Previous Percentage"
+        },
+        {
+          "type": "dateTime",
+          "options": {
+            "dateFormat": {
+              "name": "iso",
+              "format": "YYYY-MM-DD"
+            },
+            "timeFormat": {
+              "name": "24hour",
+              "format": "HH:mm"
+            },
+            "timeZone": "Asia/Ho_Chi_Minh"
+          },
+          "id": "fldHfnkyUH3PHPSv9",
+          "name": "Updated At"
+        }
+      ],
+      "views": [
+        {
+          "id": "viw8zDIFWJIMFDwsC",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblvlPTxqc4JMfLkO",
+      "name": "TutoClassSubjects",
+      "primaryFieldId": "fldYEYqNj01K780Mj",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldYEYqNj01K780Mj",
+          "name": "Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldeyYZ6R7xPyGSfe",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldmGJJ4Qkubr0un4",
+          "name": "Class Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldRgOPNtgZiACgD0",
+          "name": "Subject"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldiH7245gSemJuNr",
+          "name": "Enabled"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwuhwN0K7AUPzUua",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    },
+    {
+      "id": "tblO1yULnkoae8UPg",
+      "name": "TutoStudentSubjectOverrides",
+      "primaryFieldId": "fldKnFFuWz0sFtyB3",
+      "fields": [
+        {
+          "type": "singleLineText",
+          "id": "fldKnFFuWz0sFtyB3",
+          "name": "Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld03IvXl7wwgJQTd",
+          "name": "School Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fld3YX4ZVkqjVDlag",
+          "name": "Student Name"
+        },
+        {
+          "type": "singleLineText",
+          "id": "fldwnCBJsxvdcrNNm",
+          "name": "Subject"
+        },
+        {
+          "type": "number",
+          "options": {
+            "precision": 0
+          },
+          "id": "fldyc1mdc8p3ngrwc",
+          "name": "Enabled"
+        }
+      ],
+      "views": [
+        {
+          "id": "viwLP5F5C5j1wec9O",
+          "name": "Grid view",
+          "type": "grid"
+        }
+      ]
+    }
+  ]
+}

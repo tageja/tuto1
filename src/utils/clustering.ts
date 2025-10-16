@@ -103,3 +103,13 @@ export const getClusterRadius = (latitudeDelta: number): number => {
   if (latitudeDelta > 0.01) return 0.005; // Medium zoom
   return 0.001; // Zoomed in - smaller clusters
 };
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,176 @@
+dashboard_home:
+  description: Web dashboard Home KPIs and sections
+  reads:
+    - table: TutoStudents
+      fields: [Status]
+    - table: TutoBookings
+      fields: [Date]
+    - table: TutoPayments
+      fields: [Status, Created At]
+  actions: []
+
+auth_user_profile:
+  description: Resolve user profile/role after Firebase login
+  reads:
+    - table: Users
+      fields: [UID, Role, Email, Name, PhotoURL, Created AT]
+  actions:
+    - table: Users
+      fields: [UID, Role, Email, Name, PhotoURL, Created AT]
+
+teachers_list:
+  description: List/preview teachers
+  reads:
+    - table: TutoTeachers
+      fields:
+        - ID
+        - Name
+        - Email
+        - Phone
+        - Avatar
+        - Subjects
+        - Qualifications
+        - Experience
+        - Hourly Rate
+        - Rating
+        - Review Count
+        - Location
+        - Latitude
+        - Longitude
+        - Description
+        - Languages
+        - Status
+  actions: []
+
+teacher_profile:
+  description: Detailed teacher view and aggregates
+  reads:
+    - table: TutoTeachers
+      fields: [ID, Name, Avatar, Subjects, Qualifications, Experience, Hourly Rate, Rating, Review Count, Description, Languages, Location, Latitude, Longitude]
+    - table: TutoReviews
+      fields: [Teacher ID, Student ID, Rating, Comment, Created At]
+  actions: []
+
+bookings:
+  description: Create and query bookings
+  reads:
+    - table: TutoBookings
+      fields: [Parent ID, Teacher ID, Student ID, Subject, Date, Time, Duration, Notes, Status, Payment Status, Created At]
+  actions:
+    - table: TutoBookings
+      fields: [Parent ID, Teacher ID, Student ID, Subject, Date, Time, Duration, Notes, Status, Payment Status, Created At]
+
+students:
+  description: Student CRUD and queries
+  reads:
+    - table: TutoStudents
+      fields: [Name, Age, Grade, Parent ID, Subjects Interest, Address, Phone, Email, Status]
+  actions:
+    - table: TutoStudents
+      fields: [Name, Age, Grade, Parent ID, Subjects Interest, Address, Phone, Email, Status]
+
+parents:
+  description: Parent CRUD and credential handling
+  reads:
+    - table: TutoParents
+      fields: [Name, Email, Phone, Address, Payment Method, Status, Password Hash]
+  actions:
+    - table: TutoParents
+      fields: [Name, Email, Phone, Address, Payment Method, Status, Password Hash]
+
+reviews:
+  description: Teacher reviews and aggregates
+  reads:
+    - table: TutoReviews
+      fields: [Teacher ID, Student ID, Rating, Comment, Created At]
+  actions:
+    - table: TutoReviews
+      fields: [Teacher ID, Student ID, Rating, Comment, Created At]
+
+posts_feed:
+  description: Community posts
+  reads:
+    - table: TutoPosts
+      fields:
+        - Author ID
+        - Author Name
+        - Author Role
+        - Author Avatar
+        - Content Text
+        - Content Media Type
+        - Content Media URL
+        - Content Media Thumbnail
+        - Post Type
+        - Subjects
+        - Timestamp
+        - Likes Count
+        - Comments Count
+        - Shares Count
+        - Saves Count
+        - Privacy
+  actions:
+    - table: TutoPosts
+      fields: [Author ID, Author Name, Author Role, Author Avatar, Content Text, Content Media Type, Content Media URL, Content Media Thumbnail, Post Type, Subjects, Timestamp, Likes Count, Comments Count, Shares Count, Saves Count, Privacy]
+
+comments:
+  description: Post comments
+  reads:
+    - table: TutoComments
+      fields: [Post ID, Author ID, Author Name, Content, Created At]
+  actions:
+    - table: TutoComments
+      fields: [Post ID, Author ID, Author Name, Content, Created At]
+
+subjects:
+  description: Subjects and categorisation
+  reads:
+    - table: TutoSubjects
+      fields: [ID, Name, Name (Vietnamese), Icon, Category, Description, Status]
+  actions: []
+
+payments_metrics:
+  description: KPIs for payments
+  reads:
+    - table: TutoPayments
+      fields: [Status, Created At]
+  actions: []
+
+payments_webhooks:
+  description: Stripe webhooks reconciliation
+  reads:
+    - table: TutoBookings
+      fields: [ID, Status]
+  actions:
+    - table: TutoBookings
+      fields: [Status]
+    - table: TutoReceipts
+      fields: []
+    - table: TutoAudit
+      fields: []
+
+data_retention:
+  description: Delete/anonymize user data on request
+  reads:
+    - table: Users
+      fields: [UID]
+    - table: TutoBookings
+      fields: [ID, Parent ID, Teacher ID, Student ID]
+    - table: TutoPosts
+      fields: [ID, Author ID]
+    - table: TutoComments
+      fields: [ID, Author ID]
+    - table: TutoReviews
+      fields: [ID, Teacher ID, Student ID]
+  actions:
+    - table: Users
+      fields: []
+    - table: TutoBookings
+      fields: [Parent ID, Teacher ID, Student ID]
+    - table: TutoPosts
+      fields: [Author ID, Author Name, Content Text]
+    - table: TutoComments
+      fields: [Author ID, Author Name, Content]
+    - table: TutoReviews
+      fields: [Teacher ID, Student ID, Comment]
+
+

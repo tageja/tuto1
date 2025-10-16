@@ -1,0 +1,37 @@
+name: Update Airtable Schema
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 18 * * *"  # daily 01:00 VN time (UTC+7)
+
+jobs:
+  update-schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci || npm i
+      - run: node scripts/pull-airtable-schema.ts
+        env:
+          AIRTABLE_PAT: ${{ secrets.AIRTABLE_PAT }}
+          AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
+      - name: Commit if changed
+        run: |
+          git config user.name "tuto-bot"
+          git config user.email "bot@tuto.app"
+          git add airtable/ docs/DATA_DICTIONARY.md
+          git diff --cached --quiet || git commit -m "chore(schema): auto-update Airtable schema"
+      - name: Push
+        run: |
+          git push
+      - name: (Optional) Drift check
+        run: node scripts/check-airtable-usage.ts || true
+
+
+
+
+
+

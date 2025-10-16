@@ -346,3 +346,13 @@ export const manualBackup = onSchedule({
   logger.info('Manual backup triggered');
   return await nightlyBackup.run(event);
 });
+
+
+
+
+
+
+
+
+
+

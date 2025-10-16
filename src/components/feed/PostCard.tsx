@@ -142,23 +142,49 @@ export const PostCard: React.FC<PostCardProps> = ({
   };
 
   const renderMedia = () => {
-    if (!post.content.media) return null;
+    console.log(`[PostCard] renderMedia called for post ${post.id}`);
+    console.log(`[PostCard] post.content.media:`, post.content.media);
+    
+    if (!post.content.media) {
+      console.log(`[PostCard] No media found for post ${post.id}`);
+      return null;
+    }
 
     if (post.content.media.type === 'image') {
       const imageUrl = post.content.media.url;
       const isFileUri = imageUrl?.startsWith('file://');
+      
+      console.log(`[PostCard] Image URL: ${imageUrl}`);
+      console.log(`[PostCard] Is file URI: ${isFileUri}`);
+      console.log(`[PostCard] Thumb error state: ${thumbErrored}`);
 
       return (
         <>
-          <Pressable onPress={() => setShowImage(true)}>
+          <Pressable onPress={() => {
+            console.log(`[PostCard] Image pressed, opening modal for URL: ${imageUrl}`);
+            setShowImage(true);
+          }}>
             {thumbErrored || !imageUrl ? (
-              <Image source={placeholderImage} style={styles.mediaImage} resizeMode="cover" />
+              <Image 
+                source={placeholderImage} 
+                style={styles.mediaImage} 
+                resizeMode="cover"
+                onLoad={() => console.log(`[PostCard] Placeholder image loaded for post ${post.id}`)}
+                onError={(error) => console.log(`[PostCard] Placeholder image error for post ${post.id}:`, error)}
+              />
             ) : (
               <Image
                 source={{ uri: imageUrl }}
                 style={styles.mediaImage}
                 resizeMode="cover"
-                onError={() => setThumbErrored(true)}
+                onLoad={() => console.log(`[PostCard] Image loaded successfully for post ${post.id}: ${imageUrl}`)}
+                onError={(error) => {
+                  console.log(`[PostCard] Image load error for post ${post.id}:`, error);
+                  console.log(`[PostCard] Failed URL: ${imageUrl}`);
+                  setThumbErrored(true);
+                }}
+                onLoadStart={() => console.log(`[PostCard] Image load started for post ${post.id}: ${imageUrl}`)}
+                onLoadEnd={() => console.log(`[PostCard] Image load ended for post ${post.id}: ${imageUrl}`)}
               />
             )}
           </Pressable>
@@ -178,13 +204,26 @@ export const PostCard: React.FC<PostCardProps> = ({
                   <PinchGestureHandler onGestureEvent={onPinchEvent} onHandlerStateChange={onPinchStateChange}>
                     <Animated.View style={{ transform: [{ translateX }, { translateY }, { scale }] }} {...combinedPanResponder.panHandlers}>
                       {fullErrored || !imageUrl ? (
-                        <Image source={placeholderImage} style={styles.lightboxImage} resizeMode="contain" />
+                        <Image 
+                          source={placeholderImage} 
+                          style={styles.lightboxImage} 
+                          resizeMode="contain"
+                          onLoad={() => console.log(`[PostCard] Modal placeholder image loaded for post ${post.id}`)}
+                          onError={(error) => console.log(`[PostCard] Modal placeholder image error for post ${post.id}:`, error)}
+                        />
                       ) : (
                         <Image
                           source={{ uri: imageUrl }}
                           style={styles.lightboxImage}
                           resizeMode="contain"
-                          onError={() => setFullErrored(true)}
+                          onLoad={() => console.log(`[PostCard] Modal image loaded successfully for post ${post.id}: ${imageUrl}`)}
+                          onError={(error) => {
+                            console.log(`[PostCard] Modal image load error for post ${post.id}:`, error);
+                            console.log(`[PostCard] Failed modal URL: ${imageUrl}`);
+                            setFullErrored(true);
+                          }}
+                          onLoadStart={() => console.log(`[PostCard] Modal image load started for post ${post.id}: ${imageUrl}`)}
+                          onLoadEnd={() => console.log(`[PostCard] Modal image load ended for post ${post.id}: ${imageUrl}`)}
                         />
                       )}
                     </Animated.View>
