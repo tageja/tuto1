@@ -765,3 +765,13 @@ async function createSchoolTablesWithSuffix() {
 createSchoolTablesWithSuffix();
 
 
+
+
+
+
+
+
+
+
+
+

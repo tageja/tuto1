@@ -145,3 +145,13 @@ This policy may be updated periodically to reflect changes in our community need
 **Effective Date**: January 15, 2024
 
 By using Tuto, you agree to follow these community guidelines. Thank you for helping us maintain a safe, supportive learning environment for everyone.
+
+
+
+
+
+
+
+
+
+

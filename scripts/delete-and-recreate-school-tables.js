@@ -804,3 +804,13 @@ async function deleteAndRecreateSchoolTables() {
 deleteAndRecreateSchoolTables();
 
 
+
+
+
+
+
+
+
+
+
+

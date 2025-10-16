@@ -1,0 +1,1150 @@
+PRD — Tuto Web Dashboard (UI Foundation & Home Page)
+
+Owner: Tarun
+Editors: Cursor
+Date: 2025-10-06
+Scope (this PRD): Create a modern, unified UI foundation for the web dashboard and implement the Home page using shared design tokens and a small, reusable component kit.
+Out of scope: Backend/data wiring, auth, routing beyond Home page
+
+1) Objectives & Success Criteria
+Goals
+
+Establish shared design tokens (colors, radii, borders, spacing, shadows, typography) for the web dashboard, aligned with the mobile app’s vibe (no direct cloning of 3rd-party styles).
+
+Build a small UI kit (Card, Button, Input, Table) styled via tokens (no inline Tailwind colors).
+
+Implement a professional Home page with:
+
+Sticky header
+
+Toolbar (search + actions)
+
+KPI cards row
+
+Primary data table (compact density)
+
+Right rail (Quick Actions, Announcements, Shortcuts)
+
+Footer
+
+Success (acceptance)
+
+Visual: Not “empty” or “spacey”; tight density; consistent card + 1px border + pill buttons.
+
+Technical: All surfaces/components use CSS variables from base.css tokens.
+
+UX: Single primary table; secondary info in right rail; modern header & toolbar.
+
+Accessibility: Keyboard focus states; sensible aria labels; contrast >= WCAG AA for text.
+
+2) Non-Goals
+
+No full design system or component library beyond the essentials.
+
+No dark/light mode switch (we’ll use a light-on-white content surface with subtle shadows).
+
+No data integration yet (use placeholder rows).
+
+3) Design Principles
+
+Token-first: All colors/radii/shadows from CSS variables (single source of truth).
+
+Compact by default: Data UIs need density; use .density-compact root class.
+
+Quiet surfaces: White content surfaces + 1px borders + subtle shadows; gradients reserved for CTAs only.
+
+Shape language: Rounded cards, pill buttons, thin borders (professional, not playful).
+
+A11y: Clear focus states and hit targets; no tiny text below 12px on desktop.
+4) Folder Structure
+/apps/web
+  /src
+    /app
+      /layout.tsx
+      /page.tsx              <-- Home page (in scope)
+    /components/ui
+      Button.tsx
+      Card.tsx
+      Field.tsx
+      Table.tsx
+    /styles
+      base.css               <-- tokens + utilities (in scope)
+  /public
+    /fonts/Inter-VariableFont_slnt,wght.ttf
+/docs
+  PRD-UI-Web-Dashboard.md    <-- this PRD
+
+
+If you’re using a monorepo with mobile, consider /packages/ui-tokens later to share tokens. For this PRD, keep tokens in base.css.
+
+5) Design Tokens (to be placed in /apps/web/src/styles/base.css)
+
+Replace the color values with your mobile theme equivalents later. For now, this is a clean neutral set. Keep the variable names as-is.
+
+/* ===========================
+   Tuto Dashboard — base.css
+   =========================== */
+
+/* --- Tokens --- */
+:root{
+  /* Colors (replace with your mobile palette) */
+  --bg: #F5F7FB;               /* page background (very light) */
+  --card: #FFFFFF;             /* card surface */
+  --text: #1A1D29;             /* main text on white */
+  --text-muted: #6C738A;       /* secondary text */
+  --primary: #5B6DFA;          /* CTA */
+  --primary-alt: #3E4FD8;      /* CTA hover */
+  --border: rgba(26,29,41,0.12); /* subtle 1px borders */
+  --overlay: rgba(10,12,20,0.6); /* modal scrim */
+
+  /* Radii */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.06);
+  --shadow-md: 0 6px 18px rgba(0,0,0,.10);
+  --shadow-lg: 0 12px 28px rgba(0,0,0,.14);
+
+  /* Spacing scale */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-7: 28px; --space-8: 32px;
+}
+
+/* --- Typography & Base --- */
+@font-face{
+  font-family:"InterVar";
+  src:url("/fonts/Inter-VariableFont_slnt,wght.ttf") format("truetype");
+  font-weight:100 900; font-display:swap;
+}
+*{ box-sizing:border-box }
+html,body{ height:100% }
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family: InterVar, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans";
+  line-height:1.5; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+}
+
+/* Density (apply on page root) */
+.density-compact .table thead th,
+.density-compact .table tbody td{ padding:8px 10px }
+
+/* --- Layout --- */
+.container{ max-width:1120px; margin:0 auto; padding:0 var(--space-6) }
+
+.header{
+  position:sticky; top:0; z-index:50;
+  background:rgba(255,255,255,.85);
+  backdrop-filter:saturate(140%) blur(8px);
+  border-bottom:1px solid var(--border);
+}
+.toolbar{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:var(--space-4); padding: var(--space-4) 0;
+}
+
+.divider{ height:1px; background:var(--border); margin:var(--space-6) 0 }
+.muted{ color:var(--text-muted) }
+
+/* --- Components --- */
+.card{
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--radius-lg); padding:var(--space-5);
+  box-shadow:var(--shadow-sm); transition:box-shadow .2s ease;
+}
+.card:hover{ box-shadow:var(--shadow-md) }
+
+.btn{
+  display:inline-flex; align-items:center; gap:10px; cursor:pointer; user-select:none;
+  border:1px solid var(--border); border-radius:var(--radius-pill);
+  padding:10px 14px; background:#fff; color:var(--text); text-decoration:none;
+  transition: background .15s ease, border-color .15s ease, transform .06s ease;
+}
+.btn:active{ transform: translateY(1px) }
+.btn:focus-visible{ outline:3px solid color-mix(in oklab,var(--primary) 50%, white); outline-offset:2px }
+.btn--primary{ background:var(--primary); color:#fff; border-color:transparent }
+.btn--primary:hover{ background:var(--primary-alt) }
+.btn--subtle{ background:#fff; color:var(--text) }
+.btn--ghost{ background:transparent; border-color:transparent; color:var(--text) }
+.btn--ghost:hover{ background:rgba(0,0,0,.03) }
+
+.input{
+  width:100%; background:#fff; color:var(--text);
+  border:1px solid var(--border); border-radius:var(--radius-pill);
+  padding:10px 14px; outline:none;
+}
+.input:focus{ border-color: color-mix(in oklab,var(--primary) 30%, black) }
+
+/* Table */
+.table{ border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:#fff }
+.table table{ width:100%; border-collapse:separate; border-spacing:0 }
+.table thead th{
+  font-size:12px; text-transform:uppercase; letter-spacing:.02em; color:var(--text-muted);
+  background:#F4F6FA; text-align:left; padding:10px 12px;
+}
+.table tbody td{ padding:10px 12px; border-top:1px solid var(--border) }
+.table tbody tr:hover{ background:#FAFBFF }
+6) UI Components (to be created in /apps/web/src/components/ui/)
+
+Button.tsx
+
+import React from "react";
+
+type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: "primary" | "subtle" | "ghost";
+  asChild?: boolean;
+};
+
+export function Button({ variant="subtle", className="", children, ...rest }: Props) {
+  const base = "btn";
+  const map = { primary: "btn--primary", subtle: "btn--subtle", ghost: "btn--ghost" } as const;
+  return (
+    <button className={`${base} ${map[variant]} ${className}`} {...rest}>
+      {children}
+    </button>
+  );
+}
+
+
+Card.tsx
+
+import React from "react";
+export function Card({ children, className="" }: React.PropsWithChildren<{className?:string}>) {
+  return <div className={`card ${className}`}>{children}</div>;
+}
+
+
+Field.tsx (input)
+
+import React from "react";
+type Props = React.InputHTMLAttributes<HTMLInputElement>;
+export function Field(props: Props) {
+  return <input className="input" {...props} />;
+}
+
+
+Table.tsx
+
+import React from "react";
+
+export function Table({
+  head,
+  rows,
+}:{
+  head: string[];
+  rows: (string|number)[][];
+}) {
+  return (
+    <div className="card table">
+      <table>
+        <thead>
+          <tr>{head.map((h,i)=><th key={i}>{h}</th>)}</tr>
+        </thead>
+        <tbody>
+          {rows.map((r,ri)=>(
+            <tr key={ri}>{r.map((c,ci)=><td key={ci}>{c}</td>)}</tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+7) Home Page Layout (to implement in /apps/web/src/app/page.tsx)
+
+Requirements
+
+Root has .density-compact.
+
+Header: brand (placeholder), title + subtitle, actions (Help, EN/VI, New Booking).
+
+Toolbar: Search input + 3 buttons (Filters, Export CSV, Invite Teacher).
+
+KPI row: 4 cards with label + prominent value.
+
+Primary table: Teachers list with 6 columns (Teacher, Subject, Bookings, Rating, Fee, Status).
+
+Right rail: Quick Actions (Create Class, Add Student, Assign Homework, Send Message), Announcements, Shortcuts.
+
+Footer: muted, © 2025 Tuto.
+
+Reference Implementation
+
+'use client'
+import React from 'react'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { Field } from '@/components/ui/Field'
+import { Table } from '@/components/ui/Table'
+
+export default function Page() {
+  return (
+    <div className="density-compact">
+      {/* Header */}
+      <header className="header">
+        <div className="container" style={{paddingTop: 12, paddingBottom: 12}}>
+          <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:16}}>
+            <div style={{display:'flex', alignItems:'center', gap:12}}>
+              <div style={{width:40, height:40}} className="card" />
+              <div>
+                <div style={{fontWeight:800}}>Tuto Dashboard</div>
+                <div className="muted" style={{fontSize:12}}>Manage teachers, bookings & reviews</div>
+              </div>
+            </div>
+            <div style={{display:'flex', gap:8}}>
+              <Button variant="ghost">Help</Button>
+              <Button variant="ghost">EN / VI</Button>
+              <Button variant="primary">New Booking</Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Toolbar */}
+      <div className="container toolbar">
+        <div style={{flex:1}}>
+          <Field placeholder="Search teachers, bookings, students…" aria-label="Search" />
+        </div>
+        <div style={{display:'flex', gap:8}}>
+          <Button>Filters</Button>
+          <Button>Export CSV</Button>
+          <Button>Invite Teacher</Button>
+        </div>
+      </div>
+
+      {/* Content grid */}
+      <main className="container" style={{display:'grid', gridTemplateColumns:'2fr 1fr', gap:20}}>
+        {/* Left column */}
+        <section>
+          {/* KPIs */}
+          <div style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:16}}>
+            <Card><div className="muted" style={{fontSize:12}}>Bookings</div><div style={{fontWeight:800, fontSize:20}}>128</div></Card>
+            <Card><div className="muted" style={{fontSize:12}}>Active Teachers</div><div style={{fontWeight:800, fontSize:20}}>42</div></Card>
+            <Card><div className="muted" style={{fontSize:12}}>Avg. Rating</div><div style={{fontWeight:800, fontSize:20}}>4.7</div></Card>
+            <Card><div className="muted" style={{fontSize:12}}>Open Issues</div><div style={{fontWeight:800, fontSize:20}}>5</div></Card>
+          </div>
+
+          {/* Primary table */}
+          <Table
+            head={["Teacher","Subject","Bookings","Rating","Fee","Status"]}
+            rows={[
+              ["Nguyen A","Math",12,4.8,"350k","Active"],
+              ["Le B","English",9,4.6,"400k","Active"],
+              ["Tran C","Physics",7,4.5,"420k","Trial"],
+            ]}
+          />
+        </section>
+
+        {/* Right rail */}
+        <aside style={{display:'grid', gap:16}}>
+          <Card>
+            <div style={{fontWeight:700, marginBottom:8}}>Quick Actions</div>
+            <div style={{display:'flex', flexWrap:'wrap', gap:8}}>
+              <Button>Create Class</Button>
+              <Button>Add Student</Button>
+              <Button>Assign Homework</Button>
+              <Button>Send Message</Button>
+            </div>
+          </Card>
+
+          <Card>
+            <div style={{fontWeight:700, marginBottom:8}}>Announcements</div>
+            <div className="muted" style={{fontSize:14}}>Teacher onboarding webinar on Friday 15:00</div>
+          </Card>
+
+          <Card>
+            <div style={{fontWeight:700, marginBottom:8}}>Shortcuts</div>
+            <div style={{display:'grid', gap:8}}>
+              <a className="btn" href="#">Teacher Profiles</a>
+              <a className="btn" href="#">Bookings Calendar</a>
+              <a className="btn" href="#">Reports</a>
+              <a className="btn" href="#">Settings</a>
+            </div>
+          </Card>
+        </aside>
+      </main>
+
+      <div className="container divider"></div>
+      <footer className="container muted" style={{paddingBottom:24}}>© 2025 Tuto</footer>
+    </div>
+  )
+}
+
+8) Accessibility Requirements
+
+All interactive elements have visible focus styles (:focus-visible already defined on .btn).
+
+Provide aria-label for the search Field.
+
+Table headers use <th> and are text-only (no bare icons without text).
+
+Minimum text sizes: body ≥ 14px, labels ≥ 12px.
+
+9) Performance & Technical Constraints
+
+No CSS frameworks for this task; do not import external CSS libs.
+
+No Tailwind utility colors; all colors/radii/shadows from base.css.
+
+Keep CSS small and component-agnostic; avoid per-page bespoke styles.
+
+Fonts: use local variable Inter in /public/fonts/ as defined.
+
+10) Deliverables
+
+/apps/web/src/styles/base.css (tokens + components + utilities).
+
+/apps/web/src/components/ui/Button.tsx, Card.tsx, Field.tsx, Table.tsx.
+
+/apps/web/src/app/page.tsx (Home) as per layout above.
+
+Update layout.tsx (or global entry) to import base.css:
+
+import "../styles/base.css";
+
+
+Screenshots: full page (desktop) + 1440px width.
+
+11) Acceptance Checklist (QA)
+
+ base.css is imported globally; no 404s.
+
+ All components use CSS variables; no hardcoded hex colors in JSX.
+
+ Header sticks on scroll; content scrolls beneath it.
+
+ Toolbar appears directly under header; search input expands.
+
+ KPI row: 4 equal cards; hover elevation works.
+
+ Table has uppercase headers, thin borders, row hover; compact density enabled.
+
+ Right rail contains Quick Actions, Announcements, Shortcuts.
+
+ Buttons show focus ring via :focus-visible.
+
+ Lighthouse a11y score ≥ 90 (local run).
+
+ Page looks cohesive (not sparse) at 1280–1440px widths.
+
+12) Task List for Cursor (explicit prompts)
+
+Task 1 — Create base.css
+
+Create /apps/web/src/styles/base.css with the exact content from PRD Section 5. Do not modify variable names. No external CSS frameworks. Use the Inter variable font path as provided.
+
+Task 2 — Import global CSS
+
+In /apps/web/src/app/layout.tsx (or equivalent), import "../styles/base.css" once at the top-level. Do not import in components.
+
+Task 3 — Build UI components
+
+Create /apps/web/src/components/ui/{Button.tsx,Card.tsx,Field.tsx,Table.tsx} exactly as in PRD Section 6. Keep props minimal. No extra styling or libraries.
+
+Task 4 — Implement Home page
+
+Replace the content of /apps/web/src/app/page.tsx with the code in PRD Section 7. Do not introduce new styles. Ensure the root element has class density-compact.
+
+Task 5 — Polish & verify
+
+Ensure no inline hex colors are used in JSX. Verify focus styles. Provide two screenshots (full page & 1440px width). Confirm no console errors.
+
+13) Future Extensions (not now)
+
+Shared tokens package (/packages/ui-tokens) to unify mobile & web.
+
+Theming (brand variations), dark mode toggle.
+
+Data integration (Airtable/Firebase) for KPIs/table rows.
+
+Navigation shell (sidebar + route switcher).
+
+Notes to Developer (Cursor)
+
+Do not modify files outside the specified paths.
+
+Keep output deterministic; follow the code provided verbatim unless a bug is found (report if so).
+
+Use semantic HTML and avoid extra wrappers.
+
+update 2, next part for your to follow 
+
+Prompt for Cursor
+
+Goal: Upgrade the web dashboard Home page to a solid “7–8/10” baseline. Fix logo aspect ratio, add bilingual (EN/VI) toggle, replace KPIs, redesign “Top Teachers,” and add a proper footer (inspired by the provided screenshot) — all without breaking existing routes or configs.
+
+Do not touch mobile code. Only modify the web app files listed below.
+
+0) Constraints
+
+Keep the existing design tokens from src/styles/base.css. No inline hex colors.
+
+Use a11y-friendly focus states already defined in CSS.
+
+Vietnamese should be default; toggle to English must be smooth, no page reloads.
+
+1) Tuto logo: fix aspect ratio
+
+Files: src/app/layout.tsx (where header/brand is) or src/app/page.tsx header block
+
+Replace the current <img />/logo container so that the logo never stretches.
+
+Use a fixed height (e.g., 32–36px) and auto width. Example:
+
+<img src="/tuto-logo.svg" alt="Tuto" style={{ height: 36, width: 'auto' }} />
+
+
+If using Next Image, set fill={false} and provide height/width aspect-ratio or wrap with a fixed-height container and objectFit: 'contain'.
+
+Acceptance:
+
+Logo renders crisp, no horizontal stretch at any width ≥ 1200px.
+
+2) Bilingual UI (EN/VI toggle, VI default)
+
+Files:
+
+src/i18n/ → add en.json, vi.json (create folder if missing)
+
+src/app/providers/I18nProvider.tsx (create a simple context/provider)
+
+src/app/layout.tsx (wrap in provider)
+
+src/components/ui/LanguageSwitch.tsx (new)
+
+Implementation:
+
+Minimal client-side i18n (no heavy libs). A simple React context storing lang: 'vi' | 'en', with dictionary maps.
+
+Persist language in localStorage on change.
+
+Replace all static strings on Home with t('key').
+
+Place a small EN / VI button group in the header that toggles language without reload.
+
+Acceptance:
+
+First load = Vietnamese.
+
+Toggle switches all Home labels instantly (header, toolbar buttons, KPI labels, table headers, right-rail card titles).
+
+No page reloads.
+
+3) KPIs (replace “pending invoices” + final list + Airtable fetch)
+
+Files: src/app/page.tsx, src/lib/airtable.ts (new)
+
+Remove “pending invoices” from Home.
+
+Show these KPIs (left→right):
+
+Weekly classes
+
+Active students
+
+Revenue
+
+No. of partner schools
+
+Active teachers
+
+Active parents
+
+Data:
+
+Build a tiny Airtable helper in src/lib/airtable.ts using fetch (REST) or Airtable SDK.
+
+Read from these example tables/fields (you can map to our existing schema if different):
+
+Metrics (single row): weekly_classes, active_students, revenue_vnd, partner_schools, active_teachers, active_parents
+
+If any value is missing or the field/table isn’t present, display N/A (string) for that KPI — never hardcode numbers.
+
+Env vars:
+
+AIRTABLE_API_KEY
+
+AIRTABLE_BASE_ID
+
+Read server-side in the Home page (Next App Router page.tsx with export const revalidate = 60), then pass to the component.
+
+Format revenue_vnd as #,###,### ₫.
+
+Acceptance:
+
+All six KPI cards render; any missing field shows N/A.
+
+No console errors if a field/table doesn’t exist.
+
+4) “Top Teachers” redesign (denser, balanced)
+
+Files: src/app/page.tsx, src/components/TopTeachers.tsx (new)
+
+Replace the current airy layout with square-ish cards (e.g., 240×240 on desktop), 3–4 per row, responsive wrap.
+
+Each teacher card:
+
+avatar/photo (or initials fallback)
+
+name (primary)
+
+subject(s) (muted)
+
+rating (★ + number)
+
+small stat row: bookings, fee
+
+CTA button: View Profile
+
+Pull data from Airtable (Teachers table). If not available, render 0–6 cards from existing Airtable teacher rows. Unknown values → N/A.
+
+Use our .card, .btn, .muted classes (no inline hardcoded colors).
+
+Acceptance:
+
+Section uses horizontal space well; no big blank area on the right.
+
+Cards hover with the standard shadow; layout holds at 1440px.
+
+5) Footer (inspired by the provided screenshot image)
+
+Files: src/components/site/Footer.tsx (new), src/app/layout.tsx (include at bottom)
+
+Build a footer with 6 columns (or 5 if content is light), using Tuto-relevant links (do not copy Grab branding, colors, or legal text). Suggested columns and sample links:
+
+Tuto
+
+About
+
+Careers
+
+Newsroom
+
+Trust & Safety
+
+Parents & Students
+
+Find a Teacher
+
+Book a Trial
+
+Pricing
+
+Help Centre
+
+Teachers & Coaches
+
+Become a Teacher
+
+Teacher Guidelines
+
+Payments
+
+Community
+
+Schools & Partners
+
+For Schools
+
+Partner with Tuto
+
+Tuto Maps
+
+Business Delivery (placeholder)
+
+Resources
+
+Blog
+
+Guides
+
+Developer Portal
+
+API Docs
+
+Quick Links
+
+Contact
+
+Terms
+
+Privacy
+
+Add a small company blurb block (left) + social icons row.
+
+Style: light grey band, 1px top border, columns with clean lists, using our tokens.
+
+Acceptance:
+
+Footer visually mirrors the structure of the screenshot (columns, spacing), but with Tuto content and our tokenized styles.
+
+Responsive: stacks columns to 2–3 per row on small screens.
+
+6) QA & A11y
+
+No stretched logo.
+
+VI default, smooth EN/VI toggle via context/localStorage.
+
+All KPIs read from Airtable; N/A shown when missing.
+
+Top Teachers: grid of square cards, not airy; hover elevation.
+
+Footer present with multi-column links and social row.
+
+Keyboard focus visible on buttons/links.
+
+No hardcoded hex colors in JSX; only CSS variables from base.css.
+
+7) Deliverables
+
+Code changes only in:
+
+src/app/layout.tsx
+
+src/app/page.tsx
+
+src/components/ui/LanguageSwitch.tsx (new)
+
+src/components/TopTeachers.tsx (new)
+
+src/components/site/Footer.tsx (new)
+
+src/i18n/{en.json,vi.json} (new)
+
+src/app/providers/I18nProvider.tsx (new)
+
+src/lib/airtable.ts (new)
+
+Two screenshots: full page (desktop 1440px) and a close-up of Top Teachers.
+
+8) Implementation Hints (optional but preferred)
+
+Simple i18n provider:
+
+// I18nProvider.tsx
+'use client'
+import React, {createContext, useContext, useEffect, useState} from 'react'
+import en from '@/i18n/en.json'
+import vi from '@/i18n/vi.json'
+const dict = { en, vi }
+const Ctx = createContext<{lang:'vi'|'en'; t:(k:string)=>string; setLang:(l:'vi'|'en')=>void}>(null as any)
+export function I18nProvider({children}:{children:React.ReactNode}) {
+  const [lang, setLang] = useState<'vi'|'en'>(() => (typeof window!=='undefined' && (localStorage.getItem('lang') as any)) || 'vi')
+  useEffect(()=>{ localStorage.setItem('lang', lang) }, [lang])
+  const t = (k:string) => (dict[lang][k] ?? k)
+  return <Ctx.Provider value={{lang,t,setLang}}>{children}</Ctx.Provider>
+}
+export const useI18n = ()=>useContext(Ctx)
+
+
+Language switch:
+
+'use client'
+import { useI18n } from '@/app/providers/I18nProvider'
+export function LanguageSwitch(){ const {lang,setLang}=useI18n(); return (
+  <div style={{display:'inline-flex',gap:6}}>
+    <button className={`btn ${lang==='vi'?'btn--primary':'btn--subtle'}`} onClick={()=>setLang('vi')}>VI</button>
+    <button className={`btn ${lang==='en'?'btn--primary':'btn--subtle'}`} onClick={()=>setLang('en')}>EN</button>
+  </div>
+)}
+
+
+Airtable helper (REST via fetch; Node 18+ has global fetch):
+
+// src/lib/airtable.ts
+const key = process.env.AIRTABLE_API_KEY!
+const base = process.env.AIRTABLE_BASE_ID!
+const host = 'https://api.airtable.com/v0'
+async function getMetrics(){ 
+  try{
+    const r = await fetch(`${host}/${base}/Metrics?maxRecords=1&view=Grid%20view`, { headers:{ Authorization:`Bearer ${key}` }})
+    if(!r.ok) throw new Error('AirTable error')
+    const j = await r.json()
+    const f = j.records?.[0]?.fields || {}
+    return {
+      weekly_classes: f.weekly_classes ?? 'N/A',
+      active_students: f.active_students ?? 'N/A',
+      revenue_vnd: typeof f.revenue_vnd==='number' ? f.revenue_vnd : 'N/A',
+      partner_schools: f.partner_schools ?? 'N/A',
+      active_teachers: f.active_teachers ?? 'N/A',
+      active_parents: f.active_parents ?? 'N/A',
+    }
+  }catch{ return { weekly_classes:'N/A', active_students:'N/A', revenue_vnd:'N/A', partner_schools:'N/A', active_teachers:'N/A', active_parents:'N/A' } }
+}
+export { getMetrics }
+
+
+Run after completion:
+
+Provide the two screenshots.
+
+List any missing Airtable fields you detected so we can add them later.
+
+Confirm that VI is default and toggling EN/VI updates all visible labels.
+
+Update 3, 
+Date: 2025-10-06
+Scope: Build a professional, Grab-style multi-column footer for the web dashboard/site using our existing base.css tokens. Include EN/VI content, responsive layout, social icons row, and legal links.
+Out of scope: Backend/data wiring, CMS, tracking pixels.
+
+1) Objectives & Success Criteria
+
+Goals
+
+Add a 6–7 column footer inspired by the provided screenshot structure (not styling) using Tuto links.
+
+Use design tokens from src/styles/base.css (no inline hex).
+
+Bilingual: Vietnamese (default) and English via existing i18n context (or minimal local dictionaries).
+
+Responsive: full columns on desktop (≥1200px), 2–3 columns per row on tablets, stacked on mobile.
+
+Success
+
+Visual parity with a modern product footer (balanced spacing, clear hierarchy).
+
+Keyboard/a11y friendly (focus states, semantic lists/links).
+
+No CLS on load; layout stable.
+
+2) Content Map (Columns & Links)
+
+Implement these categories. Label keys must be i18n’d (t('footer.about.title'), etc.). URLs can be placeholders (/about, /pricing) for now.
+
+Column A — About
+
+About Tuto → /about
+
+Trust & Safety → /trust-safety
+
+How Tuto Works → /how-it-works
+
+Impact & Community → /impact
+
+Newsroom / Press → /newsroom
+
+Careers → /careers
+
+Investor Relations → /investors
+
+Contact Us → /contact
+
+Column B — Parents
+
+Find a Teacher Near You → /find-teacher
+
+Book a Free Trial → /trial
+
+Pricing & Packages → /pricing
+
+Reviews & Ratings Policy → /ratings-policy
+
+Learning Roadmaps → /roadmaps
+
+Safeguarding & Reporting → /safeguarding
+
+Parent Help Centre / FAQs → /help/parents
+
+App Download (iOS / Android) → /download
+
+Column C — Students
+
+Adaptive Homework → /adaptive-homework
+
+Practice Library → /practice
+
+Speaking Clubs & Events → /events
+
+Study Planner & Streaks → /planner
+
+Scholarships & Contests → /scholarships
+
+Certificates & Badges → /badges
+
+Student Support / FAQs → /help/students
+
+Code of Conduct → /code-of-conduct
+
+Column D — Schools
+
+Tuto for Schools → /schools
+
+Admin Dashboard & Analytics → /schools/analytics
+
+Curriculum & Lesson Planner → /schools/lesson-planner
+
+Assessments & Gradebook → /schools/assessments
+
+Onboarding & Training → /schools/onboarding
+
+Case Studies / Testimonials → /schools/case-studies
+
+Pricing for Schools → /schools/pricing
+
+School Support → /help/schools
+
+Column E — Institutes
+
+Partner with Tuto → /institutes/partner
+
+Lead Management & CRM → /institutes/crm
+
+Class Scheduling & Fee Tracking → /institutes/scheduling
+
+Ads / Featured Listings → /institutes/ads
+
+Teacher Recruitment Hub → /institutes/recruit
+
+Ratings & Review Guidelines → /institutes/reviews
+
+Billing & Payouts → /institutes/billing
+
+Partner Help Centre → /help/partners
+
+Column F — Teachers
+
+Become a Teacher/Coach → /teachers/apply
+
+Onboarding & Verification → /teachers/onboarding
+
+Payments & Payout Schedule → /teachers/payments
+
+Calendar & Availability → /teachers/calendar
+
+Teaching Resources & Templates → /teachers/resources
+
+Community & Events → /teachers/community
+
+Quality Standards & Observations → /teachers/quality
+
+Teacher Support → /help/teachers
+
+Column G — Quick Links
+
+Help Centre → /help
+
+Blog / Guides → /blog
+
+Developer Portal & API Docs → /developers
+
+System Status → /status
+
+Terms of Service → /legal/terms
+
+Privacy Policy → /legal/privacy
+
+Cookie Preferences → /legal/cookies
+
+Sitemap → /sitemap
+
+Company blurb block (left of columns on wide screens):
+
+Tuto logo (non-stretched; height: 28–36px; width:auto)
+
+Short mission line (i18n string)
+
+Registered entity info (optional placeholders)
+
+Social icons row: Facebook, Instagram, X, YouTube, TikTok (link to placeholders)
+
+3) UX & Design Requirements
+
+Structure: One top footer band with columns + social block. A thin top border (var(--border)), background a light neutral (use #F4F6FA or derive from tokens); text uses --text and --text-muted.
+
+Typography: Section titles 13–14px, semi-bold; links 14–15px; muted microcopy 12–13px.
+
+Spacing: Column gap ≥ 40px; list item vertical spacing 8–10px; outer padding var(--space-6) ~ var(--space-8).
+
+Icons: Use a single icon set (e.g., SVG inline). Focus ring uses existing .btn:focus-visible style.
+
+Logo: Never stretched; respect aspect ratio.
+
+4) Technical Requirements
+
+Tokens only: colors, radii, shadows from base.css. No inline hex values in JSX.
+
+i18n: Use existing provider if present (I18nProvider). If absent, create minimal local dictionaries for en and vi within the footer component folder (temporary).
+
+Accessibility:
+
+<nav aria-label="Footer"> wrapping the columns.
+
+Each column inside <section aria-labelledby="footer-<key>"> with <h3 id="footer-<key>">.
+
+Links are <a> with descriptive labels, keyboard-focusable, visible focus state.
+
+Responsive:
+
+≥1200px: 1 social block + 6 columns (7 total zones).
+
+768–1199px: social block full width first, then columns in 2–3 per row.
+
+≤767px: stacked sections with collapsible accordions optional (non-blocking for this PRD).
+
+5) File Structure & Deliverables
+/apps/web
+  /src
+    /components/site
+      Footer.tsx
+      footer.i18n.en.ts   (if global i18n not ready)
+      footer.i18n.vi.ts   (if global i18n not ready)
+    /styles/base.css      (reuse tokens; add .footer styles if needed)
+    /app/layout.tsx       (include <Footer /> before closing body)
+  /public
+    /icons/{facebook.svg,instagram.svg,x.svg,youtube.svg,tiktok.svg}
+    /tuto-logo.svg
+/docs
+  PRD-Footer-Tuto.md
+
+6) Component API & Styles
+Footer.tsx
+
+Props: none (static links for now).
+
+Imports:
+
+logo SVG from /public/tuto-logo.svg
+
+social icons from /public/icons/*
+
+i18n dictionaries (or useI18n() hook if available)
+
+Structure (pseudocode JSX):
+
+export default function Footer(){
+  const t = useT(); // from global or local dictionaries
+
+  return (
+    <footer className="footer">
+      <div className="container">
+        <div className="footer-top">
+          <div className="footer-brand">
+            <img src="/tuto-logo.svg" alt="Tuto" style={{height:32, width:'auto'}} />
+            <p className="muted">{t('blurb')}</p>
+            <div className="social">
+              <a href="#" aria-label="Facebook"><img src="/icons/facebook.svg" alt="" /></a>
+              <a href="#" aria-label="Instagram"><img src="/icons/instagram.svg" alt="" /></a>
+              <a href="#" aria-label="X"><img src="/icons/x.svg" alt="" /></a>
+              <a href="#" aria-label="YouTube"><img src="/icons/youtube.svg" alt="" /></a>
+              <a href="#" aria-label="TikTok"><img src="/icons/tiktok.svg" alt="" /></a>
+            </div>
+          </div>
+
+          <nav className="footer-cols" aria-label={t('footer')}>
+            {/* 6–7 columns: About, Parents, Students, Schools, Institutes, Teachers, Quick Links */}
+            {/* Each column: <section aria-labelledby="footer-about"><h3 id="footer-about">...</h3><ul>...</ul></section> */}
+          </nav>
+        </div>
+
+        <div className="footer-bottom">
+          <span className="muted">© {new Date().getFullYear()} Tuto</span>
+          <div className="legal">
+            <a href="/legal/terms">{t('terms')}</a>
+            <a href="/legal/privacy">{t('privacy')}</a>
+            <a href="/legal/cookies">{t('cookies')}</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
+Minimal CSS (append to base.css)
+.footer{ background:#F4F6FA; border-top:1px solid var(--border); }
+.footer .container{ padding: var(--space-7) var(--space-6); }
+.footer-top{ display:grid; grid-template-columns: 320px 1fr; gap:40px; }
+.footer-brand .muted{ margin: 10px 0 16px; }
+.footer-brand .social a{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius: var(--radius-pill); border:1px solid var(--border); margin-right:8px; }
+.footer-cols{ display:grid; grid-template-columns: repeat(6, minmax(150px, 1fr)); gap: 28px 40px; }
+.footer-cols h3{ font-size:13px; font-weight:600; margin:0 0 10px; color: var(--text); }
+.footer-cols ul{ list-style:none; padding:0; margin:0; }
+.footer-cols li{ margin:8px 0; }
+.footer-cols a{ color: var(--text); text-decoration:none; }
+.footer-cols a:hover{ text-decoration:underline; }
+.footer-bottom{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding-top: var(--space-6); border-top:1px solid var(--border); }
+
+@media (max-width: 1199px){
+  .footer-top{ grid-template-columns: 1fr; }
+  .footer-cols{ grid-template-columns: repeat(3, minmax(150px, 1fr)); }
+}
+@media (max-width: 767px){
+  .footer-cols{ grid-template-columns: repeat(2, minmax(140px, 1fr)); }
+}
+
+7) i18n Keys (starter dictionaries)
+
+footer.i18n.en.ts
+
+export default {
+  footer: "Footer",
+  blurb: "Connecting parents, students, teachers and schools with trusted learning.",
+  terms: "Terms of Service",
+  privacy: "Privacy Policy",
+  cookies: "Cookie Preferences",
+  // Column titles
+  about: "About", parents:"Parents", students:"Students", schools:"Schools",
+  institutes:"Institutes", teachers:"Teachers", quick:"Quick Links",
+  // ...you may define per-link labels or reuse English slugs
+};
+
+
+footer.i18n.vi.ts
+
+export default {
+  footer: "Chân trang",
+  blurb: "Kết nối phụ huynh, học sinh, giáo viên và trường học một cách tin cậy.",
+  terms: "Điều khoản dịch vụ",
+  privacy: "Chính sách quyền riêng tư",
+  cookies: "Tuỳ chọn cookie",
+  about: "Giới thiệu", parents:"Phụ huynh", students:"Học sinh", schools:"Trường học",
+  institutes:"Trung tâm", teachers:"Giáo viên", quick:"Liên kết nhanh",
+};
+
+
+If global i18n exists, convert these to en.json/vi.json keys under footer.* and call t('footer.about') etc.
+
+8) QA Checklist
+
+ Footer renders on all pages that use layout.tsx, appears once per page.
+
+ No logo stretching; social icons align baseline.
+
+ Columns match the content map; all links are focusable with visible ring.
+
+ Vietnamese by default; English strings render when lang='en'.
+
+ Responsive: desktop (≥1200px) shows all columns; tablet shows 3-column grid; mobile shows 2-column grid.
+
+ No inline hex colors in JSX; colors from base.css.
+
+ Lighthouse a11y ≥ 90.
+
+9) Tasks for Cursor (explicit)
+
+Task 1 — Create component
+
+Create src/components/site/Footer.tsx implementing the structure in Section 6 with all columns/links from Section 2. Use nav/section semantics and i18n keys.
+
+Task 2 — Add styles
+
+Append the CSS from Section 6 to src/styles/base.css. Reuse tokens; do not introduce new colors.
+
+Task 3 — Wire into layout
+
+Import and place <Footer /> in src/app/layout.tsx just before the closing body.
+
+Task 4 — i18n
+
+If global i18n exists, add footer keys to en.json/vi.json. Otherwise, create src/components/site/footer.i18n.{en,vi}.ts and a tiny useT() inside Footer that reads from the global context or falls back to local dictionaries.
+
+Task 5 — Assets
+
+Add /public/tuto-logo.svg and social SVGs in /public/icons/. Use height:32px; width:auto for logo.
+
+Task 6 — Verify
+
+Provide screenshots at 1440px, 1024px, and 390px widths. Confirm keyboard focus and responsive

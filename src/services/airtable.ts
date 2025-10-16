@@ -505,7 +505,23 @@ export class AirtableService {
     maxRecords?: number;
     sort?: Array<{ field: string; direction?: 'asc' | 'desc' }>;
   }) {
-    return this.getAll(TABLES.POSTS, options);
+    console.log('[AirtableService] getPosts called with options:', options);
+    const records = await this.getAll(TABLES.POSTS, options);
+    console.log('[AirtableService] getPosts returned records:', records.length);
+    
+    // Log each record's media data
+    records.forEach((record, index) => {
+      const mediaType = record.get('Content Media Type');
+      const mediaUrl = record.get('Content Media URL');
+      const mediaThumbnail = record.get('Content Media Thumbnail');
+      
+      console.log(`[AirtableService] Record ${index + 1} (${record.id}):`);
+      console.log(`  - Media Type: ${mediaType}`);
+      console.log(`  - Media URL: ${mediaUrl}`);
+      console.log(`  - Media Thumbnail: ${mediaThumbnail}`);
+    });
+    
+    return records;
   }
 
   static async createPost(postData: {

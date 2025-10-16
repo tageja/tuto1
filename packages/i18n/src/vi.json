@@ -1,0 +1,80 @@
+{
+  "common": {
+    "ok": "OK",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "delete": "Xóa",
+    "edit": "Sửa",
+    "add": "Thêm",
+    "search": "Tìm kiếm",
+    "filter": "Lọc",
+    "clear": "Xóa",
+    "loading": "Đang tải...",
+    "error": "Lỗi",
+    "success": "Thành công",
+    "warning": "Cảnh báo",
+    "info": "Thông tin",
+    "reviews": "đánh giá",
+    "perHour": "/ giờ",
+    "viewAll": "Xem tất cả"
+  },
+  "web": {
+    "about": {"title": "Về Tuto", "lead": "Nền tảng kết nối giáo viên, phụ huynh và học sinh để học tập hiệu quả.\n"},
+    "trustSafety": {"title": "Tin cậy & An toàn", "lead": "Quy trình xác minh, tiêu chuẩn cộng đồng và bảo vệ dữ liệu."},
+    "howItWorks": {"title": "Cách hoạt động", "lead": "Tìm giáo viên phù hợp, đặt lịch, học tập và theo dõi tiến độ."},
+    "impact": {"title": "Tác động", "lead": "Cải thiện kết quả học tập và kết nối cộng đồng giáo dục."},
+    "newsroom": {"title": "Truyền thông", "lead": "Tin tức, thông cáo báo chí và cập nhật sản phẩm."},
+    "careers": {"title": "Cơ hội nghề nghiệp", "lead": "Gia nhập đội ngũ Tuto để xây dựng tương lai giáo dục."},
+    "investors": {"title": "Nhà đầu tư", "lead": "Tầm nhìn, số liệu chính và thông tin liên hệ."},
+    "contact": {"title": "Liên hệ", "lead": "Cần hỗ trợ? Hãy liên hệ đội ngũ Tuto."},
+
+    "findTeacher": {"title": "Tìm giáo viên", "lead": "Tìm giáo viên theo môn học, vị trí và đánh giá."},
+    "trial": {"title": "Buổi học thử", "lead": "Trải nghiệm miễn phí trước khi cam kết."},
+    "pricing": {"title": "Bảng giá", "lead": "Minh bạch học phí và gói linh hoạt."},
+    "ratingsPolicy": {"title": "Chính sách đánh giá", "lead": "Hướng dẫn đánh giá công bằng và hữu ích."},
+    "roadmaps": {"title": "Lộ trình học", "lead": "Kế hoạch học theo môn và cấp độ."},
+    "safeguarding": {"title": "An toàn học đường", "lead": "Chuẩn bảo vệ học sinh và môi trường học."},
+    "helpParents": {"title": "Trợ giúp cho phụ huynh", "lead": "Câu hỏi thường gặp và hướng dẫn nhanh."},
+    "download": {"title": "Tải ứng dụng", "lead": "Tải Tuto trên iOS và Android."},
+
+    "adaptiveHomework": {"title": "Bài tập thích ứng", "lead": "Nội dung cá nhân hóa theo mức độ."},
+    "practice": {"title": "Luyện tập", "lead": "Bài tập hằng ngày và theo chủ đề."},
+    "events": {"title": "Sự kiện", "lead": "Cuộc thi, hội thảo và hoạt động cộng đồng."},
+    "planner": {"title": "Kế hoạch học", "lead": "Quản lý lịch học và mục tiêu."},
+    "scholarships": {"title": "Học bổng", "lead": "Cơ hội hỗ trợ tài chính cho học sinh."},
+    "badges": {"title": "Huy hiệu", "lead": "Thành tích và động lực học tập."},
+    "helpStudents": {"title": "Trợ giúp cho học sinh", "lead": "Hướng dẫn sử dụng và mẹo học tốt."},
+    "codeOfConduct": {"title": "Quy tắc ứng xử", "lead": "Môi trường học tôn trọng và tích cực."},
+
+    "institutesPartner": {"title": "Đối tác", "lead": "Hợp tác cùng trung tâm/viện đào tạo."},
+    "institutesCrm": {"title": "CRM", "lead": "Quản lý khách hàng và liên hệ."},
+    "institutesScheduling": {"title": "Lịch", "lead": "Xếp lịch lớp và tài nguyên."},
+    "institutesAds": {"title": "Quảng cáo", "lead": "Chạy chiến dịch thu hút học viên."},
+    "institutesRecruit": {"title": "Tuyển dụng", "lead": "Quy trình tuyển giáo viên và cộng tác viên."},
+    "institutesReviews": {"title": "Đánh giá", "lead": "Quản lý phản hồi và uy tín."},
+    "institutesBilling": {"title": "Thanh toán", "lead": "Hóa đơn và đối soát cho tổ chức."},
+    "helpPartners": {"title": "Trợ giúp đối tác", "lead": "Tài liệu và hỗ trợ triển khai."},
+
+    "teachersApply": {"title": "Đăng ký giáo viên", "lead": "Gia nhập mạng lưới giáo viên Tuto."},
+    "teachersOnboarding": {"title": "Onboarding giáo viên", "lead": "Thiết lập hồ sơ và lịch dạy."},
+    "teachersPayments": {"title": "Thanh toán", "lead": "Theo dõi thu nhập và thanh toán."},
+    "teachersCalendar": {"title": "Lịch dạy", "lead": "Quản lý lịch và sắp xếp lớp."},
+    "teachersResources": {"title": "Tài nguyên", "lead": "Tài liệu giảng dạy và mẫu bài."},
+    "teachersCommunity": {"title": "Cộng đồng", "lead": "Kết nối và chia sẻ kinh nghiệm."},
+    "teachersQuality": {"title": "Chất lượng", "lead": "Chuẩn chất lượng và phản hồi."},
+    "helpTeachers": {"title": "Trợ giúp giáo viên", "lead": "Hướng dẫn và câu hỏi thường gặp."},
+
+    "help": {"title": "Trợ giúp", "lead": "Trung tâm hỗ trợ cho người dùng."},
+    "blog": {"title": "Blog", "lead": "Bài viết, mẹo học và câu chuyện."},
+    "developers": {"title": "Developers", "lead": "Tài liệu tích hợp và API."},
+    "status": {"title": "Trạng thái hệ thống", "lead": "Tình trạng dịch vụ hiện tại."},
+    "legalTerms": {"title": "Điều khoản", "lead": "Điều khoản sử dụng dịch vụ."},
+    "legalPrivacy": {"title": "Bảo mật", "lead": "Chính sách quyền riêng tư."},
+    "legalCookies": {"title": "Cookies", "lead": "Chính sách cookie."},
+    "sitemap": {"title": "Sơ đồ trang", "lead": "Tổng quan liên kết website."}
+  }
+}
+
+
+
+

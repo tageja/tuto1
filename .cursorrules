@@ -1,0 +1,15 @@
+include:
+  - docs/DATA_DICTIONARY.md
+  - docs/feature_schema_map.yml
+  - airtable/schema.json
+  - airtable/schema.d.ts
+
+priority:
+  - docs/feature_schema_map.yml
+  - airtable/schema.d.ts
+
+
+
+
+
+

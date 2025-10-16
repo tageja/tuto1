@@ -1,0 +1,80 @@
+{
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information",
+    "reviews": "reviews",
+    "perHour": "per hour",
+    "viewAll": "View All"
+  },
+  "web": {
+    "about": {"title": "About Tuto", "lead": "A platform connecting teachers, parents, and students for effective learning."},
+    "trustSafety": {"title": "Trust & Safety", "lead": "Verification processes, community standards, and data protection."},
+    "howItWorks": {"title": "How it Works", "lead": "Find the right teacher, book sessions, learn, and track progress."},
+    "impact": {"title": "Impact", "lead": "Improving learning outcomes and connecting education communities."},
+    "newsroom": {"title": "Newsroom", "lead": "News, press releases, and product updates."},
+    "careers": {"title": "Careers", "lead": "Join Tuto to build the future of education."},
+    "investors": {"title": "Investors", "lead": "Vision, key metrics, and contact information."},
+    "contact": {"title": "Contact", "lead": "Need help? Get in touch with the Tuto team."},
+
+    "findTeacher": {"title": "Find Teacher", "lead": "Search teachers by subject, location, and rating."},
+    "trial": {"title": "Trial Lesson", "lead": "Experience for free before committing."},
+    "pricing": {"title": "Pricing", "lead": "Transparent fees and flexible plans."},
+    "ratingsPolicy": {"title": "Ratings Policy", "lead": "Guidelines for fair and useful reviews."},
+    "roadmaps": {"title": "Learning Roadmaps", "lead": "Plans by subject and level."},
+    "safeguarding": {"title": "Safeguarding", "lead": "Standards to protect students and learning."},
+    "helpParents": {"title": "Help for Parents", "lead": "FAQs and quick guides."},
+    "download": {"title": "Download App", "lead": "Get Tuto on iOS and Android."},
+
+    "adaptiveHomework": {"title": "Adaptive Homework", "lead": "Personalized content by level."},
+    "practice": {"title": "Practice", "lead": "Daily and topical exercises."},
+    "events": {"title": "Events", "lead": "Competitions, webinars, and community activities."},
+    "planner": {"title": "Learning Planner", "lead": "Manage schedule and goals."},
+    "scholarships": {"title": "Scholarships", "lead": "Financial support opportunities."},
+    "badges": {"title": "Badges", "lead": "Achievements and motivation."},
+    "helpStudents": {"title": "Help for Students", "lead": "How-tos and study tips."},
+    "codeOfConduct": {"title": "Code of Conduct", "lead": "Respectful, positive learning environment."},
+
+    "institutesPartner": {"title": "Partners", "lead": "Collaborate with institutes and centers."},
+    "institutesCrm": {"title": "CRM", "lead": "Manage customers and contacts."},
+    "institutesScheduling": {"title": "Scheduling", "lead": "Class and resource scheduling."},
+    "institutesAds": {"title": "Ads", "lead": "Campaigns to attract learners."},
+    "institutesRecruit": {"title": "Recruit", "lead": "Teacher and contributor recruitment."},
+    "institutesReviews": {"title": "Reviews", "lead": "Manage feedback and reputation."},
+    "institutesBilling": {"title": "Billing", "lead": "Invoices and reconciliation for orgs."},
+    "helpPartners": {"title": "Help for Partners", "lead": "Docs and deployment support."},
+
+    "teachersApply": {"title": "Apply as Teacher", "lead": "Join Tuto's teacher network."},
+    "teachersOnboarding": {"title": "Teacher Onboarding", "lead": "Set up profile and schedule."},
+    "teachersPayments": {"title": "Payments", "lead": "Track income and payouts."},
+    "teachersCalendar": {"title": "Teaching Calendar", "lead": "Manage schedule and classes."},
+    "teachersResources": {"title": "Resources", "lead": "Teaching materials and templates."},
+    "teachersCommunity": {"title": "Community", "lead": "Connect and share experience."},
+    "teachersQuality": {"title": "Quality", "lead": "Standards and feedback."},
+    "helpTeachers": {"title": "Help for Teachers", "lead": "Guides and FAQs."},
+
+    "help": {"title": "Help", "lead": "Support center for users."},
+    "blog": {"title": "Blog", "lead": "Articles, tips, and stories."},
+    "developers": {"title": "Developers", "lead": "Integration docs and APIs."},
+    "status": {"title": "System Status", "lead": "Current service health."},
+    "legalTerms": {"title": "Terms", "lead": "Terms of service."},
+    "legalPrivacy": {"title": "Privacy", "lead": "Privacy policy."},
+    "legalCookies": {"title": "Cookies", "lead": "Cookie policy."},
+    "sitemap": {"title": "Sitemap", "lead": "Website overview links."}
+  }
+}
+
+
+
+

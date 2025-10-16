@@ -1,0 +1,725 @@
+"use client";
+
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import Button from '../../components/ui/Button';
+import Card from '../../components/ui/Card';
+import Field from '../../components/ui/Field';
+import { useI18n } from '../../contexts/I18nContext';
+import LoadingState from '../../components/shared/LoadingState';
+import StatsCard from '../../components/shared/StatsCard';
+
+export default function WebHomePage() {
+  const [teachers, setTeachers] = useState<any[]>([]);
+  const [posts, setPosts] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalTeachers: 0,
+    upcomingBookings: 0,
+    activePosts: 0,
+    avgRating: 0,
+  });
+  const { t, lang, setLang } = useI18n();
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        // Fetch teachers
+        const teachersRes = await fetch('/api/teachers?maxRecords=8&status=Active');
+        if (teachersRes.ok) {
+          const data = await teachersRes.json();
+          setTeachers(data.teachers || []);
+          setStats((prev) => ({ ...prev, totalTeachers: data.teachers?.length || 0 }));
+        }
+
+        // Fetch posts
+        const postsRes = await fetch('/api/posts?maxRecords=6&status=Active');
+        if (postsRes.ok) {
+          const data = await postsRes.json();
+          setPosts(data.posts || []);
+          setStats((prev) => ({ ...prev, activePosts: data.posts?.length || 0 }));
+        }
+
+        // Fetch upcoming bookings
+        const bookingsRes = await fetch('/api/bookings?maxRecords=5&upcoming=true');
+        if (bookingsRes.ok) {
+          const data = await bookingsRes.json();
+          setBookings(data.bookings || []);
+          setStats((prev) => ({ ...prev, upcomingBookings: data.bookings?.length || 0 }));
+        }
+
+        // Calculate average rating
+        if (teachers.length > 0) {
+          const avgRating = teachers.reduce((sum, t) => sum + (t.rating || 0), 0) / teachers.length;
+          setStats((prev) => ({ ...prev, avgRating: Math.round(avgRating * 10) / 10 }));
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [teachers.length]);
+
+  return (
+    <div className="min-h-screen" style={{backgroundColor: '#F0F2F5'}} id="main">
+      {/* Fixed Header - Facebook Style */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
+        <div className="max-w-[1600px] mx-auto px-4" style={{height: 56}}>
+          <div className="flex items-center justify-between h-full gap-4">
+            {/* Logo */}
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <Image src="/api/assets/images/tuto-logo.png" alt="Tuto" width={40} height={40} className="rounded-lg" />
+              <span className="font-bold text-[#1877F2] text-xl hidden md:block">Tuto</span>
+              </div>
+
+            {/* Search Bar - Center */}
+            <div className="flex-1 max-w-[600px]">
+              <Field placeholder={t('searchPlaceholder')} aria-label="Search" />
+            </div>
+
+            {/* Actions - Right */}
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm">{t('help')}</Button>
+              <Button variant="ghost" size="sm" onClick={() => setLang(lang === 'vi' ? 'en' : 'vi')}>
+                {lang === 'vi' ? 'EN' : 'VI'}
+              </Button>
+              <Link href="/bookings/new">
+                <Button variant="primary" size="md">{t('newBooking')}</Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Spacing for fixed header */}
+      <div style={{height: 56}} />
+
+      {/* 3-Column Layout - Facebook Style */}
+      <div className="max-w-[1600px] mx-auto px-4 py-4">
+        <div className="grid grid-cols-12 gap-4">
+          
+          {/* LEFT SIDEBAR - Navigation */}
+          <aside className="col-span-3 hidden lg:block">
+            <div className="sticky top-[72px] space-y-2">
+              <h2 className="px-2 text-[#65676B] text-xs font-semibold uppercase tracking-wide mb-2">{t('menu')}</h2>
+              
+              <Link href="/" className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-[#F2F3F5] transition-colors">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <span className="font-medium text-[#050505]">{t('home')}</span>
+              </Link>
+              
+              <Link href="/find-teacher" className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-[#F2F3F5] transition-colors">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <span className="font-medium text-[#050505]">{t('findTeacher')}</span>
+              </Link>
+              
+              <Link href="/bookings" className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-[#F2F3F5] transition-colors">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
+                </svg>
+                <span className="font-medium text-[#050505]">{t('bookingsCalendar')}</span>
+              </Link>
+              
+              <Link href="/feed" className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-[#F2F3F5] transition-colors">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                </svg>
+                <span className="font-medium text-[#050505]">{t('communityTitle')}</span>
+              </Link>
+              
+              <Link href="/progress" className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-[#F2F3F5] transition-colors">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+                <span className="font-medium text-[#050505]">{t('progressReports')}</span>
+              </Link>
+              
+              <Link href="/school/dashboard" className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-[#F2F3F5] transition-colors">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/>
+                </svg>
+                <span className="font-medium text-[#050505]">{t('schoolManagement')}</span>
+              </Link>
+            </div>
+          </aside>
+
+          {/* MAIN CONTENT */}
+          <main className="col-span-12 lg:col-span-6 space-y-4">
+            
+            {loading && (
+              <div className="bg-white rounded-lg p-8 shadow-[0_1px_2px_rgba(0,0,0,0.1)]">
+                <LoadingState message="Đang tải bảng điều khiển..." />
+              </div>
+            )}
+
+            {!loading && (
+              <>
+                {/* Welcome Card */}
+                <div className="bg-white rounded-lg p-6 shadow-[0_1px_2px_rgba(0,0,0,0.1)]">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#1877F2] to-[#0B5FFF] flex items-center justify-center text-white text-2xl font-bold">
+                      T
+        </div>
+                    <div>
+                      <h1 className="text-2xl font-bold text-[#050505]">{t('heroTitle')}</h1>
+                      <p className="text-[#65676B] text-sm">{t('heroSubtitle')}</p>
+        </div>
+      </div>
+
+                  <div className="flex gap-2 flex-wrap">
+                    <Link href="/find-teacher">
+                      <Button variant="primary" size="md">{t('findTeacher')}</Button>
+                    </Link>
+                    <Link href="/bookings/new">
+                      <Button variant="secondary" size="md">{t('bookClass')}</Button>
+                    </Link>
+                    <Link href="/progress">
+                      <Button variant="secondary" size="md">{t('viewProgress')}</Button>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  <StatsCard
+                title={t('activeTeachers')}
+                value={stats.totalTeachers}
+                icon={
+                  <svg width="24" height="24" className="flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                }
+              />
+              <StatsCard
+                title={t('upcomingClasses')}
+                value={stats.upcomingBookings}
+                icon={
+                  <svg width="24" height="24" className="flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                }
+              />
+              <StatsCard
+                title={t('communityPosts')}
+                value={stats.activePosts}
+                icon={
+                  <svg width="24" height="24" className="flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                  </svg>
+                }
+              />
+              <StatsCard
+                title={t('averageRating')}
+                value={`${stats.avgRating}/5`}
+                icon={
+                  <svg width="24" height="24" className="flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
+                }
+              />
+                </div>
+
+                {/* Upcoming Bookings - Facebook Style */}
+                <div className="bg-white rounded-lg shadow-[0_1px_2px_rgba(0,0,0,0.1)]">
+                  <div className="p-4 border-b border-[#E4E6EB] flex justify-between items-center">
+                    <h3 className="font-semibold text-[#050505]">{t('upcomingBookingsTitle')}</h3>
+                    <Link href="/bookings" className="text-sm text-[#1877F2] hover:underline">
+                      {t('viewAll')}
+                    </Link>
+                  </div>
+                  <div className="divide-y divide-[#E4E6EB]">
+                    {bookings.length === 0 ? (
+                      <div className="p-8 text-center text-[#65676B]">
+                        <svg className="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p className="text-sm">{t('noUpcomingBookings') || 'No upcoming bookings'}</p>
+                      </div>
+                    ) : (
+                      bookings.slice(0, 3).map((booking) => (
+                        <div key={booking.id} className="p-4 hover:bg-[#F2F3F5] transition-colors cursor-pointer">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <p className="font-medium text-[#050505]">{booking.subject}</p>
+                              <p className="text-sm text-[#65676B] mt-1">
+                                {booking.date} · {booking.time}
+                              </p>
+                              <p className="text-sm text-[#65676B]">
+                                {t('teacher')}: {booking.teacherId}
+                              </p>
+                            </div>
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${
+                              booking.status === 'Confirmed' ? 'bg-green-100 text-green-700' :
+                              booking.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}>
+                              {booking.status}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* Recent Posts - Facebook Style */}
+                <div className="bg-white rounded-lg shadow-[0_1px_2px_rgba(0,0,0,0.1)]">
+                  <div className="p-4 border-b border-[#E4E6EB] flex justify-between items-center">
+                    <h3 className="font-semibold text-[#050505]">{t('recentPostsTitle')}</h3>
+                    <Link href="/feed" className="text-sm text-[#1877F2] hover:underline">
+                      {t('viewAll')}
+                    </Link>
+                  </div>
+                  <div className="divide-y divide-[#E4E6EB]">
+                    {posts.length === 0 ? (
+                      <div className="p-8 text-center text-[#65676B]">
+                        <svg className="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                        </svg>
+                        <p className="text-sm">{t('noPosts') || 'No recent posts'}</p>
+                      </div>
+                    ) : (
+                      posts.slice(0, 3).map((post) => (
+                        <div key={post.id} className="p-4 hover:bg-[#F2F3F5] transition-colors cursor-pointer">
+                          <div className="flex gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1877F2] to-[#0B5FFF] flex items-center justify-center text-white font-bold flex-shrink-0">
+                              {post.author?.[0]?.toUpperCase() || 'U'}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-[#050505] text-sm">{post.author || 'Anonymous'}</p>
+                              <p className="text-[#050505] mt-1 text-sm line-clamp-2">{post.content}</p>
+                              <div className="flex items-center gap-4 mt-2 text-xs text-[#65676B]">
+                                <span>{post.likes || 0} {t('likes') || 'likes'}</span>
+                                <span>{post.comments || 0} {t('comments') || 'comments'}</span>
+                                <span className="ml-auto">{post.createdAt}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </main>
+
+          {/* RIGHT SIDEBAR - Widgets */}
+          <aside className="col-span-12 lg:col-span-3 hidden lg:block space-y-4">
+            <div className="sticky top-[72px] space-y-4">
+              
+              {/* Quick Stats Widget */}
+              <div className="bg-white rounded-lg p-4 shadow-[0_1px_2px_rgba(0,0,0,0.1)]">
+                <h3 className="font-semibold text-[#050505] mb-3">{t('statsOverview')}</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-[#65676B]">{t('activeTeachers')}</span>
+                    <span className="font-semibold text-[#050505]">{stats.totalTeachers}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-[#65676B]">{t('upcomingClasses')}</span>
+                    <span className="font-semibold text-[#050505]">{stats.upcomingBookings}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-[#65676B]">{t('communityPosts')}</span>
+                    <span className="font-semibold text-[#050505]">{stats.activePosts}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-[#65676B]">{t('averageRating')}</span>
+                    <span className="font-semibold text-[#050505]">{stats.avgRating}/5 ⭐</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Featured Teachers Widget */}
+              <div className="bg-white rounded-lg p-4 shadow-[0_1px_2px_rgba(0,0,0,0.1)]">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="font-semibold text-[#050505]">{t('featuredTeachersTitle')}</h3>
+                  <Link href="/find-teacher" className="text-xs text-[#1877F2] hover:underline">
+                    {t('viewAll')}
+                  </Link>
+                </div>
+                <div className="space-y-3">
+                  {teachers.slice(0, 3).map((teacher) => (
+                    <Link key={teacher.id} href={`/teachers/${teacher.id}`} className="flex items-center gap-3 hover:bg-[#F2F3F5] p-2 rounded-lg transition-colors">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1877F2] to-[#0B5FFF] flex items-center justify-center text-white font-bold flex-shrink-0">
+                        {teacher.name?.[0]?.toUpperCase() || 'T'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-[#050505] text-sm truncate">{teacher.name}</p>
+                        <p className="text-xs text-[#65676B] truncate">{teacher.subject}</p>
+                      </div>
+                      <div className="text-xs text-[#65676B] flex items-center gap-0.5">
+                        ⭐ {teacher.rating || '5.0'}
+            </div>
+                    </Link>
+              ))}
+            </div>
+          </div>
+
+              {/* Quick Links Widget */}
+              <div className="bg-white rounded-lg p-4 shadow-[0_1px_2px_rgba(0,0,0,0.1)]">
+                <h3 className="font-semibold text-[#050505] mb-3">{t('shortcutsTitle')}</h3>
+                <div className="space-y-1">
+                  <Link href="/find-teacher" className="block px-2 py-1.5 text-sm text-[#050505] hover:bg-[#F2F3F5] rounded transition-colors">
+                    {t('teacherList')}
+                  </Link>
+                  <Link href="/bookings" className="block px-2 py-1.5 text-sm text-[#050505] hover:bg-[#F2F3F5] rounded transition-colors">
+                    {t('bookingsCalendar')}
+                  </Link>
+                  <Link href="/progress" className="block px-2 py-1.5 text-sm text-[#050505] hover:bg-[#F2F3F5] rounded transition-colors">
+                    {t('progressReports')}
+                  </Link>
+                  <Link href="/school/dashboard" className="block px-2 py-1.5 text-sm text-[#050505] hover:bg-[#F2F3F5] rounded transition-colors">
+                    {t('schoolManagement')}
+                  </Link>
+                </div>
+              </div>
+
+          </div>
+          </aside>
+
+        </div>
+      </div>
+
+
+      {/* Site Footer - multi-column */}
+      <footer className="site-footer">
+        <div className="container">
+          <div className="footer-top">
+            <div className="footer-brand">
+              <Image src="/api/assets/images/tuto-logo.png" alt="Tuto" width={120} height=48} />
+              <p className="muted">{t('heroSubtitle')}</p>
+                  <div className="p-6">
+                    <h3 className="text-lg font-semibold mb-4">{t('recentPostsTitle')}</h3>
+                    <div className="space-y-3">
+                      {posts.slice(0, 3).map((post) => (
+                        <div key={post.id} className="border-b border-gray-200 last:border-0 pb-3 last:pb-0">
+                          <p className="text-sm font-medium">{post.author.name}</p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {post.content.text.substring(0, 80)}...
+                          </p>
+                          <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                            <span>👍 {post.interactions.likesCount}</span>
+                            <span>💬 {post.interactions.commentsCount}</span>
+                          </div>
+              </div>
+            ))}
+          </div>
+                    <Link href="/feed" className="block mt-4 text-sm font-medium text-primary hover:text-primary-dark transition-colors">
+                      {t('viewAll')} →
+                    </Link>
+            </div>
+          </Card>
+
+                {/* Shortcuts */}
+          <Card>
+                  <div className="p-6">
+                    <h3 className="text-lg font-semibold mb-4">{t('shortcutsTitle')}</h3>
+                    <div className="space-y-2">
+                      <Link href="/find-teacher" className="flex items-center text-sm text-gray-700 hover:text-primary hover:translate-x-1 transition-all py-1">
+                        <svg width="16" height="16" className="flex-shrink-0 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                        {t('teacherList')}
+                      </Link>
+                      <Link href="/bookings" className="flex items-center text-sm text-gray-700 hover:text-primary hover:translate-x-1 transition-all py-1">
+                        <svg width="16" height="16" className="flex-shrink-0 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                        {t('bookingsCalendar')}
+                      </Link>
+                      <Link href="/progress" className="flex items-center text-sm text-gray-700 hover:text-primary hover:translate-x-1 transition-all py-1">
+                        <svg width="16" height="16" className="flex-shrink-0 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                        {t('progressReports')}
+                      </Link>
+                      <Link href="/school/dashboard" className="flex items-center text-sm text-gray-700 hover:text-primary hover:translate-x-1 transition-all py-1">
+                        <svg width="16" height="16" className="flex-shrink-0 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                        {t('schoolManagement')}
+                      </Link>
+                    </div>
+            </div>
+          </Card>
+        </aside>
+            </div>
+      </main>
+        </>
+      )}
+
+      {/* Feature cards */}
+      <section id="features" className="container section grid-3">
+        {[ 
+          { title: t('featureTeachersTitle'), desc: t('featureTeachersDesc') },
+          { title: t('featureBookingsTitle'), desc: t('featureBookingsDesc') },
+          { title: t('featurePaymentsTitle'), desc: t('featurePaymentsDesc') },
+        ].map((c) => (
+          <div key={c.title} className="card" data-animate>
+            <h3 className="h1 text-[var(--text)]">{c.title}</h3>
+            <p className="muted">{c.desc}</p>
+          </div>
+        ))}
+      </section>
+
+      {/* Highlight banner */}
+      <section className="container section">
+        <div className="banner" data-animate>
+          <div className="title">{t('roleBannerTitle')}</div>
+          <p className="desc">{t('roleBannerDesc')}</p>
+        </div>
+      </section>
+
+      {/* Subjects */}
+      <section id="subjects" className="container section">
+        <h2 className="h1">{t('popularSubjects')}</h2>
+        <div style={{display:'flex', flexWrap:'wrap', gap:12}}>
+          {[
+            t('subjectMath'), t('subjectEnglish'), t('subjectPhysics'), t('subjectChemistry'),
+            t('subjectBiology'), t('subjectHistory'), t('subjectGeography'), t('subjectLiterature'),
+            t('subjectComputerScience'), t('subjectArt'), t('subjectMusic'), t('subjectEconomics'),
+          ].map((s) => (
+            <a key={s} href={`#subject-${s}`} className="pill">{s}</a>
+          ))}
+        </div>
+      </section>
+
+      {!loading && (
+        <>
+          {/* Featured Teachers */}
+          <section id="teachers" className="container section">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">{t('featuredTeachersTitle')}</h2>
+              <Link href="/find-teacher" className="text-sm font-medium text-primary hover:text-primary-dark transition-colors flex items-center gap-1">
+                {t('viewAll')}
+                <svg width="16" height="16" className="flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {teachers.slice(0, 4).map((teacher) => (
+                <Card key={teacher.id}>
+                  <Link href={`/teachers/${teacher.id}`}>
+                    <div className="p-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        {teacher.avatar ? (
+                          <img 
+                            src={teacher.avatar} 
+                            alt={teacher.name} 
+                            className="w-14 h-14 rounded-full object-cover" 
+                          />
+                        ) : (
+                          <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
+                            {teacher.name.charAt(0)}
+                          </div>
+                        )}
+                        <div>
+                          <h3 className="font-semibold">{teacher.name}</h3>
+                          <p className="text-xs text-gray-500">
+                            {teacher.subjects.join(', ')}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">{t('experience')}:</span>
+                          <span className="font-medium">{teacher.experience} {t('years')}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">{t('rating')}:</span>
+                          <span className="font-medium">⭐ {teacher.rating}/5</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">{t('hourlyRate')}:</span>
+                          <span className="font-medium">{teacher.hourlyRate}k{t('perHour')}</span>
+                        </div>
+                      </div>
+                      <Button variant="primary" className="w-full mt-4">
+                        {t('viewProfile')}
+                      </Button>
+                    </div>
+                  </Link>
+                </Card>
+          ))}
+        </div>
+      </section>
+
+          {/* Community Posts */}
+          <section id="community" className="container section">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">{t('communityTitle')}</h2>
+              <Link href="/feed" className="text-sm font-medium text-primary hover:text-primary-dark transition-colors flex items-center gap-1">
+                {t('viewAll')}
+                <svg width="16" height="16" className="flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {posts.slice(0, 3).map((post) => (
+                <Card key={post.id}>
+                  <div className="p-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-semibold">
+                        {post.author.name.charAt(0)}
+                      </div>
+                <div>
+                        <p className="text-sm font-medium">{post.author.name}</p>
+                        <p className="text-xs text-gray-500">{post.author.role}</p>
+                </div>
+              </div>
+                    <p className="text-sm text-gray-700 line-clamp-3">
+                      {post.content.text}
+                    </p>
+                    <div className="flex items-center gap-4 mt-4 text-xs text-gray-500">
+                      <span>👍 {post.interactions.likesCount}</span>
+                      <span>💬 {post.interactions.commentsCount}</span>
+                      <span>📤 {post.interactions.sharesCount}</span>
+              </div>
+            </div>
+                </Card>
+          ))}
+        </div>
+      </section>
+        </>
+      )}
+
+      {/* Site Footer - multi-column */}
+      <footer className="site-footer">
+        <div className="container">
+          <div className="footer-top">
+            <div className="footer-brand">
+              <Image src="/api/assets/images/tuto-logo.png" alt="Tuto" width={120} height={48} />
+              <p className="muted">{t('heroSubtitle')}</p>
+              <div className="social">
+                <a href="#" aria-label="Facebook">f</a>
+                <a href="#" aria-label="X">x</a>
+                <a href="#" aria-label="LinkedIn">in</a>
+              </div>
+            </div>
+            <nav className="footer-cols" aria-label="Footer">
+              {/* Column A — About */}
+              <section aria-labelledby="footer-about">
+                <h3 id="footer-about">About</h3>
+                <ul>
+                  <li><a href="/about">About Tuto</a></li>
+                  <li><a href="/trust-safety">Trust & Safety</a></li>
+                  <li><a href="/how-it-works">How Tuto Works</a></li>
+                  <li><a href="/impact">Impact & Community</a></li>
+                  <li><a href="/newsroom">Newsroom / Press</a></li>
+                  <li><a href="/careers">Careers</a></li>
+                  <li><a href="/investors">Investor Relations</a></li>
+                  <li><a href="/contact">Contact Us</a></li>
+                </ul>
+              </section>
+              {/* Column B — Parents */}
+              <section aria-labelledby="footer-parents">
+                <h3 id="footer-parents">Parents</h3>
+                <ul>
+                  <li><a href="/find-teacher">Find a Teacher Near You</a></li>
+                  <li><a href="/trial">Book a Free Trial</a></li>
+                  <li><a href="/pricing">Pricing & Packages</a></li>
+                  <li><a href="/ratings-policy">Reviews & Ratings Policy</a></li>
+                  <li><a href="/roadmaps">Learning Roadmaps</a></li>
+                  <li><a href="/safeguarding">Safeguarding & Reporting</a></li>
+                  <li><a href="/help/parents">Parent Help Centre / FAQs</a></li>
+                  <li><a href="/download">App Download (iOS / Android)</a></li>
+                </ul>
+              </section>
+              {/* Column C — Students */}
+              <section aria-labelledby="footer-students">
+                <h3 id="footer-students">Students</h3>
+                <ul>
+                  <li><a href="/adaptive-homework">Adaptive Homework</a></li>
+                  <li><a href="/practice">Practice Library</a></li>
+                  <li><a href="/events">Speaking Clubs & Events</a></li>
+                  <li><a href="/planner">Study Planner & Streaks</a></li>
+                  <li><a href="/scholarships">Scholarships & Contests</a></li>
+                  <li><a href="/badges">Certificates & Badges</a></li>
+                  <li><a href="/help/students">Student Support / FAQs</a></li>
+                  <li><a href="/code-of-conduct">Code of Conduct</a></li>
+                </ul>
+              </section>
+              {/* Column D — Schools */}
+              <section aria-labelledby="footer-schools">
+                <h3 id="footer-schools">Schools</h3>
+                <ul>
+                  <li><a href="/schools">Tuto for Schools</a></li>
+                  <li><a href="/schools/analytics">Admin Dashboard & Analytics</a></li>
+                  <li><a href="/schools/lesson-planner">Curriculum & Lesson Planner</a></li>
+                  <li><a href="/schools/assessments">Assessments & Gradebook</a></li>
+                  <li><a href="/schools/onboarding">Onboarding & Training</a></li>
+                  <li><a href="/schools/case-studies">Case Studies / Testimonials</a></li>
+                  <li><a href="/schools/pricing">Pricing for Schools</a></li>
+                  <li><a href="/help/schools">School Support</a></li>
+                </ul>
+              </section>
+              {/* Column E — Institutes */}
+              <section aria-labelledby="footer-institutes">
+                <h3 id="footer-institutes">Institutes</h3>
+                <ul>
+                  <li><a href="/institutes/partner">Partner with Tuto</a></li>
+                  <li><a href="/institutes/crm">Lead Management & CRM</a></li>
+                  <li><a href="/institutes/scheduling">Class Scheduling & Fee Tracking</a></li>
+                  <li><a href="/institutes/ads">Ads / Featured Listings</a></li>
+                  <li><a href="/institutes/recruit">Teacher Recruitment Hub</a></li>
+                  <li><a href="/institutes/reviews">Ratings & Review Guidelines</a></li>
+                  <li><a href="/institutes/billing">Billing & Payouts</a></li>
+                  <li><a href="/help/partners">Partner Help Centre</a></li>
+                </ul>
+              </section>
+              {/* Column F — Teachers */}
+              <section aria-labelledby="footer-teachers">
+                <h3 id="footer-teachers">Teachers</h3>
+                <ul>
+                  <li><a href="/teachers/apply">Become a Teacher/Coach</a></li>
+                  <li><a href="/teachers/onboarding">Onboarding & Verification</a></li>
+                  <li><a href="/teachers/payments">Payments & Payout Schedule</a></li>
+                  <li><a href="/teachers/calendar">Calendar & Availability</a></li>
+                  <li><a href="/teachers/resources">Teaching Resources & Templates</a></li>
+                  <li><a href="/teachers/community">Community & Events</a></li>
+                  <li><a href="/teachers/quality">Quality Standards & Observations</a></li>
+                  <li><a href="/help/teachers">Teacher Support</a></li>
+                </ul>
+              </section>
+              {/* Column G — Quick Links */}
+              <section aria-labelledby="footer-quick">
+                <h3 id="footer-quick">Quick Links</h3>
+                <ul>
+                  <li><a href="/help">Help Centre</a></li>
+                  <li><a href="/blog">Blog / Guides</a></li>
+                  <li><a href="/developers">Developer Portal & API Docs</a></li>
+                  <li><a href="/status">System Status</a></li>
+                  <li><a href="/legal/terms">Terms of Service</a></li>
+                  <li><a href="/legal/privacy">Privacy Policy</a></li>
+                  <li><a href="/legal/cookies">Cookie Preferences</a></li>
+                  <li><a href="/sitemap">Sitemap</a></li>
+                </ul>
+              </section>
+            </nav>
+          </div>
+          <div className="footer-bottom">
+            <div>© {new Date().getFullYear()} Tuto</div>
+            <div style={{display:'flex', gap:12}}>
+              <a href="#privacy">{t('footerPrivacy')}</a>
+              <a href="#terms">{t('footerTerms')}</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+

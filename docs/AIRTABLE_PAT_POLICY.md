@@ -15,3 +15,13 @@
 
 ## Verification
 - After rotation, run smoke: list teachers, create booking (sandbox), post review
+
+
+
+
+
+
+
+
+
+

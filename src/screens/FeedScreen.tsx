@@ -26,7 +26,6 @@ import { CreatePostModal } from '../components/feed/CreatePostModal';
 import { useAirtable } from '../hooks/useAirtable';
 import { uploadImageAuto } from '../services/upload';
 import { logDebug, logError } from '../services/logger';
-import { Backend } from '../services/backend';
 
 const { width } = Dimensions.get('window');
 
@@ -86,39 +85,28 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
 
   const fetchPosts = async () => {
     try {
-      const response = await Backend.getFeedPosts(1, 50) as any;
-      const postsData = response.records?.map((record: any) => ({
-        id: record.id,
-        author: {
-          id: record.fields['Author ID'] || '',
-          name: record.fields['Author Name'] || 'Unknown User',
-          role: record.fields['Author Role'] || 'parent',
-          avatar: record.fields['Author Avatar'] || '',
-        },
-        content: {
-          text: record.fields['Content Text'] || '',
-          media: record.fields['Content Media Type'] ? {
-            type: record.fields['Content Media Type'] as 'image' | 'video',
-            url: record.fields['Content Media URL'] || '',
-            thumbnail: record.fields['Content Media Thumbnail'] || '',
-          } : undefined,
-        },
-        type: record.fields['Post Type'] || 'text',
-        subjects: record.fields['Subjects'] || [],
-        timestamp: new Date(record.fields['Timestamp'] || new Date()),
-        interactions: {
-          likes: record.fields['Likes Count'] || 0,
-          comments: record.fields['Comments Count'] || 0,
-          shares: record.fields['Shares Count'] || 0,
-          saves: record.fields['Saves Count'] || 0,
-        },
-        isLiked: false, // Will be determined by user state
-        isSaved: false, // Will be determined by user state
-        privacy: record.fields['Privacy'] || 'public',
-      })) || [];
-      setPosts(postsData);
+      console.log('[FeedScreen] Starting to fetch posts...');
+      // Use direct Airtable service instead of backend API to avoid authentication issues
+      const response = await getPosts({ maxRecords: 50 });
+      console.log('[FeedScreen] Raw response from getPosts:', JSON.stringify(response, null, 2));
+      setPosts(response);
+      logDebug('Feed posts loaded:', response.length);
+      
+      // Log each post's media data
+      response.forEach((post, index) => {
+        console.log(`[FeedScreen] Post ${index + 1} (${post.id}):`);
+        console.log(`  - Author: ${post.author.name}`);
+        console.log(`  - Content: ${post.content.text}`);
+        console.log(`  - Media:`, post.content.media);
+        if (post.content.media) {
+          console.log(`    - Type: ${post.content.media.type}`);
+          console.log(`    - URL: ${post.content.media.url}`);
+          console.log(`    - Thumbnail: ${post.content.media.thumbnail}`);
+        }
+      });
     } catch (err) {
-      console.error('Error fetching posts:', err);
+      logError('Error fetching posts:', err);
+      setPosts([]);
     }
   };
 
@@ -201,6 +189,10 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
       }
       
       const payload = {
+        authorId: userData?.id || 'unknown',
+        authorName: userData?.name || 'Unknown User',
+        authorRole: userType || 'parent',
+        authorAvatar: userData?.avatar || 'https://via.placeholder.com/40',
         contentText: postData.text,
         contentMediaType: mediaType,
         contentMediaUrl: mediaUrl,
@@ -208,7 +200,7 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
         privacy: 'public',
       };
       logDebug('Feed submit: creating post payload', payload);
-      const created = await Backend.createFeedPost(payload);
+      const created = await createPost(payload);
       logDebug('Feed submit: create result', created);
 
       // Refresh posts after creating new one
