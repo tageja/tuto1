@@ -102,3 +102,4 @@ All footer links now have full Vietnamese translations and toggle properly when 
 All footer sections now fully support Vietnamese and English translations! 🚀
 
 
+
