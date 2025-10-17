@@ -13,3 +13,4 @@ export function FAQ({ items }: { items: Array<{ q: string; a: string }> }) {
   );
 }
 
+
