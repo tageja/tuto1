@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Linking, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -57,6 +50,19 @@ export const TeacherProfileScreen: React.FC<TeacherProfileScreenProps> = ({
       teacherName: teacher?.name || teacherName,
       subject,
     });
+  };
+
+  const openInMaps = () => {
+    const lat = teacher?.latitude || teacher?.location?.latitude;
+    const lng = teacher?.longitude || teacher?.location?.longitude;
+    const label = encodeURIComponent(teacher?.name || teacherName);
+    if (typeof lat !== 'number' || typeof lng !== 'number') return;
+    const url = Platform.select({
+      ios: `http://maps.apple.com/?ll=${lat},${lng}&q=${label}`,
+      android: `geo:${lat},${lng}?q=${lat},${lng}(${label})`,
+      default: `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
+    });
+    if (url) Linking.openURL(url).catch(() => {});
   };
 
   return (
@@ -154,6 +160,17 @@ export const TeacherProfileScreen: React.FC<TeacherProfileScreenProps> = ({
             {t('teacherProfile.bookSession')}
           </Text>
           <MaterialIcons name="arrow-forward" size={20} color={colors.secondary} />
+        </TouchableOpacity>
+
+        {/* Open in Maps */}
+        <TouchableOpacity 
+          style={[styles.bookButton, { backgroundColor: colors.background.secondary }]}
+          onPress={openInMaps}
+        >
+          <Text style={[styles.bookButtonText, { color: colors.text.primary }]}>
+            {t('maps.openInMaps') || 'Open in Maps'}
+          </Text>
+          <MaterialIcons name="map" size={20} color={colors.primary} />
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

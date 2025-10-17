@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tuto Dashboard - Backend Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            color: #1a202c;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #718096;
+            margin-bottom: 32px;
+        }
+        .info-box {
+            background: #ebf8ff;
+            border: 1px solid #90cdf4;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        .info-box strong {
+            color: #2c5282;
+        }
+        button {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 24px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #3182ce;
+        }
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+        .test-result {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .test-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .test-title {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .test-description {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        .test-output {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .status {
+            font-size: 24px;
+        }
+        .status.pending { opacity: 0.3; }
+        .status.running { animation: spin 1s linear infinite; }
+        .status.success { }
+        .status.error { }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .summary {
+            background: #f0fff4;
+            border: 2px solid #9ae6b4;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 24px;
+        }
+        .summary.error {
+            background: #fff5f5;
+            border-color: #fc8181;
+        }
+        .summary h3 {
+            margin-top: 0;
+            color: #22543d;
+        }
+        .summary.error h3 {
+            color: #742a2a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Tuto Dashboard - Backend Test</h1>
+        <p class="subtitle">Test Firebase Functions and Airtable connectivity</p>
+        
+        <div class="info-box">
+            <strong>Project:</strong> tuto1-73fc4<br>
+            <strong>Region:</strong> asia-southeast1<br>
+            <strong>Base:</strong> app34330Do0nm4qvM
+        </div>
+        
+        <button id="runTests" onclick="runAllTests()">Run All Tests</button>
+        
+        <div id="results"></div>
+        
+        <div id="summary" style="display: none;"></div>
+    </div>
+
+    <script>
+        const FIREBASE_PROJECT = 'tuto1-73fc4';
+        const FUNCTIONS_REGION = 'asia-southeast1';
+        const BASE_URL = `https://${FUNCTIONS_REGION}-${FIREBASE_PROJECT}.cloudfunctions.net/api`;
+        
+        let testResults = [];
+        
+        function setTestStatus(testId, status, output = '') {
+            const statusEl = document.getElementById(`status-${testId}`);
+            const outputEl = document.getElementById(`output-${testId}`);
+            
+            statusEl.className = `status ${status}`;
+            
+            switch(status) {
+                case 'pending':
+                    statusEl.textContent = '⚪';
+                    break;
+                case 'running':
+                    statusEl.textContent = '⏳';
+                    break;
+                case 'success':
+                    statusEl.textContent = '✅';
+                    break;
+                case 'error':
+                    statusEl.textContent = '❌';
+                    break;
+            }
+            
+            if (output) {
+                outputEl.textContent = output;
+                outputEl.style.display = 'block';
+            }
+        }
+        
+        function createTestBox(id, title, description) {
+            return `
+                <div class="test-result">
+                    <div class="test-header">
+                        <span id="status-${id}" class="status pending">⚪</span>
+                        <span class="test-title">${title}</span>
+                    </div>
+                    <div class="test-description">${description}</div>
+                    <div id="output-${id}" class="test-output" style="display: none;"></div>
+                </div>
+            `;
+        }
+        
+        async function test1_HealthCheck() {
+            setTestStatus(1, 'running');
+            
+            try {
+                const response = await fetch(BASE_URL);
+                const data = await response.json();
+                
+                if (response.ok && data.ok) {
+                    setTestStatus(1, 'success', `✓ Backend API is healthy\nStatus: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`);
+                    return { success: true, message: 'Backend API healthy' };
+                } else {
+                    setTestStatus(1, 'error', `× Status: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`);
+                    return { success: false, message: `HTTP ${response.status}` };
+                }
+            } catch (error) {
+                setTestStatus(1, 'error', `× Connection failed\nError: ${error.message}`);
+                return { success: false, message: error.message };
+            }
+        }
+        
+        async function test2_AirtableConnection() {
+            setTestStatus(2, 'running');
+            
+            try {
+                const url = `${BASE_URL}/tables/TutoTeachers?maxRecords=1`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (response.ok && data.records) {
+                    const recordCount = data.records.length;
+                    const sampleData = recordCount > 0 
+                        ? `\nSample record: ${data.records[0].id}\nTeacher: ${data.records[0].fields.Name || 'N/A'}`
+                        : '';
+                    
+                    setTestStatus(2, 'success', `✓ Airtable accessible\nRecords found: ${recordCount}${sampleData}`);
+                    return { success: true, message: 'Airtable connected' };
+                } else {
+                    setTestStatus(2, 'error', `× Status: ${response.status}\nResponse: ${JSON.stringify(data, null, 2).substring(0, 300)}...`);
+                    return { success: false, message: `HTTP ${response.status}` };
+                }
+            } catch (error) {
+                setTestStatus(2, 'error', `× Connection failed\nError: ${error.message}`);
+                return { success: false, message: error.message };
+            }
+        }
+        
+        async function test3_FirebaseAuth() {
+            setTestStatus(3, 'running');
+            
+            try {
+                // Test if Firebase Auth service is reachable
+                const url = 'https://identitytoolkit.googleapis.com/v1/projects';
+                const response = await fetch(url);
+                
+                // We expect 400/401 without a valid key - that's OK, means service is up
+                if (response.status === 400 || response.status === 401) {
+                    setTestStatus(3, 'success', `✓ Firebase Auth service is reachable\n(Expected ${response.status} without API key)`);
+                    return { success: true, message: 'Firebase Auth accessible' };
+                } else {
+                    setTestStatus(3, 'success', `✓ Firebase Auth service responded\nStatus: ${response.status}`);
+                    return { success: true, message: 'Firebase Auth check passed' };
+                }
+            } catch (error) {
+                setTestStatus(3, 'error', `× Could not reach Firebase Auth\nError: ${error.message}`);
+                return { success: false, message: error.message };
+            }
+        }
+        
+        async function runAllTests() {
+            const button = document.getElementById('runTests');
+            const resultsDiv = document.getElementById('results');
+            const summaryDiv = document.getElementById('summary');
+            
+            button.disabled = true;
+            button.textContent = 'Running Tests...';
+            
+            resultsDiv.innerHTML = `
+                ${createTestBox(1, '1. Firebase Functions Health Check', 'Tests if the backend API is reachable and responding')}
+                ${createTestBox(2, '2. Airtable Connection', 'Tests data access via Firebase Functions proxy')}
+                ${createTestBox(3, '3. Firebase Auth Service', 'Tests if Firebase Authentication is accessible')}
+            `;
+            
+            testResults = [];
+            
+            // Run tests sequentially
+            testResults.push(await test1_HealthCheck());
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            testResults.push(await test2_AirtableConnection());
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            testResults.push(await test3_FirebaseAuth());
+            
+            // Show summary
+            const passed = testResults.filter(r => r.success).length;
+            const total = testResults.length;
+            
+            const summaryClass = passed === total ? '' : 'error';
+            summaryDiv.className = `summary ${summaryClass}`;
+            summaryDiv.style.display = 'block';
+            
+            if (passed === total) {
+                summaryDiv.innerHTML = `
+                    <h3>✅ All Tests Passed! (${passed}/${total})</h3>
+                    <p><strong>🎉 Your backend is configured and working!</strong></p>
+                    <p><strong>Next Steps:</strong></p>
+                    <ol>
+                        <li>Get Firebase web credentials from <a href="https://console.firebase.google.com/project/${FIREBASE_PROJECT}/settings/general" target="_blank">Firebase Console</a></li>
+                        <li>Create <code>apps/dashboard/.env.local</code> file</li>
+                        <li>Add your Firebase configuration</li>
+                        <li>Run: <code>npm run dev</code></li>
+                        <li>Open: <code>http://localhost:3000/setup</code></li>
+                    </ol>
+                    <p><strong>Documentation:</strong> See <code>apps/dashboard/SETUP_INSTRUCTIONS.md</code></p>
+                `;
+            } else {
+                summaryDiv.innerHTML = `
+                    <h3>⚠️ Some Tests Failed (${passed}/${total} passed)</h3>
+                    <p><strong>Common issues:</strong></p>
+                    <ul>
+                        <li>Firebase Functions not deployed</li>
+                        <li>Functions region mismatch</li>
+                        <li>Airtable credentials not configured in Functions</li>
+                        <li>Network/firewall blocking requests</li>
+                    </ul>
+                    <p>Check the error messages above for details.</p>
+                `;
+            }
+            
+            button.disabled = false;
+            button.textContent = 'Run Tests Again';
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+

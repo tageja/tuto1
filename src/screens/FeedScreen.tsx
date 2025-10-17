@@ -85,10 +85,28 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
 
   const fetchPosts = async () => {
     try {
-      const postsData = await getPosts({ maxRecords: 50, sort: [{ field: 'Timestamp', direction: 'desc' }] });
-      setPosts(postsData);
+      console.log('[FeedScreen] Starting to fetch posts...');
+      // Use direct Airtable service instead of backend API to avoid authentication issues
+      const response = await getPosts({ maxRecords: 50 });
+      console.log('[FeedScreen] Raw response from getPosts:', JSON.stringify(response, null, 2));
+      setPosts(response);
+      logDebug('Feed posts loaded:', response.length);
+      
+      // Log each post's media data
+      response.forEach((post, index) => {
+        console.log(`[FeedScreen] Post ${index + 1} (${post.id}):`);
+        console.log(`  - Author: ${post.author.name}`);
+        console.log(`  - Content: ${post.content.text}`);
+        console.log(`  - Media:`, post.content.media);
+        if (post.content.media) {
+          console.log(`    - Type: ${post.content.media.type}`);
+          console.log(`    - URL: ${post.content.media.url}`);
+          console.log(`    - Thumbnail: ${post.content.media.thumbnail}`);
+        }
+      });
     } catch (err) {
-      console.error('Error fetching posts:', err);
+      logError('Error fetching posts:', err);
+      setPosts([]);
     }
   };
 
@@ -132,6 +150,24 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
     setShowCreatePostModal(false);
   };
 
+  const handleReportPost = async (postId: string, reason: string) => {
+    try {
+      await Backend.reportFeedPost(postId, reason);
+      Alert.alert(
+        t('feed.reportSubmitted'),
+        t('feed.reportThankYou'),
+        [{ text: t('common.ok') }]
+      );
+    } catch (error) {
+      console.error('Error reporting post:', error);
+      Alert.alert(
+        t('feed.reportError'),
+        t('feed.reportFailed'),
+        [{ text: t('common.ok') }]
+      );
+    }
+  };
+
   const handleSubmitPost = async (postData: {
     text: string;
     subjects: string[];
@@ -151,15 +187,15 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
           logDebug('Feed submit: uploaded mediaUrl', mediaUrl);
         }
       }
+      
       const payload = {
-        authorId: userData?.id || 'guest-user',
-        authorName: userData?.name || 'Guest User',
+        authorId: userData?.id || 'unknown',
+        authorName: userData?.name || 'Unknown User',
         authorRole: userType || 'parent',
-        authorAvatar: 'https://via.placeholder.com/40',
+        authorAvatar: userData?.avatar || 'https://via.placeholder.com/40',
         contentText: postData.text,
         contentMediaType: mediaType,
         contentMediaUrl: mediaUrl,
-        postType: mediaType || 'text',
         subjects: postData.subjects,
         privacy: 'public',
       };
@@ -239,11 +275,8 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
             <PostCardErrorBoundary postId={item.id}>
               <PostCard
                 post={itemWithUserState}
-                onLike={() => {
-                  // Get current user's like state from client storage
-                  const userLikes = (globalThis as any).__userLikes || new Map();
-                  const postUserLikes = userLikes.get(item.id) || new Set();
-                  const currentUserLiked = postUserLikes.has(userData?.id || 'guest-user');
+                onLike={async () => {
+                  const currentUserLiked = itemWithUserState.isLiked;
                   const newLikeState = !currentUserLiked;
                   
                   console.log(`[FEED] Like pressed for post ${item.id}, currentUserLiked: ${currentUserLiked}`);
@@ -266,11 +299,11 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
                   }));
                   
                   // Background API call - don't await
-                  setPostLike(item.id, newLikeState)
-                    .then(success => {
-                      console.log(`[FEED] setPostLike result: ${success}`);
-                      if (!success) {
-                        console.error(`[FEED] setPostLike failed, reverting optimistic update`);
+                  Backend.likeFeedPost(item.id, newLikeState)
+                    .then((response: any) => {
+                      console.log(`[FEED] likeFeedPost result:`, response);
+                      if (!response.success) {
+                        console.error(`[FEED] likeFeedPost failed, reverting optimistic update`);
                         // Revert optimistic update on failure
                         setPosts(prev => prev.map(p => {
                           if (p.id === item.id) {
@@ -374,6 +407,31 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
                   return p;
                 }));
               }
+                }}
+                onReport={async () => {
+                  Alert.alert(
+                    t('feed.reportPost'),
+                    t('feed.reportReason'),
+                    [
+                      { text: t('common.cancel'), style: 'cancel' },
+                      { 
+                        text: t('feed.spam'), 
+                        onPress: () => handleReportPost(item.id, 'spam')
+                      },
+                      { 
+                        text: t('feed.inappropriate'), 
+                        onPress: () => handleReportPost(item.id, 'inappropriate')
+                      },
+                      { 
+                        text: t('feed.harassment'), 
+                        onPress: () => handleReportPost(item.id, 'harassment')
+                      },
+                      { 
+                        text: t('feed.other'), 
+                        onPress: () => handleReportPost(item.id, 'other')
+                      },
+                    ]
+                  );
                 }}
               />
             </PostCardErrorBoundary>

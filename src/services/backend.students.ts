@@ -37,3 +37,14 @@ export async function searchStudentById(studentCode: string) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+

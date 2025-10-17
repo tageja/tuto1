@@ -270,37 +270,55 @@ export const useAirtable = () => {
     setLoading(true);
     setError(null);
     try {
+      console.log('[useAirtable] getPosts called with options:', options);
       const records = await AirtableService.getPosts(options);
-      return records.map(record => ({
-        id: record.id,
-        author: {
-          id: record.get('Author ID') as string,
-          name: record.get('Author Name') as string,
-          role: record.get('Author Role') as 'teacher' | 'parent' | 'student',
-          avatar: record.get('Author Avatar') as string,
-        },
-        content: {
-          text: record.get('Content Text') as string,
-          media: record.get('Content Media Type') ? {
-            type: record.get('Content Media Type') as 'image' | 'video',
-            url: record.get('Content Media URL') as string,
-            thumbnail: record.get('Content Media Thumbnail') as string,
-          } : undefined,
-        },
-        type: record.get('Post Type') as 'text' | 'image' | 'video' | 'poll' | 'resource',
-        subjects: record.get('Subjects') as string[] || [],
-        timestamp: new Date(record.get('Timestamp') as string),
-        interactions: {
-          likes: record.get('Likes Count') as number || 0,
-          comments: record.get('Comments Count') as number || 0,
-          shares: record.get('Shares Count') as number || 0,
-          saves: record.get('Saves Count') as number || 0,
-        },
-        isLiked: record.get('Is Liked') as boolean || false,
-        isSaved: record.get('Is Saved') as boolean || false,
-        privacy: record.get('Privacy') as 'public' | 'center-only' | 'network-only',
-      }));
+      console.log('[useAirtable] Raw records from AirtableService.getPosts:', records.length);
+      
+      const mappedPosts = records.map((record, index) => {
+        const mediaType = record.get('Content Media Type') as string;
+        const mediaUrl = record.get('Content Media URL') as string;
+        const mediaThumbnail = record.get('Content Media Thumbnail') as string;
+        
+        console.log(`[useAirtable] Post ${index + 1} (${record.id}):`);
+        console.log(`  - Media Type: ${mediaType}`);
+        console.log(`  - Media URL: ${mediaUrl}`);
+        console.log(`  - Media Thumbnail: ${mediaThumbnail}`);
+        
+        return {
+          id: record.id,
+          author: {
+            id: record.get('Author ID') as string,
+            name: record.get('Author Name') as string,
+            role: record.get('Author Role') as 'teacher' | 'parent' | 'student',
+            avatar: record.get('Author Avatar') as string,
+          },
+          content: {
+            text: record.get('Content Text') as string,
+            media: mediaType ? {
+              type: mediaType as 'image' | 'video',
+              url: mediaUrl,
+              thumbnail: mediaThumbnail,
+            } : undefined,
+          },
+          type: record.get('Post Type') as 'text' | 'image' | 'video' | 'poll' | 'resource',
+          subjects: record.get('Subjects') as string[] || [],
+          timestamp: new Date(record.get('Timestamp') as string),
+          interactions: {
+            likes: record.get('Likes Count') as number || 0,
+            comments: record.get('Comments Count') as number || 0,
+            shares: record.get('Shares Count') as number || 0,
+            saves: record.get('Saves Count') as number || 0,
+          },
+          isLiked: record.get('Is Liked') as boolean || false,
+          isSaved: record.get('Is Saved') as boolean || false,
+          privacy: record.get('Privacy') as 'public' | 'center-only' | 'network-only',
+        };
+      });
+      
+      console.log('[useAirtable] Mapped posts:', mappedPosts.length);
+      return mappedPosts;
     } catch (err) {
+      console.error('[useAirtable] Error in getPosts:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch posts');
       return [];
     } finally {

@@ -4,6 +4,42 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import axios, { AxiosError } from 'axios';
 
+// Import backup functions
+export { nightlyBackup, manualBackup } from './cron/backups';
+
+// Import moderation functions
+export {
+  reportContent,
+  blockUser,
+  unblockUser,
+  getModerationQueue,
+  resolveReport
+} from './moderation/index';
+
+// Import payment functions
+export {
+  createPaymentIntent,
+  confirmPaymentIntent,
+  getPaymentIntentStatus,
+  cancelPaymentIntent,
+  getPaymentHistory,
+  createRefund,
+  getRefundHistory,
+  cancelRefund
+} from './payments';
+
+// Import webhook functions
+export { stripeWebhook, reconcilePayments } from './webhooks/payments';
+
+// Import data retention functions
+export {
+  requestAccountDeletion,
+  cancelAccountDeletion,
+  exportUserData,
+  processAccountDeletion,
+  getRetentionPolicy
+} from './data-retention';
+
 admin.initializeApp();
 
 // Config (kept in Functions env, not client)
@@ -376,6 +412,73 @@ app.post('/api/users/getByUid', async (req: Request, res: Response) => {
 	}
 });
 
+// --- Nearby Teachers: distance filter & sorting ---
+// POST /api/teachers/nearby { lat, lng, radiusKm, max? }
+app.post('/api/teachers/nearby', async (req: Request, res: Response) => {
+  try {
+    const lat = Number(req.body?.lat);
+    const lng = Number(req.body?.lng);
+    const radiusKm = Number(req.body?.radiusKm || 5);
+    const max = Number(req.body?.max || 50);
+    if (!isFinite(lat) || !isFinite(lng)) return res.status(400).json({ ok: false, code: 'INVALID_COORDS' });
+
+    const all: any[] = [];
+    let offset: string | undefined = undefined;
+    do {
+      const page = await withSecrets(async (pat, base) =>
+        airtableRequest<any>(
+          'get',
+          `/TutoTeachers`,
+          undefined,
+          offset ? { pageSize: 100, offset } : { pageSize: 100 },
+          pat,
+          base,
+        ),
+      );
+      (page?.records || []).forEach((r: any) => all.push(r));
+      offset = page?.offset;
+    } while (offset && all.length < 1000);
+
+    const toRad = (deg: number) => (deg * Math.PI) / 180;
+    const haversineKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+      const R = 6371; // km
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    };
+
+    const items = all
+      .map((r: any) => {
+        const f = r.fields || {};
+        const tLat = Number(f.Latitude ?? f.latitude ?? f.lat);
+        const tLng = Number(f.Longitude ?? f.longitude ?? f.lng);
+        if (!isFinite(tLat) || !isFinite(tLng)) return null;
+        const distanceKm = haversineKm(lat, lng, tLat, tLng);
+        return {
+          id: r.id,
+          name: f.Name || f.displayName || '',
+          latitude: tLat,
+          longitude: tLng,
+          hourlyRate: Number(f['Hourly Rate'] ?? f.hourlyRate ?? 0) || 0,
+          rating: Number(f.Rating ?? f.rating ?? 0) || 0,
+          reviewCount: Number(f['Review Count'] ?? f.reviewCount ?? 0) || 0,
+          distanceKm,
+        };
+      })
+      .filter(Boolean)
+      .filter((t: any) => t.distanceKm <= radiusKm)
+      .sort((a: any, b: any) => a.distanceKm - b.distanceKm)
+      .slice(0, Math.max(1, max));
+
+    return res.json({ ok: true, teachers: items });
+  } catch (e) {
+    const err = e as Error;
+    return res.status(500).json({ ok: false, code: 'INTERNAL', message: err.message });
+  }
+});
+
 // POST /api/users/upsertRole { uid, role }
 app.post('/api/users/upsertRole', async (req: Request, res: Response) => {
 	try {
@@ -711,6 +814,250 @@ app.post('/api/studentProfiles/listForGuardian', async (req: Request, res: Respo
   } catch (e) {
     const err = e as Error;
     return res.status(500).json({ ok: false, code: 'INTERNAL', message: err.message });
+  }
+});
+
+// --- Feed endpoints with auth protection ---
+
+// GET /api/feed/posts - Get posts with pagination
+app.get('/api/feed/posts', verifyIdToken, async (req: Request, res: Response) => {
+  try {
+    const { page = 1, limit = 20, filterByFormula } = req.query;
+    const offset = (Number(page) - 1) * Number(limit);
+    
+    await withSecrets(async (pat, base) => {
+      const posts = await airtableRequest<any>('get', `/TutoPosts`, undefined, {
+        filterByFormula: filterByFormula as string,
+        maxRecords: Number(limit),
+        offset: offset.toString(),
+        sort: JSON.stringify([{ field: 'Timestamp', direction: 'desc' }]),
+      }, pat, base);
+
+      res.json(posts);
+    });
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    res.status(500).json({ message: 'Failed to fetch posts' });
+  }
+});
+
+// POST /api/feed/posts - Create new post
+app.post('/api/feed/posts', verifyIdToken, async (req: Request, res: Response) => {
+  try {
+    const uid = (req as any).user?.uid;
+    const { contentText, contentMediaType, contentMediaUrl, subjects, privacy = 'public' } = req.body || {};
+    
+    if (!contentText || !subjects || !Array.isArray(subjects)) {
+      return res.status(400).json({ message: 'contentText and subjects are required' });
+    }
+
+    // Sanitize content text
+    const sanitizedText = contentText.trim().substring(0, 2000);
+    
+    await withSecrets(async (pat, base) => {
+      // Get user info
+      const user = await airtableRequest<any>('get', `/Users`, undefined, {
+        filterByFormula: `{Firebase UID} = '${uid}'`,
+        maxRecords: 1,
+      }, pat, base);
+
+      if (!user.records.length) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      const userRecord = user.records[0].fields;
+      
+      const postData = {
+        fields: {
+          'Author ID': userRecord['Firebase UID'],
+          'Author Name': userRecord['Name'] || 'Unknown User',
+          'Author Role': userRecord['Role'] || 'parent',
+          'Author Avatar': userRecord['Avatar'] || '',
+          'Content Text': sanitizedText,
+          'Content Media Type': contentMediaType,
+          'Content Media URL': contentMediaUrl,
+          'Post Type': contentMediaType || 'text',
+          'Subjects': subjects,
+          'Timestamp': new Date().toISOString(),
+          'Likes Count': 0,
+          'Comments Count': 0,
+          'Shares Count': 0,
+          'Saves Count': 0,
+          'Privacy': privacy,
+        }
+      };
+
+      const newPost = await airtableRequest<any>('post', `/TutoPosts`, postData, undefined, pat, base);
+      res.json(newPost);
+    });
+  } catch (error) {
+    console.error('Error creating post:', error);
+    res.status(500).json({ message: 'Failed to create post' });
+  }
+});
+
+// POST /api/feed/posts/:postId/like - Like/unlike a post
+app.post('/api/feed/posts/:postId/like', verifyIdToken, async (req: Request, res: Response) => {
+  try {
+    const uid = (req as any).user?.uid;
+    const { postId } = req.params;
+    const { like } = req.body || {};
+    
+    if (typeof like !== 'boolean') {
+      return res.status(400).json({ message: 'like must be a boolean' });
+    }
+
+    await withSecrets(async (pat, base) => {
+      // Check if like already exists
+      const existingLike = await airtableRequest<any>('get', `/TutoPostLikes`, undefined, {
+        filterByFormula: `AND({Post ID} = '${postId}', {User ID} = '${uid}')`,
+        maxRecords: 1,
+      }, pat, base);
+
+      if (like && existingLike.records.length === 0) {
+        // Create new like
+        await airtableRequest<any>('post', `/TutoPostLikes`, {
+          fields: {
+            'Post ID': postId,
+            'User ID': uid,
+            'Created At': new Date().toISOString(),
+          }
+        }, undefined, pat, base);
+        
+        // Increment like count
+        const post = await airtableRequest<any>('get', `/TutoPosts/${postId}`, undefined, undefined, pat, base);
+        const currentLikes = post.fields['Likes Count'] || 0;
+        await airtableRequest<any>('patch', `/TutoPosts/${postId}`, {
+          fields: { 'Likes Count': currentLikes + 1 }
+        }, undefined, pat, base);
+        
+      } else if (!like && existingLike.records.length > 0) {
+        // Remove like
+        await airtableRequest<any>('delete', `/TutoPostLikes/${existingLike.records[0].id}`, undefined, undefined, pat, base);
+        
+        // Decrement like count
+        const post = await airtableRequest<any>('get', `/TutoPosts/${postId}`, undefined, undefined, pat, base);
+        const currentLikes = post.fields['Likes Count'] || 0;
+        await airtableRequest<any>('patch', `/TutoPosts/${postId}`, {
+          fields: { 'Likes Count': Math.max(0, currentLikes - 1) }
+        }, undefined, pat, base);
+      }
+
+      res.json({ success: true });
+    });
+  } catch (error) {
+    console.error('Error updating post like:', error);
+    res.status(500).json({ message: 'Failed to update like' });
+  }
+});
+
+// POST /api/feed/posts/:postId/comments - Add comment to post
+app.post('/api/feed/posts/:postId/comments', verifyIdToken, async (req: Request, res: Response) => {
+  try {
+    const uid = (req as any).user?.uid;
+    const { postId } = req.params;
+    const { content } = req.body || {};
+    
+    if (!content || !content.trim()) {
+      return res.status(400).json({ message: 'content is required' });
+    }
+
+    // Sanitize content
+    const sanitizedContent = content.trim().substring(0, 1000);
+    
+    await withSecrets(async (pat, base) => {
+      // Get user info
+      const user = await airtableRequest<any>('get', `/Users`, undefined, {
+        filterByFormula: `{Firebase UID} = '${uid}'`,
+        maxRecords: 1,
+      }, pat, base);
+
+      if (!user.records.length) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      const userRecord = user.records[0].fields;
+      
+      // Create comment
+      const commentData = {
+        fields: {
+          'Post ID': postId,
+          'Author ID': uid,
+          'Author Name': userRecord['Name'] || 'Unknown User',
+          'Content': sanitizedContent,
+          'Created At': new Date().toISOString(),
+        }
+      };
+
+      const newComment = await airtableRequest<any>('post', `/TutoComments`, commentData, undefined, pat, base);
+      
+      // Increment comment count
+      const post = await airtableRequest<any>('get', `/TutoPosts/${postId}`, undefined, undefined, pat, base);
+      const currentComments = post.fields['Comments Count'] || 0;
+      await airtableRequest<any>('patch', `/TutoPosts/${postId}`, {
+        fields: { 'Comments Count': currentComments + 1 }
+      }, undefined, pat, base);
+      
+      res.json(newComment);
+    });
+  } catch (error) {
+    console.error('Error creating comment:', error);
+    res.status(500).json({ message: 'Failed to create comment' });
+  }
+});
+
+// GET /api/feed/posts/:postId/comments - Get comments for a post
+app.get('/api/feed/posts/:postId/comments', verifyIdToken, async (req: Request, res: Response) => {
+  try {
+    const { postId } = req.params;
+    const { page = 1, limit = 50 } = req.query;
+    const offset = (Number(page) - 1) * Number(limit);
+    
+    await withSecrets(async (pat, base) => {
+      const comments = await airtableRequest<any>('get', `/TutoComments`, undefined, {
+        filterByFormula: `{Post ID} = '${postId}'`,
+        maxRecords: Number(limit),
+        offset: offset.toString(),
+        sort: JSON.stringify([{ field: 'Created At', direction: 'desc' }]),
+      }, pat, base);
+
+      res.json(comments);
+    });
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+    res.status(500).json({ message: 'Failed to fetch comments' });
+  }
+});
+
+// POST /api/feed/posts/:postId/report - Report a post
+app.post('/api/feed/posts/:postId/report', verifyIdToken, async (req: Request, res: Response) => {
+  try {
+    const uid = (req as any).user?.uid;
+    const { postId } = req.params;
+    const { reason, details } = req.body || {};
+    
+    if (!reason) {
+      return res.status(400).json({ message: 'reason is required' });
+    }
+
+    await withSecrets(async (pat, base) => {
+      const reportData = {
+        fields: {
+          'Post ID': postId,
+          'Reporter ID': uid,
+          'Reason': reason,
+          'Details': details || '',
+          'Created At': new Date().toISOString(),
+          'Status': 'pending',
+        }
+      };
+
+      await airtableRequest<any>('post', `/TutoReports`, reportData, undefined, pat, base);
+      res.json({ success: true, message: 'Report submitted successfully' });
+    });
+  } catch (error) {
+    console.error('Error creating report:', error);
+    res.status(500).json({ message: 'Failed to submit report' });
   }
 });
 

@@ -1,0 +1,10 @@
+{
+  "/api/teachers/route": "app/api/teachers/route.js",
+  "/api/posts/route": "app/api/posts/route.js",
+  "/api/bookings/route": "app/api/bookings/route.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js",
+  "/home/page": "app/home/page.js",
+  "/splash/page": "app/splash/page.js",
+  "/trust-safety/page": "app/trust-safety/page.js"
+}

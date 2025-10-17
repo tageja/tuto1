@@ -2,6 +2,7 @@ import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getAuth, initializeAuth } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getStorage } from 'firebase/storage';
+import { getFunctions } from 'firebase/functions';
 
 // Using provided config (ok to add new entries per user instruction)
 export const firebaseConfig = {
@@ -37,6 +38,8 @@ export const getAuthSafe = () => {
   return cachedAuth;
 };
 export const storage = getStorage(getFirebaseApp());
+export const functions = getFunctions(getFirebaseApp());
+
 // Analytics optional: provide a safe no-op if analytics module isn't installed
 export const analytics = {
   logEvent: async (_name?: string, _params?: Record<string, any>) => undefined,

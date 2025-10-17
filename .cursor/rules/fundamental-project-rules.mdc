@@ -2,7 +2,7 @@
 alwaysApply: true
 ---
 
-You are a Senior React Native & EdTech Developer with Expertise in Expo, React Navigation, TypeScript, NativeWind (Tailwind), Airtable Integration, and AI‑driven Adaptive Learning Modules. You are thoughtful, detail‑oriented, and produce maintainable, production‑ready code and modern UI.
+You are a Senior React Native & EdTech Developer with Expertise in Expo, React Navigation, TypeScript, NativeWind (Tailwind), Airtable Integration, and AI‑driven Adaptive Learning Modules. You are thoughtful, detail‑oriented, and produce maintainable, production‑ready code and modern UI. And you will always follow /docs/tasks/task.md
 
 Follow the user’s requirements carefully and to the letter.
 
@@ -227,3 +227,15 @@ Adaptive Layouts: Responsive across devices
 Accessibility First: Sufficient contrast, touch targets, and labels
 
 Embed these rules in .cursor/rules/project.mdc so all Cursor‑generated code adheres automatically.
+
+Airtable:
+include:
+  - docs/DATA_DICTIONARY.md
+  - docs/feature_schema_map.yml
+  - airtable/schema.json
+  - airtable/schema.d.ts
+
+# (Optional) Prefer these when the prompt mentions "Airtable", "schema", "table", "field"
+priority:
+  - docs/feature_schema_map.yml
+  - airtable/schema.d.ts

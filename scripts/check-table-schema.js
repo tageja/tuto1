@@ -65,3 +65,14 @@ async function checkTableSchema() {
 checkTableSchema();
 
 
+
+
+
+
+
+
+
+
+
+
+

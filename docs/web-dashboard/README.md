@@ -1,0 +1,16 @@
+# Web Dashboard Docs
+
+- apps/dashboard/README.md
+- apps/dashboard/QUICK_START.md
+- apps/dashboard/SETUP_INSTRUCTIONS.md
+- apps/dashboard/WEB_DASHBOARD_PROGRESS.md
+- apps/dashboard/WEB_DASHBOARD_CHAT_SUMMARY.md
+- WEB_DASHBOARD_PROGRESS.md
+- WEB_DASHBOARD_CURRENT_STATUS.md
+- WEB_DASHBOARD_FAILURE_SUMMARY.md
+- WEB_DASHBOARD_FINAL_SUMMARY.md
+
+
+
+
+

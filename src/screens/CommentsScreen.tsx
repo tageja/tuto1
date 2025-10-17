@@ -22,12 +22,12 @@ export const CommentsScreen: React.FC<CommentsScreenProps> = ({ navigation, rout
   const fetchComments = async () => {
     try {
       console.log(`[${new Date().toISOString()}] [COMMENTS_SCREEN] Fetching comments for post:`, postId);
-      const fetchedComments = await getComments(postId);
-      const formattedComments = fetchedComments.map((comment: any) => ({
+      const response = await getComments(postId);
+      const formattedComments = response.map((comment: any) => ({
         id: comment.id,
-        author: comment.authorName,
-        text: comment.content,
-        createdAt: comment.createdAt,
+        author: comment.authorName || 'Unknown User',
+        text: comment.content || '',
+        createdAt: comment.createdAt || new Date().toISOString(),
       }));
       setComments(formattedComments);
       console.log(`[${new Date().toISOString()}] [COMMENTS_SCREEN] Loaded ${formattedComments.length} comments`);
@@ -44,16 +44,17 @@ export const CommentsScreen: React.FC<CommentsScreenProps> = ({ navigation, rout
     const trimmed = text.trim();
     if (!trimmed) return;
     
-    const authorName = userData?.name || 'Guest User';
-    const authorId = userData?.id || 'guest-user';
+    console.log(`[${new Date().toISOString()}] [COMMENT] Adding comment: ${trimmed}`);
     
-    console.log(`[${new Date().toISOString()}] [COMMENT] Adding comment by ${authorName} (${authorId}): ${trimmed}`);
-    
-    const ok = await addComment(postId, trimmed, authorId, authorName);
-    if (ok) {
-      setText('');
-      // Refresh comments to show the new one with proper timestamp
-      await fetchComments();
+    try {
+      const response = await addComment(postId, trimmed, userData?.id, userData?.name);
+      if (response) {
+        setText('');
+        // Refresh comments to show the new one with proper timestamp
+        await fetchComments();
+      }
+    } catch (error) {
+      console.error('Error adding comment:', error);
     }
   };
 
