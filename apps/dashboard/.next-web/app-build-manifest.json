@@ -1,0 +1,245 @@
+{
+  "pages": {
+    "/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/layout.css",
+      "static/chunks/app/layout.js"
+    ],
+    "/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/page.js"
+    ],
+    "/splash/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/splash/page.js"
+    ],
+    "/login/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/login/page.js"
+    ],
+    "/home/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/home/page.js"
+    ],
+    "/api/teachers/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/teachers/route.js"
+    ],
+    "/api/posts/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/posts/route.js"
+    ],
+    "/api/bookings/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/bookings/route.js"
+    ],
+    "/school/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/layout.js"
+    ],
+    "/school/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/page.js"
+    ],
+    "/api/school/user-role/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/school/user-role/route.js"
+    ],
+    "/school/admin/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/admin/layout.js"
+    ],
+    "/school/admin/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/admin/page.js"
+    ],
+    "/school/admin/classes/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/admin/classes/page.js"
+    ],
+    "/school/admin/daily-activities/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/admin/daily-activities/page.js"
+    ],
+    "/school/admin/attendance/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/admin/attendance/page.js"
+    ],
+    "/school/admin/events/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/admin/events/page.js"
+    ],
+    "/school/admin/payments/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/admin/payments/page.js"
+    ],
+    "/school/admin/settings/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/admin/settings/page.js"
+    ],
+    "/school/admin/medicine/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/admin/medicine/page.js"
+    ],
+    "/school/admin/health/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/admin/health/page.js"
+    ],
+    "/school/admin/photo-albums/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/admin/photo-albums/page.js"
+    ],
+    "/school/admin/progress/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/admin/progress/page.js"
+    ],
+    "/api/school/data/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/school/data/route.js"
+    ],
+    "/api/school/trends/enrollment/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/school/trends/enrollment/route.js"
+    ],
+    "/api/school/trends/attendance/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/school/trends/attendance/route.js"
+    ],
+    "/school/parent/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/parent/layout.js"
+    ],
+    "/school/parent/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/parent/page.js"
+    ],
+    "/school/parent/announcements/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/parent/announcements/page.js"
+    ],
+    "/school/parent/messages/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/parent/messages/page.js"
+    ],
+    "/school/parent/events/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/parent/events/page.js"
+    ],
+    "/school/parent/photo-albums/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/parent/photo-albums/page.js"
+    ],
+    "/school/parent/health/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/parent/health/page.js"
+    ],
+    "/school/parent/medicine/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/parent/medicine/page.js"
+    ],
+    "/school/parent/payments/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/parent/payments/page.js"
+    ],
+    "/school/parent/settings/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/parent/settings/page.js"
+    ],
+    "/school/parent/progress/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/parent/progress/page.js"
+    ],
+    "/school/parent/homework/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/parent/homework/page.js"
+    ],
+    "/school/parent/attendance/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/parent/attendance/page.js"
+    ],
+    "/school/admin/teachers/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/admin/teachers/page.js"
+    ],
+    "/school/admin/students/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/admin/students/page.js"
+    ],
+    "/api/school/classes/kpis/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/school/classes/kpis/route.js"
+    ],
+    "/api/school/classes/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/school/classes/route.js"
+    ],
+    "/api/school/classes/grades/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/school/classes/grades/route.js"
+    ],
+    "/school/admin/classes/[classId]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/admin/classes/[classId]/page.js"
+    ],
+    "/api/school/classes/[classId]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/school/classes/[classId]/route.js"
+    ],
+    "/api/school/classes/[classId]/students/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/school/classes/[classId]/students/route.js"
+    ],
+    "/api/school/classes/[classId]/attendance/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/school/classes/[classId]/attendance/route.js"
+    ]
+  }
+}

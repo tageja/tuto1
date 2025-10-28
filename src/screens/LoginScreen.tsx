@@ -11,8 +11,10 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Button } from '../components/common/Button';
-import { FormTextInput } from '../components/common/FormTextInput';
+import { FButton } from '../components/ui/FButton';
+import { FField } from '../components/ui/FField';
+import { AuthHeader } from '../components/ui/AuthHeader';
+import { AuthContainer } from '../components/ui/AuthContainer';
 import { colors, spacing, borderRadius, typography } from '../theme';
 import { useAirtable } from '../hooks/useAirtable';
 import { useUser } from '../contexts/UserContext';
@@ -132,36 +134,24 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>{t('auth.welcomeBack')}</Text>
-          <Text style={styles.subtitle}>{t('auth.loginSubtitle')}</Text>
-        </View>
+        <AuthHeader title={t('auth.welcomeBack')} subtitle={t('auth.loginSubtitle')} />
 
         {/* Login Form */}
-        <View style={styles.form}>
-          <FormTextInput
-            control={control}
-            name="email"
+        <AuthContainer>
+          <FField
             label={t('auth.email')}
             placeholder={t('auth.emailPlaceholder')}
-            // Auto focus first field to ensure keyboard shows reliably
-            autoFocus
-            
+            value={(control._formValues as any)?.email || ''}
+            onChangeText={(text) => (control as any).setValue('email', text)}
+            keyboardType="email-address"
           />
 
-          <FormTextInput
-            control={control}
-            name="password"
+          <FField
             label={t('auth.password')}
             placeholder={t('auth.passwordPlaceholder')}
-            secureTextEntry={!showPassword}
-            
-            rightIcon={
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
-                <MaterialIcons name={showPassword ? 'visibility' : 'visibility-off'} size={20} color={colors.text.secondary} />
-              </TouchableOpacity>
-            }
+            value={(control._formValues as any)?.password || ''}
+            onChangeText={(text) => (control as any).setValue('password', text)}
+            secureTextEntry
           />
 
           {/* Forgot Password */}
@@ -175,7 +165,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
 
           {/* Login Button */}
-          <Button title={t('auth.login')} onPress={handleSubmit(onSubmit)} loading={loading} style={styles.loginButton} />
+          <FButton title={t('auth.login')} onPress={handleSubmit(onSubmit)} loading={loading} className="mb-4" />
 
           {/* Error Display */}
           {error && (
@@ -226,7 +216,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </AuthContainer>
       </ScrollView>
     </KeyboardAvoidingView>
   );

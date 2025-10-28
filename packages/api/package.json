@@ -5,7 +5,7 @@
   "types": "./src/index.ts",
   "dependencies": {
     "@tanstack/react-query": "^5.59.0",
-    "@tuto/schemas": "workspace:*",
+    "@tuto/schemas": "file:../schemas",
     "firebase": "^10.12.4",
     "zod": "^3.23.8"
   },

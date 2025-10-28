@@ -11,8 +11,10 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Button } from '../components/common/Button';
-import { Input } from '../components/common/Input';
+import { FButton } from '../components/ui/FButton';
+import { FField } from '../components/ui/FField';
+import { AuthHeader } from '../components/ui/AuthHeader';
+import { AuthContainer } from '../components/ui/AuthContainer';
 import { colors, spacing, borderRadius, typography } from '../theme';
 import { useAirtable } from '../hooks/useAirtable';
 
@@ -129,16 +131,12 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>{t('auth.createAccount')}</Text>
-          <Text style={styles.subtitle}>{t('auth.registerSubtitle')}</Text>
-        </View>
+        <AuthHeader title={t('auth.createAccount')} subtitle={t('auth.registerSubtitle')} />
 
-        {/* Role Selection */}
-        <View style={styles.roleContainer}>
-          <Text style={styles.roleLabel}>{t('auth.selectRole')}</Text>
-          <View style={styles.roleButtons}>
+        <AuthContainer>
+          <View style={styles.roleContainer}>
+            <Text style={styles.roleLabel}>{t('auth.selectRole')}</Text>
+            <View style={styles.roleButtons}>
             <TouchableOpacity
               style={[
                 styles.roleButton,
@@ -182,12 +180,11 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
                 {t('auth.teacher')}
               </Text>
             </TouchableOpacity>
+            </View>
           </View>
-        </View>
 
-        {/* Registration Form */}
-        <View style={styles.form}>
-          <Input
+          {/* Registration Form */}
+          <FField
             label={t('auth.fullName')}
             placeholder={t('auth.fullNamePlaceholder')}
             value={formData.name}
@@ -195,12 +192,10 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
               setFormData({ ...formData, name: text });
               if (errors.name) setErrors({ ...errors, name: '' });
             }}
-            disableAutofill
             error={errors.name}
-            style={styles.input}
           />
 
-          <Input
+          <FField
             label={t('auth.email')}
             placeholder={t('auth.emailPlaceholder')}
             value={formData.email}
@@ -210,12 +205,10 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
             }}
             keyboardType="email-address"
             autoCapitalize="none"
-            disableAutofill
             error={errors.email}
-            style={styles.input}
           />
 
-          <Input
+          <FField
             label={t('auth.phone')}
             placeholder={t('auth.phonePlaceholder')}
             value={formData.phone}
@@ -224,12 +217,10 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
               if (errors.phone) setErrors({ ...errors, phone: '' });
             }}
             keyboardType="phone-pad"
-            disableAutofill
             error={errors.phone}
-            style={styles.input}
           />
 
-          <Input
+          <FField
             label={t('auth.password')}
             placeholder={t('auth.passwordPlaceholder')}
             value={formData.password}
@@ -239,15 +230,10 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
             }}
             secureTextEntry
             autoCapitalize="none"
-            autoComplete="off"
-            textContentType="none"
-            autoCorrect={false}
-            disableAutofill
             error={errors.password}
-            style={styles.input}
           />
 
-          <Input
+          <FField
             label={t('auth.confirmPassword')}
             placeholder={t('auth.confirmPasswordPlaceholder')}
             value={formData.confirmPassword}
@@ -257,15 +243,10 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
             }}
             secureTextEntry
             autoCapitalize="none"
-            autoComplete="off"
-            textContentType="none"
-            autoCorrect={false}
-            disableAutofill
             error={errors.confirmPassword}
-            style={styles.input}
           />
 
-          <Input
+          <FField
             label={t('auth.address')}
             placeholder={t('auth.addressPlaceholder')}
             value={formData.address}
@@ -273,21 +254,15 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
               setFormData({ ...formData, address: text });
               if (errors.address) setErrors({ ...errors, address: '' });
             }}
-            multiline
-            numberOfLines={3}
-            disableAutofill
             error={errors.address}
-            style={styles.input}
           />
 
           {/* Register Button */}
-          <Button
+          <FButton
             title={t('auth.register')}
             onPress={handleRegister}
             loading={loading}
-            style={styles.registerButton}
           />
-
           {/* Error Display */}
           {error && (
             <View style={styles.errorContainer}>
@@ -329,7 +304,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </AuthContainer>
       </ScrollView>
     </KeyboardAvoidingView>
   );

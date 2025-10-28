@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions, StatusBar } from 'react-native';
+import { View, StyleSheet, Dimensions, StatusBar, Text } from 'react-native';
 import { Video, ResizeMode } from 'expo-av';
 import { colors } from '../theme';
 
@@ -25,6 +25,10 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onVideoEnd }) => {
           }
         }}
       />
+      {/* Fallback brand for extremely fast finishes */}
+      <View style={styles.brandOverlay}>
+        <Text style={styles.brandText}>Tuto</Text>
+      </View>
     </View>
   );
 };
@@ -39,5 +43,17 @@ const styles = StyleSheet.create({
   video: {
     width: width,
     height: height,
+  },
+  brandOverlay: {
+    position: 'absolute',
+    bottom: 48,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  brandText: {
+    color: '#ffffff',
+    fontSize: 24,
+    opacity: 0.65,
   },
 });

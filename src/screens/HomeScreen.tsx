@@ -18,6 +18,10 @@ import { useUser } from '../contexts/UserContext';
 import { useSchool } from '../contexts/SchoolContext';
 import { colors, spacing, typography } from '../theme';
 import { LanguageToggle } from '../components/LanguageToggle';
+import { SectionHeader } from '../components/ui/SectionHeader';
+import { QuickActionCard } from '../components/ui/QuickActionCard';
+import { SurfaceCard } from '../components/ui/SurfaceCard';
+import { HeroBanner } from '../components/ui/HeroBanner';
 import { subjects } from '../data/subjects';
 import { useAirtable } from '../hooks/useAirtable';
 import { PostCard } from '../components/feed/PostCard';
@@ -135,35 +139,38 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} className="bg-background flex-1">
       {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
+      <View style={styles.header} className="flex-row items-center justify-between px-2 py-3 bg-background">
+        <View style={styles.headerLeft} className="flex-1 items-start justify-start">
           <Image
             source={require('../../assets/images/tuto-logo.png')}
             style={styles.logo}
             resizeMode="contain"
           />
         </View>
-        <View style={styles.headerRight}>
+        <View style={styles.headerRight} className="flex-row items-center gap-4">
           <TouchableOpacity 
             style={styles.notificationButton}
+            className="relative p-1 mr-1"
             onPress={() => navigation.navigate('Notifications')}
           >
             <MaterialIcons name="notifications" size={24} color={colors.primary} />
             {/* Badge for unread notifications */}
-            <View style={styles.notificationBadge}>
-              <Text style={styles.notificationBadgeText}>3</Text>
+            <View style={styles.notificationBadge} className="absolute -top-0.5 -right-0.5 bg-red-500 rounded-lg min-w-[16px] h-4 items-center justify-center px-1 border border-white">
+              <Text style={styles.notificationBadgeText} className="text-white text-xs font-bold">3</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.profileButton}
+            className="p-1"
             onPress={() => navigation.navigate('UserProfile')}
           >
             <MaterialIcons name="person" size={24} color={colors.primary} />
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.logoutButton}
+            className="p-1"
             onPress={handleLogout}
           >
             <MaterialIcons name="logout" size={24} color={colors.text.secondary} />
@@ -181,32 +188,31 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       )}
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.content} className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Search Bar */}
         <TouchableOpacity
           style={styles.searchBar}
+          className="flex-row items-center bg-surface mx-4 mb-2 px-4 py-2 rounded-xl"
           onPress={() => navigation.navigate('AllSubjects')}
         >
           <MaterialIcons name="search" size={24} color={colors.text.secondary} />
-          <Text style={styles.searchText}>
+          <Text style={styles.searchText} className="ml-2 text-onSurface text-base">
             {t('home.searchPlaceholder')}
           </Text>
         </TouchableOpacity>
 
         {/* Hero Image */}
-        <View style={styles.heroContainer}>
-          <Image
-            source={require('../../assets/images/home-illustration.png')}
-            style={styles.heroImage}
-            resizeMode="cover"
-          />
-        </View>
+        <HeroBanner
+          title="Tuto"
+          subtitle={t('home.learningDashboard')}
+          image={require('../../assets/images/home-illustration.png')}
+        />
 
         {/* School Banner - Always show for all users */}
-        <View style={styles.schoolBanner}>
-          <View style={styles.schoolBannerContent}>
+        <View style={styles.schoolBanner} className="bg-primary mx-4 my-3 rounded-xl p-4 flex-row items-center justify-between">
+          <View style={styles.schoolBannerContent} className="flex-row items-center flex-1">
             <MaterialIcons name="school" size={24} color={colors.background.primary} />
-            <Text style={styles.schoolBannerText}>
+            <Text style={styles.schoolBannerText} className="text-white text-base font-medium ml-2">
               {joinedSchools.length === 0 
                 ? t('school.invitation.title')
                 : `You have ${joinedSchools.length} school${joinedSchools.length > 1 ? 's' : ''} joined`
@@ -215,6 +221,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </View>
           <TouchableOpacity
             style={styles.schoolBannerButton}
+            className="bg-white px-4 py-2 rounded-lg"
             onPress={() => {
               if (joinedSchools.length === 0) {
                 navigation.navigate('SchoolInvitation');
@@ -223,7 +230,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               }
             }}
           >
-            <Text style={styles.schoolBannerButtonText}>
+            <Text style={styles.schoolBannerButtonText} className="text-primary text-sm font-semibold">
               {joinedSchools.length === 0 
                 ? t('school.invitation.joinButton')
                 : 'Select School'
@@ -233,21 +240,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
 
         {/* Quick Actions */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
-              {t('home.quickActions')}
-            </Text>
-          </View>
+        <View style={styles.section} className="mb-6">
+          <SectionHeader title={t('home.quickActions')} />
           <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.quickActionsContainer}
           >
             {renderQuickActions().map((action) => (
-              <TouchableOpacity
+              <QuickActionCard
                 key={action.key}
-                style={[styles.actionCard, { backgroundColor: action.color }]}
+                icon={action.icon as any}
+                title={action.title}
+                color={action.color}
                 onPress={() => {
                   // Handle navigation based on action key
                   switch (action.key) {
@@ -305,38 +310,29 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                       break;
                   }
                 }}
-              >
-                <MaterialIcons name={action.icon as any} size={20} color={colors.background.primary} />
-                <Text style={styles.actionTitle}>
-                  {action.title}
-                </Text>
-              </TouchableOpacity>
+              />
             ))}
           </ScrollView>
         </View>
 
         {/* Popular Subjects */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
-              {t('home.popularSubjects')}
-            </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('AllSubjects')}>
-              <Text style={styles.viewAll}>
-                {t('home.viewAll')}
-              </Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.section} className="mb-6">
+          <SectionHeader
+            title={t('home.popularSubjects')}
+            actionLabel={t('home.viewAll')}
+            onActionPress={() => navigation.navigate('AllSubjects')}
+          />
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={styles.subjectsRow}>
+            <View style={styles.subjectsRow} className="flex-row px-4">
               {popularSubjects.map((subject) => (
                 <TouchableOpacity
                   key={subject.key}
                   style={styles.subjectCard}
+                  className="items-center bg-surface rounded-xl p-4 mr-4 w-[100px]"
                   onPress={() => navigation.navigate('SubjectResults', { subjectKey: subject.key })}
                 >
                   <MaterialIcons name={subject.icon} size={32} color={colors.primary} />
-                  <Text style={styles.subjectName}>
+                  <Text style={styles.subjectName} className="mt-2 text-sm font-medium text-onSurface text-center">
                     {language === 'en' ? subject.nameEn : subject.nameVi}
                   </Text>
                 </TouchableOpacity>
@@ -346,21 +342,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
 
         {/* Community Feed */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
-              {t('feed.title')}
-            </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Feed')}>
-              <Text style={styles.viewAll}>
-                {t('home.viewAll')}
-              </Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.section} className="mb-6">
+          <SectionHeader
+            title={t('feed.title')}
+            actionLabel={t('home.viewAll')}
+            onActionPress={() => navigation.navigate('Feed')}
+          />
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={styles.feedRow}>
+            <View style={styles.feedRow} className="flex-row px-4">
               {posts.map((post) => (
-                <View key={post.id} style={styles.feedCard}>
+                <SurfaceCard key={post.id} style={styles.feedCard} className="w-[300px] mr-4">
                   <PostCard
                     post={post}
                     onLike={() => console.log('Like pressed')}
@@ -368,31 +359,27 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                     onShare={() => console.log('Share pressed')}
                     onSave={() => console.log('Save pressed')}
                   />
-                </View>
+                </SurfaceCard>
               ))}
             </View>
           </ScrollView>
         </View>
 
         {/* Recommended Teachers */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
-              {t('home.recommendedTeachers')}
-            </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('AllSubjects')}>
-              <Text style={styles.viewAll}>
-                {t('home.viewAll')}
-              </Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.section} className="mb-6">
+          <SectionHeader
+            title={t('home.recommendedTeachers')}
+            actionLabel={t('home.viewAll')}
+            onActionPress={() => navigation.navigate('AllSubjects')}
+          />
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={styles.teachersRow}>
+            <View style={styles.teachersRow} className="flex-row px-4">
               {teachers.map((teacher) => (
-                <TouchableOpacity
+                <SurfaceCard
                   key={teacher.id}
                   style={[styles.teacherCardHorizontal, shadowStyle]}
-                  onPress={() => navigation.navigate('TeacherProfile', {
+                  className="mr-4 w-[280px]"
+                  onTouchEnd={() => navigation.navigate('TeacherProfile', {
                     teacherId: teacher.id,
                     teacherName: teacher.name,
                     subject: teacher.subjects[0] || 'math',
@@ -408,25 +395,25 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                     style={styles.teacherImageHorizontal}
                   />
                   <View style={styles.teacherInfoHorizontal}>
-                    <Text style={styles.teacherNameHorizontal}>{teacher.name}</Text>
-                    <Text style={styles.teacherSubjectsHorizontal}>
+                    <Text style={styles.teacherNameHorizontal} className="text-base font-semibold text-onSurface mb-1">{teacher.name}</Text>
+                    <Text style={styles.teacherSubjectsHorizontal} className="text-sm text-onSurface/70 mb-1">
                       {teacher.subjects.map((subject: string) => {
                         const subjectData = subjects.find(s => s.key === subject);
                         return language === 'en' ? subjectData?.nameEn : subjectData?.nameVi;
                       }).join(' • ')}
                     </Text>
-                    <View style={styles.ratingContainerHorizontal}>
+                    <View style={styles.ratingContainerHorizontal} className="flex-row items-center mb-1">
                       <MaterialIcons name="star" size={16} color={colors.rating.filled} />
-                      <Text style={styles.ratingHorizontal}>{teacher.rating.toFixed(1)}</Text>
-                      <Text style={styles.reviewsHorizontal}>
+                      <Text style={styles.ratingHorizontal} className="ml-1 text-sm text-onSurface">{teacher.rating.toFixed(1)}</Text>
+                      <Text style={styles.reviewsHorizontal} className="ml-1 text-sm text-onSurface/70">
                         ({teacher.reviews} {t('common.reviews')})
                       </Text>
                     </View>
-                    <Text style={styles.priceHorizontal}>
+                    <Text style={styles.priceHorizontal} className="text-primary text-base font-bold">
                       {formatCurrency(teacher.hourlyRate)}/{t('common.perHour')}
                     </Text>
                   </View>
-                </TouchableOpacity>
+                </SurfaceCard>
               ))}
             </View>
           </ScrollView>

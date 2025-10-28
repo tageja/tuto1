@@ -1,30 +1,27 @@
 import { NextRequest } from 'next/server';
-import fs from 'fs';
 import path from 'path';
+import { promises as fsp } from 'fs';
 
-// Serve static assets from the monorepo root assets/images directory
-// Example: /api/assets/images/tuto-logo.png -> ../../assets/images/tuto-logo.png
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
+export async function GET(_req: NextRequest, ctx: { params: { path: string[] } }) {
   try {
-    const params = await ctx.params;
-    const segments = (params?.path || []) as string[];
-    // Only allow access under images/ to avoid arbitrary FS reads
-    if (segments[0] !== 'images') {
+    const segments = (ctx?.params?.path || []) as string[];
+    if (!Array.isArray(segments) || segments.length === 0 || segments[0] !== 'images') {
       return new Response('Not Found', { status: 404 });
     }
 
     const filePath = path.resolve(process.cwd(), '..', '..', 'assets', ...segments);
-    if (!fs.existsSync(filePath)) {
+    let data: Buffer;
+    try {
+      const stat = await fsp.stat(filePath);
+      if (stat.isDirectory()) return new Response('Not Found', { status: 404 });
+      data = await fsp.readFile(filePath);
+    } catch {
       return new Response('Not Found', { status: 404 });
     }
 
-    const stat = fs.statSync(filePath);
-    if (stat.isDirectory()) {
-      return new Response('Not Found', { status: 404 });
-    }
-
-    const stream = fs.createReadStream(filePath);
     const ext = path.extname(filePath).toLowerCase();
     const type =
       ext === '.png' ? 'image/png' :
@@ -32,19 +29,17 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ path: strin
       ext === '.webp' ? 'image/webp' :
       'application/octet-stream';
 
-    return new Response(stream as any, {
+    return new Response(data, {
       status: 200,
       headers: {
         'Content-Type': type,
-        'Cache-Control': 'public, max-age=86400',
+        'Cache-Control': 'no-store',
+        'Content-Length': String(data.length),
       },
     });
-  } catch (_e) {
+  } catch {
     return new Response('Internal Server Error', { status: 500 });
   }
 }
-
-
-
 
 

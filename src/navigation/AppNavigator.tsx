@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { HomeScreen } from '../screens/HomeScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
+import AuthUnifiedScreen from '../screens/AuthUnifiedScreen';
 import { ForgotPasswordScreen } from '../screens/ForgotPasswordScreen';
 import { RoleSelectionScreen } from '../screens/RoleSelectionScreen';
 import { DashboardScreen } from '../screens/DashboardScreen';
@@ -146,8 +147,8 @@ export const AppNavigator = () => {
       }}
     >
       <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="Login" component={AuthUnifiedScreen as any} initialParams={{ mode: 'login' }} />
+        <Stack.Screen name="Register" component={AuthUnifiedScreen as any} initialParams={{ mode: 'register' }} />
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
 

@@ -1,15 +1,13 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import '../frontend.min.css'
-import './base.css'
 import { Providers } from './providers'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Tuto Dashboard',
-  description: 'Tuto School Management Dashboard',
+  title: 'tuto. Dashboard',
+  description: 'tuto. School Management Dashboard',
 }
 
 export default function RootLayout({

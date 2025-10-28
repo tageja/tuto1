@@ -22,8 +22,8 @@ export default function SplashPage() {
     >
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', transform: 'translateY(-12px)' }}>
         <img
-          src="/api/assets/images/tuto-logo.png"
-          alt="Tuto"
+          src="/images/tuto-logo.png"
+          alt="tuto."
           width={200}
           height={80}
           style={{ filter: 'drop-shadow(0 10px 30px rgba(11,95,255,0.35))', animation: 'zoomIn 2s ease-in-out forwards' }}

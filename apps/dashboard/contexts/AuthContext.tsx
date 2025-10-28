@@ -255,7 +255,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       await fetchUserProfile(result.user);
-      router.push('/(home)');
+      router.push('/home');
     } catch (err: any) {
       let msg = 'Google sign-in failed';
       const code = err?.code || '';
