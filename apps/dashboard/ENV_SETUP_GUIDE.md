@@ -234,3 +234,5 @@ If you encounter issues:
 
 **I've created `.env.example` as a template. Copy it to `.env` and add your Airtable token to see the performance boost!** 🚀
 
+
+

@@ -42,3 +42,29 @@ yarn-error.*
 .env.development
 .env.test
 
+# Next.js
+.next/
+.next-web/
+out/
+build/
+*.next/
+
+# Next.js hot-reload files
+.next-web/static/webpack/**/*.hot-update.js
+.next-web/static/webpack/**/*.hot-update.json
+.next-web/cache/
+.next-web/types/
+
+# Testing
+coverage/
+.nyc_output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db

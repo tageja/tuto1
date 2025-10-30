@@ -252,3 +252,5 @@ We can now work page-by-page to add translations:
 
 **The language toggle is now working! Click the globe icon to see the text change between English and Vietnamese.** 🌐🎯
 
+
+

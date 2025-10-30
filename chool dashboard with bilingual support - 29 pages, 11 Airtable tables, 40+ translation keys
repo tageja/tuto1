@@ -1,0 +1,137 @@
+warning: in the working copy of '.firebase/logs/vsce-debug.log', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/.next-web/app-build-manifest.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/.next-web/server/app-paths-manifest.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/.next-web/server/app/api/bookings/route.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/.next-web/server/app/api/posts/route.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/.next-web/server/app/api/teachers/route.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/.next-web/server/app/home/page.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/.next-web/server/app/login/page.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/.next-web/server/vendor-chunks/clsx.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/.next-web/server/vendor-chunks/next.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/.next-web/server/vendor-chunks/tailwind-merge.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/.next-web/server/webpack-runtime.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/.next-web/static/chunks/app/layout.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/.next-web/static/chunks/webpack.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/.next-web/static/css/app/layout.css', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/.next-web/trace', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/app/api/school/classes/[classId]/attendance/route.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/app/api/school/classes/[classId]/route.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/app/api/school/classes/[classId]/students/route.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/app/api/school/classes/route.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/app/school/admin/announcements/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/app/school/admin/classes/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/app/school/admin/layout.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/app/school/admin/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/app/school/layout.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/app/school/parent/health/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/app/school/parent/layout.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/components/school/AdminSidebar.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/components/school/ParentSidebar.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/components/school/shared/AttendanceTrendChart.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/components/school/shared/EnrollmentTrendChart.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/components/school/shared/StatusBadge.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'apps/dashboard/lib/school/data.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/status/SCHOOL_DASHBOARD_STATUS.md', LF will be replaced by CRLF the next time Git touches it
+ .cursorrules                                       |    2 [32m+[m
+ .firebase/logs/vsce-debug.log                      | 3316 [32m++++++++++++++++++++[m
+ .github/workflows/airtable-schema.yml              |    2 [32m+[m
+ END_OF_DAY_SUMMARY_OCT_28.md                       |    2 [32m+[m
+ REPO_CLEANUP_SUMMARY.md                            |    2 [32m+[m
+ apps/dashboard/.next-web/app-build-manifest.json   |  200 [31m--[m
+ ...4hK0zMEmh7Opiw.Vy8iMTdkZC0xOTg2MTk2YWUyMyI.webp |  Bin [31m3220[m -> [32m0[m bytes
+ ...qvKKJ27OTN0.Vy8iMTcyZjAwLTE5NzJjOGI1NTQ3Ig.webp |  Bin [31m16434[m -> [32m0[m bytes
+ .../cache/webpack/client-development/0.pack.gz     |  Bin [31m13252[m -> [32m7775[m bytes
+ .../cache/webpack/client-development/11.pack.gz    |  Bin [31m3785037[m -> [32m1099158[m bytes
+ .../cache/webpack/client-development/13.pack.gz    |  Bin [31m55751[m -> [32m413848[m bytes
+ .../cache/webpack/client-development/17.pack.gz    |  Bin [31m14719[m -> [32m2746937[m bytes
+ .../cache/webpack/client-development/19.pack.gz    |  Bin [31m279355[m -> [32m230174[m bytes
+ .../cache/webpack/client-development/2.pack.gz     |  Bin [31m6919349[m -> [32m93562[m bytes
+ .../cache/webpack/client-development/20.pack.gz    |  Bin [31m289177[m -> [32m247835[m bytes
+ .../cache/webpack/client-development/22.pack.gz    |  Bin [31m639384[m -> [32m607789[m bytes
+ .../cache/webpack/client-development/4.pack.gz     |  Bin [31m4120[m -> [32m216174[m bytes
+ .../cache/webpack/client-development/5.pack.gz     |  Bin [31m8294[m -> [32m6411846[m bytes
+ .../cache/webpack/client-development/6.pack.gz     |  Bin [31m21537[m -> [32m107670[m bytes
+ .../cache/webpack/client-development/index.pack.gz |  Bin [31m337083[m -> [32m337085[m bytes
+ .../webpack/client-development/index.pack.gz.old   |  Bin [31m337095[m -> [32m337059[m bytes
+ .../cache/webpack/server-development/0.pack.gz     |  Bin [31m12268[m -> [32m7191[m bytes
+ .../cache/webpack/server-development/13.pack.gz    |  Bin [31m433867[m -> [32m94305[m bytes
+ .../cache/webpack/server-development/15.pack.gz    |  Bin [31m307844[m -> [32m246121[m bytes
+ .../cache/webpack/server-development/17.pack.gz    |  Bin [31m1592164[m -> [32m939984[m bytes
+ .../cache/webpack/server-development/2.pack.gz     |  Bin [31m30454[m -> [32m26997[m bytes
+ .../cache/webpack/server-development/24.pack.gz    |  Bin [31m419945[m -> [32m1172141[m bytes
+ .../cache/webpack/server-development/26.pack.gz    |  Bin [31m925255[m -> [32m895186[m bytes
+ .../cache/webpack/server-development/28.pack.gz    |  Bin [31m105646[m -> [32m23631[m bytes
+ .../cache/webpack/server-development/3.pack.gz     |  Bin [31m4073[m -> [32m84059[m bytes
+ .../cache/webpack/server-development/30.pack.gz    |  Bin [31m220132[m -> [32m218585[m bytes
+ .../cache/webpack/server-development/31.pack.gz    |  Bin [31m201763[m -> [32m70837[m bytes
+ .../cache/webpack/server-development/33.pack.gz    |  Bin [31m5376611[m -> [32m1854557[m bytes
+ .../cache/webpack/server-development/34.pack.gz    |  Bin [31m191652[m -> [32m189236[m bytes
+ .../cache/webpack/server-development/5.pack.gz     |  Bin [31m346892[m -> [32m8882[m bytes
+ .../cache/webpack/server-development/8.pack.gz     |  Bin [31m4268[m -> [32m67165[m bytes
+ .../cache/webpack/server-development/index.pack.gz |  Bin [31m526967[m -> [32m527209[m bytes
+ .../webpack/server-development/index.pack.gz.old   |  Bin [31m526965[m -> [32m527362[m bytes
+ .../.next-web/server/app-paths-manifest.json       |   12 [32m+[m[31m-[m
+ .../.next-web/server/app/_not-found/page.js        |  472 [31m---[m
+ .../_not-found/page_client-reference-manifest.js   |    1 [31m-[m
+ .../.next-web/server/app/api/bookings/route.js     |    2 [32m+[m[31m-[m
+ .../bookings/route_client-reference-manifest.js    |    2 [32m+[m[31m-[m
+ .../.next-web/server/app/api/posts/route.js        |    2 [32m+[m[31m-[m
+ .../api/posts/route_client-reference-manifest.js   |    2 [32m+[m[31m-[m
+ .../school/classes/[classId]/attendance/route.js   |  133 [31m-[m
+ .../attendance/route_client-reference-manifest.js  |    1 [31m-[m
+ .../app/api/school/classes/[classId]/route.js      |  133 [31m-[m
+ .../[classId]/route_client-reference-manifest.js   |    1 [31m-[m
+ .../api/school/classes/[classId]/students/route.js |  133 [31m-[m
+ .../students/route_client-reference-manifest.js    |    1 [31m-[m
+ .../server/app/api/school/classes/grades/route.js  |  133 [31m-[m
+ .../grades/route_client-reference-manifest.js      |    1 [31m-[m
+ .../server/app/api/school/classes/kpis/route.js    |  133 [31m-[m
+ .../kpis/route_client-reference-manifest.js        |    1 [31m-[m
+ .../server/app/api/school/classes/route.js         |  133 [31m-[m
+ .../classes/route_client-reference-manifest.js     |    1 [31m-[m
+ .../.next-web/server/app/api/school/data/route.js  |  133 [31m-[m
+ .../school/data/route_client-reference-manifest.js |    1 [31m-[m
+ .../app/api/school/trends/attendance/route.js      |  133 [31m-[m
+ .../attendance/route_client-reference-manifest.js  |    1 [31m-[m
+ .../app/api/school/trends/enrollment/route.js      |  133 [31m-[m
+ .../enrollment/route_client-reference-manifest.js  |    1 [31m-[m
+ .../server/app/api/school/user-role/route.js       |  122 [31m-[m
+ .../user-role/route_client-reference-manifest.js   |    1 [31m-[m
+ .../.next-web/server/app/api/teachers/route.js     |    2 [32m+[m[31m-[m
+ .../teachers/route_client-reference-manifest.js    |    2 [32m+[m[31m-[m
+ .../.next-web/server/app/favicon.ico/route.js      |  106 [31m-[m
+ apps/dashboard/.next-web/server/app/home/page.js   |    2 [32m+[m[31m-[m
+ .../app/home/page_client-reference-manifest.js     |    2 [32m+[m[31m-[m
+ apps/dashboard/.next-web/server/app/login/page.js  |    2 [32m+[m[31m-[m
+ .../app/login/page_client-reference-manifest.js    |    2 [32m+[m[31m-[m
+ .../server/app/page_client-reference-manifest.js   |    2 [32m+[m[31m-[m
+ .../server/app/school/admin/attendance/page.js     |  754 [31m-----[m
+ .../attendance/page_client-reference-manifest.js   |    1 [31m-[m
+ .../app/school/admin/classes/[classId]/page.js     |  733 [31m-----[m
+ .../[classId]/page_client-reference-manifest.js    |    1 [31m-[m
+ .../server/app/school/admin/classes/page.js        |  766 [31m-----[m
+ .../classes/page_client-reference-manifest.js      |    1 [31m-[m
+ .../app/school/admin/daily-activities/page.js      |  754 [31m-----[m
+ .../page_client-reference-manifest.js              |    1 [31m-[m
+ .../server/app/school/admin/events/page.js         |  754 [31m-----[m
+ .../admin/events/page_client-reference-manifest.js |    1 [31m-[m
+ .../server/app/school/admin/health/page.js         |  732 [31m-----[m
+ .../admin/health/page_client-reference-manifest.js |    1 [31m-[m
+ .../server/app/school/admin/medicine/page.js       |  743 [31m-----[m
+ .../medicine/page_client-reference-manifest.js     |    1 [31m-[m
+ .../.next-web/server/app/school/admin/page.js      |  755 [31m-----[m
+ .../school/admin/page_client-reference-manifest.js |    1 [31m-[m
+ .../server/app/school/admin/payments/page.js       |  754 [31m-----[m
+ .../payments/page_client-reference-manifest.js     |    1 [31m-[m
+ .../server/app/school/admin/photo-albums/page.js   |  743 [31m-----[m
+ .../photo-albums/page_client-reference-manifest.js |    1 [31m-[m
+ .../server/app/school/admin/progress/page.js       |  732 [31m-----[m
+ .../progress/page_client-reference-manifest.js     |    1 [31m-[m
+ .../server/app/school/admin/settings/page.js       |  710 [31m-----[m
+ .../settings/page_client-reference-manifest.js     |    1 [31m-[m
+ .../server/app/school/admin/students/page.js       |  754 [31m-----[m
+ .../students/page_client-reference-manifest.js     |    1 [31m-[m
+ .../server/app/school/admin/teachers/page.js       |  754 [31m-----[m
+ .../teachers/page_client-reference-manifest.js     |    1 [31m-[m
+ apps/dashboard/.next-web/server/app/school/page.js |  646 [31m----[m
+ .../app/school/page_client-reference-manifest.js   |    1 [31m-[m

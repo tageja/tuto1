@@ -235,3 +235,5 @@ When you deploy to production (`npm run build`):
 
 **The demo mode banner you see is now functional and dev-only! Try clicking the buttons - they'll switch between admin and parent views for testing.** 🎯
 
+
+
