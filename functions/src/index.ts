@@ -40,7 +40,36 @@ export {
   getRetentionPolicy
 } from './data-retention';
 
-admin.initializeApp();
+// Import v2 school functions
+export {
+  getSchoolTeachers,
+  getSchoolTeacherById,
+  createSchoolTeacher,
+  updateSchoolTeacher,
+  getSchoolTeacherAttendance,
+  getSchoolTeacherFeedback,
+  getSchoolTeacherTeachingHours,
+  getSchoolTeacherKPIs,
+} from './v1/school-teachers';
+
+export {
+  getSchoolClasses,
+  getSchoolClassById,
+  getSchoolGrades,
+  getSchoolClassKpis,
+  getSchoolClassStudents,
+  getSchoolClassAttendance,
+} from './v1/school-classes';
+
+export {
+  getSchoolStudents,
+  getSchoolStudentById,
+} from './v1/school-students';
+
+// Initialize Firebase Admin only if not already initialized
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
 
 // Config (kept in Functions env, not client)
 // Set with: firebase functions:config:set airtable.pat="..." airtable.base="..."

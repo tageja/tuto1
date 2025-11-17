@@ -69,34 +69,72 @@ export default function ClassesPage() {
       try {
         // Fetch all data in parallel for better performance
         const classesParams = new URLSearchParams({
-          schoolId,
-          ...(selectedGrade && selectedGrade !== 'all' && { grade: selectedGrade }),
-          ...(searchQuery && { search: searchQuery }),
-          page: currentPage.toString(),
-          pageSize: '10',
+          schoolId: schoolId,
+          limit: '50',
+          ...(selectedGrade && selectedGrade !== 'all' && { gradeLevel: selectedGrade }),
+          ...(searchQuery && { q: searchQuery }),
         });
 
-        const [kpisResponse, classesResponse, gradesResponse] = await Promise.all([
-          fetch(`/api/school/classes/kpis?schoolId=${schoolId}`),
+        const [classesResponse] = await Promise.all([
           fetch(`/api/school/classes?${classesParams}`),
-          fetch(`/api/school/classes/grades?schoolId=${schoolId}`),
         ]);
 
         // Process responses
-        if (kpisResponse.ok) {
-          const kpisData = await kpisResponse.json();
-          setKpis(kpisData);
-        }
-
         if (classesResponse.ok) {
           const classesData = await classesResponse.json();
-          setClasses(classesData.records || []);
-          setTotalPages(classesData.totalPages || 1);
-        }
-
-        if (gradesResponse.ok) {
-          const gradesData = await gradesResponse.json();
-          setGrades(gradesData.grades || []);
+          if (classesData.success && classesData.data) {
+            const records = classesData.data.records || [];
+            setClasses(records);
+            
+            // Calculate KPIs from classes data
+            const totalClasses = classesData.data.total || 0;
+            const activeClasses = records.filter((c: any) => 
+              c.status && c.status.toLowerCase() === 'active'
+            ).length;
+            
+            // Calculate total students (sum of student counts per class)
+            const totalStudents = records.reduce((sum: number, c: any) => {
+              return sum + (c.student_count || 0);
+            }, 0);
+            
+            // Calculate capacity usage
+            const totalCapacity = records.reduce((sum: number, c: any) => {
+              return sum + (c.capacity || 0);
+            }, 0);
+            const capacityUsage = totalCapacity > 0 
+              ? Math.round((totalStudents / totalCapacity) * 100) 
+              : 0;
+            
+            // Extract unique grades
+            const uniqueGrades = Array.from(new Set(
+              records.map((c: any) => c.grade_level).filter(Boolean)
+            )).sort();
+            setGrades(uniqueGrades);
+            
+            setKpis({
+              totalClasses,
+              activeClasses,
+              totalStudents,
+              capacityUsage,
+              avgAttendance: 0, // TODO: Calculate from attendance data
+            });
+            
+            // Debug logging
+            if (process.env.NODE_ENV === 'development') {
+              console.log(`📚 Loaded ${totalClasses} classes (${activeClasses} active) for school: ${schoolId}`);
+              if (records.length > 0) {
+                console.log('Sample classes:', records.slice(0, 3).map((c: any) => ({
+                  name: c.name,
+                  grade: c.grade_level,
+                  status: c.status
+                })));
+              }
+            }
+          } else {
+            console.error('API response not successful:', classesData);
+          }
+        } else {
+          console.error('Failed to fetch classes:', classesResponse.status);
         }
       } catch (err) {
         console.error('Error loading classes:', err);
@@ -262,26 +300,26 @@ export default function ClassesPage() {
                 <div className="flex items-start justify-between mb-4">
                   <div className="p-3 bg-blue-100 rounded-lg">
                     <span className="text-2xl font-bold text-blue-600">
-                      {classItem.grade || '?'}
+                      {classItem.grade_level || classItem.grade || '?'}
                     </span>
                   </div>
-                  <StatusBadge status={classItem.status} />
+                  <StatusBadge status={classItem.status || 'active'} />
                 </div>
 
-                <h3 className="text-lg font-semibold mb-2">{classItem.name || lang === 'vi' ? 'Không có tên' : 'Untitled Class'}</h3>
+                <h3 className="text-lg font-semibold mb-2">{classItem.name || (lang === 'vi' ? 'Không có tên' : 'Untitled Class')}</h3>
                 
                 <div className="space-y-2 text-sm text-gray-600 mb-4">
                   <div className="flex items-center justify-between">
                     <span>{lang === 'vi' ? 'Giáo viên' : 'Teacher'}</span>
-                    <span className="font-medium text-gray-900">{classItem.homeroomTeacherName || lang === 'vi' ? 'Chưa gán' : 'Not assigned'}</span>
+                    <span className="font-medium text-gray-900">{classItem.homeroomTeacherName || classItem.school_teachers?.name || (lang === 'vi' ? 'Chưa gán' : 'Not assigned')}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>{lang === 'vi' ? 'Học sinh' : 'Students'}</span>
-                    <span className="font-medium text-gray-900">{classItem.studentCount || 0}/{classItem.capacity || 25}</span>
+                    <span className="font-medium text-gray-900">{classItem.student_count || classItem.studentCount || 0}/{classItem.capacity || 25}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>{lang === 'vi' ? 'Phòng' : 'Room'}</span>
-                    <span className="font-medium text-gray-900">{classItem.roomNumber || lang === 'vi' ? 'TBD' : 'TBD'}</span>
+                    <span className="font-medium text-gray-900">{classItem.room_number || classItem.roomNumber || (lang === 'vi' ? 'TBD' : 'TBD')}</span>
                   </div>
                 </div>
 

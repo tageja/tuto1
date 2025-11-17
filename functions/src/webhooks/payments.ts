@@ -5,7 +5,7 @@ import * as crypto from 'crypto';
 import axios from 'axios';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-06-20',
+  apiVersion: '2023-10-16',
 });
 
 const AIRTABLE_PAT = process.env.AIRTABLE_PAT;
@@ -289,6 +289,8 @@ export const reconcilePayments = functions.https.onCall(async (data, context) =>
     throw new functions.https.HttpsError('internal', 'Reconciliation failed');
   }
 });
+
+
 
 
 

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import Card from '../../../components/ui/Card';
+import { Card } from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import LoadingState from '../../../components/shared/LoadingState';
 import ErrorState from '../../../components/shared/ErrorState';
@@ -281,6 +281,14 @@ export default function TeacherProfilePage() {
     </main>
   );
 }
+
+
+
+
+
+
+
+
 
 
 

@@ -1,6 +1,8 @@
+'use client';
+
 import React from 'react';
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
   hover?: boolean;
@@ -42,8 +44,6 @@ export function Card({
     </div>
   );
 }
-
-export default Card;
 
 
 

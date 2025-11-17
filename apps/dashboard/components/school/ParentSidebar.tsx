@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useI18n } from '../../contexts/I18nContext';
+import { useSchool } from '../../contexts/SchoolContext';
 import {
   LayoutDashboard,
   Megaphone,
@@ -16,25 +17,37 @@ import {
   Settings,
   Pill,
   Image as ImageIcon,
+  GraduationCap,
+  Calendar,
 } from 'lucide-react';
 
 export function ParentSidebar() {
   const pathname = usePathname();
   const { t } = useI18n();
+  const { selectedSchool, schoolIdFromUrl } = useSchool();
+
+  // Use URL-based schoolId if available, otherwise use selectedSchool
+  const schoolId = schoolIdFromUrl || selectedSchool?.id || selectedSchool?.name || 'Sunrise International School';
+  const encodedSchoolId = encodeURIComponent(schoolId);
+
+  // Check if we're on a URL-based route
+  const isUrlBasedRoute = pathname?.includes('/school/') && pathname?.match(/\/school\/[^\/]+\/(admin|parent)/);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: t('dashboard'), href: '/school/parent' },
-    { icon: Megaphone, label: t('announcements'), href: '/school/parent/announcements' },
-    { icon: MessageCircle, label: t('messages'), href: '/school/parent/messages' },
-    { icon: CalendarCheck, label: t('attendance'), href: '/school/parent/attendance' },
-    { icon: BookOpen, label: t('homework'), href: '/school/parent/homework' },
-    { icon: TrendingUp, label: t('progressReports'), href: '/school/parent/progress' },
-    { icon: PartyPopper, label: t('events'), href: '/school/parent/events' },
-    { icon: ImageIcon, label: t('photoAlbums'), href: '/school/parent/photo-albums' },
-    { icon: Heart, label: t('healthRecords'), href: '/school/parent/health' },
-    { icon: Pill, label: t('medicine'), href: '/school/parent/medicine' },
-    { icon: CreditCard, label: t('payments'), href: '/school/parent/payments' },
-    { icon: Settings, label: t('settings'), href: '/school/parent/settings' },
+    { icon: LayoutDashboard, label: t('dashboard'), href: `/school/parent` },
+    { icon: GraduationCap, label: t('teachers'), href: `/school/${encodedSchoolId}/parent/teachers` },
+    { icon: Calendar, label: t('dailyActivities'), href: `/school/${encodedSchoolId}/parent/daily-activities` },
+    { icon: Megaphone, label: t('announcements'), href: `/school/${encodedSchoolId}/parent/announcements` },
+    { icon: MessageCircle, label: t('messages'), href: `/school/${encodedSchoolId}/parent/messages` },
+    { icon: CalendarCheck, label: t('attendance'), href: `/school/${encodedSchoolId}/parent/attendance` },
+    { icon: BookOpen, label: t('homework'), href: `/school/${encodedSchoolId}/parent/homework` },
+    { icon: TrendingUp, label: t('progressReports'), href: `/school/${encodedSchoolId}/parent/progress` },
+    { icon: PartyPopper, label: t('events'), href: `/school/${encodedSchoolId}/parent/events` },
+    { icon: ImageIcon, label: t('photoAlbums'), href: `/school/${encodedSchoolId}/parent/photo-albums` },
+    { icon: Heart, label: t('healthRecords'), href: `/school/${encodedSchoolId}/parent/health` },
+    { icon: Pill, label: t('medicine'), href: `/school/${encodedSchoolId}/parent/medicine` },
+    { icon: CreditCard, label: t('payments'), href: `/school/${encodedSchoolId}/parent/payments` },
+    { icon: Settings, label: t('settings'), href: `/school/${encodedSchoolId}/parent/settings` },
   ];
 
   return (
@@ -54,7 +67,15 @@ export function ParentSidebar() {
         <ul className="space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            // Enhanced active detection for URL-based routes
+            let isActive = pathname === item.href;
+            
+            // Special handling for URL-based routes
+            if (pathname?.includes(item.href) || 
+                (item.label === t('teachers') && pathname?.includes('/teachers')) ||
+                (item.label === t('dailyActivities') && pathname?.includes('/daily-activities'))) {
+              isActive = true;
+            }
 
             return (
               <li key={item.href}>

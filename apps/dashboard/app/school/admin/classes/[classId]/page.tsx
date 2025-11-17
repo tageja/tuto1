@@ -29,7 +29,18 @@ export default function ClassDetailPage() {
         const classResponse = await fetch(`/api/school/classes/${classId}`);
         if (classResponse.ok) {
           const classResult = await classResponse.json();
-          setClassData(classResult);
+          // Handle both direct class data and error responses
+          if (classResult.error) {
+            console.error('Class not found:', classResult.error);
+            setClassData(null);
+          } else {
+            setClassData(classResult);
+          }
+        } else {
+          // Handle non-OK responses
+          const errorData = await classResponse.json();
+          console.error('Failed to fetch class:', errorData);
+          setClassData(null);
         }
 
         // Fetch students roster

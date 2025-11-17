@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useSchool } from '../../contexts/SchoolContext';
 import { getUserRole, getCurrentUserId, isAuthenticated } from '../../lib/school/auth';
 import { getUserSchools } from '../../lib/school/schools';
@@ -12,13 +12,13 @@ export default function SchoolLayout({ children }: { children: React.ReactNode }
   const [loading, setLoading] = useState(true);
   const { selectedSchool, setAvailableSchools, isLoading: schoolLoading } = useSchool();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     async function checkAuthAndRole() {
       try {
-        // For now, use demo mode - skip strict auth check
-        // In production, enable Firebase auth check
-        const uid = getCurrentUserId();
+        // Get current user ID from Supabase
+        const uid = await getCurrentUserId();
         
         // Demo mode: Use a mock UID if not authenticated
         const demoUid = uid || 'demo-user-admin';
@@ -29,40 +29,88 @@ export default function SchoolLayout({ children }: { children: React.ReactNode }
         if (!role) {
           // Default to admin for demo purposes
           setUserRole('admin');
-          // Set demo schools
-          setAvailableSchools([
-            { id: 'Sunrise International School', name: 'Sunrise International School', type: 'International', studentCount: 144 },
-            { id: 'Green Valley Academy', name: 'Green Valley Academy', type: 'Private', studentCount: 89 },
-          ]);
+          // Fetch all schools from Supabase (no role filtering for demo)
+          try {
+            const response = await fetch('/api/school/user-schools');
+            if (response.ok) {
+              const data = await response.json();
+              if (data.success && data.schools) {
+                console.log('📚 Loaded schools in layout:', data.schools.map((s: any) => s.name).join(', '));
+                setAvailableSchools(data.schools);
+              } else {
+                // Fallback: empty array
+                console.warn('⚠️ No schools returned from API');
+                setAvailableSchools([]);
+              }
+            } else {
+              console.error('⚠️ Failed to fetch schools:', response.status);
+              setAvailableSchools([]);
+            }
+          } catch (error) {
+            console.error('Error fetching schools:', error);
+            setAvailableSchools([]);
+          }
         } else {
           setUserRole(role);
           // Fetch available schools
           const schools = await getUserSchools(demoUid, role);
-          setAvailableSchools(schools.length > 0 ? schools : [
-            { id: 'Sunrise International School', name: 'Sunrise International School', type: 'International', studentCount: 144 },
-          ]);
+          console.log('📚 Loaded schools for role:', role, schools.map(s => s.name).join(', '));
+          setAvailableSchools(schools.length > 0 ? schools : []);
         }
 
-        // If school is selected, redirect to appropriate dashboard
-        if (selectedSchool && !schoolLoading) {
+        // Only redirect if we're on the base /school route and a school is selected
+        // Don't redirect if we're already on /school/admin, /school/parent, or URL-based routes
+        const isBaseRoute = pathname === '/school' || pathname === '/school/';
+        const isAlreadyOnDashboard = pathname?.startsWith('/school/admin') || 
+                                     pathname?.startsWith('/school/parent') ||
+                                     pathname?.match(/^\/school\/[^\/]+\/(admin|parent)/);
+        
+        if (selectedSchool && !schoolLoading && isBaseRoute && !isAlreadyOnDashboard) {
           const finalRole = role || 'admin';
           router.push(`/school/${finalRole}`);
         }
       } catch (error) {
         console.error('Error in school layout:', error);
-        // Don't redirect on error - show demo data instead
+        // Don't redirect on error - fetch schools from Supabase
         setUserRole('admin');
-        setAvailableSchools([
-          { id: 'Sunrise International School', name: 'Sunrise International School', type: 'International', studentCount: 144 },
-        ]);
+        try {
+          const response = await fetch('/api/school/user-schools');
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.schools) {
+              setAvailableSchools(data.schools);
+            } else {
+              setAvailableSchools([]);
+            }
+          } else {
+            setAvailableSchools([]);
+          }
+        } catch (fetchError) {
+          console.error('Error fetching schools in error handler:', fetchError);
+          setAvailableSchools([]);
+        }
       } finally {
         setLoading(false);
       }
     }
 
     checkAuthAndRole();
-  }, []);
+  }, [pathname, selectedSchool, schoolLoading, router, setAvailableSchools]);
 
+  // Add timeout to prevent infinite loading
+  // If we're on a dashboard route, don't wait for schoolLoading
+  const isDashboardRoute = pathname?.startsWith('/school/admin') || 
+                          pathname?.startsWith('/school/parent') ||
+                          pathname?.match(/^\/school\/[^\/]+\/(admin|parent)/);
+  
+  // If we're on a dashboard route, render children immediately
+  // This prevents infinite loading when visiting /school/admin directly
+  // Don't wait for loading to complete - let the dashboard pages handle their own loading states
+  if (isDashboardRoute) {
+    return <>{children}</>;
+  }
+
+  // Only show loading spinner for non-dashboard routes
   if (loading || schoolLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -71,8 +119,9 @@ export default function SchoolLayout({ children }: { children: React.ReactNode }
     );
   }
 
-  // Show school selector if no school is selected
-  if (!selectedSchool && userRole) {
+  // Show school selector if no school is selected and we're on base route
+  const isBaseRoute = pathname === '/school' || pathname === '/school/';
+  if (!selectedSchool && userRole && isBaseRoute) {
     return <SchoolSelector role={userRole} />;
   }
 

@@ -42,10 +42,11 @@ export const getPayments = onRequest({
     const { schoolId, status } = req.query
     
     if (!schoolId) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'School ID is required'
       })
+      return
     }
 
     let payments = mockPayments.filter(p => p.schoolId === schoolId)
@@ -84,10 +85,11 @@ export const getRefunds = onRequest({
     const { schoolId } = req.query
     
     if (!schoolId) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'School ID is required'
       })
+      return
     }
 
     // Get refunds for payments in this school
@@ -127,10 +129,11 @@ export const createRefund = onRequest({
     const newRefund = {
       id: Date.now().toString(),
       ...validatedData,
+      processedAt: new Date().toISOString(),
     }
 
     // TODO: Save to Airtable
-    mockRefunds.push(newRefund)
+    mockRefunds.push(newRefund as typeof mockRefunds[number])
 
     // TODO: Add audit log entry
 
@@ -140,11 +143,12 @@ export const createRefund = onRequest({
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Validation error',
         errors: error.errors
       })
+      return
     }
     
     res.status(500).json({

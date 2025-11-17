@@ -19,11 +19,12 @@ export const getTeachers = onRequest({
     const { schoolId } = req.query
     
     if (!schoolId) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         code: 'BAD_REQUEST',
         message: 'School ID is required'
       })
+      return
     }
 
     const teachers = await airtableService.getTeachers(schoolId as string)
@@ -68,12 +69,13 @@ export const createTeacher = onRequest({
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         code: 'VALIDATION_ERROR',
         message: 'Validation error',
         details: error.errors
       })
+      return
     }
     
     res.status(500).json({
@@ -106,12 +108,13 @@ export const updateTeacher = onRequest({
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         code: 'VALIDATION_ERROR',
         message: 'Validation error',
         details: error.errors
       })
+      return
     }
     
     res.status(500).json({

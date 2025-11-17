@@ -32,10 +32,11 @@ export const getBookings = onRequest({
     const { schoolId, status } = req.query
     
     if (!schoolId) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'School ID is required'
       })
+      return
     }
 
     let bookings = mockBookings.filter(b => b.schoolId === schoolId)
@@ -76,10 +77,11 @@ export const updateBookingStatus = onRequest({
     
     const bookingIndex = mockBookings.findIndex(b => b.id === id)
     if (bookingIndex === -1) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Booking not found'
       })
+      return
     }
 
     const updatedBooking = {
@@ -88,7 +90,7 @@ export const updateBookingStatus = onRequest({
       updatedAt: new Date().toISOString(),
     }
 
-    mockBookings[bookingIndex] = updatedBooking
+    mockBookings[bookingIndex] = updatedBooking as typeof mockBookings[number]
 
     // TODO: Add audit log entry
 
@@ -98,11 +100,12 @@ export const updateBookingStatus = onRequest({
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Validation error',
         errors: error.errors
       })
+      return
     }
     
     res.status(500).json({

@@ -3,7 +3,20 @@ import { z } from 'zod'
 import { StudentSchema, CreateStudentSchema, UpdateStudentSchema } from '@tuto/schemas'
 
 // Mock data for now - will be replaced with Airtable integration
-const mockStudents = [
+const mockStudents: Array<{
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  grade: string;
+  subjects: string[];
+  enrollmentDate: string;
+  status: 'active' | 'inactive' | 'graduated';
+  parentContact: string;
+  schoolId: string;
+  createdAt: string;
+  updatedAt: string;
+}> = [
   {
     id: '1',
     name: 'Alice Smith',
@@ -12,7 +25,7 @@ const mockStudents = [
     grade: 'Grade 10',
     subjects: ['Mathematics', 'Physics'],
     enrollmentDate: '2024-01-01',
-    status: 'active' as const,
+    status: 'active',
     parentContact: '+1234567892',
     schoolId: 'school1',
     createdAt: new Date().toISOString(),
@@ -32,10 +45,11 @@ export const getStudents = onRequest({
     const { schoolId } = req.query
     
     if (!schoolId) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'School ID is required'
       })
+      return
     }
 
     const students = mockStudents.filter(s => s.schoolId === schoolId)
@@ -71,7 +85,15 @@ export const createStudent = onRequest({
     
     const newStudent = {
       id: Date.now().toString(),
-      ...validatedData,
+      name: validatedData.name || '',
+      email: validatedData.email || '',
+      phone: validatedData.phone || '',
+      grade: validatedData.grade || '',
+      subjects: validatedData.subjects || [],
+      enrollmentDate: validatedData.enrollmentDate || new Date().toISOString(),
+      status: validatedData.status || 'active' as 'active' | 'inactive' | 'graduated',
+      parentContact: validatedData.parentContact || '',
+      schoolId: validatedData.schoolId || '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
@@ -85,11 +107,12 @@ export const createStudent = onRequest({
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Validation error',
         errors: error.errors
       })
+      return
     }
     
     res.status(500).json({
@@ -113,10 +136,11 @@ export const updateStudent = onRequest({
     
     const studentIndex = mockStudents.findIndex(s => s.id === id)
     if (studentIndex === -1) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Student not found'
       })
+      return
     }
 
     const updatedStudent = {
@@ -133,11 +157,12 @@ export const updateStudent = onRequest({
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Validation error',
         errors: error.errors
       })
+      return
     }
     
     res.status(500).json({

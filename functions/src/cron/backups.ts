@@ -126,7 +126,7 @@ async function createBackupFile(data: BackupData): Promise<Buffer> {
   // Encrypt with AES-256-GCM
   const key = crypto.scryptSync(process.env.BACKUP_ENCRYPTION_KEY || 'default-key', 'salt', 32);
   const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipher('aes-256-gcm', key);
+  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
   cipher.setAAD(Buffer.from('tuto-backup'));
   
   const encrypted = Buffer.concat([
@@ -316,17 +316,13 @@ export const nightlyBackup = onSchedule({
     const totalRecords = results.reduce((sum, r) => sum + r.recordCount, 0);
     
     logger.info(`Backup completed: ${successful}/${TABLES_TO_BACKUP.length} tables, ${totalRecords} total records`);
-    
-    return {
+    logger.info(`Summary: ${JSON.stringify({
       success: true,
-      results,
-      summary: {
-        tablesBackedUp: successful,
-        totalTables: TABLES_TO_BACKUP.length,
-        totalRecords,
-        timestamp: new Date().toISOString()
-      }
-    };
+      tablesBackedUp: successful,
+      totalTables: TABLES_TO_BACKUP.length,
+      totalRecords,
+      timestamp: new Date().toISOString()
+    })}`);
     
   } catch (error) {
     logger.error('Backup process failed:', error);
@@ -344,8 +340,9 @@ export const manualBackup = onSchedule({
   timeoutSeconds: 540
 }, async (event) => {
   logger.info('Manual backup triggered');
-  return await nightlyBackup.run(event);
+  await nightlyBackup.run(event);
 });
+
 
 
 

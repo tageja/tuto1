@@ -1,0 +1,34 @@
+# Supabase Migration - Git Ignore
+
+# Environment files
+.env
+*.env
+!.env.example
+
+# Data exports (can be large)
+data/
+logs/
+
+# Node modules if running scripts locally
+node_modules/
+
+# TypeScript build artifacts
+*.js
+*.d.ts
+*.tsbuildinfo
+
+# Except migration SQL files
+!migrations/*.sql
+
+# Logs
+*.log
+*.jsonl
+
+# Temporary files
+*.tmp
+*.temp
+
+
+
+
+

@@ -36,13 +36,68 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.api = void 0;
+exports.api = exports.getSchoolStudentById = exports.getSchoolStudents = exports.getSchoolClassAttendance = exports.getSchoolClassStudents = exports.getSchoolClassKpis = exports.getSchoolGrades = exports.getSchoolClassById = exports.getSchoolClasses = exports.getSchoolTeacherKPIs = exports.getSchoolTeacherTeachingHours = exports.getSchoolTeacherFeedback = exports.getSchoolTeacherAttendance = exports.updateSchoolTeacher = exports.createSchoolTeacher = exports.getSchoolTeacherById = exports.getSchoolTeachers = exports.getRetentionPolicy = exports.processAccountDeletion = exports.exportUserData = exports.cancelAccountDeletion = exports.requestAccountDeletion = exports.reconcilePayments = exports.stripeWebhook = exports.cancelRefund = exports.getRefundHistory = exports.createRefund = exports.getPaymentHistory = exports.cancelPaymentIntent = exports.getPaymentIntentStatus = exports.confirmPaymentIntent = exports.createPaymentIntent = exports.resolveReport = exports.getModerationQueue = exports.unblockUser = exports.blockUser = exports.reportContent = exports.manualBackup = exports.nightlyBackup = void 0;
 const functions = __importStar(require("firebase-functions/v1"));
 const admin = __importStar(require("firebase-admin"));
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const axios_1 = __importDefault(require("axios"));
-admin.initializeApp();
+// Import backup functions
+var backups_1 = require("./cron/backups");
+Object.defineProperty(exports, "nightlyBackup", { enumerable: true, get: function () { return backups_1.nightlyBackup; } });
+Object.defineProperty(exports, "manualBackup", { enumerable: true, get: function () { return backups_1.manualBackup; } });
+// Import moderation functions
+var index_1 = require("./moderation/index");
+Object.defineProperty(exports, "reportContent", { enumerable: true, get: function () { return index_1.reportContent; } });
+Object.defineProperty(exports, "blockUser", { enumerable: true, get: function () { return index_1.blockUser; } });
+Object.defineProperty(exports, "unblockUser", { enumerable: true, get: function () { return index_1.unblockUser; } });
+Object.defineProperty(exports, "getModerationQueue", { enumerable: true, get: function () { return index_1.getModerationQueue; } });
+Object.defineProperty(exports, "resolveReport", { enumerable: true, get: function () { return index_1.resolveReport; } });
+// Import payment functions
+var payments_1 = require("./payments");
+Object.defineProperty(exports, "createPaymentIntent", { enumerable: true, get: function () { return payments_1.createPaymentIntent; } });
+Object.defineProperty(exports, "confirmPaymentIntent", { enumerable: true, get: function () { return payments_1.confirmPaymentIntent; } });
+Object.defineProperty(exports, "getPaymentIntentStatus", { enumerable: true, get: function () { return payments_1.getPaymentIntentStatus; } });
+Object.defineProperty(exports, "cancelPaymentIntent", { enumerable: true, get: function () { return payments_1.cancelPaymentIntent; } });
+Object.defineProperty(exports, "getPaymentHistory", { enumerable: true, get: function () { return payments_1.getPaymentHistory; } });
+Object.defineProperty(exports, "createRefund", { enumerable: true, get: function () { return payments_1.createRefund; } });
+Object.defineProperty(exports, "getRefundHistory", { enumerable: true, get: function () { return payments_1.getRefundHistory; } });
+Object.defineProperty(exports, "cancelRefund", { enumerable: true, get: function () { return payments_1.cancelRefund; } });
+// Import webhook functions
+var payments_2 = require("./webhooks/payments");
+Object.defineProperty(exports, "stripeWebhook", { enumerable: true, get: function () { return payments_2.stripeWebhook; } });
+Object.defineProperty(exports, "reconcilePayments", { enumerable: true, get: function () { return payments_2.reconcilePayments; } });
+// Import data retention functions
+var data_retention_1 = require("./data-retention");
+Object.defineProperty(exports, "requestAccountDeletion", { enumerable: true, get: function () { return data_retention_1.requestAccountDeletion; } });
+Object.defineProperty(exports, "cancelAccountDeletion", { enumerable: true, get: function () { return data_retention_1.cancelAccountDeletion; } });
+Object.defineProperty(exports, "exportUserData", { enumerable: true, get: function () { return data_retention_1.exportUserData; } });
+Object.defineProperty(exports, "processAccountDeletion", { enumerable: true, get: function () { return data_retention_1.processAccountDeletion; } });
+Object.defineProperty(exports, "getRetentionPolicy", { enumerable: true, get: function () { return data_retention_1.getRetentionPolicy; } });
+// Import v2 school functions
+var school_teachers_1 = require("./v1/school-teachers");
+Object.defineProperty(exports, "getSchoolTeachers", { enumerable: true, get: function () { return school_teachers_1.getSchoolTeachers; } });
+Object.defineProperty(exports, "getSchoolTeacherById", { enumerable: true, get: function () { return school_teachers_1.getSchoolTeacherById; } });
+Object.defineProperty(exports, "createSchoolTeacher", { enumerable: true, get: function () { return school_teachers_1.createSchoolTeacher; } });
+Object.defineProperty(exports, "updateSchoolTeacher", { enumerable: true, get: function () { return school_teachers_1.updateSchoolTeacher; } });
+Object.defineProperty(exports, "getSchoolTeacherAttendance", { enumerable: true, get: function () { return school_teachers_1.getSchoolTeacherAttendance; } });
+Object.defineProperty(exports, "getSchoolTeacherFeedback", { enumerable: true, get: function () { return school_teachers_1.getSchoolTeacherFeedback; } });
+Object.defineProperty(exports, "getSchoolTeacherTeachingHours", { enumerable: true, get: function () { return school_teachers_1.getSchoolTeacherTeachingHours; } });
+Object.defineProperty(exports, "getSchoolTeacherKPIs", { enumerable: true, get: function () { return school_teachers_1.getSchoolTeacherKPIs; } });
+var school_classes_1 = require("./v1/school-classes");
+Object.defineProperty(exports, "getSchoolClasses", { enumerable: true, get: function () { return school_classes_1.getSchoolClasses; } });
+Object.defineProperty(exports, "getSchoolClassById", { enumerable: true, get: function () { return school_classes_1.getSchoolClassById; } });
+Object.defineProperty(exports, "getSchoolGrades", { enumerable: true, get: function () { return school_classes_1.getSchoolGrades; } });
+Object.defineProperty(exports, "getSchoolClassKpis", { enumerable: true, get: function () { return school_classes_1.getSchoolClassKpis; } });
+Object.defineProperty(exports, "getSchoolClassStudents", { enumerable: true, get: function () { return school_classes_1.getSchoolClassStudents; } });
+Object.defineProperty(exports, "getSchoolClassAttendance", { enumerable: true, get: function () { return school_classes_1.getSchoolClassAttendance; } });
+var school_students_1 = require("./v1/school-students");
+Object.defineProperty(exports, "getSchoolStudents", { enumerable: true, get: function () { return school_students_1.getSchoolStudents; } });
+Object.defineProperty(exports, "getSchoolStudentById", { enumerable: true, get: function () { return school_students_1.getSchoolStudentById; } });
+// Initialize Firebase Admin only if not already initialized
+if (!admin.apps.length) {
+    admin.initializeApp();
+}
 // Config (kept in Functions env, not client)
 // Set with: firebase functions:config:set airtable.pat="..." airtable.base="..."
 async function readSecretOrConfig(name) {
@@ -368,6 +423,62 @@ app.post('/api/users/getByUid', async (req, res) => {
         return res.status(500).json({ ok: false, code: 'INTERNAL', message: err.message });
     }
 });
+// --- Nearby Teachers: distance filter & sorting ---
+// POST /api/teachers/nearby { lat, lng, radiusKm, max? }
+app.post('/api/teachers/nearby', async (req, res) => {
+    try {
+        const lat = Number(req.body?.lat);
+        const lng = Number(req.body?.lng);
+        const radiusKm = Number(req.body?.radiusKm || 5);
+        const max = Number(req.body?.max || 50);
+        if (!isFinite(lat) || !isFinite(lng))
+            return res.status(400).json({ ok: false, code: 'INVALID_COORDS' });
+        const all = [];
+        let offset = undefined;
+        do {
+            const page = await withSecrets(async (pat, base) => airtableRequest('get', `/TutoTeachers`, undefined, offset ? { pageSize: 100, offset } : { pageSize: 100 }, pat, base));
+            (page?.records || []).forEach((r) => all.push(r));
+            offset = page?.offset;
+        } while (offset && all.length < 1000);
+        const toRad = (deg) => (deg * Math.PI) / 180;
+        const haversineKm = (lat1, lon1, lat2, lon2) => {
+            const R = 6371; // km
+            const dLat = toRad(lat2 - lat1);
+            const dLon = toRad(lon2 - lon1);
+            const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        };
+        const items = all
+            .map((r) => {
+            const f = r.fields || {};
+            const tLat = Number(f.Latitude ?? f.latitude ?? f.lat);
+            const tLng = Number(f.Longitude ?? f.longitude ?? f.lng);
+            if (!isFinite(tLat) || !isFinite(tLng))
+                return null;
+            const distanceKm = haversineKm(lat, lng, tLat, tLng);
+            return {
+                id: r.id,
+                name: f.Name || f.displayName || '',
+                latitude: tLat,
+                longitude: tLng,
+                hourlyRate: Number(f['Hourly Rate'] ?? f.hourlyRate ?? 0) || 0,
+                rating: Number(f.Rating ?? f.rating ?? 0) || 0,
+                reviewCount: Number(f['Review Count'] ?? f.reviewCount ?? 0) || 0,
+                distanceKm,
+            };
+        })
+            .filter(Boolean)
+            .filter((t) => t.distanceKm <= radiusKm)
+            .sort((a, b) => a.distanceKm - b.distanceKm)
+            .slice(0, Math.max(1, max));
+        return res.json({ ok: true, teachers: items });
+    }
+    catch (e) {
+        const err = e;
+        return res.status(500).json({ ok: false, code: 'INTERNAL', message: err.message });
+    }
+});
 // POST /api/users/upsertRole { uid, role }
 app.post('/api/users/upsertRole', async (req, res) => {
     try {
@@ -665,5 +776,219 @@ app.post('/api/studentProfiles/listForGuardian', async (req, res) => {
     catch (e) {
         const err = e;
         return res.status(500).json({ ok: false, code: 'INTERNAL', message: err.message });
+    }
+});
+// --- Feed endpoints with auth protection ---
+// GET /api/feed/posts - Get posts with pagination
+app.get('/api/feed/posts', verifyIdToken, async (req, res) => {
+    try {
+        const { page = 1, limit = 20, filterByFormula } = req.query;
+        const offset = (Number(page) - 1) * Number(limit);
+        await withSecrets(async (pat, base) => {
+            const posts = await airtableRequest('get', `/TutoPosts`, undefined, {
+                filterByFormula: filterByFormula,
+                maxRecords: Number(limit),
+                offset: offset.toString(),
+                sort: JSON.stringify([{ field: 'Timestamp', direction: 'desc' }]),
+            }, pat, base);
+            res.json(posts);
+        });
+    }
+    catch (error) {
+        console.error('Error fetching posts:', error);
+        res.status(500).json({ message: 'Failed to fetch posts' });
+    }
+});
+// POST /api/feed/posts - Create new post
+app.post('/api/feed/posts', verifyIdToken, async (req, res) => {
+    try {
+        const uid = req.user?.uid;
+        const { contentText, contentMediaType, contentMediaUrl, subjects, privacy = 'public' } = req.body || {};
+        if (!contentText || !subjects || !Array.isArray(subjects)) {
+            return res.status(400).json({ message: 'contentText and subjects are required' });
+        }
+        // Sanitize content text
+        const sanitizedText = contentText.trim().substring(0, 2000);
+        await withSecrets(async (pat, base) => {
+            // Get user info
+            const user = await airtableRequest('get', `/Users`, undefined, {
+                filterByFormula: `{Firebase UID} = '${uid}'`,
+                maxRecords: 1,
+            }, pat, base);
+            if (!user.records.length) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            const userRecord = user.records[0].fields;
+            const postData = {
+                fields: {
+                    'Author ID': userRecord['Firebase UID'],
+                    'Author Name': userRecord['Name'] || 'Unknown User',
+                    'Author Role': userRecord['Role'] || 'parent',
+                    'Author Avatar': userRecord['Avatar'] || '',
+                    'Content Text': sanitizedText,
+                    'Content Media Type': contentMediaType,
+                    'Content Media URL': contentMediaUrl,
+                    'Post Type': contentMediaType || 'text',
+                    'Subjects': subjects,
+                    'Timestamp': new Date().toISOString(),
+                    'Likes Count': 0,
+                    'Comments Count': 0,
+                    'Shares Count': 0,
+                    'Saves Count': 0,
+                    'Privacy': privacy,
+                }
+            };
+            const newPost = await airtableRequest('post', `/TutoPosts`, postData, undefined, pat, base);
+            res.json(newPost);
+        });
+    }
+    catch (error) {
+        console.error('Error creating post:', error);
+        res.status(500).json({ message: 'Failed to create post' });
+    }
+});
+// POST /api/feed/posts/:postId/like - Like/unlike a post
+app.post('/api/feed/posts/:postId/like', verifyIdToken, async (req, res) => {
+    try {
+        const uid = req.user?.uid;
+        const { postId } = req.params;
+        const { like } = req.body || {};
+        if (typeof like !== 'boolean') {
+            return res.status(400).json({ message: 'like must be a boolean' });
+        }
+        await withSecrets(async (pat, base) => {
+            // Check if like already exists
+            const existingLike = await airtableRequest('get', `/TutoPostLikes`, undefined, {
+                filterByFormula: `AND({Post ID} = '${postId}', {User ID} = '${uid}')`,
+                maxRecords: 1,
+            }, pat, base);
+            if (like && existingLike.records.length === 0) {
+                // Create new like
+                await airtableRequest('post', `/TutoPostLikes`, {
+                    fields: {
+                        'Post ID': postId,
+                        'User ID': uid,
+                        'Created At': new Date().toISOString(),
+                    }
+                }, undefined, pat, base);
+                // Increment like count
+                const post = await airtableRequest('get', `/TutoPosts/${postId}`, undefined, undefined, pat, base);
+                const currentLikes = post.fields['Likes Count'] || 0;
+                await airtableRequest('patch', `/TutoPosts/${postId}`, {
+                    fields: { 'Likes Count': currentLikes + 1 }
+                }, undefined, pat, base);
+            }
+            else if (!like && existingLike.records.length > 0) {
+                // Remove like
+                await airtableRequest('delete', `/TutoPostLikes/${existingLike.records[0].id}`, undefined, undefined, pat, base);
+                // Decrement like count
+                const post = await airtableRequest('get', `/TutoPosts/${postId}`, undefined, undefined, pat, base);
+                const currentLikes = post.fields['Likes Count'] || 0;
+                await airtableRequest('patch', `/TutoPosts/${postId}`, {
+                    fields: { 'Likes Count': Math.max(0, currentLikes - 1) }
+                }, undefined, pat, base);
+            }
+            res.json({ success: true });
+        });
+    }
+    catch (error) {
+        console.error('Error updating post like:', error);
+        res.status(500).json({ message: 'Failed to update like' });
+    }
+});
+// POST /api/feed/posts/:postId/comments - Add comment to post
+app.post('/api/feed/posts/:postId/comments', verifyIdToken, async (req, res) => {
+    try {
+        const uid = req.user?.uid;
+        const { postId } = req.params;
+        const { content } = req.body || {};
+        if (!content || !content.trim()) {
+            return res.status(400).json({ message: 'content is required' });
+        }
+        // Sanitize content
+        const sanitizedContent = content.trim().substring(0, 1000);
+        await withSecrets(async (pat, base) => {
+            // Get user info
+            const user = await airtableRequest('get', `/Users`, undefined, {
+                filterByFormula: `{Firebase UID} = '${uid}'`,
+                maxRecords: 1,
+            }, pat, base);
+            if (!user.records.length) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            const userRecord = user.records[0].fields;
+            // Create comment
+            const commentData = {
+                fields: {
+                    'Post ID': postId,
+                    'Author ID': uid,
+                    'Author Name': userRecord['Name'] || 'Unknown User',
+                    'Content': sanitizedContent,
+                    'Created At': new Date().toISOString(),
+                }
+            };
+            const newComment = await airtableRequest('post', `/TutoComments`, commentData, undefined, pat, base);
+            // Increment comment count
+            const post = await airtableRequest('get', `/TutoPosts/${postId}`, undefined, undefined, pat, base);
+            const currentComments = post.fields['Comments Count'] || 0;
+            await airtableRequest('patch', `/TutoPosts/${postId}`, {
+                fields: { 'Comments Count': currentComments + 1 }
+            }, undefined, pat, base);
+            res.json(newComment);
+        });
+    }
+    catch (error) {
+        console.error('Error creating comment:', error);
+        res.status(500).json({ message: 'Failed to create comment' });
+    }
+});
+// GET /api/feed/posts/:postId/comments - Get comments for a post
+app.get('/api/feed/posts/:postId/comments', verifyIdToken, async (req, res) => {
+    try {
+        const { postId } = req.params;
+        const { page = 1, limit = 50 } = req.query;
+        const offset = (Number(page) - 1) * Number(limit);
+        await withSecrets(async (pat, base) => {
+            const comments = await airtableRequest('get', `/TutoComments`, undefined, {
+                filterByFormula: `{Post ID} = '${postId}'`,
+                maxRecords: Number(limit),
+                offset: offset.toString(),
+                sort: JSON.stringify([{ field: 'Created At', direction: 'desc' }]),
+            }, pat, base);
+            res.json(comments);
+        });
+    }
+    catch (error) {
+        console.error('Error fetching comments:', error);
+        res.status(500).json({ message: 'Failed to fetch comments' });
+    }
+});
+// POST /api/feed/posts/:postId/report - Report a post
+app.post('/api/feed/posts/:postId/report', verifyIdToken, async (req, res) => {
+    try {
+        const uid = req.user?.uid;
+        const { postId } = req.params;
+        const { reason, details } = req.body || {};
+        if (!reason) {
+            return res.status(400).json({ message: 'reason is required' });
+        }
+        await withSecrets(async (pat, base) => {
+            const reportData = {
+                fields: {
+                    'Post ID': postId,
+                    'Reporter ID': uid,
+                    'Reason': reason,
+                    'Details': details || '',
+                    'Created At': new Date().toISOString(),
+                    'Status': 'pending',
+                }
+            };
+            await airtableRequest('post', `/TutoReports`, reportData, undefined, pat, base);
+            res.json({ success: true, message: 'Report submitted successfully' });
+        });
+    }
+    catch (error) {
+        console.error('Error creating report:', error);
+        res.status(500).json({ message: 'Failed to submit report' });
     }
 });

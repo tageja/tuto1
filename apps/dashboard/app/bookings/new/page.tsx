@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Card from '../../../components/ui/Card';
+import { Card } from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import Field from '../../../components/ui/Field';
 
@@ -254,6 +254,14 @@ export default function NewBookingPage() {
     </main>
   );
 }
+
+
+
+
+
+
+
+
 
 
 

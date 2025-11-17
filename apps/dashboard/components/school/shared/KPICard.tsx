@@ -47,3 +47,12 @@ export function KPICard({ icon: Icon, title, value, trend, color = 'blue' }: KPI
 
 
 
+
+
+
+
+
+
+
+
+

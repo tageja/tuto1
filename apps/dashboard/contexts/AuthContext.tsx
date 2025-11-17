@@ -2,7 +2,7 @@
  * Authentication Context for Tuto Dashboard
  * 
  * Provides authentication state and methods throughout the app.
- * Uses Firebase Auth for user authentication.
+ * Uses Supabase Auth for user authentication.
  * 
  * @example
  * ```tsx
@@ -13,25 +13,15 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import {
-  User as FirebaseUser,
-  signInWithEmailAndPassword,
-  signOut as firebaseSignOut,
-  onAuthStateChanged,
-  createUserWithEmailAndPassword,
-  sendPasswordResetEmail,
-  GoogleAuthProvider,
-  signInWithPopup,
-} from 'firebase/auth';
-import { getFirebaseAuth } from '../lib/firebase/config';
+import { User as SupabaseUser } from '@supabase/supabase-js';
+import { supabase, signInWithEmail, signInWithGoogle as supabaseSignInWithGoogle, signOut as supabaseSignOut, signUpWithEmail } from '../lib/supabase';
 import { useRouter } from 'next/navigation';
-import { Backend } from '../lib/api/backend';
 import { User, UserRole } from '../lib/types';
 
 interface AuthContextType {
   // State
   user: User | null;
-  firebaseUser: FirebaseUser | null;
+  supabaseUser: SupabaseUser | null;
   loading: boolean;
   error: string | null;
   
@@ -51,41 +41,66 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
  */
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
-  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
+  const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * Fetch user profile from backend
+   * Fetch user profile from Supabase database
    */
-  const fetchUserProfile = useCallback(async (firebaseUser: FirebaseUser) => {
+  const fetchUserProfile = useCallback(async (supabaseUser: SupabaseUser) => {
     try {
-      const response = await Backend.getUserByUid(firebaseUser.uid);
+      console.log('📥 Fetching user profile from Supabase for:', supabaseUser.email);
       
-      if (response.ok && response.user) {
-        const userData = response.user;
+      const { data: profile, error: profileError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('auth_user_id', supabaseUser.id)
+        .single();
+      
+      if (profileError || !profile) {
+        // User profile doesn't exist, create it
+        console.log('Creating new user profile in database...');
+        
+        const { data: newProfile, error: createError } = await supabase
+          .from('users')
+          .insert({
+            auth_user_id: supabaseUser.id,
+            email: supabaseUser.email!,
+            name: supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0] || '',
+            role: 'parent',
+          })
+          .select()
+          .single();
+        
+        if (createError) {
+          console.error('Failed to create profile:', createError);
+        } else {
+          console.log('✅ Created new profile');
+        }
+        
         setUser({
-          id: userData.id,
-          firebaseUid: firebaseUser.uid,
-          email: firebaseUser.email || userData.fields?.Email || '',
-          name: userData.fields?.Name || firebaseUser.displayName || '',
-          role: userData.fields?.role || 'parent',
-          avatar: userData.fields?.Avatar || firebaseUser.photoURL || undefined,
-          schoolIds: userData.fields?.['School IDs'] || [],
-          createdAt: userData.createdTime || new Date().toISOString(),
+          id: newProfile?.id || supabaseUser.id,
+          firebaseUid: supabaseUser.id, // Keep for compatibility
+          email: supabaseUser.email || '',
+          name: newProfile?.name || supabaseUser.email?.split('@')[0] || '',
+          role: newProfile?.role || 'parent',
+          avatar: supabaseUser.user_metadata?.avatar_url || undefined,
+          schoolIds: [],
+          createdAt: newProfile?.created_at || new Date().toISOString(),
         });
       } else {
-        // User doesn't exist in Airtable, create default user object
+        // Profile exists
         setUser({
-          id: '',
-          firebaseUid: firebaseUser.uid,
-          email: firebaseUser.email || '',
-          name: firebaseUser.displayName || '',
-          role: 'parent',
-          avatar: firebaseUser.photoURL || undefined,
-          schoolIds: [],
-          createdAt: new Date().toISOString(),
+          id: profile.id,
+          firebaseUid: supabaseUser.id, // Keep for compatibility
+          email: profile.email,
+          name: profile.name || supabaseUser.email?.split('@')[0] || '',
+          role: profile.role || 'parent',
+          avatar: profile.avatar || supabaseUser.user_metadata?.avatar_url || undefined,
+          schoolIds: [], // Will be populated from school_teachers or school_students
+          createdAt: profile.created_at,
         });
       }
     } catch (err) {
@@ -98,14 +113,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * Listen to authentication state changes
    */
   useEffect(() => {
-    const auth = getFirebaseAuth();
-    
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSupabaseUser(session?.user ?? null);
+      if (session?.user) {
+        fetchUserProfile(session.user);
+      }
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setLoading(true);
-      setFirebaseUser(firebaseUser);
+      setSupabaseUser(session?.user ?? null);
       
-      if (firebaseUser) {
-        await fetchUserProfile(firebaseUser);
+      if (session?.user) {
+        await fetchUserProfile(session.user);
       } else {
         setUser(null);
       }
@@ -113,7 +138,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [fetchUserProfile]);
 
   /**
@@ -124,31 +151,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(null);
       setLoading(true);
       
-      const auth = getFirebaseAuth();
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      await fetchUserProfile(userCredential.user);
+      console.log('🔐 Signing in with Supabase...');
+      const { user, session } = await signInWithEmail(email, password);
+      
+      if (!user) {
+        throw new Error('No user returned from sign in');
+      }
+      
+      await fetchUserProfile(user);
       router.push('/home');
       console.log('✅ Sign in successful');
     } catch (err: any) {
       console.error('❌ Sign in failed:', err);
       
-      // Handle specific Firebase auth errors
+      // Handle specific Supabase auth errors
       let errorMessage = 'Failed to sign in';
-      const code = err?.code || '';
-      if (code === 'auth/user-not-found') {
-        errorMessage = 'No account found with this email';
-      } else if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+      const message = err?.message || '';
+      
+      if (message.includes('Invalid login credentials')) {
         errorMessage = 'Incorrect email or password';
-      } else if (code === 'auth/invalid-email') {
+      } else if (message.includes('Email not confirmed')) {
+        errorMessage = 'Please confirm your email before signing in';
+      } else if (message.includes('User not found')) {
+        errorMessage = 'No account found with this email';
+      } else if (message.includes('invalid email')) {
         errorMessage = 'Invalid email address';
-      } else if (code === 'auth/too-many-requests') {
-        errorMessage = 'Too many failed attempts. Please try again later';
-      } else if (code === 'auth/network-request-failed') {
-        errorMessage = 'Network error. Check your connection';
-      } else if (code === 'auth/operation-not-allowed') {
-        errorMessage = 'Email/Password sign-in is disabled in Firebase Auth settings';
-      } else if (code) {
-        errorMessage = `Sign-in error: ${code}`;
+      } else if (message) {
+        errorMessage = `Authentication error: ${message}`;
       }
       
       setError(errorMessage);
@@ -166,13 +195,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(null);
       setLoading(true);
       
-      const auth = getFirebaseAuth();
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      console.log('🔐 Creating account with Supabase...');
+      const { user, session } = await signUpWithEmail(email, password, {
+        full_name: name,
+        role: role,
+      });
       
-      // Create user in backend (Airtable)
-      await Backend.upsertUserRole(userCredential.user.uid, role);
+      if (!user) {
+        throw new Error('No user returned from sign up');
+      }
       
-      await fetchUserProfile(userCredential.user);
+      // Create user profile in database
+      const { data: profile, error: profileError } = await supabase
+        .from('users')
+        .insert({
+          auth_user_id: user.id,
+          email: email,
+          name: name,
+          role: role,
+        })
+        .select()
+        .single();
+      
+      if (profileError) {
+        console.warn('Profile creation warning:', profileError.message);
+      }
+      
+      await fetchUserProfile(user);
       router.push('/home');
       
       console.log('✅ Sign up successful');
@@ -180,11 +229,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('❌ Sign up failed:', err);
       
       let errorMessage = 'Failed to create account';
-      if (err.code === 'auth/email-already-in-use') {
+      const message = err?.message || '';
+      
+      if (message.includes('already registered') || message.includes('already exists')) {
         errorMessage = 'An account with this email already exists';
-      } else if (err.code === 'auth/weak-password') {
+      } else if (message.includes('weak password') || message.includes('at least 6 characters')) {
         errorMessage = 'Password is too weak. Please use at least 6 characters';
-      } else if (err.code === 'auth/invalid-email') {
+      } else if (message.includes('invalid email')) {
         errorMessage = 'Invalid email address';
       }
       
@@ -201,10 +252,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     try {
       setError(null);
-      const auth = getFirebaseAuth();
-      await firebaseSignOut(auth);
+      console.log('👋 Signing out from Supabase...');
+      await supabaseSignOut();
       setUser(null);
-      setFirebaseUser(null);
+      setSupabaseUser(null);
       console.log('✅ Sign out successful');
     } catch (err) {
       console.error('❌ Sign out failed:', err);
@@ -219,16 +270,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const resetPassword = async (email: string) => {
     try {
       setError(null);
-      const auth = getFirebaseAuth();
-      await sendPasswordResetEmail(auth, email);
+      console.log('📧 Sending password reset email via Supabase...');
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+      
+      if (error) throw error;
+      
       console.log('✅ Password reset email sent');
     } catch (err: any) {
       console.error('❌ Password reset failed:', err);
       
       let errorMessage = 'Failed to send password reset email';
-      if (err.code === 'auth/user-not-found') {
+      const message = err?.message || '';
+      
+      if (message.includes('User not found')) {
         errorMessage = 'No account found with this email';
-      } else if (err.code === 'auth/invalid-email') {
+      } else if (message.includes('invalid email')) {
         errorMessage = 'Invalid email address';
       }
       
@@ -245,23 +304,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   /**
-   * Google Sign-In (Popup)
+   * Google Sign-In (OAuth)
    */
   const signInWithGoogle = async () => {
     try {
       setError(null);
       setLoading(true);
-      const auth = getFirebaseAuth();
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      await fetchUserProfile(result.user);
-      router.push('/home');
+      console.log('🔐 Signing in with Google via Supabase...');
+      
+      const { data, error } = await supabaseSignInWithGoogle();
+      
+      if (error) throw error;
+      
+      // Supabase will handle the redirect and callback
+      // User will be signed in when they return
+      console.log('✅ Google sign-in initiated');
     } catch (err: any) {
       let msg = 'Google sign-in failed';
-      const code = err?.code || '';
-      if (code === 'auth/popup-closed-by-user') msg = 'Sign-in cancelled';
-      else if (code === 'auth/popup-blocked') msg = 'Popup blocked by browser';
-      else if (code) msg = `${msg}: ${code}`;
+      const message = err?.message || '';
+      
+      if (message.includes('popup') || message.includes('cancelled')) {
+        msg = 'Sign-in cancelled';
+      } else if (message) {
+        msg = `${msg}: ${message}`;
+      }
+      
       setError(msg);
       throw err;
     } finally {
@@ -271,7 +338,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const value: AuthContextType = {
     user,
-    firebaseUser,
+    supabaseUser,
     loading,
     error,
     signIn,

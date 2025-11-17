@@ -3,14 +3,24 @@ import { z } from 'zod'
 import { ReviewSchema, CreateReviewSchema, UpdateReviewSchema } from '@tuto/schemas'
 
 // Mock data for now - will be replaced with Airtable integration
-const mockReviews = [
+const mockReviews: Array<{
+  id: string;
+  teacherId: string;
+  studentId: string;
+  rating: number;
+  comment: string;
+  status: 'pending' | 'approved' | 'hidden';
+  schoolId: string;
+  createdAt: string;
+  updatedAt: string;
+}> = [
   {
     id: '1',
     teacherId: '1',
     studentId: '1',
     rating: 5,
     comment: 'Great teacher!',
-    status: 'pending' as const,
+    status: 'pending',
     schoolId: 'school1',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -29,10 +39,11 @@ export const getReviews = onRequest({
     const { schoolId, status } = req.query
     
     if (!schoolId) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'School ID is required'
       })
+      return
     }
 
     let reviews = mockReviews.filter(r => r.schoolId === schoolId)
@@ -73,10 +84,11 @@ export const updateReviewStatus = onRequest({
     
     const reviewIndex = mockReviews.findIndex(r => r.id === id)
     if (reviewIndex === -1) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: 'Review not found'
       })
+      return
     }
 
     const updatedReview = {
@@ -95,11 +107,12 @@ export const updateReviewStatus = onRequest({
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Validation error',
         errors: error.errors
       })
+      return
     }
     
     res.status(500).json({

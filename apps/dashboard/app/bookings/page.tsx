@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Card from '../../components/ui/Card';
+import { Card } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import LoadingState from '../../components/shared/LoadingState';
 import EmptyState from '../../components/shared/EmptyState';
@@ -227,6 +227,14 @@ export default function BookingsPage() {
     </main>
   );
 }
+
+
+
+
+
+
+
+
 
 
 

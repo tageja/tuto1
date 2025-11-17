@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Card from '../../../components/ui/Card';
+import { Card } from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import Field from '../../../components/ui/Field';
 import DataTable from '../../../components/shared/DataTable';
@@ -310,6 +310,14 @@ export default function SchoolStudentsPage() {
     </main>
   );
 }
+
+
+
+
+
+
+
+
 
 
 

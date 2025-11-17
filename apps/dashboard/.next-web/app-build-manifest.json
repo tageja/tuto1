@@ -36,10 +36,35 @@
       "static/chunks/main-app.js",
       "static/chunks/app/api/posts/route.js"
     ],
+    "/school/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/layout.js"
+    ],
+    "/school/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/page.js"
+    ],
     "/api/bookings/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/api/bookings/route.js"
+    ],
+    "/api/school/user-schools/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/school/user-schools/route.js"
+    ],
+    "/school/parent/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/parent/layout.js"
+    ],
+    "/school/parent/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/school/parent/page.js"
     ]
   }
 }

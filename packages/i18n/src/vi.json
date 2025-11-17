@@ -18,6 +18,222 @@
     "perHour": "/ giờ",
     "viewAll": "Xem tất cả"
   },
+  "dashboard": "Bảng Điều Khiển",
+  "teachers": "Giáo Viên",
+  "classes": "Lớp Học",
+  "students": "Học Sinh",
+  "announcements": "Thông Báo",
+  "messages": "Tin Nhắn",
+  "attendance": "Điểm Danh",
+  "homework": "Bài Tập",
+  "progressReports": "Báo Cáo Tiến Độ",
+  "events": "Sự Kiện",
+  "photoAlbums": "Album Ảnh",
+  "healthRecords": "Hồ Sơ Sức Khỏe",
+  "medicine": "Thuốc",
+  "extracurricular": "Ngoại Khóa",
+  "payments": "Thanh Toán",
+  "settings": "Cài Đặt",
+  "dailyActivities": "Hoạt Động Hằng Ngày",
+  "totalStudents": "Tổng Số Học Sinh",
+  "activeTeachers": "Giáo Viên Hoạt Động",
+  "attendanceRate": "Tỷ Lệ Điểm Danh",
+  "upcomingEvents": "Sự Kiện Sắp Tới",
+  "feeCollection": "Thu Phí",
+  "averageRating": "Đánh Giá Trung Bình",
+  "recentAnnouncements": "Thông Báo Gần Đây",
+  "noAnnouncementsYet": "Chưa có thông báo",
+  "unreadMessages": "Tin Nhắn Chưa Đọc",
+  "noUnreadMessages": "Không có tin nhắn chưa đọc",
+  "upcomingHomework": "Bài Tập Sắp Tới",
+  "noUpcomingHomework": "Không có bài tập sắp tới",
+  "aiInsights": "Phân Tích AI",
+  "attendancePrediction": "Dự Đoán Điểm Danh",
+  "dashboard": {
+    "activities": {
+      "title": "Hoạt Động Hằng Ngày",
+      "subtitle": "Theo dõi hoạt động hằng ngày, bữa ăn và tiến trình học tập",
+      "loading": "Đang tải hoạt động...",
+      "filters": {
+        "date": "Ngày",
+        "class": "Lớp",
+        "type": "Loại",
+        "status": "Trạng Thái",
+        "search": "Tìm Kiếm",
+        "searchPlaceholder": "Tìm kiếm hoạt động...",
+        "clear": "Xóa Bộ Lọc"
+      },
+      "kpis": {
+        "total": "Tổng Hoạt Động",
+        "completed": "Hoàn Thành",
+        "inProgress": "Đang Thực Hiện",
+        "pending": "Chờ Xử Lý",
+        "lastUpdated": "Cập nhật lần cuối",
+        "justNow": "Vừa xong",
+        "minAgo": " phút trước",
+        "hourAgo": " giờ trước"
+      },
+      "add": {
+        "title": "Thêm Hoạt Động",
+        "editTitle": "Sửa Hoạt Động",
+        "date": "Ngày",
+        "time": "Giờ",
+        "class": "Lớp",
+        "grade": "Khối",
+        "type": "Loại",
+        "status": "Trạng Thái",
+        "description": "Mô Tả",
+        "menuDetails": "Chi Tiết Thực Đơn",
+        "outdoorDetail": "Chi Tiết Hoạt Động Ngoài Trời",
+        "save": "Lưu",
+        "cancel": "Hủy",
+        "create": "Tạo Hoạt Động",
+        "update": "Cập Nhật Hoạt Động",
+        "saving": "Đang lưu...",
+        "selectClass": "Chọn lớp",
+        "selectTeacher": "Chọn giáo viên (tùy chọn)",
+        "titlePlaceholder": "VD: Giờ Sinh Hoạt Buổi Sáng",
+        "descriptionPlaceholder": "Chi tiết hoạt động...",
+        "menuPlaceholder": "Thực đơn hôm nay?",
+        "outdoorPlaceholder": "Chi tiết hoạt động ngoài trời..."
+      },
+      "modal": {
+        "addTitle": "Thêm Hoạt Động",
+        "editTitle": "Sửa Hoạt Động",
+        "date": "Ngày",
+        "time": "Giờ",
+        "class": "Lớp",
+        "teacher": "Giáo Viên",
+        "grade": "Khối",
+        "title": "Tiêu Đề",
+        "type": "Loại",
+        "status": "Trạng Thái",
+        "description": "Mô Tả",
+        "menuDetails": "Chi Tiết Thực Đơn",
+        "outdoorDetail": "Chi Tiết Hoạt Động Ngoài Trời",
+        "save": "Lưu",
+        "cancel": "Hủy",
+        "create": "Tạo Hoạt Động",
+        "update": "Cập Nhật",
+        "saving": "Đang lưu...",
+        "selectClass": "Chọn lớp",
+        "selectTeacher": "Chọn giáo viên (tùy chọn)",
+        "titlePlaceholder": "VD: Giờ Sinh Hoạt Buổi Sáng",
+        "descriptionPlaceholder": "Chi tiết hoạt động...",
+        "menuPlaceholder": "Thực đơn hôm nay?",
+        "outdoorPlaceholder": "Chi tiết hoạt động ngoài trời..."
+      },
+      "drawer": {
+        "title": "Chi Tiết Hoạt Động",
+        "details": "Chi Tiết",
+        "edit": "Sửa",
+        "delete": "Xóa",
+        "close": "Đóng",
+        "date": "Ngày",
+        "time": "Giờ",
+        "class": "Lớp",
+        "teacher": "Giáo Viên",
+        "type": "Loại",
+        "menuDetails": "Chi Tiết Thực Đơn",
+        "outdoorDetail": "Chi Tiết Hoạt Động Ngoài Trời",
+        "attachments": "Tệp Đính Kèm",
+        "noAttachments": "Không có tệp đính kèm"
+      },
+      "toast": {
+        "created": "Đã tạo hoạt động thành công",
+        "updated": "Đã cập nhật hoạt động thành công",
+        "deleted": "Đã xóa hoạt động thành công",
+        "statusUpdated": "Đã cập nhật trạng thái thành công",
+        "bulkCreated": "Đã tạo nhiều hoạt động thành công",
+        "suggestSubmitted": "Đã gửi đề xuất thành công! Cảm ơn bạn.",
+        "error": "Đã xảy ra lỗi"
+      },
+      "empty": {
+        "noActivities": "Không có hoạt động được lên lịch",
+        "tryDifferentFilters": "Thử chọn ngày khác hoặc điều chỉnh bộ lọc"
+      },
+      "status": {
+        "label": "Trạng Thái",
+        "pending": "Chờ Xử Lý",
+        "inprogress": "Đang Thực Hiện",
+        "completed": "Hoàn Thành"
+      },
+      "type": {
+        "meal": "Bữa Ăn",
+        "learning": "Học Tập",
+        "play": "Vui Chơi",
+        "rest": "Nghỉ Ngơi"
+      },
+      "timeline": {
+        "class": "Lớp",
+        "teacher": "Giáo Viên",
+        "todaysTimeline": "Lịch Trình Hôm Nay"
+      },
+      "actions": {
+        "edit": "Sửa",
+        "duplicate": "Nhân Bản",
+        "delete": "Xóa",
+        "changeStatus": "Nhấp để thay đổi trạng thái"
+      },
+      "confirmDelete": "Bạn có chắc chắn muốn xóa hoạt động này?",
+      "buttons": {
+        "addActivity": "Thêm Hoạt Động",
+        "addDayActivities": "Thêm Lịch Ngày",
+        "addWeekActivities": "Thêm Lịch Tuần",
+        "suggestActivity": "Đề Xuất Hoạt Động"
+      },
+      "suggest": {
+        "title": "Đề Xuất Hoạt Động",
+        "description": "Chia sẻ ý tưởng của bạn",
+        "placeholder": "Mô tả hoạt động bạn muốn đề xuất...",
+        "submit": "Gửi Đề Xuất",
+        "success": "Đã gửi đề xuất thành công",
+        "thankYou": "Cảm ơn bạn đã đề xuất!",
+        "attachments": "Tệp Đính Kèm"
+      },
+      "dayModal": {
+        "title": "Thêm Lịch Hoạt Động Ngày",
+        "date": "Ngày",
+        "class": "Lớp",
+        "addRow": "Thêm Dòng",
+        "removeRow": "Xóa",
+        "duplicateRow": "Nhân Bản",
+        "save": "Tạo Hoạt Động",
+        "time": "Giờ",
+        "activityTitle": "Tiêu Đề",
+        "type": "Loại",
+        "status": "Trạng Thái",
+        "teacher": "Giáo Viên"
+      },
+      "weekModal": {
+        "title": "Thêm Lịch Tuần",
+        "weekStart": "Tuần Bắt Đầu (Thứ Hai)",
+        "class": "Lớp",
+        "addSlot": "Thêm Khung Giờ",
+        "save": "Tạo Lịch Tuần",
+        "monday": "Thứ Hai",
+        "tuesday": "Thứ Ba",
+        "wednesday": "Thứ Tư",
+        "thursday": "Thứ Năm",
+        "friday": "Thứ Sáu",
+        "saturday": "Thứ Bảy",
+        "sunday": "Chủ Nhật",
+        "time": "Giờ"
+      },
+      "validations": {
+        "required": "Trường này là bắt buộc",
+        "timeRequired": "Giờ là bắt buộc",
+        "titleRequired": "Tiêu đề là bắt buộc",
+        "classRequired": "Vui lòng chọn lớp",
+        "invalidTime": "Định dạng giờ không hợp lệ"
+      },
+      "error": {
+        "loadError": "Lỗi Tải Hoạt Động",
+        "fetchClasses": "Không thể tải danh sách lớp",
+        "fetchActivities": "Không thể tải hoạt động"
+      }
+    }
+  },
   "web": {
     "about": {"title": "Về Tuto", "lead": "Nền tảng kết nối giáo viên, phụ huynh và học sinh để học tập hiệu quả.\n"},
     "trustSafety": {"title": "Tin cậy & An toàn", "lead": "Quy trình xác minh, tiêu chuẩn cộng đồng và bảo vệ dữ liệu."},
@@ -72,6 +288,248 @@
     "legalPrivacy": {"title": "Bảo mật", "lead": "Chính sách quyền riêng tư."},
     "legalCookies": {"title": "Cookies", "lead": "Chính sách cookie."},
     "sitemap": {"title": "Sơ đồ trang", "lead": "Tổng quan liên kết website."}
+  },
+  "dashboard": {
+    "teachers": {
+      "title": "Giáo Viên",
+      "addTeacher": "Thêm Giáo Viên",
+      "quickAdd": "Thêm Nhanh",
+      "viewProfile": "Xem Hồ Sơ",
+      "editTeacher": "Sửa Giáo Viên",
+      "searchPlaceholder": "Tìm kiếm giáo viên theo tên...",
+      "noTeachersFound": "Không tìm thấy giáo viên",
+      "loadingTeachers": "Đang tải danh sách giáo viên...",
+      "errorLoadingTeachers": "Không thể tải danh sách giáo viên. Vui lòng thử lại.",
+      "filters": {
+        "status": "Trạng Thái",
+        "subject": "Môn Học",
+        "all": "Tất Cả",
+        "clear": "Xóa Bộ Lọc"
+      },
+      "kpis": {
+        "total": "Tổng Số Giáo Viên",
+        "active": "Đang Hoạt Động",
+        "onLeave": "Nghỉ Phép",
+        "avgRating": "Đánh Giá Trung Bình",
+        "inactive": "Ngừng Hoạt Động"
+      },
+      "list": {
+        "name": "Tên",
+        "subjects": "Môn Học",
+        "status": "Trạng Thái",
+        "classes": "Lớp",
+        "rating": "Đánh Giá",
+        "experience": "Kinh Nghiệm",
+        "actions": "Hành Động",
+        "classesTaught": "lớp đang dạy",
+        "years": "năm"
+      },
+      "profile": {
+        "tabs": {
+          "overview": "Tổng Quan",
+          "classes": "Lớp Học",
+          "attendance": "Điểm Danh",
+          "feedback": "Phản Hồi",
+          "profileInfo": "Thông Tin"
+        },
+        "tenure": "Thâm Niên",
+        "workload": "Khối Lượng Công Việc",
+        "absences": "Vắng Mặt (30 ngày)",
+        "hours": "giờ/tuần",
+        "contact": "Thông Tin Liên Hệ",
+        "bio": "Tiểu Sử",
+        "education": "Học Vấn",
+        "qualifications": "Chứng Chỉ",
+        "dateJoined": "Ngày Tham Gia",
+        "position": "Vị Trí",
+        "noClasses": "Chưa được phân công lớp",
+        "noAttendance": "Chưa có dữ liệu điểm danh",
+        "noFeedback": "Chưa có phản hồi",
+        "attendanceRate": "Tỷ Lệ Có Mặt",
+        "present": "Có Mặt",
+        "absent": "Vắng",
+        "late": "Trễ",
+        "avgFeedbackRating": "Đánh Giá Trung Bình"
+      },
+      "form": {
+        "teacherName": "Tên Giáo Viên",
+        "teacherNameRequired": "Tên giáo viên là bắt buộc",
+        "email": "Email",
+        "emailInvalid": "Địa chỉ email không hợp lệ",
+        "phone": "Số Điện Thoại",
+        "subjects": "Môn Giảng Dạy",
+        "subjectsRequired": "Ít nhất một môn học là bắt buộc",
+        "status": "Trạng Thái",
+        "dateJoined": "Ngày Tham Gia",
+        "hireDate": "Ngày Tuyển Dụng",
+        "nationality": "Quốc Tịch",
+        "qualification": "Trình Độ",
+        "education": "Bằng Cấp",
+        "experienceYears": "Số Năm Kinh Nghiệm",
+        "hobbies": "Sở Thích",
+        "assignedClasses": "Lớp Phân Công",
+        "position": "Chức Vụ",
+        "bio": "Giới Thiệu",
+        "gradeLevels": "Khối Lớp",
+        "photoUpload": "Tải Ảnh Lên",
+        "createSuccess": "Thêm giáo viên thành công",
+        "updateSuccess": "Cập nhật giáo viên thành công",
+        "createError": "Không thể thêm giáo viên",
+        "updateError": "Không thể cập nhật giáo viên",
+        "cancel": "Hủy",
+        "create": "Tạo Giáo Viên",
+        "update": "Cập Nhật",
+        "save": "Lưu Thay Đổi"
+      },
+      "status": {
+        "active": "Đang Hoạt Động",
+        "onLeave": "Nghỉ Phép",
+        "inactive": "Ngừng Hoạt Động"
+      },
+      "empty": {
+        "title": "Chưa Có Giáo Viên",
+        "description": "Bắt đầu bằng cách thêm giáo viên đầu tiên vào hệ thống.",
+        "action": "Thêm Giáo Viên Đầu Tiên"
+      },
+      "error": {
+        "title": "Lỗi Tải Danh Sách",
+        "description": "Không thể tải danh sách giáo viên. Vui lòng thử lại.",
+        "retry": "Thử Lại"
+      },
+      "attendance": {
+        "last30Days": "30 Ngày Gần Đây",
+        "last90Days": "90 Ngày Gần Đây",
+        "presentDays": "Ngày Có Mặt",
+        "absentDays": "Ngày Vắng",
+        "leaveDays": "Ngày Nghỉ Phép",
+        "lateDays": "Ngày Đến Trễ"
+      },
+      "feedback": {
+        "recentFeedback": "Phản Hồi Gần Đây",
+        "from": "từ",
+        "rating": "Đánh Giá",
+        "comment": "Nhận Xét",
+        "noComments": "Không có nhận xét"
+      },
+      "pagination": {
+        "page": "Trang",
+        "of": "của",
+        "showing": "Hiển thị",
+        "to": "đến",
+        "results": "kết quả",
+        "previous": "Trước",
+        "next": "Tiếp"
+      }
+    },
+    "activities": {
+      "title": "Hoạt Động Hàng Ngày",
+      "subtitle": "Theo dõi hoạt động hàng ngày, bữa ăn và tiến độ học tập",
+      "add": {
+        "title": "Thêm Hoạt Động",
+        "date": "Ngày",
+        "time": "Giờ",
+        "class": "Lớp",
+        "grade": "Khối",
+        "titleLabel": "Tiêu Đề",
+        "type": "Loại Hoạt Động",
+        "status": "Trạng Thái",
+        "description": "Mô Tả",
+        "teacher": "Giáo Viên",
+        "menuDetails": "Chi Tiết Thực Đơn",
+        "outdoorDetail": "Chi Tiết Hoạt Động Ngoài Trời",
+        "attachments": "Tệp Đính Kèm",
+        "save": "Lưu Hoạt Động",
+        "cancel": "Hủy",
+        "edit": "Sửa Hoạt Động",
+        "update": "Cập Nhật",
+        "create": "Tạo Hoạt Động",
+        "required": "Trường này là bắt buộc",
+        "menuDetailsRequired": "Chi tiết thực đơn bắt buộc cho hoạt động bữa ăn",
+        "saving": "Đang lưu...",
+        "uploading": "Đang tải lên...",
+        "selectClass": "Chọn Lớp",
+        "selectTeacher": "Chọn Giáo Viên (Tùy chọn)"
+      },
+      "filters": {
+        "date": "Ngày",
+        "class": "Lớp",
+        "type": "Loại Hoạt Động",
+        "status": "Trạng Thái",
+        "search": "Tìm kiếm hoạt động...",
+        "all": "Tất Cả",
+        "allClasses": "Tất Cả Lớp",
+        "allTypes": "Tất Cả Loại",
+        "allStatuses": "Tất Cả Trạng Thái",
+        "clear": "Xóa Bộ Lọc",
+        "noClasses": "Không có lớp nào"
+      },
+      "kpis": {
+        "total": "Tổng Hoạt Động",
+        "completed": "Hoàn Thành",
+        "inProgress": "Đang Thực Hiện",
+        "pending": "Chờ",
+        "lastUpdated": "Cập nhật lần cuối",
+        "justNow": "Vừa xong",
+        "minutesAgo": "phút trước",
+        "hoursAgo": "giờ trước"
+      },
+      "status": {
+        "label": "Trạng Thái",
+        "pending": "Chờ",
+        "inprogress": "Đang Thực Hiện",
+        "completed": "Hoàn Thành"
+      },
+      "type": {
+        "meal": "Bữa Ăn",
+        "learning": "Học Tập",
+        "play": "Vui Chơi",
+        "rest": "Nghỉ Ngơi"
+      },
+      "actions": {
+        "edit": "Sửa",
+        "duplicate": "Nhân Đôi",
+        "delete": "Xóa",
+        "changeStatus": "Thay Đổi Trạng Thái",
+        "viewDetails": "Xem Chi Tiết",
+        "suggest": "Đề Xuất Hoạt Động"
+      },
+      "suggest": {
+        "title": "Đề Xuất Hoạt Động",
+        "submit": "Gửi Đề Xuất"
+      },
+      "drawer": {
+        "details": "Chi Tiết Hoạt Động",
+        "edit": "Sửa",
+        "close": "Đóng",
+        "download": "Tải Xuống"
+      },
+      "confirmDelete": "Bạn có chắc chắn muốn xóa hoạt động này không?",
+      "loading": "Đang tải hoạt động...",
+      "download": "Tải Xuống",
+      "toast": {
+        "created": "Tạo hoạt động thành công",
+        "updated": "Cập nhật hoạt động thành công",
+        "deleted": "Xóa hoạt động thành công",
+        "error": "Đã xảy ra lỗi. Vui lòng thử lại.",
+        "statusUpdated": "Cập nhật trạng thái thành công",
+        "suggested": "Đề xuất hoạt động đã được gửi thành công"
+      },
+      "empty": {
+        "noActivities": "Không có hoạt động nào được lên lịch",
+        "tryDifferentFilters": "Hãy thử chọn ngày khác hoặc điều chỉnh bộ lọc của bạn"
+      },
+      "error": {
+        "generic": "Không thể tải hoạt động. Vui lòng thử lại.",
+        "loadError": "Lỗi tải hoạt động",
+        "retry": "Thử Lại"
+      },
+      "timeline": {
+        "todaysTimeline": "Lịch Trình Hôm Nay",
+        "noActivities": "Không có hoạt động được lên lịch",
+        "teacher": "Giáo Viên",
+        "class": "Lớp"
+      }
+    }
   }
 }
 

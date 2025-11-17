@@ -6,13 +6,44 @@ import { Card } from '../../../components/ui/Card';
 import { useSchool } from '../../../contexts/SchoolContext';
 import { useI18n } from '../../../contexts/I18nContext';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { EnrollmentTrendChart } from '../../../components/school/shared/EnrollmentTrendChart';
 import { AttendanceTrendChart } from '../../../components/school/shared/AttendanceTrendChart';
 
 export default function AdminDashboard() {
-  const { selectedSchool } = useSchool();
+  const { selectedSchool, schoolIdFromUrl, isLoading: schoolContextLoading, availableSchools } = useSchool();
   const { t, lang } = useI18n();
-  const schoolId = selectedSchool?.id || selectedSchool?.name || 'Sunrise International School';
+  const router = useRouter();
+  
+  // Redirect to URL-based route if we're on the old /school/admin route
+  useEffect(() => {
+    // Only redirect if we're on /school/admin (not /school/[schoolId]/admin)
+    if (typeof window !== 'undefined' && window.location.pathname === '/school/admin') {
+      // Wait a bit for school context to load, but don't wait forever
+      const timeout = setTimeout(() => {
+        const schoolToUse = selectedSchool || availableSchools[0];
+        if (schoolToUse) {
+          const schoolId = schoolToUse.id || schoolToUse.name;
+          router.replace(`/school/${encodeURIComponent(schoolId)}/admin`);
+        } else if (!schoolContextLoading && availableSchools.length > 0) {
+          // If context finished loading and we have schools, use the first one
+          const schoolId = availableSchools[0].id || availableSchools[0].name;
+          router.replace(`/school/${encodeURIComponent(schoolId)}/admin`);
+        }
+      }, schoolContextLoading ? 500 : 0);
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [schoolContextLoading, selectedSchool, availableSchools, router]);
+  
+  // Use URL-based schoolId if available, otherwise use selectedSchool
+  // This ensures we use the correct school ID from the URL
+  const schoolId = schoolIdFromUrl || selectedSchool?.id || selectedSchool?.name || availableSchools[0]?.id || availableSchools[0]?.name || 'Tuto Demo School';
+  
+  // Debug logging
+  if (process.env.NODE_ENV === 'development') {
+    console.log('📊 Dashboard - schoolId:', schoolId, 'selectedSchool:', selectedSchool?.name, 'schoolIdFromUrl:', schoolIdFromUrl);
+  }
   
   const [data, setData] = useState<any>({
     students: [],
@@ -29,22 +60,59 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     async function loadData() {
+      if (!schoolId) {
+        console.warn('⚠️ No schoolId available, skipping data load');
+        setData(prev => ({ ...prev, loading: false }));
+        return;
+      }
+
       try {
+        setData(prev => ({ ...prev, loading: true }));
+        
+        // Encode schoolId for URL
+        const encodedSchoolId = encodeURIComponent(schoolId);
+        
         const responses = await Promise.all([
-          fetch(`/api/school/data?table=students&schoolId=${schoolId}`),
-          fetch(`/api/school/data?table=teachers&schoolId=${schoolId}`),
-          fetch(`/api/school/data?table=attendance&schoolId=${schoolId}`),
-          fetch(`/api/school/data?table=events&schoolId=${schoolId}`),
-          fetch(`/api/school/data?table=payments&schoolId=${schoolId}`),
-          fetch(`/api/school/data?table=announcements&schoolId=${schoolId}`),
-          fetch(`/api/school/data?table=schoolDetails&schoolId=${schoolId}`),
-          fetch(`/api/school/data?table=unreadMessages&schoolId=${schoolId}&userId=demo-admin`),
-          fetch(`/api/school/data?table=upcomingHomework&schoolId=${schoolId}`),
+          fetch(`/api/school/data?table=students&schoolId=${encodedSchoolId}`),
+          fetch(`/api/school/data?table=teachers&schoolId=${encodedSchoolId}`),
+          fetch(`/api/school/data?table=attendance&schoolId=${encodedSchoolId}`),
+          fetch(`/api/school/data?table=events&schoolId=${encodedSchoolId}`),
+          fetch(`/api/school/data?table=payments&schoolId=${encodedSchoolId}`),
+          fetch(`/api/school/data?table=announcements&schoolId=${encodedSchoolId}`),
+          fetch(`/api/school/data?table=schoolDetails&schoolId=${encodedSchoolId}`),
+          fetch(`/api/school/data?table=unreadMessages&schoolId=${encodedSchoolId}&userId=demo-admin`),
+          fetch(`/api/school/data?table=upcomingHomework&schoolId=${encodedSchoolId}`),
         ]);
 
         const [students, teachers, attendance, events, payments, announcements, schoolDetails, unreadMessages, upcomingHomework] = await Promise.all(
-          responses.map(r => r.json().catch(() => ({ data: [] })))
+          responses.map(async (r) => {
+            if (!r.ok) {
+              console.error(`API error: ${r.status} ${r.statusText}`);
+              return { data: [] };
+            }
+            try {
+              return await r.json();
+            } catch (err) {
+              console.error('Error parsing response:', err);
+              return { data: [] };
+            }
+          })
         );
+
+        // Debug logging
+        if (process.env.NODE_ENV === 'development') {
+          console.log('📊 Dashboard data loaded for school:', schoolId, {
+            students: students.data?.length || 0,
+            teachers: teachers.data?.length || 0,
+            attendance: attendance.data?.length || 0,
+            events: events.data?.length || 0,
+            payments: payments.data?.length || 0,
+            announcements: announcements.data?.length || 0,
+            schoolDetails: schoolDetails.data ? 'Yes' : 'No',
+            unreadMessages: unreadMessages.data?.length || 0,
+            upcomingHomework: upcomingHomework.data?.length || 0,
+          });
+        }
 
         setData({
           students: students.data || [],
@@ -82,25 +150,61 @@ export default function AdminDashboard() {
     );
   }
 
+  // Calculate KPIs from data
+  // Handle both Supabase (flat) and Airtable (nested) structures
   const totalStudents = data.students.length;
-  const activeTeachers = data.teachers.filter((t: any) => t.Status === 'Active').length;
   
-  // Calculate average rating from teachers
-  const teacherRatings = data.teachers.filter((t: any) => t.Rating).map((t: any) => t.Rating);
+  // Count active teachers (handle both formats)
+  const activeTeachers = data.teachers.filter((t: any) => {
+    const status = t.Status || t.status || 'active';
+    return status && status.toLowerCase() === 'active';
+  }).length;
+  
+  // Calculate average rating from teachers (Rating not available in school_teachers table)
+  const teacherRatings = data.teachers
+    .filter((t: any) => {
+      const rating = t.Rating || t.rating;
+      return rating && typeof rating === 'number' && rating > 0;
+    })
+    .map((t: any) => t.Rating || t.rating);
+  
   const avgRating = teacherRatings.length > 0 
     ? (teacherRatings.reduce((sum: number, r: number) => sum + r, 0) / teacherRatings.length).toFixed(1)
-    : '4.8';
+    : 'N/A';
   
   // Filter attendance for TODAY only
   const today = new Date().toISOString().split('T')[0];
-  const todayAttendance = data.attendance.filter((a: any) => a.Date === today);
-  const presentToday = todayAttendance.filter((a: any) => a.Status === 'Present').length;
-  const attendanceRate = todayAttendance.length > 0 ? Math.round((presentToday / todayAttendance.length) * 100) : 0;
+  const todayAttendance = data.attendance.filter((a: any) => {
+    const date = a.Date || a.date;
+    return date && date.split('T')[0] === today;
+  });
   
-  const upcomingEvents = data.events.filter((e: any) => e.Status === 'Scheduled' || e.Status === 'In Progress').length;
-  const totalCollection = data.payments.reduce((sum: number, p: any) => sum + (p.Amount || 0), 0);
+  const presentToday = todayAttendance.filter((a: any) => {
+    const status = a.Status || a.status || 'Present';
+    return status && status.toLowerCase() === 'present';
+  }).length;
+  
+  const attendanceRate = todayAttendance.length > 0 
+    ? Math.round((presentToday / todayAttendance.length) * 100) 
+    : 0;
+  
+  // Count upcoming events (handle both formats)
+  const upcomingEvents = data.events.filter((e: any) => {
+    const status = e.Status || e.status || 'Scheduled';
+    return status && (status.toLowerCase() === 'scheduled' || status.toLowerCase() === 'in progress');
+  }).length;
+  
+  // Calculate total collection (handle both formats)
+  const totalCollection = data.payments.reduce((sum: number, p: any) => {
+    const amount = p.Amount || p.amount || 0;
+    return sum + (typeof amount === 'number' ? amount : parseFloat(amount) || 0);
+  }, 0);
 
-  const schoolName = data.schoolDetails?.['School Name'] || selectedSchool?.name || 'School Dashboard';
+  // Get school name (handle both formats)
+  const schoolName = data.schoolDetails?.['School Name'] || 
+                     data.schoolDetails?.name || 
+                     selectedSchool?.name || 
+                     'School Dashboard';
   
   // Format date based on selected language
   const locale = lang === 'vi' ? 'vi-VN' : 'en-US';
@@ -180,11 +284,11 @@ export default function AdminDashboard() {
               <div key={announcement.id} className="pb-4 border-b border-gray-100 last:border-0">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <h4 className="font-medium text-gray-900">{announcement['Announcement Title'] || 'Untitled'}</h4>
-                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">{announcement.Content || ''}</p>
+                    <h4 className="font-medium text-gray-900">{announcement['Announcement Title'] || announcement.title || 'Untitled'}</h4>
+                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">{announcement.Content || announcement.content || ''}</p>
                   </div>
                   <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full ml-2">
-                    {announcement.Priority || 'Normal'}
+                    {announcement.Priority || announcement.priority || 'Normal'}
                   </span>
                 </div>
               </div>
@@ -232,10 +336,10 @@ export default function AdminDashboard() {
             {data.upcomingHomework.slice(0, 3).map((hw: any) => (
               <div key={hw.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div>
-                  <p className="text-sm font-medium">{hw['Assignment Title'] || 'Assignment'}</p>
-                  <p className="text-xs text-gray-600">{hw['Class Name'] || 'Class'}</p>
+                  <p className="text-sm font-medium">{hw['Assignment Title'] || hw.title || 'Assignment'}</p>
+                  <p className="text-xs text-gray-600">{hw['Class Name'] || hw.class_id || 'Class'}</p>
                 </div>
-                <span className="text-xs text-gray-500">{hw['Due Date'] ? new Date(hw['Due Date']).toLocaleDateString('en', { month: 'short', day: 'numeric' }) : 'TBD'}</span>
+                <span className="text-xs text-gray-500">{(hw['Due Date'] || hw.due_date) ? new Date(hw['Due Date'] || hw.due_date).toLocaleDateString('en', { month: 'short', day: 'numeric' }) : 'TBD'}</span>
               </div>
             ))}
             {data.upcomingHomework.length === 0 && (

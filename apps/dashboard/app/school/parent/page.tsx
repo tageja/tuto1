@@ -9,16 +9,36 @@ export default async function ParentDashboard() {
   const schoolId = 'Sunrise International School';
   const parentEmail = 'parent@example.com'; // In real app, get from auth
   
-  const student = await getStudentByParentEmail(parentEmail, schoolId);
-  const studentName = student?.fields['Student Name'] || 'Student';
-  const className = student?.fields['Class Name'] || 'Grade 5A';
+  // Wrap all data fetching in try-catch to prevent crashes
+  let student, studentName, className;
+  let attendance = [];
+  let homework = [];
+  let progressReports = [];
+  let announcements = [];
 
-  const [attendance, homework, progressReports, announcements] = await Promise.all([
-    getAttendanceRecords(schoolId),
-    getHomeworkAssignments(studentName),
-    getProgressReports(studentName),
-    getAnnouncements(schoolId),
-  ]);
+  try {
+    student = await getStudentByParentEmail(parentEmail, schoolId);
+    studentName = student?.fields['Student Name'] || 'Student';
+    className = student?.fields['Class Name'] || 'Grade 5A';
+
+    // Fetch data with individual error handling to prevent one failure from breaking the page
+    const results = await Promise.allSettled([
+      getAttendanceRecords(schoolId),
+      studentName ? getHomeworkAssignments(studentName) : Promise.resolve([]),
+      studentName ? getProgressReports(studentName) : Promise.resolve([]),
+      getAnnouncements(schoolId),
+    ]);
+
+    attendance = results[0].status === 'fulfilled' ? results[0].value : [];
+    homework = results[1].status === 'fulfilled' ? results[1].value : [];
+    progressReports = results[2].status === 'fulfilled' ? results[2].value : [];
+    announcements = results[3].status === 'fulfilled' ? results[3].value : [];
+  } catch (error) {
+    console.error('Error loading parent dashboard data:', error);
+    // Use defaults to prevent page crash
+    studentName = 'Student';
+    className = 'Grade 5A';
+  }
 
   // Calculate stats
   const presentCount = attendance.filter(a => a.fields.Status === 'Present').length;
@@ -198,6 +218,14 @@ export default async function ParentDashboard() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
 
 
 

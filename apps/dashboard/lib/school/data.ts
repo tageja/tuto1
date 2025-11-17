@@ -144,14 +144,43 @@ export async function getMessages(userId: string, schoolId: string) {
 }
 
 export async function getHomeworkAssignments(studentId: string) {
+  // Return empty array immediately if no studentId to prevent unnecessary API calls
+  if (!studentId || studentId.trim() === '') {
+    return [];
+  }
+
   try {
-    const url = buildUrl('TutoHomeworkAssignments', `{Student Name}='${studentId}'`);
-    const response = await fetch(url, { headers, cache: 'no-store' });
-    if (!response.ok) throw new Error('Failed to fetch homework');
-    const data = await response.json();
-    return data.records || [];
-  } catch (error) {
-    console.error('Error fetching homework:', error);
+    // Create abort controller with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+    try {
+      const url = buildUrl('TutoHomeworkAssignments', `{Student Name}='${studentId}'`);
+      const response = await fetch(url, { 
+        headers, 
+        cache: 'no-store',
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        // Don't throw error, just return empty array silently
+        return [];
+      }
+      
+      const data = await response.json();
+      return data.records || [];
+    } catch (fetchError: any) {
+      clearTimeout(timeoutId);
+      // If aborted, return empty array silently
+      if (fetchError.name === 'AbortError') {
+        return [];
+      }
+      throw fetchError;
+    }
+  } catch (error: any) {
+    // Silently return empty array - don't log to prevent spam in console
     return [];
   }
 }

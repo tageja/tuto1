@@ -1,0 +1,121 @@
+{
+  "timestamp": "2025-11-07T10:30:00.000Z",
+  "baseId": "app34330Do0nm4qvM",
+  "totalTables": 5,
+  "tablesFound": 1,
+  "tablesMissing": 4,
+  "fieldsAudited": 16,
+  "fieldsMissing": 3,
+  "gaps": [
+    {
+      "table": "TutoSchoolTeachers",
+      "type": "missing_field",
+      "field": "Nationality",
+      "expected": {
+        "name": "Nationality",
+        "type": "singleLineText",
+        "required": false
+      },
+      "severity": "medium",
+      "canAutoFix": true
+    },
+    {
+      "table": "TutoSchoolTeachers",
+      "type": "missing_field",
+      "field": "Hobbies",
+      "expected": {
+        "name": "Hobbies",
+        "type": "multilineText",
+        "required": false
+      },
+      "severity": "medium",
+      "canAutoFix": true
+    },
+    {
+      "table": "TutoSchoolTeachers",
+      "type": "missing_field",
+      "field": "Rating",
+      "expected": {
+        "name": "Rating",
+        "type": "number",
+        "required": false
+      },
+      "severity": "medium",
+      "canAutoFix": true
+    },
+    {
+      "table": "TutoSchoolTeacherAttendance",
+      "type": "missing_table",
+      "severity": "critical",
+      "canAutoFix": true,
+      "expected": {
+        "name": "TutoSchoolTeacherAttendance",
+        "description": "Teacher attendance records",
+        "expectedFields": [
+          {"name": "Teacher Name", "type": "singleLineText"},
+          {"name": "School Name", "type": "singleLineText"},
+          {"name": "Date", "type": "date"},
+          {"name": "Status", "type": "singleSelect"},
+          {"name": "Notes", "type": "multilineText"}
+        ]
+      }
+    },
+    {
+      "table": "TutoSchoolFeedback",
+      "type": "missing_table",
+      "severity": "critical",
+      "canAutoFix": true,
+      "expected": {
+        "name": "TutoSchoolFeedback",
+        "description": "Parent/student feedback for teachers",
+        "expectedFields": [
+          {"name": "Teacher Name", "type": "singleLineText"},
+          {"name": "Parent Name", "type": "singleLineText"},
+          {"name": "Student Name", "type": "singleLineText"},
+          {"name": "Rating", "type": "number"},
+          {"name": "Comment", "type": "multilineText"},
+          {"name": "Created At", "type": "dateTime"}
+        ]
+      }
+    },
+    {
+      "table": "TutoSchoolTeachingHours",
+      "type": "missing_table",
+      "severity": "critical",
+      "canAutoFix": true,
+      "expected": {
+        "name": "TutoSchoolTeachingHours",
+        "description": "Weekly teaching hours tracking",
+        "expectedFields": [
+          {"name": "Teacher Name", "type": "singleLineText"},
+          {"name": "Week Of", "type": "date"},
+          {"name": "Total Hours", "type": "number"},
+          {"name": "School Name", "type": "singleLineText"}
+        ]
+      }
+    },
+    {
+      "table": "TutoSchoolParentRatings",
+      "type": "missing_table",
+      "severity": "critical",
+      "canAutoFix": true,
+      "expected": {
+        "name": "TutoSchoolParentRatings",
+        "description": "Aggregated parent ratings for teachers",
+        "expectedFields": [
+          {"name": "Teacher Name", "type": "singleLineText"},
+          {"name": "Avg Rating", "type": "number"},
+          {"name": "Total Ratings", "type": "number"},
+          {"name": "Last Updated", "type": "dateTime"}
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "critical": 4,
+    "high": 0,
+    "medium": 3,
+    "low": 0,
+    "autoFixable": 7
+  }
+}

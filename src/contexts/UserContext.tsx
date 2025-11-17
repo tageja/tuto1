@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Backend } from '../services/backend';
-import { getAuthSafe } from '../config/firebase';
+import { supabase, getCurrentUser } from '../config/supabase';
 
 type UserType = 'parent' | 'student' | 'teacher' | 'admin';
 
@@ -104,19 +103,42 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshProfile = async () => {
     try {
-      const uid = getAuthSafe().currentUser?.uid;
-      if (!uid) {
-        console.log('👤 UserProvider: No Firebase user; skipping server profile refresh');
+      const user = await getCurrentUser();
+      if (!user) {
+        console.log('👤 UserProvider: No Supabase user; skipping profile refresh');
         return;
       }
+      
       setLoading(true);
-      const res = await Backend.getUserByUid(uid);
-      if (res?.ok && res.user) {
-        const role = (res.user.fields?.role || res.user.role) as UserType | undefined;
-        if (role && ['parent', 'student', 'teacher'].includes(role)) {
+      console.log('👤 UserProvider: Fetching profile from Supabase for user:', user.email);
+      
+      // Fetch user profile from Supabase database
+      const { data: profile, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('auth_user_id', user.id)
+        .single();
+      
+      if (error) {
+        console.warn('👤 UserProvider: Profile not found, user may need to complete registration');
+        return;
+      }
+      
+      if (profile && profile.role) {
+        const role = profile.role as UserType;
+        if (['parent', 'student', 'teacher', 'admin'].includes(role)) {
           console.log('👤 UserProvider: Server role resolved to:', role);
           await AsyncStorage.setItem('userType', role);
           setUserTypeState(role);
+          
+          // Update full user data
+          const fullUserData: UserData = {
+            id: profile.id,
+            name: profile.name || user.email?.split('@')[0] || 'User',
+            email: profile.email,
+            type: role,
+          };
+          await setUserData(fullUserData);
         }
       }
     } catch (error) {

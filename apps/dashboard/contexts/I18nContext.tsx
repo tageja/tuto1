@@ -1,12 +1,15 @@
 'use client';
 
 import React, { createContext, useContext, useMemo, useState } from 'react';
+import * as enTranslations from '../../../packages/i18n/src/en.json';
+import * as viTranslations from '../../../packages/i18n/src/vi.json';
 
 type Lang = 'vi' | 'en';
 
-type Dict = Record<string, string>;
+type Dict = Record<string, any>;
 
-const vi: Dict = {
+// Legacy flat dictionary for backward compatibility
+const viFlat: Dict = {
   features: 'Tính năng',
   subjects: 'Môn học',
   community: 'Cộng đồng',
@@ -345,9 +348,145 @@ const vi: Dict = {
   investorConnect: 'Kết nối',
   investorAllRights: 'Đã đăng ký bản quyền.',
   investorPreSeedPhase: 'tuto. hiện đang ở giai đoạn pre-seed. Tài liệu đầu tư có sẵn theo yêu cầu.',
+  // Students page translations
+  'dashboard.students.title': 'Học sinh',
+  'dashboard.students.subtitle': 'Quản lý hồ sơ học sinh và ghi danh',
+  'dashboard.students.loading': 'Đang tải học sinh...',
+  'dashboard.students.cohortAvgAttendance': 'Tỷ lệ điểm danh trung bình',
+  'dashboard.students.kpis.total': 'Tổng số học sinh',
+  'dashboard.students.kpis.active': 'Đang hoạt động',
+  'dashboard.students.kpis.inactive': 'Không hoạt động',
+  'dashboard.students.kpis.avgAttendance': 'Tỷ lệ điểm danh TB',
+  'dashboard.students.filters.searchPlaceholder': 'Tìm kiếm theo tên hoặc mã học sinh...',
+  'dashboard.students.filters.searchLabel': 'Tìm kiếm học sinh',
+  'dashboard.students.filters.class': 'Lớp',
+  'dashboard.students.filters.selectClass': 'Chọn lớp',
+  'dashboard.students.filters.allClasses': 'Tất cả các lớp',
+  'dashboard.students.filters.grade': 'Khối',
+  'dashboard.students.filters.selectGrade': 'Chọn khối',
+  'dashboard.students.filters.allGrades': 'Tất cả các khối',
+  'dashboard.students.filters.status': 'Trạng thái',
+  'dashboard.students.filters.selectStatus': 'Chọn trạng thái',
+  'dashboard.students.filters.allStatus': 'Tất cả trạng thái',
+  'dashboard.students.filters.quickFilters': 'Bộ lọc nhanh',
+  'dashboard.students.filters.filterActive': 'Lọc học sinh đang hoạt động',
+  'dashboard.students.filters.filterInactive': 'Lọc học sinh không hoạt động',
+  'dashboard.students.filters.clearAll': 'Xóa tất cả bộ lọc',
+  'dashboard.students.status.active': 'Đang hoạt động',
+  'dashboard.students.status.inactive': 'Không hoạt động',
+  'dashboard.students.table.studentCode': 'Mã học sinh',
+  'dashboard.students.table.name': 'Tên',
+  'dashboard.students.table.class': 'Lớp',
+  'dashboard.students.table.grade': 'Khối',
+  'dashboard.students.table.parent': 'Phụ huynh',
+  'dashboard.students.table.contact': 'Liên hệ',
+  'dashboard.students.table.status': 'Trạng thái',
+  'dashboard.students.table.actions': 'Thao tác',
+  'dashboard.students.table.view': 'Xem',
+  'dashboard.students.table.viewStudent': 'Xem học sinh',
+  'dashboard.students.pagination.page': 'Trang',
+  'dashboard.students.pagination.of': 'của',
+  'dashboard.students.pagination.previous': 'Trước',
+  'dashboard.students.pagination.next': 'Tiếp',
+  'dashboard.students.empty.title': 'Không tìm thấy học sinh',
+  'dashboard.students.empty.description': 'Không có học sinh nào khớp với bộ lọc của bạn hoặc trường này chưa có học sinh.',
+  'dashboard.students.error.title': 'Lỗi tải học sinh',
+  'dashboard.students.export.button': 'Xuất CSV',
+  'dashboard.students.export.exporting': 'Đang xuất...',
+  'dashboard.students.export.error': 'Không thể xuất CSV. Vui lòng thử lại.',
+  'dashboard.students.addStudent.button': 'Thêm học sinh',
+  'dashboard.students.addStudent.comingSoon': 'Sẽ có trong Giai đoạn 2',
+  'dashboard.students.tabs.overview': 'Tổng quan',
+  'dashboard.students.tabs.attendance': 'Điểm danh',
+  'dashboard.students.tabs.fees': 'Học phí',
+  'dashboard.students.tabs.notes': 'Ghi chú',
+  'dashboard.students.tabs.contacts': 'Liên hệ',
+  'dashboard.students.profile.loading': 'Đang tải hồ sơ học sinh...',
+  'dashboard.students.profile.error.title': 'Lỗi tải học sinh',
+  'dashboard.students.profile.back': 'Quay lại danh sách học sinh',
+  'dashboard.students.profile.subtitle': 'Hồ sơ học sinh',
+  'dashboard.students.profile.studentCode': 'Mã học sinh',
+  'dashboard.students.profile.class': 'Lớp',
+  'dashboard.students.profile.grade': 'Khối',
+  'dashboard.students.profile.personalInfo': 'Thông tin cá nhân',
+  'dashboard.students.profile.dateOfBirth': 'Ngày sinh',
+  'dashboard.students.profile.age': 'Tuổi',
+  'dashboard.students.profile.gender': 'Giới tính',
+  'dashboard.students.profile.enrollmentDate': 'Ngày ghi danh',
+  'dashboard.students.profile.address': 'Địa chỉ',
+  'dashboard.students.profile.parentContacts': 'Liên hệ phụ huynh',
+  'dashboard.students.profile.primaryParent': 'Phụ huynh chính',
+  'dashboard.students.profile.secondaryParent': 'Phụ huynh phụ',
+  'dashboard.students.profile.backToClass': '← Quay lại lớp học',
+  'dashboard.students.attendance.period': 'Khoảng thời gian',
+  'dashboard.students.attendance.summary': 'Tóm tắt điểm danh',
+  'dashboard.students.attendance.total': 'Tổng',
+  'dashboard.students.attendance.present': 'Có mặt',
+  'dashboard.students.attendance.absent': 'Vắng mặt',
+  'dashboard.students.attendance.late': 'Muộn',
+  'dashboard.students.attendance.records': 'Bản ghi điểm danh',
+  'dashboard.students.attendance.date': 'Ngày',
+  'dashboard.students.attendance.status': 'Trạng thái',
+  'dashboard.students.attendance.notes': 'Ghi chú',
+  'dashboard.students.attendance.empty.title': 'Không có bản ghi điểm danh',
+  'dashboard.students.attendance.empty.description': 'Không tìm thấy bản ghi điểm danh cho khoảng thời gian này.',
+  'dashboard.students.fees.title': 'Hồ sơ học phí',
+  'dashboard.students.fees.dueDate': 'Ngày đến hạn',
+  'dashboard.students.fees.amount': 'Số tiền',
+  'dashboard.students.fees.status': 'Trạng thái',
+  'dashboard.students.fees.description': 'Mô tả',
+  'dashboard.students.fees.empty.title': 'Không có hồ sơ học phí',
+  'dashboard.students.fees.empty.description': 'Không tìm thấy hồ sơ học phí cho học sinh này.',
+  'dashboard.students.notes.by': 'bởi',
+  'dashboard.students.notes.empty.title': 'Không có ghi chú',
+  'dashboard.students.notes.empty.description': 'Không tìm thấy ghi chú cho học sinh này.',
+  'dashboard.students.contacts.primaryParent': 'Phụ huynh chính',
+  'dashboard.students.contacts.secondaryParent': 'Phụ huynh phụ',
+  'dashboard.students.contacts.parent': 'Liên hệ phụ huynh',
+  'dashboard.students.contacts.name': 'Tên',
+  'dashboard.students.contacts.phone': 'Điện thoại',
+  'dashboard.students.contacts.email': 'Email',
+  'dashboard.students.contacts.relationship': 'Mối quan hệ',
+  'dashboard.students.contacts.empty.title': 'Không có liên hệ',
+  'dashboard.students.contacts.empty.description': 'Không có thông tin liên hệ cho học sinh này.',
+  'dashboard.students.growth.title': 'Tăng trưởng ghi danh',
+  'dashboard.students.growth.overall': 'Tổng thể',
+  'dashboard.students.growth.empty': 'Không có dữ liệu ghi danh',
+  'dashboard.students.add.title': 'Thêm học sinh',
+  'dashboard.students.add.studentCode': 'Mã học sinh',
+  'dashboard.students.add.name': 'Tên',
+  'dashboard.students.add.firstName': 'Tên',
+  'dashboard.students.add.lastName': 'Họ',
+  'dashboard.students.add.class': 'Lớp',
+  'dashboard.students.add.selectClass': 'Chọn lớp',
+  'dashboard.students.add.grade': 'Khối',
+  'dashboard.students.add.gradeAuto': 'Tự động điền từ lớp',
+  'dashboard.students.add.gradeHint': 'Khối được tự động đặt từ lớp đã chọn',
+  'dashboard.students.add.gender': 'Giới tính',
+  'dashboard.students.add.selectGender': 'Chọn giới tính',
+  'dashboard.students.add.dob': 'Ngày sinh',
+  'dashboard.students.add.parentPrimary': 'Thông tin phụ huynh',
+  'dashboard.students.add.parentName': 'Tên phụ huynh',
+  'dashboard.students.add.parentEmail': 'Email phụ huynh',
+  'dashboard.students.add.parentPhone': 'Điện thoại phụ huynh',
+  'dashboard.students.add.contactPhone': 'Điện thoại liên hệ',
+  'dashboard.students.add.contactEmail': 'Email liên hệ',
+  'dashboard.students.add.photo': 'Ảnh',
+  'dashboard.students.add.photoHint': 'Tùy chọn: Tải lên ảnh học sinh (JPG, PNG)',
+  'dashboard.students.add.save': 'Lưu',
+  'dashboard.students.add.cancel': 'Hủy',
+  'dashboard.students.add.success': 'Đã thêm học sinh thành công',
+  'dashboard.students.add.error.duplicateCode': 'Mã học sinh đã tồn tại trong trường này',
+  'dashboard.students.add.error.generic': 'Không thể thêm học sinh. Vui lòng thử lại.',
+  'dashboard.students.add.error.required': 'Trường này là bắt buộc',
+  'dashboard.students.add.error.invalidEmail': 'Định dạng email không hợp lệ',
+  'dashboard.students.add.error.invalidPhone': 'Số điện thoại quá ngắn',
+  'dashboard.students.gender.male': 'Nam',
+  'dashboard.students.gender.female': 'Nữ',
+  'dashboard.students.gender.other': 'Khác',
 };
 
-const en: Dict = {
+const enFlat: Dict = {
   features: 'Features',
   subjects: 'Subjects',
   community: 'Community',
@@ -686,13 +825,167 @@ const en: Dict = {
   investorConnect: 'Connect',
   investorAllRights: 'All rights reserved.',
   investorPreSeedPhase: 'tuto. is currently in pre-seed phase. Investor materials available upon request.',
+  // Students page translations
+  'dashboard.students.title': 'Students',
+  'dashboard.students.subtitle': 'Manage student profiles and enrollment',
+  'dashboard.students.loading': 'Loading students...',
+  'dashboard.students.cohortAvgAttendance': 'Cohort Avg Attendance',
+  'dashboard.students.kpis.total': 'Total Students',
+  'dashboard.students.kpis.active': 'Active',
+  'dashboard.students.kpis.inactive': 'Inactive',
+  'dashboard.students.kpis.avgAttendance': 'Avg Attendance',
+  'dashboard.students.filters.searchPlaceholder': 'Search by name or code...',
+  'dashboard.students.filters.searchLabel': 'Search students',
+  'dashboard.students.filters.class': 'Class',
+  'dashboard.students.filters.selectClass': 'Select class',
+  'dashboard.students.filters.allClasses': 'All Classes',
+  'dashboard.students.filters.grade': 'Grade',
+  'dashboard.students.filters.selectGrade': 'Select grade',
+  'dashboard.students.filters.allGrades': 'All Grades',
+  'dashboard.students.filters.status': 'Status',
+  'dashboard.students.filters.selectStatus': 'Select status',
+  'dashboard.students.filters.allStatus': 'All Status',
+  'dashboard.students.filters.quickFilters': 'Quick Filters',
+  'dashboard.students.filters.filterActive': 'Filter active students',
+  'dashboard.students.filters.filterInactive': 'Filter inactive students',
+  'dashboard.students.filters.clearAll': 'Clear All Filters',
+  'dashboard.students.status.active': 'Active',
+  'dashboard.students.status.inactive': 'Inactive',
+  'dashboard.students.table.studentCode': 'Student Code',
+  'dashboard.students.table.name': 'Name',
+  'dashboard.students.table.class': 'Class',
+  'dashboard.students.table.grade': 'Grade',
+  'dashboard.students.table.parent': 'Parent',
+  'dashboard.students.table.contact': 'Contact',
+  'dashboard.students.table.status': 'Status',
+  'dashboard.students.table.actions': 'Actions',
+  'dashboard.students.table.view': 'View',
+  'dashboard.students.table.viewStudent': 'View student',
+  'dashboard.students.pagination.page': 'Page',
+  'dashboard.students.pagination.of': 'of',
+  'dashboard.students.pagination.previous': 'Previous',
+  'dashboard.students.pagination.next': 'Next',
+  'dashboard.students.empty.title': 'No Students Found',
+  'dashboard.students.empty.description': 'No students match your filters or this school has no students yet.',
+  'dashboard.students.error.title': 'Error Loading Students',
+  'dashboard.students.export.button': 'Export CSV',
+  'dashboard.students.export.exporting': 'Exporting...',
+  'dashboard.students.export.error': 'Failed to export CSV. Please try again.',
+  'dashboard.students.addStudent.button': 'Add Student',
+  'dashboard.students.addStudent.comingSoon': 'Coming in Phase 2',
+  'dashboard.students.tabs.overview': 'Overview',
+  'dashboard.students.tabs.attendance': 'Attendance',
+  'dashboard.students.tabs.fees': 'Fees',
+  'dashboard.students.tabs.notes': 'Notes',
+  'dashboard.students.tabs.contacts': 'Contacts',
+  'dashboard.students.profile.loading': 'Loading student profile...',
+  'dashboard.students.profile.error.title': 'Error Loading Student',
+  'dashboard.students.profile.back': 'Back to Students',
+  'dashboard.students.profile.subtitle': 'Student Profile',
+  'dashboard.students.profile.studentCode': 'Student Code',
+  'dashboard.students.profile.class': 'Class',
+  'dashboard.students.profile.grade': 'Grade',
+  'dashboard.students.profile.personalInfo': 'Personal Information',
+  'dashboard.students.profile.dateOfBirth': 'Date of Birth',
+  'dashboard.students.profile.age': 'Age',
+  'dashboard.students.profile.gender': 'Gender',
+  'dashboard.students.profile.enrollmentDate': 'Enrollment Date',
+  'dashboard.students.profile.address': 'Address',
+  'dashboard.students.profile.parentContacts': 'Parent Contacts',
+  'dashboard.students.profile.primaryParent': 'Primary Parent',
+  'dashboard.students.profile.secondaryParent': 'Secondary Parent',
+  'dashboard.students.profile.backToClass': '← Back to Class',
+  'dashboard.students.attendance.period': 'Period',
+  'dashboard.students.attendance.summary': 'Attendance Summary',
+  'dashboard.students.attendance.total': 'Total',
+  'dashboard.students.attendance.present': 'Present',
+  'dashboard.students.attendance.absent': 'Absent',
+  'dashboard.students.attendance.late': 'Late',
+  'dashboard.students.attendance.records': 'Attendance Records',
+  'dashboard.students.attendance.date': 'Date',
+  'dashboard.students.attendance.status': 'Status',
+  'dashboard.students.attendance.notes': 'Notes',
+  'dashboard.students.attendance.empty.title': 'No Attendance Records',
+  'dashboard.students.attendance.empty.description': 'No attendance records found for this period.',
+  'dashboard.students.fees.title': 'Fee Records',
+  'dashboard.students.fees.dueDate': 'Due Date',
+  'dashboard.students.fees.amount': 'Amount',
+  'dashboard.students.fees.status': 'Status',
+  'dashboard.students.fees.description': 'Description',
+  'dashboard.students.fees.empty.title': 'No Fees Records',
+  'dashboard.students.fees.empty.description': 'No fee records found for this student.',
+  'dashboard.students.notes.by': 'by',
+  'dashboard.students.notes.empty.title': 'No Notes',
+  'dashboard.students.notes.empty.description': 'No notes found for this student.',
+  'dashboard.students.contacts.primaryParent': 'Primary Parent',
+  'dashboard.students.contacts.secondaryParent': 'Secondary Parent',
+  'dashboard.students.contacts.parent': 'Parent Contact',
+  'dashboard.students.contacts.name': 'Name',
+  'dashboard.students.contacts.phone': 'Phone',
+  'dashboard.students.contacts.email': 'Email',
+  'dashboard.students.contacts.relationship': 'Relationship',
+  'dashboard.students.contacts.empty.title': 'No Contacts',
+  'dashboard.students.contacts.empty.description': 'No contact information available for this student.',
+  'dashboard.students.growth.title': 'Enrollment Growth',
+  'dashboard.students.growth.overall': 'Overall',
+  'dashboard.students.growth.empty': 'No enrollment data available',
+  'dashboard.students.add.title': 'Add Student',
+  'dashboard.students.add.studentCode': 'Student Code',
+  'dashboard.students.add.name': 'Name',
+  'dashboard.students.add.firstName': 'First Name',
+  'dashboard.students.add.lastName': 'Last Name',
+  'dashboard.students.add.class': 'Class',
+  'dashboard.students.add.selectClass': 'Select Class',
+  'dashboard.students.add.grade': 'Grade',
+  'dashboard.students.add.gradeAuto': 'Auto-filled from class',
+  'dashboard.students.add.gradeHint': 'Grade is automatically set from the selected class',
+  'dashboard.students.add.gender': 'Gender',
+  'dashboard.students.add.selectGender': 'Select Gender',
+  'dashboard.students.add.dob': 'Date of Birth',
+  'dashboard.students.add.parentPrimary': 'Parent Information',
+  'dashboard.students.add.parentName': 'Parent Name',
+  'dashboard.students.add.parentEmail': 'Parent Email',
+  'dashboard.students.add.parentPhone': 'Parent Phone',
+  'dashboard.students.add.contactPhone': 'Contact Phone',
+  'dashboard.students.add.contactEmail': 'Contact Email',
+  'dashboard.students.add.photo': 'Photo',
+  'dashboard.students.add.photoHint': 'Optional: Upload student photo (JPG, PNG)',
+  'dashboard.students.add.save': 'Save',
+  'dashboard.students.add.cancel': 'Cancel',
+  'dashboard.students.add.success': 'Student added successfully',
+  'dashboard.students.add.error.duplicateCode': 'Student Code already exists in this school',
+  'dashboard.students.add.error.generic': 'Failed to add student. Please try again.',
+  'dashboard.students.add.error.required': 'This field is required',
+  'dashboard.students.add.error.invalidEmail': 'Invalid email format',
+  'dashboard.students.add.error.invalidPhone': 'Phone number too short',
+  'dashboard.students.gender.male': 'Male',
+  'dashboard.students.gender.female': 'Female',
+  'dashboard.students.gender.other': 'Other',
 };
 
-const dicts: Record<Lang, Dict> = { vi, en };
+// Nested dictionaries from JSON files
+const vi: Dict = (viTranslations as any).default || viTranslations;
+const en: Dict = (enTranslations as any).default || enTranslations;
+
+// Helper function to get nested value from dot notation
+function getNestedValue(obj: any, path: string): string | undefined {
+  const keys = path.split('.');
+  let current = obj;
+  
+  for (const key of keys) {
+    if (current && typeof current === 'object' && key in current) {
+      current = current[key];
+    } else {
+      return undefined;
+    }
+  }
+  
+  return typeof current === 'string' ? current : undefined;
+}
 
 interface I18nContextValue {
   lang: Lang;
-  t: (k: keyof typeof en) => string;
+  t: (key: string) => string;
   setLang: (l: Lang) => void;
 }
 
@@ -727,7 +1020,18 @@ export const I18nProvider: React.FC<{ children: React.ReactNode; defaultLang?: L
       }
     } catch {}
   };
-  const t = useMemo(() => (key: keyof typeof en) => dicts[lang][key] || key, [lang]);
+  const t = useMemo(() => (key: string) => {
+    // First try nested JSON structure
+    const nested = getNestedValue(lang === 'vi' ? vi : en, key);
+    if (nested) return nested;
+    
+    // Fallback to flat dictionary for backward compatibility
+    const flat = (lang === 'vi' ? viFlat : enFlat)[key];
+    if (flat) return flat;
+    
+    // Return key as fallback
+    return key;
+  }, [lang]);
   const value = useMemo(() => ({ lang, t, setLang }), [lang, t]);
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 };

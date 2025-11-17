@@ -1,0 +1,222 @@
+---
+alwaysApply: true
+---
+
+# Fullstack Rules - CRITICAL ARCHITECTURE REQUIREMENTS
+
+## 🏗️ MONOREPO STRUCTURE - ALWAYS REMEMBER
+
+This is a **MONOREPO** with:
+1. **Mobile App** (`src/` - React Native/Expo) - PRIMARY APP
+2. **Web Dashboard** (`apps/dashboard/` - Next.js) - SECONDARY APP
+3. **Firebase Functions** (`functions/src/` - Backend API) - SHARED BACKEND
+
+**BOTH mobile and web apps exist and must work together!**
+
+---
+
+## 🔥 CRITICAL: Firebase Functions as Single Source of Truth
+
+### ARCHITECTURE RULE (Non-negotiable):
+
+**ALL data access MUST go through Firebase Functions:**
+
+```
+Mobile App (src/) ───┐
+                     ├──→ Firebase Functions ──→ Airtable/Firebase
+Web App (apps/)   ───┘     (functions/src/)       (Single source)
+```
+
+**NEVER do this:**
+```
+Mobile App → Firebase Functions → Airtable  ✅
+Web App → Airtable directly                 ❌ WRONG!
+```
+
+### WHY THIS MATTERS:
+
+1. **Code Reuse**: Don't duplicate Airtable queries in both web and mobile
+2. **Security**: Credentials only in Functions (not in Next.js)
+3. **Consistency**: Both apps get same data, same validation
+4. **Maintenance**: Change logic once, applies everywhere
+5. **Testing**: Test Functions once, both apps benefit
+
+---
+
+## 📁 WHERE CODE LIVES
+
+### Backend Logic (ALWAYS in Functions):
+```
+functions/src/v1/
+├── airtable.ts          ← Airtable service (shared)
+├── teachers.ts          ← Teacher endpoints
+├── students.ts          ← Student endpoints
+├── school-classes.ts    ← School classes endpoints (ADD THESE!)
+├── school-students.ts   ← School students endpoints
+└── auth.ts              ← Auth middleware
+```
+
+### Mobile App (Calls Functions):
+```
+src/services/
+├── backend.teachers.ts  ← Calls Functions
+├── backend.students.ts  ← Calls Functions
+├── backend.guardian.ts  ← Calls Functions
+└── airtable.ts          ← DEPRECATED, use Functions instead
+```
+
+### Web App (Calls Functions):
+```
+apps/dashboard/app/api/
+├── school/classes/route.ts    ← Proxy to Functions (NOT direct Airtable)
+├── school/students/route.ts   ← Proxy to Functions
+└── school/teachers/route.ts   ← Proxy to Functions
+```
+
+---
+
+## ✅ CORRECT PATTERN (How to Build Features)
+
+### Step 1: Create Firebase Function (Backend)
+```typescript
+// functions/src/v1/school-classes.ts
+export const getClasses = onRequest(async (req, res) => {
+  const { schoolId } = req.query;
+  const classes = await airtableService.getSchoolClasses(schoolId);
+  res.json({ success: true, data: classes });
+});
+```
+
+### Step 2: Add to airtableService
+```typescript
+// functions/src/v1/airtable.ts
+export const airtableService = {
+  async getSchoolClasses(schoolId: string) {
+    const records = await airtable('TutoSchoolClasses')
+      .select({ filterByFormula: `{School Name}="${schoolId}"` })
+      .all();
+    return records;
+  },
+};
+```
+
+### Step 3: Web App Calls Function
+```typescript
+// apps/dashboard/app/api/school/classes/route.ts
+export async function GET(request: NextRequest) {
+  const schoolId = searchParams.get('schoolId');
+  
+  // Call Firebase Function (NOT Airtable directly!)
+  const response = await fetch(
+    `${FUNCTIONS_BASE_URL}/getClasses?schoolId=${schoolId}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  
+  return response.json();
+}
+```
+
+### Step 4: Mobile App Calls Same Function
+```typescript
+// src/services/backend.classes.ts
+export async function getClasses(schoolId: string) {
+  return authedFetch(`/api/school/getClasses?schoolId=${schoolId}`);
+}
+```
+
+**Both apps use the SAME backend logic!** ✅
+
+---
+
+## ❌ WRONG PATTERN (What NOT to Do)
+
+```typescript
+// apps/dashboard/lib/airtable/classes.ts
+export async function getClasses(schoolId: string) {
+  // ❌ WRONG: Direct Airtable call from Next.js
+  const response = await fetch(airtableUrl, { 
+    headers: { Authorization: `Bearer ${AIRTABLE_PAT}` } 
+  });
+}
+```
+
+**Problems:**
+- ❌ Duplicates logic from mobile
+- ❌ Credentials in two places
+- ❌ Inconsistent data between web/mobile
+- ❌ Harder to maintain
+
+---
+
+## 🔐 CREDENTIALS PLACEMENT
+
+### ✅ CORRECT:
+```
+Airtable PAT → functions/.env (or Firebase config)
+Firebase Config → Both apps' .env files
+```
+
+### ❌ WRONG:
+```
+Airtable PAT → apps/dashboard/.env.local  ← NO!
+Airtable PAT → src/.env                   ← NO!
+```
+
+**Exception**: For rapid prototyping/debugging ONLY, then refactor
+
+---
+
+## 📋 IMPLEMENTATION CHECKLIST
+
+When building ANY feature that needs data:
+
+- [ ] Does this feature exist in mobile app? Check `src/screens/`, `src/services/`
+- [ ] Is there already a Firebase Function for this? Check `functions/src/v1/`
+- [ ] If no Function exists, CREATE IT in Functions first
+- [ ] Add to `airtableService` in `functions/src/v1/airtable.ts`
+- [ ] Web app calls Function (not Airtable)
+- [ ] Mobile app calls same Function
+- [ ] Credentials only in `functions/.env`
+
+---
+
+## 🎯 WHEN YOU SEE THIS IN CODE REVIEW:
+
+```typescript
+// In apps/dashboard/lib/airtable/classes.ts:
+const AIRTABLE_PAT = process.env.AIRTABLE_PAT;  // ← RED FLAG!
+```
+
+**Ask**: "Should this be in Firebase Functions instead?"
+
+---
+
+## 📞 ENFORCEMENT
+
+**Before implementing ANY data feature:**
+
+1. ✅ Check: Is there a mobile equivalent?
+2. ✅ Check: Does mobile use Functions?
+3. ✅ If yes → Use Functions for web too
+4. ✅ If no Function exists → Create it first
+5. ✅ Both apps call the same Function
+
+**Never let web and mobile diverge in backend logic!**
+
+---
+
+## 🔄 CONTRACT-FIRST DEVELOPMENT
+
+- Define contracts first; ship types to both sides before implementation.
+- Add MSW or local stubs so UI can proceed in parallel.
+- Document analytics events (name, payload, trigger) with the PR.
+- Capture edge cases with screenshots and acceptance criteria.
+- Add E2E happy-path flows for core journeys.
+- **ALWAYS check if mobile app has equivalent feature before implementing in web**
+- **ALWAYS use Firebase Functions as backend API layer for consistency**
+
+
+
+
+
+

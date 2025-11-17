@@ -1,32 +1,55 @@
-import { auth } from '../firebase/config';
+import { supabase } from '../supabase';
 
 export type UserRole = 'admin' | 'parent' | null;
 
 /**
- * Get user role from Firebase custom claims with Airtable fallback
- * Priority:
- * 1. Firebase custom claims
- * 2. Query TutoSchoolTeachers for admin role
- * 3. Query TutoSchoolStudents parent linkage for parent role
+ * Get user role from Supabase user profile
  */
 export async function getUserRole(uid: string): Promise<UserRole> {
   try {
-    // Check Firebase custom claims first
-    const user = auth.currentUser;
-    if (user) {
-      const idTokenResult = await user.getIdTokenResult();
-      const role = idTokenResult.claims.schoolRole as string | undefined;
+    // Get user profile from Supabase database
+    const { data: profile, error } = await supabase
+      .from('users')
+      .select('role')
+      .eq('auth_user_id', uid)
+      .single();
+
+    if (error || !profile) {
+      console.warn('User profile not found, checking school associations...');
       
-      if (role === 'admin' || role === 'parent') {
-        return role as UserRole;
+      // Fallback: Check if user is a school teacher (admin role)
+      const { data: teacher } = await supabase
+        .from('school_teachers')
+        .select('id')
+        .eq('user_id', uid)
+        .limit(1)
+        .single();
+      
+      if (teacher) {
+        return 'admin';
       }
+      
+      // Check if user is a parent (has students)
+      const { data: students } = await supabase
+        .from('school_students')
+        .select('id')
+        .eq('parent_email', (await getCurrentUserEmail()))
+        .limit(1);
+      
+      if (students && students.length > 0) {
+        return 'parent';
+      }
+      
+      return null;
     }
 
-    // Fallback: Query Airtable via API route
-    const response = await fetch(`/api/school/user-role?uid=${uid}`);
-    if (response.ok) {
-      const data = await response.json();
-      return data.role as UserRole;
+    const role = profile.role;
+    
+    // Map roles
+    if (role === 'admin' || role === 'school_admin' || role === 'teacher') {
+      return 'admin';
+    } else if (role === 'parent') {
+      return 'parent';
     }
 
     return null;
@@ -40,22 +63,34 @@ export async function getUserRole(uid: string): Promise<UserRole> {
  * Check if user is authenticated
  */
 export async function isAuthenticated(): Promise<boolean> {
-  return new Promise((resolve) => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      unsubscribe();
-      resolve(!!user);
-    });
-  });
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    return !!session;
+  } catch {
+    return false;
+  }
 }
 
 /**
  * Get current user UID
  */
-export function getCurrentUserId(): string | null {
-  return auth.currentUser?.uid || null;
+export async function getCurrentUserId(): Promise<string | null> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user?.id || null;
+  } catch {
+    return null;
+  }
 }
 
-
-
-
-
+/**
+ * Get current user email
+ */
+export async function getCurrentUserEmail(): Promise<string | null> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user?.email || null;
+  } catch {
+    return null;
+  }
+}

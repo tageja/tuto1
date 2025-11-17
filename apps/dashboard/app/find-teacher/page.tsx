@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import '../globals.css';
-import Card from '../../components/ui/Card';
+import { Card } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Field from '../../components/ui/Field';
 import LoadingState from '../../components/shared/LoadingState';
