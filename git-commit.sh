@@ -33,3 +33,7 @@ git status --short
 
 echo "Recent commits:"
 git log --oneline -3
+
+
+
+

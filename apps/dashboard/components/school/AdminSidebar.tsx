@@ -47,7 +47,7 @@ export function AdminSidebar() {
     { icon: MessageCircle, label: t('messages'), href: `/school/${encodedSchoolId}/admin/messages` },
     { icon: CalendarCheck, label: t('attendance'), href: `/school/${encodedSchoolId}/admin/attendance` },
     { icon: BookOpen, label: t('homework'), href: `/school/${encodedSchoolId}/admin/homework` },
-    { icon: TrendingUp, label: t('progressReports'), href: `/school/${encodedSchoolId}/admin/progress` },
+    { icon: TrendingUp, label: t('progressReports'), href: `/school/${encodedSchoolId}/admin/progress-reports` },
     { icon: PartyPopper, label: t('events'), href: `/school/${encodedSchoolId}/admin/events` },
     { icon: ImageIcon, label: t('photoAlbums'), href: `/school/${encodedSchoolId}/admin/photo-albums` },
     { icon: Heart, label: t('healthRecords'), href: `/school/${encodedSchoolId}/admin/health` },

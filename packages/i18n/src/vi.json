@@ -529,10 +529,665 @@
         "teacher": "Giáo Viên",
         "class": "Lớp"
       }
+    },
+    "messages": {
+      "composeAdmin": "Tạo chuỗi mới cho lớp hoặc khối",
+      "composeParent": "Nhắn giáo viên hoặc ban giám hiệu",
+      "subject": "Chủ đề",
+      "priority": "Mức ưu tiên",
+      "recipientsTeachers": "Giáo viên",
+      "recipientsParents": "Phụ huynh",
+      "recipientsClasses": "Lớp học",
+      "recipientsGrades": "Khối",
+      "message": "Nội dung",
+      "cancel": "Huỷ",
+      "send": "Gửi",
+      "attachments": "Tệp đính kèm",
+      "emptyTeachers": "Chưa có giáo viên",
+      "emptyParents": "Chưa có phụ huynh",
+      "emptyClasses": "Chưa có lớp",
+      "emptyGrades": "Chưa có khối",
+      "errorNoRecipients": "Vui lòng chọn ít nhất 1 người nhận",
+      "emptyTitle": "Chưa có cuộc trò chuyện",
+      "emptyDescription": "Hãy bắt đầu cuộc trò chuyện mới để xem tại đây.",
+      "compose": "Soạn",
+      "searchPlaceholder": "Tìm kiếm tin nhắn...",
+      "filters": {
+        "class": "Lớp",
+        "grade": "Khối",
+        "allClasses": "Tất cả lớp",
+        "allGrades": "Tất cả khối"
+      },
+      "noPreview": "Chưa có nội dung xem trước",
+      "loadPrevious": "Tải tin nhắn cũ",
+      "loading": "Đang tải tin nhắn...",
+      "replyPlaceholder": "Nhập nội dung phản hồi...",
+      "sending": "Đang gửi...",
+      "noThreadTitle": "Chọn cuộc trò chuyện",
+      "noThreadDescription": "Chọn một chuỗi để xem tin nhắn.",
+      "selectSchool": "Vui lòng chọn trường để xem tin nhắn.",
+      "conversationsLabel": "Tin nhắn",
+      "you": "Bạn",
+      "messageSent": "Tin nhắn đã được gửi"
+    },
+    "announcements": {
+      "title": "Thông Báo",
+      "subtitle": "Cập nhật tin tức trường học và thông báo quan trọng",
+      "loading": "Đang tải thông báo...",
+      "filters": {
+        "all": "Tất Cả",
+        "active": "Đang Hoạt Động",
+        "urgent": "Khẩn Cấp",
+        "expired": "Đã Hết Hạn",
+        "draft": "Nháp",
+        "published": "Đã Công Bố",
+        "archived": "Đã Lưu Trữ",
+        "searchPlaceholder": "Tìm kiếm thông báo..."
+      },
+      "priority": {
+        "low": "Thấp",
+        "normal": "Bình Thường",
+        "high": "Cao",
+        "urgent": "Khẩn Cấp"
+      },
+      "status": {
+        "draft": "Nháp",
+        "published": "Đã Công Bố",
+        "archived": "Đã Lưu Trữ"
+      },
+      "category": {
+        "schoolEvent": "Sự Kiện Trường Học",
+        "academic": "Học Tập",
+        "cafeteria": "Nhà Ăn",
+        "general": "Chung",
+        "important": "Thông Báo Quan Trọng",
+        "sports": "Thể Thao"
+      },
+      "targetScope": {
+        "school": "Toàn Trường",
+        "classes": "Các Lớp Cụ Thể"
+      },
+      "actions": {
+        "markAsRead": "Đánh Dấu Đã Đọc",
+        "readMore": "Đọc Thêm",
+        "create": "Tạo Thông Báo",
+        "quickAdd": "Thêm Nhanh",
+        "publish": "Công Bố",
+        "archive": "Lưu Trữ",
+        "restore": "Khôi Phục",
+        "edit": "Sửa",
+        "delete": "Xóa",
+        "moreOptions": "Thêm Tùy Chọn",
+        "cancel": "Hủy",
+        "save": "Lưu",
+        "saveDraft": "Lưu Nháp"
+      },
+      "form": {
+        "titleLabel": "Tiêu Đề",
+        "titlePlaceholder": "Nhập tiêu đề thông báo",
+        "bodyLabel": "Nội Dung",
+        "bodyPlaceholder": "Nhập chi tiết thông báo...",
+        "categoryLabel": "Danh Mục",
+        "categoryPlaceholder": "Chọn danh mục",
+        "priorityLabel": "Độ Ưu Tiên",
+        "priorityPlaceholder": "Chọn độ ưu tiên",
+        "targetScopeLabel": "Đối Tượng",
+        "targetScopePlaceholder": "Chọn đối tượng",
+        "classesLabel": "Chọn Lớp",
+        "classesPlaceholder": "Chọn một hoặc nhiều lớp",
+        "publishedAtLabel": "Ngày Công Bố",
+        "expiresAtLabel": "Ngày Hết Hạn",
+        "expiresAtHint": "Để trống nếu không có hạn",
+        "schedulePublish": "Lên lịch sau",
+        "publishNow": "Công bố ngay"
+      },
+      "messages": {
+        "createSuccess": "Tạo thông báo thành công",
+        "publishSuccess": "Công bố thông báo thành công",
+        "archiveSuccess": "Lưu trữ thông báo thành công",
+        "restoreSuccess": "Khôi phục thông báo thành công",
+        "markReadSuccess": "Đã đánh dấu đã đọc",
+        "deleteSuccess": "Xóa thông báo thành công",
+        "updateSuccess": "Cập nhật thông báo thành công",
+        "createError": "Không thể tạo thông báo. Vui lòng thử lại.",
+        "publishError": "Không thể công bố thông báo",
+        "archiveError": "Không thể lưu trữ thông báo",
+        "deleteError": "Không thể xóa thông báo",
+        "loadError": "Không thể tải thông báo"
+      },
+      "empty": {
+        "noAnnouncements": "Không có thông báo",
+        "noDrafts": "Không có thông báo nháp",
+        "noPublished": "Không có thông báo đã công bố",
+        "noActive": "Không có thông báo đang hoạt động",
+        "noUrgent": "Không có thông báo khẩn cấp",
+        "noExpired": "Không có thông báo đã hết hạn",
+        "noArchived": "Không có thông báo đã lưu trữ",
+        "createFirst": "Tạo thông báo đầu tiên của bạn"
+      },
+      "confirm": {
+        "deleteTitle": "Xóa Thông Báo?",
+        "deleteMessage": "Hành động này không thể hoàn tác. Thông báo sẽ bị xóa vĩnh viễn.",
+        "archiveTitle": "Lưu Trữ Thông Báo?",
+        "archiveMessage": "Thông báo này sẽ được chuyển vào lưu trữ và ẩn khỏi phụ huynh.",
+        "publishTitle": "Công Bố Thông Báo?",
+        "publishMessage": "Thông báo này sẽ hiển thị cho tất cả phụ huynh ngay lập tức.",
+        "confirmDelete": "Có, Xóa",
+        "confirmArchive": "Có, Lưu Trữ",
+        "confirmPublish": "Có, Công Bố",
+        "cancel": "Hủy"
+      },
+      "table": {
+        "title": "Tiêu Đề",
+        "category": "Danh Mục",
+        "targetAudience": "Đối Tượng",
+        "priority": "Độ Ưu Tiên",
+        "status": "Trạng Thái",
+        "dates": "Ngày Tháng",
+        "published": "Đã Công Bố",
+        "expires": "Hết Hạn",
+        "actions": "Thao Tác",
+        "schoolWide": "Toàn trường",
+        "classes": "{count} lớp",
+        "class": "{count} lớp",
+        "noExpiration": "Không hết hạn"
+      },
+      "card": {
+        "postedOn": "Đăng vào",
+        "expiresOn": "Hết hạn vào",
+        "readStatus": "Đã đọc",
+        "unreadStatus": "Chưa đọc"
+      }
+    },
+    "attendance": {
+      "title": "Điểm Danh",
+      "export": "Xuất File",
+      "filters": {
+        "date": "Ngày",
+        "range": "Khoảng Thời Gian",
+        "class": "Lớp",
+        "student": "Học Sinh",
+        "search": "Tìm kiếm...",
+        "week": "Tuần",
+        "oneMonth": "1 Tháng",
+        "threeMonths": "3 Tháng",
+        "sixMonths": "6 Tháng",
+        "course": "Toàn Khóa",
+        "allClasses": "Tất Cả Lớp",
+        "allStudents": "Tất Cả Học Sinh"
+      },
+      "status": {
+        "present": "Có Mặt",
+        "absent": "Vắng Mặt",
+        "late": "Đi Muộn",
+        "excused": "Có Phép"
+      },
+      "kpis": {
+        "present": "Có Mặt",
+        "absent": "Vắng Mặt",
+        "late": "Đi Muộn",
+        "excused": "Có Phép",
+        "totalStudents": "Tổng Học Sinh",
+        "attendanceRate": "Tỷ Lệ Điểm Danh",
+        "lastUpdated": "Cập nhật lần cuối"
+      },
+      "calendar": {
+        "today": "Hôm Nay",
+        "notAvailable": "Không Có"
+      },
+      "history": {
+        "title": "Lịch Sử Điểm Danh",
+        "checkIn": "Giờ Vào",
+        "noRecords": "Không tìm thấy dữ liệu điểm danh"
+      },
+      "summary": {
+        "title": "Tóm Tắt Điểm Danh",
+        "excellent": "{{name}} có điểm danh xuất sắc với tỷ lệ {{rate}}%.",
+        "good": "{{name}} có điểm danh tốt. Hãy tiếp tục phát huy!"
+      },
+      "empty": "Không có dữ liệu điểm danh cho khoảng thời gian đã chọn",
+      "error": "Không thể tải dữ liệu điểm danh"
+    },
+    "homework": {
+      "title": "Bài Tập Về Nhà",
+      "createAssignment": "Tạo Bài Tập",
+      "exportCsv": "Xuất CSV",
+      "filters": {
+        "date": "Ngày",
+        "range": "Khoảng Thời Gian",
+        "class": "Lớp",
+        "subject": "Môn Học",
+        "student": "Học Sinh",
+        "search": "Tìm kiếm theo tiêu đề hoặc môn học...",
+        "allClasses": "Tất Cả Lớp",
+        "allSubjects": "Tất cả môn học",
+        "allStudents": "Tất Cả Học Sinh"
+      },
+      "ranges": {
+        "week": "Tuần",
+        "1m": "1 Tháng",
+        "3m": "3 Tháng",
+        "6m": "6 Tháng",
+        "course": "Toàn Khóa"
+      },
+      "status": {
+        "all": "Tất Cả",
+        "pending": "Chưa Nộp",
+        "completed": "Hoàn Thành",
+        "submitted": "Đã Nộp",
+        "graded": "Đã Chấm",
+        "late": "Trễ Hạn"
+      },
+      "kpis": {
+        "total": "Tổng Bài Tập",
+        "pending": "Chưa Nộp",
+        "completed": "Hoàn Thành",
+        "completionRate": "Tỷ Lệ Hoàn Thành",
+        "lastUpdated": "Cập nhật lần cuối"
+      },
+      "list": {
+        "subject": "Môn Học",
+        "title": "Tiêu Đề",
+        "class": "Lớp",
+        "dueDate": "Hạn Nộp",
+        "status": "Trạng Thái",
+        "progress": "Tiến Độ",
+        "actions": "Thao Tác",
+        "view": "Xem",
+        "noAssignments": "Không tìm thấy bài tập với bộ lọc đã chọn."
+      },
+      "charts": {
+        "completionRate": "Tỷ Lệ Hoàn Thành",
+        "scoreTrends": "Xu Hướng Điểm Số",
+        "complete": "Hoàn Thành",
+        "noData": "Không có dữ liệu điểm cho lựa chọn này",
+        "selectClassOrSubject": "Chọn lớp hoặc môn học để xem biểu đồ"
+      },
+      "createModal": {
+        "title": "Tạo Bài Tập",
+        "titleLabel": "Tiêu Đề",
+        "titlePlaceholder": "VD: Bài tập Đại số",
+        "subjectLabel": "Môn Học",
+        "subjectPlaceholder": "VD: Toán học",
+        "descriptionLabel": "Mô Tả",
+        "descriptionPlaceholder": "Hướng dẫn cho học sinh...",
+        "dueDateLabel": "Hạn Nộp",
+        "targetScopeLabel": "Phạm Vi Giao Bài",
+        "schoolWide": "Toàn Trường",
+        "specificClasses": "Lớp Cụ Thể",
+        "selectClassesLabel": "Chọn Lớp",
+        "cancel": "Hủy",
+        "create": "Tạo Bài Tập",
+        "creating": "Đang tạo...",
+        "success": "Tạo bài tập thành công!",
+        "error": "Không thể tạo bài tập",
+        "required": "Bắt buộc",
+        "fillAllFields": "Vui lòng điền đầy đủ các trường bắt buộc",
+        "selectAtLeastOneClass": "Vui lòng chọn ít nhất một lớp"
+      },
+      "detailDrawer": {
+        "title": "Chi Tiết Bài Tập",
+        "subject": "Môn Học",
+        "dueDate": "Hạn Nộp",
+        "assigned": "Ngày Giao",
+        "instructions": "Hướng Dẫn",
+        "submissions": "Bài Nộp",
+        "noSubmissions": "Chưa có bài nộp",
+        "notSubmitted": "Chưa nộp",
+        "submitted": "Đã nộp",
+        "markGraded": "Đánh Dấu Đã Chấm",
+        "lateSubmissions": "Nộp Trễ",
+        "lateSubmissionsNote": "Những học sinh này nộp sau hạn",
+        "notFound": "Không tìm thấy bài tập"
+      },
+      "empty": "Không có bài tập",
+      "error": "Không thể tải dữ liệu bài tập",
+      "loading": "Đang tải bài tập..."
+    },
+    "events": {
+      "title": "Sự Kiện",
+      "createEvent": "Tạo Sự Kiện",
+      "editEvent": "Chỉnh Sửa Sự Kiện",
+      "kpis": {
+        "total": "Tổng Sự Kiện",
+        "upcoming": "Sắp Tới",
+        "completed": "Đã Hoàn Thành",
+        "participants": "Tổng Người Tham Gia"
+      },
+      "tabs": {
+        "all": "Tất Cả Sự Kiện",
+        "school": "Trường Học",
+        "class": "Lớp Học",
+        "competitions": "Cuộc Thi",
+        "workshops": "Hội Thảo",
+        "outing": "Dã Ngoại",
+        "practice": "Luyện Tập",
+        "celebration": "Lễ Kỷ Niệm",
+        "registered": "Đã Đăng Ký",
+        "upcoming": "Sắp Tới"
+      },
+      "categories": {
+        "school": "Trường Học",
+        "class": "Lớp Học",
+        "competition": "Cuộc Thi",
+        "workshop": "Hội Thảo",
+        "outing": "Dã Ngoại",
+        "practice": "Luyện Tập",
+        "celebration": "Lễ Kỷ Niệm"
+      },
+      "status": {
+        "draft": "Bản Nháp",
+        "published": "Đã Xuất Bản",
+        "completed": "Đã Hoàn Thành",
+        "cancelled": "Đã Hủy"
+      },
+      "form": {
+        "title": "Tiêu Đề",
+        "description": "Mô Tả",
+        "category": "Danh Mục",
+        "class": "Lớp Học",
+        "startDate": "Ngày Bắt Đầu",
+        "startTime": "Giờ Bắt Đầu",
+        "endDate": "Ngày Kết Thúc",
+        "endTime": "Giờ Kết Thúc",
+        "location": "Địa Điểm",
+        "status": "Trạng Thái",
+        "capacity": "Sức Chứa",
+        "parentNote": "Ghi Chú Cho Phụ Huynh"
+      },
+      "actions": {
+        "viewDetails": "Xem Chi Tiết",
+        "manage": "Quản Lý",
+        "register": "Đăng Ký",
+        "unregister": "Hủy Đăng Ký",
+        "registered": "Đã Đăng Ký",
+        "waitlisted": "Trong Danh Sách Chờ",
+        "full": "Đã Đầy"
+      },
+      "empty": {
+        "noEvents": "Không tìm thấy sự kiện",
+        "noRegistered": "Không có sự kiện đã đăng ký"
+      },
+      "errors": {
+        "loadFailed": "Không thể tải sự kiện",
+        "createFailed": "Không thể tạo sự kiện",
+        "updateFailed": "Không thể cập nhật sự kiện",
+        "deleteFailed": "Không thể xóa sự kiện",
+        "registerFailed": "Không thể đăng ký",
+        "unregisterFailed": "Không thể hủy đăng ký"
+      },
+      "toasts": {
+        "created": "Tạo sự kiện thành công",
+        "updated": "Cập nhật sự kiện thành công",
+        "deleted": "Xóa sự kiện thành công",
+        "registered": "Đăng ký thành công",
+        "waitlisted": "Đã thêm vào danh sách chờ",
+        "unregistered": "Hủy đăng ký thành công"
+      }
+    },
+    "photos": {
+      "title": "Album Ảnh",
+      "subtitle": "Thư viện ảnh sự kiện và hoạt động của trường",
+      "loading": "Đang tải album...",
+      "filters": {
+        "all": "Tất cả",
+        "recent": "Gần đây",
+        "events": "Sự kiện",
+        "class": "Hoạt động lớp",
+        "favorites": "Yêu thích",
+        "allAlbums": "Tất cả Album",
+        "classEvents": "Sự kiện lớp"
+      },
+      "create": {
+        "title": "Tạo Album",
+        "albumTitle": "Tiêu đề",
+        "category": "Danh mục",
+        "eventDate": "Ngày sự kiện",
+        "description": "Mô tả",
+        "class": "Lớp",
+        "grade": "Khối",
+        "status": "Trạng thái",
+        "photos": "Ảnh",
+        "createButton": "Tạo Album",
+        "creating": "Đang tạo...",
+        "titlePlaceholder": "ví dụ: Ngày hội thể thao 2025",
+        "descriptionPlaceholder": "Mô tả album...",
+        "gradePlaceholder": "ví dụ: 5A, Khối 3",
+        "uploadHint": "Nhấp để tải lên hoặc kéo thả",
+        "compressionHint": "Ảnh sẽ được nén tự động"
+      },
+      "album": {
+        "back": "Quay lại Album",
+        "addPhotos": "Thêm Ảnh",
+        "selectPhotos": "Chọn Ảnh",
+        "uploading": "Đang tải lên...",
+        "noPhotos": "Không có ảnh trong album này",
+        "photoCount": "{count} {count, plural, one {ảnh} other {ảnh}}"
+      },
+      "gallery": {
+        "previous": "Ảnh trước",
+        "next": "Ảnh tiếp",
+        "close": "Đóng",
+        "favorite": "Thêm vào yêu thích",
+        "unfavorite": "Xóa khỏi yêu thích",
+        "delete": "Xóa ảnh",
+        "deleteConfirm": "Bạn có chắc muốn xóa ảnh này?"
+      },
+      "empty": {
+        "noAlbums": "Không tìm thấy album",
+        "noFavorites": "Bạn chưa yêu thích ảnh nào",
+        "createFirst": "Tạo album đầu tiên để bắt đầu"
+      },
+      "errors": {
+        "loadFailed": "Không thể tải album",
+        "createFailed": "Không thể tạo album",
+        "updateFailed": "Không thể cập nhật album",
+        "deleteFailed": "Không thể xóa ảnh",
+        "uploadFailed": "Không thể tải ảnh lên",
+        "favoriteFailed": "Không thể cập nhật yêu thích"
+      },
+      "toasts": {
+        "created": "Tạo album thành công",
+        "updated": "Cập nhật album thành công",
+        "deleted": "Xóa ảnh thành công",
+        "photosAdded": "Thêm ảnh thành công",
+        "favorited": "Đã thêm vào yêu thích",
+        "unfavorited": "Đã xóa khỏi yêu thích"
+      }
+    },
+    "health": {
+      "title": "Hồ Sơ Sức Khỏe",
+      "subtitle": "Theo dõi sức khỏe và thông tin y tế của học sinh",
+      "filters": {
+        "class": "Lớp",
+        "student": "Học sinh",
+        "search": "Tìm kiếm học sinh...",
+        "allClasses": "Tất cả các lớp",
+        "allStudents": "Tất cả học sinh"
+      },
+      "kpis": {
+        "totalStudents": "Tổng Số Học Sinh",
+        "allergies": "Dị Ứng",
+        "medications": "Thuốc",
+        "updatedThisMonth": "Cập Nhật Tháng Này"
+      },
+      "buttons": {
+        "addRecord": "Thêm Hồ Sơ",
+        "view": "Xem",
+        "reportFever": "Báo Sốt",
+        "reportCough": "Báo Ho",
+        "reportTired": "Báo Mệt",
+        "reportInjury": "Báo Chấn Thương",
+        "editContacts": "Sửa Liên Hệ",
+        "save": "Lưu",
+        "cancel": "Hủy",
+        "remove": "Xóa"
+      },
+      "sections": {
+        "medicalInfo": "Thông Tin Y Tế",
+        "allergies": "Dị Ứng & Tình Trạng",
+        "medications": "Thuốc",
+        "vaccinations": "Hồ Sơ Tiêm Chủng",
+        "vitals": "Chỉ Số Sinh Tồn",
+        "emergencyContacts": "Liên Hệ Khẩn Cấp",
+        "healthTips": "Mẹo Sức Khỏe"
+      },
+      "statuses": {
+        "fever": "Sốt",
+        "cough": "Ho",
+        "tired": "Mệt",
+        "injury": "Chấn Thương"
+      },
+      "toasts": {
+        "recordCreated": "Tạo hồ sơ sức khỏe thành công",
+        "recordUpdated": "Cập nhật hồ sơ sức khỏe thành công",
+        "incidentReported": "Báo cáo sự cố và đã thông báo cho phụ huynh",
+        "contactsUpdated": "Cập nhật liên hệ khẩn cấp thành công"
+      },
+      "empty": {
+        "noRecords": "Không tìm thấy hồ sơ sức khỏe",
+        "noAllergies": "Không có dị ứng được ghi nhận",
+        "noMedications": "Không có thuốc được ghi nhận",
+        "noVaccinations": "Không có hồ sơ tiêm chủng",
+        "noVitals": "Không có chỉ số sinh tồn được ghi nhận",
+        "noStudents": "Không tìm thấy học sinh"
+      },
+      "errors": {
+        "loadFailed": "Không thể tải dữ liệu sức khỏe",
+        "createFailed": "Không thể tạo hồ sơ sức khỏe",
+        "updateFailed": "Không thể cập nhật hồ sơ sức khỏe"
+      },
+      "addRecord": {
+        "title": "Thêm Hồ Sơ Sức Khỏe",
+        "tabs": {
+          "general": "Tổng Quan",
+          "allergies": "Dị Ứng/Tình Trạng",
+          "medications": "Thuốc",
+          "vaccination": "Tiêm Chủng",
+          "vitals": "Chỉ Số Sinh Tồn"
+        },
+        "fields": {
+          "title": "Tiêu đề",
+          "name": "Tên",
+          "severity": "Mức độ",
+          "notes": "Ghi chú",
+          "dose": "Liều lượng",
+          "schedule": "Lịch trình",
+          "vaccine": "Vắc xin",
+          "status": "Trạng thái",
+          "date": "Ngày",
+          "height": "Chiều cao (cm)",
+          "weight": "Cân nặng (kg)",
+          "recordedAt": "Ghi nhận lúc"
+        },
+        "vaccineCount": "{{count}} trong {{max}} mục",
+        "addMore": "Thêm",
+        "vaccineEntry": "Vắc xin #{{number}}"
+      },
+      "incident": {
+        "temperature": "Nhiệt độ (°C)",
+        "optional": "Tùy chọn"
+      },
+      "drawer": {
+        "title": "Hồ Sơ Sức Khỏe Học Sinh",
+        "vaccineTimeline": "Lịch Sử Tiêm Chủng",
+        "vitalsLog": "Nhật Ký Chỉ Số",
+        "last12Entries": "12 Mục Cuối"
+      },
+      "parent": {
+        "selectChild": "Chọn Con",
+        "trendCharts": "Xu Hướng Tăng Trưởng",
+        "rangeTabs": {
+          "3m": "3 Tháng",
+          "6m": "6 Tháng",
+          "12m": "12 Tháng"
+        },
+        "height": "Chiều cao (cm)",
+        "weight": "Cân nặng (kg)"
+      }
+    },
+    "medicine": {
+      "title": "Quản lý Thuốc",
+      "subtitle": "Quản lý nhắc nhở thuốc và nhật ký quản lý",
+      "parentSubtitle": "Xem và quản lý nhắc nhở thuốc cho con bạn",
+      "addReminder": "Thêm Nhắc Nhở",
+      "loading": "Đang tải...",
+      "noReminders": "Không tìm thấy nhắc nhở",
+      "noActiveReminders": "Không có thuốc đang hoạt động",
+      "noChildren": "Không tìm thấy con",
+      "selectChild": "Chọn con",
+      "activeMedications": "Thuốc Đang Hoạt Động",
+      "administrationLog": "Nhật Ký Quản Lý",
+      "noLogs": "Chưa có nhật ký quản lý",
+      "unknownMedicine": "Thuốc không xác định",
+      "time": "Thời gian",
+      "remindersList": "Nhắc nhở",
+      "kpis": {
+        "totalReminders": "Tổng Nhắc Nhở",
+        "active": "Đang Hoạt Động",
+        "dueToday": "Đến Hạn Hôm Nay",
+        "completedToday": "Hoàn Thành Hôm Nay"
+      },
+      "frequency": {
+        "once": "Một lần",
+        "daily": "Hàng ngày",
+        "twiceDaily": "Hai lần mỗi ngày",
+        "asNeeded": "Khi cần"
+      },
+      "status": {
+        "active": "Đang hoạt động",
+        "paused": "Tạm dừng",
+        "ended": "Đã kết thúc"
+      },
+      "logStatus": {
+        "completed": "Đã hoàn thành",
+        "missed": "Đã bỏ lỡ",
+        "skipped": "Đã bỏ qua"
+      },
+      "table": {
+        "student": "Học sinh",
+        "medicine": "Thuốc",
+        "dosage": "Liều lượng",
+        "frequency": "Tần suất",
+        "time": "Thời gian",
+        "status": "Trạng thái",
+        "actions": "Thao tác",
+        "view": "Xem",
+        "log": "Ghi nhận",
+        "logAdmin": "Ghi nhận việc cho uống thuốc"
+      },
+      "logAdministration": "Ghi Nhận Cho Uống Thuốc",
+      "for": "Cho",
+      "log": {
+        "status": "Trạng thái",
+        "administeredAt": "Ngày & Giờ",
+        "note": "Ghi chú",
+        "notePlaceholder": "Ghi chú tùy chọn...",
+        "save": "Ghi nhận"
+      },
+      "form": {
+        "class": "Lớp",
+        "selectClass": "Chọn lớp",
+        "selectClassFirst": "Chọn lớp trước",
+        "student": "Học sinh",
+        "selectStudent": "Chọn học sinh",
+        "medicineName": "Tên thuốc",
+        "medicineNamePlaceholder": "ví dụ: Siro ho",
+        "dosage": "Liều lượng",
+        "dosagePlaceholder": "ví dụ: 5 ml",
+        "frequency": "Tần suất",
+        "timeOfDay": "Thời gian trong ngày",
+        "startDate": "Ngày bắt đầu",
+        "endDate": "Ngày kết thúc",
+        "notes": "Ghi chú",
+        "notesPlaceholder": "Ghi chú thêm...",
+        "addTime": "+ Thêm thời gian",
+        "remove": "Xóa",
+        "cancel": "Hủy",
+        "save": "Lưu",
+        "saving": "Đang lưu...",
+        "requiredFields": "Vui lòng điền vào tất cả các trường bắt buộc"
+      }
     }
   }
 }
-
-
-
-

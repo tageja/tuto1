@@ -4,6 +4,16 @@
 
 import { supabase } from '../supabase';
 
+const MESSAGE_BUCKET = 'message-attachments';
+
+export type MessageAttachmentMeta = {
+  name: string;
+  url: string;
+  size: number;
+  path: string;
+  contentType?: string;
+};
+
 /**
  * Upload student photo to Supabase Storage
  * @param schoolId - School ID
@@ -91,5 +101,66 @@ export async function uploadActivityFiles(
   }
 
   return out;
+}
+
+/**
+ * Upload message attachments to Supabase Storage
+ */
+export async function uploadMessageFiles(params: {
+  schoolId: string;
+  threadId: string;
+  files: File[];
+}): Promise<MessageAttachmentMeta[]> {
+  const { schoolId, threadId, files } = params;
+
+  if (!files?.length) {
+    return [];
+  }
+
+  const uploaded: MessageAttachmentMeta[] = [];
+
+  for (const file of files) {
+    const safeName = file.name.replace(/\s+/g, '-');
+    const filename = `${Date.now()}-${safeName}`;
+    const path = `${schoolId}/${threadId}/${filename}`;
+
+    const { error } = await supabase.storage.from(MESSAGE_BUCKET).upload(path, file, {
+      upsert: false,
+      cacheControl: '300',
+    });
+
+    if (error) {
+      console.error('uploadMessageFiles error', error);
+      throw error;
+    }
+
+    const { data } = supabase.storage.from(MESSAGE_BUCKET).getPublicUrl(path);
+    if (!data?.publicUrl) {
+      throw new Error('Failed to resolve public URL for message attachment');
+    }
+
+    uploaded.push({
+      name: file.name,
+      url: data.publicUrl,
+      size: file.size,
+      path,
+      contentType: file.type,
+    });
+  }
+
+  return uploaded;
+}
+
+/**
+ * Create a signed URL for a message attachment (fallback when bucket privacy changes)
+ */
+export async function getSignedMessageAttachmentUrl(path: string, expiresIn = 120): Promise<string> {
+  const { data, error } = await supabase.storage.from(MESSAGE_BUCKET).createSignedUrl(path, expiresIn);
+
+  if (error || !data?.signedUrl) {
+    throw error || new Error('Failed to generate signed URL');
+  }
+
+  return data.signedUrl;
 }
 

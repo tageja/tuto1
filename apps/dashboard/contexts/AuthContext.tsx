@@ -61,7 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (profileError || !profile) {
         // User profile doesn't exist, create it
-        console.log('Creating new user profile in database...');
+        console.log('📝 User profile not found, creating new profile in database...');
         
         const { data: newProfile, error: createError } = await supabase
           .from('users')
@@ -75,21 +75,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .single();
         
         if (createError) {
-          console.error('Failed to create profile:', createError);
-        } else {
-          console.log('✅ Created new profile');
+          console.error('❌ Failed to create profile:', {
+            message: createError.message,
+            code: createError.code,
+            details: createError.details,
+            hint: createError.hint,
+          });
+          
+          // If profile creation failed due to duplicate, try fetching it again
+          if (createError.code === '23505') {
+            console.log('🔄 Profile already exists, fetching...');
+            const { data: existingProfile } = await supabase
+              .from('users')
+              .select('*')
+              .eq('auth_user_id', supabaseUser.id)
+              .single();
+            
+            if (existingProfile) {
+              setUser({
+                id: existingProfile.id,
+                firebaseUid: supabaseUser.id,
+                email: existingProfile.email,
+                name: existingProfile.name || supabaseUser.email?.split('@')[0] || '',
+                role: existingProfile.role || 'parent',
+                avatar: existingProfile.avatar || supabaseUser.user_metadata?.avatar_url || undefined,
+                schoolIds: [],
+                createdAt: existingProfile.created_at,
+              });
+              console.log('✅ Fetched existing profile successfully');
+              return;
+            }
+          }
+          
+          // If still failed, throw error
+          throw new Error(`Profile creation failed: ${createError.message}`);
         }
         
-        setUser({
-          id: newProfile?.id || supabaseUser.id,
-          firebaseUid: supabaseUser.id, // Keep for compatibility
-          email: supabaseUser.email || '',
-          name: newProfile?.name || supabaseUser.email?.split('@')[0] || '',
-          role: newProfile?.role || 'parent',
-          avatar: supabaseUser.user_metadata?.avatar_url || undefined,
-          schoolIds: [],
-          createdAt: newProfile?.created_at || new Date().toISOString(),
-        });
+        if (newProfile) {
+          console.log('✅ Created new profile successfully:', { id: newProfile.id, email: newProfile.email });
+          setUser({
+            id: newProfile.id,
+            firebaseUid: supabaseUser.id,
+            email: supabaseUser.email || '',
+            name: newProfile.name || supabaseUser.email?.split('@')[0] || '',
+            role: newProfile.role || 'parent',
+            avatar: supabaseUser.user_metadata?.avatar_url || undefined,
+            schoolIds: [],
+            createdAt: newProfile.created_at || new Date().toISOString(),
+          });
+        }
       } else {
         // Profile exists
         setUser({
@@ -206,6 +240,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       // Create user profile in database
+      console.log('📝 Creating user profile in database...');
       const { data: profile, error: profileError } = await supabase
         .from('users')
         .insert({
@@ -218,7 +253,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .single();
       
       if (profileError) {
-        console.warn('Profile creation warning:', profileError.message);
+        console.error('❌ Profile creation error:', {
+          message: profileError.message,
+          code: profileError.code,
+          details: profileError.details,
+          hint: profileError.hint,
+        });
+        
+        // If duplicate, it might be from OAuth callback creating the profile
+        if (profileError.code !== '23505') {
+          throw new Error(`Failed to create user profile: ${profileError.message}`);
+        }
+        console.log('⚠️ Profile already exists (possibly from OAuth)');
+      } else if (profile) {
+        console.log('✅ User profile created successfully:', { id: profile.id, role: profile.role });
       }
       
       await fetchUserProfile(user);

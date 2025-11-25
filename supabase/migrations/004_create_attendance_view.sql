@@ -31,3 +31,7 @@ ALTER VIEW public.attendance SET (security_invoker = true);
 
 
 
+
+
+
+

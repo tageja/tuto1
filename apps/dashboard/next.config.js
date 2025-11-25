@@ -7,7 +7,24 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: ['images.unsplash.com', 'via.placeholder.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'fkjeggdxqifqqwhuqpgm.supabase.co',
+      },
+    ],
   },
   // Ensure local workspace packages are transpiled for Next.js
   transpilePackages: ['@tuto/ui', '@tuto/api', '@tuto/schemas', '@tuto/i18n'],

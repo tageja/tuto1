@@ -239,3 +239,5 @@ include:
 priority:
   - docs/feature_schema_map.yml
   - airtable/schema.d.ts
+
+don't create summary documents unless asked. only update the previous chat summaries that too in brief

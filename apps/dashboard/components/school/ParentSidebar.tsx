@@ -41,7 +41,7 @@ export function ParentSidebar() {
     { icon: MessageCircle, label: t('messages'), href: `/school/${encodedSchoolId}/parent/messages` },
     { icon: CalendarCheck, label: t('attendance'), href: `/school/${encodedSchoolId}/parent/attendance` },
     { icon: BookOpen, label: t('homework'), href: `/school/${encodedSchoolId}/parent/homework` },
-    { icon: TrendingUp, label: t('progressReports'), href: `/school/${encodedSchoolId}/parent/progress` },
+    { icon: TrendingUp, label: t('progressReports'), href: `/school/${encodedSchoolId}/parent/progress-reports` },
     { icon: PartyPopper, label: t('events'), href: `/school/${encodedSchoolId}/parent/events` },
     { icon: ImageIcon, label: t('photoAlbums'), href: `/school/${encodedSchoolId}/parent/photo-albums` },
     { icon: Heart, label: t('healthRecords'), href: `/school/${encodedSchoolId}/parent/health` },

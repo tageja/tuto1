@@ -279,3 +279,7 @@ Everything is now in Supabase - no more sync issues between Firebase and Airtabl
 
 
 
+
+
+
+

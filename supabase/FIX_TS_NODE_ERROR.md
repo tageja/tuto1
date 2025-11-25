@@ -61,3 +61,7 @@ npx ts-node supabase/scripts/export-airtable.ts
 
 
 
+
+
+
+

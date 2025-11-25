@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
       case 'attendance':
         // Fetch attendance records from Supabase
         const { data: attendance, error: attendanceError } = await supabase
-          .from('attendance_records')
+          .from('school_attendance')
           .select('*')
           .eq('school_id', schoolId)
           .order('date', { ascending: false })
@@ -138,12 +138,12 @@ export async function GET(request: NextRequest) {
             'Date': record.date,
             'Student Name': record.student_id ? 'Loading...' : null,
             'Status': record.status || 'Present',
-            'Notes': record.notes,
+            'Notes': '', // Notes field doesn't exist in school_attendance
             // Keep original fields
             date: record.date,
             student_id: record.student_id,
             status: record.status || 'Present',
-            notes: record.notes,
+            notes: '',
           }));
         }
         break;
@@ -287,8 +287,8 @@ export async function GET(request: NextRequest) {
           .from('messages')
           .select('*')
           .eq('school_id', schoolId)
-          .eq('recipient_id', userId)
-          .eq('read', false)
+          .eq('to_user_id', userId)
+          .eq('is_read', false)
           .order('created_at', { ascending: false })
           .limit(20);
 
@@ -300,14 +300,16 @@ export async function GET(request: NextRequest) {
           // Format to match legacy structure
           data = (messages || []).map((message: any) => ({
             id: message.id,
-            'From User': message.sender_id ? 'Loading...' : null,
+            'From User': message.from_user_id ? 'Loading...' : null,
             'Message Subject': message.subject,
             'Message Content': message.content,
             'Sent Date': message.created_at,
             // Keep original fields
-            sender_id: message.sender_id,
+            from_user_id: message.from_user_id,
+            to_user_id: message.to_user_id,
             subject: message.subject,
             content: message.content,
+            is_read: message.is_read,
             created_at: message.created_at,
           }));
         }
@@ -316,7 +318,7 @@ export async function GET(request: NextRequest) {
       case 'upcomingHomework':
         // Fetch upcoming homework from Supabase
         const { data: homework, error: homeworkError } = await supabase
-          .from('homework')
+          .from('homework_assignments')
           .select('*')
           .eq('school_id', schoolId)
           .gte('due_date', new Date().toISOString().split('T')[0])

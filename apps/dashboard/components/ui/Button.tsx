@@ -11,6 +11,7 @@ export function Button({
   variant = 'default', 
   size = 'default',
   className = '', 
+  asChild,
   ...props 
 }: ButtonProps) {
   const baseStyles = 'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-[#0B5FFF] focus-visible:ring-offset-2';
@@ -27,6 +28,10 @@ export function Button({
     default: 'h-9 px-4 py-2',
     lg: 'h-10 rounded-md px-6',
   };
+  
+  // If asChild is true, render as Slot component (from Radix UI)
+  // For now, we'll just ignore it and render as button
+  // TODO: Implement proper Slot support if needed
   
   return (
     <button 

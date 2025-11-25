@@ -484,6 +484,25 @@ const viFlat: Dict = {
   'dashboard.students.gender.male': 'Nam',
   'dashboard.students.gender.female': 'Nữ',
   'dashboard.students.gender.other': 'Khác',
+  // Progress Reports
+  'dashboard.progress.title': 'Báo cáo Tiến độ',
+  'dashboard.progress.subtitle': 'Theo dõi kết quả học tập và tạo báo cáo',
+  'dashboard.progress.generate': 'Tạo Báo cáo',
+  'dashboard.progress.totalStudents': 'Tổng số Học sinh',
+  'dashboard.progress.avgGrade': 'Điểm Trung bình',
+  'dashboard.progress.improvementRate': 'Tỷ lệ Cải thiện',
+  'dashboard.progress.atRisk': 'Học sinh Cần lưu ý',
+  'dashboard.progress.subjectPerformance': 'Hiệu suất Môn học',
+  'dashboard.progress.recentReports': 'Báo cáo Gần đây',
+  'dashboard.progress.noData': 'Không có dữ liệu',
+  'dashboard.progress.filters.class': 'Lớp',
+  'dashboard.progress.filters.student': 'Học sinh',
+  'dashboard.progress.filters.range.3m': '3 Tháng',
+  'dashboard.progress.filters.range.6m': '6 Tháng',
+  'dashboard.progress.filters.range.12m': '1 Năm',
+  'dashboard.progress.actions.view': 'Xem',
+  'dashboard.progress.actions.download': 'Tải xuống',
+  'dashboard.progress.actions.cancel': 'Hủy',
 };
 
 const enFlat: Dict = {
@@ -961,6 +980,25 @@ const enFlat: Dict = {
   'dashboard.students.gender.male': 'Male',
   'dashboard.students.gender.female': 'Female',
   'dashboard.students.gender.other': 'Other',
+  // Progress Reports
+  'dashboard.progress.title': 'Progress Reports',
+  'dashboard.progress.subtitle': 'Track academic performance and generate reports',
+  'dashboard.progress.generate': 'Generate Reports',
+  'dashboard.progress.totalStudents': 'Total Students',
+  'dashboard.progress.avgGrade': 'Average Grade',
+  'dashboard.progress.improvementRate': 'Improvement Rate',
+  'dashboard.progress.atRisk': 'At Risk Students',
+  'dashboard.progress.subjectPerformance': 'Subject Performance',
+  'dashboard.progress.recentReports': 'Recent Reports',
+  'dashboard.progress.noData': 'No data available',
+  'dashboard.progress.filters.class': 'Class',
+  'dashboard.progress.filters.student': 'Student',
+  'dashboard.progress.filters.range.3m': '3 Months',
+  'dashboard.progress.filters.range.6m': '6 Months',
+  'dashboard.progress.filters.range.12m': '1 Year',
+  'dashboard.progress.actions.view': 'View',
+  'dashboard.progress.actions.download': 'Download',
+  'dashboard.progress.actions.cancel': 'Cancel',
 };
 
 // Nested dictionaries from JSON files
