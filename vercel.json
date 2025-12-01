@@ -4,3 +4,4 @@
   "buildCommand": "npm run build -w @tuto/dashboard",
   "outputDirectory": "apps/dashboard/.next"
 }
+
