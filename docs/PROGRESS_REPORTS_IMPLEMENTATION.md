@@ -108,3 +108,4 @@ supabase/
 - Grade letter: A≥90, B≥80, C≥70, D≥60, E<60
 - Risk flag: avg_score < 60 OR ≥2 scores <60 in range
 
+

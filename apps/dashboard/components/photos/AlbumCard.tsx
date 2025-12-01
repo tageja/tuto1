@@ -70,3 +70,4 @@ export function AlbumCard({ album, onClick, showFavoriteCount = false }: AlbumCa
   );
 }
 
+

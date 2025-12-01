@@ -138,3 +138,4 @@ export function RegistrationsPanel({ eventId, schoolId }: RegistrationsPanelProp
   );
 }
 
+

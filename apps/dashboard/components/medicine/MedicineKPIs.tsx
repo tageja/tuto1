@@ -101,3 +101,4 @@ export function MedicineKPIs({ schoolId, loading: externalLoading }: MedicineKPI
   );
 }
 
+

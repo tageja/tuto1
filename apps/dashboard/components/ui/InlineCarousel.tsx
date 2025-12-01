@@ -87,3 +87,4 @@ export function InlineCarousel({ images, className = '' }: InlineCarouselProps) 
   );
 }
 
+

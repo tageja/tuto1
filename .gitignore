@@ -68,3 +68,14 @@ coverage/
 
 # OS
 Thumbs.db
+
+# Firebase debug logs
+firebase-debug.log
+firebaseLogs/
+
+# Firebase Functions build output
+functions/lib/
+
+# Temporary files
+*.log
+*.tmp

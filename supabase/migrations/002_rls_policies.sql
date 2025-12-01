@@ -617,3 +617,4 @@ COMMENT ON POLICY "Users can read classes in their schools" ON public.school_cla
 
 
 
+

@@ -468,3 +468,4 @@ COMMENT ON FUNCTION public.update_teacher_rating IS 'Recalculate teacher rating 
 
 
 
+

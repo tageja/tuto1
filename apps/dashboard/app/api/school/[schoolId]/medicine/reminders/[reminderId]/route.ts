@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '../../../../../../../../lib/supabase';
-import { resolveSchoolId } from '../../../../../../../../lib/school/resolveSchoolId';
+import { createServerSupabaseClient } from '../../../../../../../lib/supabase';
+import { resolveSchoolId } from '../../../../../../../lib/school/resolveSchoolId';
 
 /**
  * Medicine Reminder Detail API Route
@@ -173,4 +173,5 @@ export async function DELETE(
     );
   }
 }
+
 

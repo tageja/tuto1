@@ -217,3 +217,4 @@ COMMENT ON FUNCTION public.get_user_child_class_ids() IS 'Returns array of class
 
 
 
+

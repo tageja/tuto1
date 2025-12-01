@@ -143,3 +143,4 @@ This audit was performed to understand the current state of the database schema 
 4. Test RLS policies
 5. Proceed with API implementation
 
+
