@@ -1,7 +1,7 @@
 'use client';
 
 import { Plus, Search, Zap, GraduationCap } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '../../../../components/ui/Button';
 import { Card } from '../../../../components/ui/Card';
@@ -11,7 +11,15 @@ import { ClassQuickAddModal } from '../../../../components/school/classes/ClassQ
 import { useSchool } from '../../../../contexts/SchoolContext';
 import { useI18n } from '../../../../contexts/I18nContext';
 
-export default function ClassesPage() {
+export default function ClassesPageWrapper() {
+  return (
+    <Suspense fallback={<div className="p-6">Loading...</div>}>
+      <ClassesPage />
+    </Suspense>
+  );
+}
+
+function ClassesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { selectedSchool } = useSchool();

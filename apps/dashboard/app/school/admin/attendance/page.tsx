@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Download } from 'lucide-react';
 import { Button } from '../../../../components/ui/Button';
 import { Card } from '../../../../components/ui/Card';
