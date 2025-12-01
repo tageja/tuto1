@@ -5,6 +5,8 @@ import { Button } from '../../../components/ui/Button';
 import { StatusBadge } from '../../../components/school/shared/StatusBadge';
 import { getStudentByParentEmail, getAttendanceRecords, getHomeworkAssignments, getProgressReports, getAnnouncements } from '../../../lib/school/data';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ParentDashboard() {
   const schoolId = 'Sunrise International School';
   const parentEmail = 'parent@example.com'; // In real app, get from auth

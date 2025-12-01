@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSchool } from '../../../../contexts/SchoolContext';
 
@@ -9,7 +9,7 @@ import { useSchool } from '../../../../contexts/SchoolContext';
  * This page redirects /school/admin/students to /school/[schoolId]/admin/students
  * Preserves query parameters (e.g., ?classId=, ?q=)
  */
-export default function StudentsPageRedirect() {
+function StudentsRedirectContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { selectedSchool, schoolIdFromUrl } = useSchool();
@@ -34,6 +34,18 @@ export default function StudentsPageRedirect() {
         <p className="text-gray-600">Redirecting to students page...</p>
       </div>
     </div>
+  );
+}
+
+export default function StudentsPageRedirect() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+      </div>
+    }>
+      <StudentsRedirectContent />
+    </Suspense>
   );
 }
 

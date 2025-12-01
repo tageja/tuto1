@@ -1,5 +1,4 @@
 import React from 'react';
-import '../../globals.css';
 import { Card } from '../../../components/ui/Card';
 
 export default function HelpParentsPage() {

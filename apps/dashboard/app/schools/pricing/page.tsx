@@ -1,4 +1,3 @@
-import '../../globals.css';
 import { Card } from '../../../components/ui/Card';
 import { getSchoolPricing } from '../../../lib/api/schools';
 

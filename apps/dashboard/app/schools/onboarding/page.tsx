@@ -1,4 +1,3 @@
-import '../../globals.css';
 import { Card } from '../../../components/ui/Card';
 
 export default function SchoolsOnboardingPage() {

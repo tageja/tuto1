@@ -4,6 +4,8 @@ import { Card } from '../../../../components/ui/Card';
 import { StatusBadge } from '../../../../components/school/shared/StatusBadge';
 import { getSchoolPayments } from '../../../../lib/school/data';
 
+export const dynamic = 'force-dynamic';
+
 export default async function PaymentsPage() {
   const schoolId = 'Sunrise International School';
   const payments = await getSchoolPayments(schoolId);

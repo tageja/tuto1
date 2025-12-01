@@ -1,5 +1,6 @@
+'use client';
+
 import React from 'react';
-import '../../globals.css';
 import { Card } from '../../../components/ui/Card';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Section } from '../../../components/ui/Section';
