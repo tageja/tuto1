@@ -3,6 +3,7 @@
     "ok": "OK",
     "cancel": "Hủy",
     "save": "Lưu",
+    "saving": "Đang lưu...",
     "delete": "Xóa",
     "edit": "Sửa",
     "add": "Thêm",
@@ -33,7 +34,159 @@
   "medicine": "Thuốc",
   "extracurricular": "Ngoại Khóa",
   "payments": "Thanh Toán",
-  "settings": "Cài Đặt",
+  "settings": {
+    "title": "Cài Đặt",
+    "subtitle": "Quản lý hồ sơ, tùy chọn và tích hợp của bạn",
+    "parentSubtitle": "Quản lý hồ sơ, tùy chọn và thông báo của bạn",
+    "lastSaved": "Lưu lần cuối",
+    "tabs": {
+      "profile": "Hồ Sơ",
+      "preferences": "Tùy Chọn",
+      "integrations": "Tích Hợp",
+      "notifications": "Thông Báo",
+      "privacy": "Quyền Riêng Tư"
+    },
+    "profile": {
+      "title": "Thông Tin Hồ Sơ",
+      "fullName": "Họ và Tên",
+      "fullNamePlaceholder": "Nhập họ và tên của bạn",
+      "email": "Email",
+      "emailManaged": "Email được quản lý bởi nhà cung cấp xác thực",
+      "phone": "Số Điện Thoại",
+      "bio": "Giới Thiệu",
+      "bioPlaceholder": "Hãy cho chúng tôi biết đôi chút về bạn...",
+      "avatarHint": "Nhấp để tải lên (tối đa 1.5MB)",
+      "invalidFileType": "Loại tệp không hợp lệ. Vui lòng tải lên ảnh JPEG, PNG hoặc WebP.",
+      "fileTooLarge": "Tệp quá lớn. Kích thước tối đa là 1.5MB.",
+      "uploadError": "Không thể tải lên ảnh đại diện",
+      "password": "Mật Khẩu",
+      "passwordHint": "Mật khẩu được quản lý bởi nhà cung cấp xác thực (Google)",
+      "resetPassword": "Đặt lại qua Tài khoản Google",
+      "twoFactor": "Xác Thực Hai Yếu Tố",
+      "twoFactorHint": "Thêm một lớp bảo mật cho tài khoản của bạn",
+      "enabled": "Đã Bật",
+      "disabled": "Đã Tắt"
+    },
+    "preferences": {
+      "title": "Tùy Chọn",
+      "language": "Ngôn Ngữ",
+      "theme": "Giao Diện",
+      "themeHint": "Hệ thống sẽ theo cài đặt thiết bị của bạn",
+      "system": "Hệ Thống",
+      "light": "Sáng",
+      "dark": "Tối",
+      "timezone": "Múi Giờ"
+    },
+    "notifications": {
+      "title": "Tùy Chọn Thông Báo",
+      "description": "Chọn cách bạn muốn nhận thông báo về các loại cập nhật khác nhau",
+      "topic": "Chủ Đề",
+      "enablePush": "Bật Thông Báo Đẩy",
+      "pushEnabled": "Đã Bật Thông Báo Đẩy",
+      "pushError": "Không thể bật thông báo đẩy",
+      "topics": {
+        "announcements": "Thông Báo",
+        "homework": "Bài Tập",
+        "events": "Sự Kiện",
+        "payments": "Thanh Toán",
+        "messages": "Tin Nhắn",
+        "health": "Sức Khỏe"
+      },
+      "channels": {
+        "email": "Email",
+        "push": "Đẩy",
+        "sms": "SMS"
+      }
+    },
+    "devices": {
+      "title": "Phiên Hoạt Động",
+      "description": "Quản lý các thiết bị mà bạn đang đăng nhập",
+      "noDevices": "Không có phiên hoạt động",
+      "revoke": "Thu Hồi",
+      "revokeError": "Không thể thu hồi thiết bị",
+      "on": "trên",
+      "justNow": "Vừa xong",
+      "minutesAgo": "phút trước",
+      "hoursAgo": "giờ trước",
+      "daysAgo": "ngày trước"
+    },
+    "branding": {
+      "title": "Thương Hiệu Trường",
+      "preview": "Xem Trước",
+      "schoolName": "Tên Trường",
+      "tagline": "Giáo Dục Xuất Sắc",
+      "schoolInfo": "Thông Tin Trường Học",
+      "schoolNameLabel": "Tên Trường",
+      "schoolNamePlaceholder": "Nhập tên trường học",
+      "schoolEmail": "Email Trường",
+      "schoolPhone": "Số Điện Thoại Trường",
+      "schoolAddress": "Địa Chỉ Trường",
+      "schoolAddressPlaceholder": "Nhập địa chỉ trường học",
+      "logo": "Logo",
+      "logoHint": "Ảnh vuông, ít nhất 200x200px",
+      "fileTypes": "JPEG, PNG hoặc WebP",
+      "primaryColor": "Màu Chính",
+      "accentColor": "Màu Nhấn",
+      "headerImage": "Ảnh Tiêu Đề",
+      "headerHint": "Nhấp để tải lên ảnh tiêu đề",
+      "invalidFileType": "Loại tệp không hợp lệ",
+      "uploadError": "Không thể tải lên"
+    },
+    "integrations": {
+      "title": "Tích Hợp",
+      "description": "Kết nối các dịch vụ bên thứ ba để nâng cao khả năng của trường",
+      "selectProvider": "Chọn Nhà Cung Cấp",
+      "connect": "Kết Nối",
+      "connecting": "Đang kết nối...",
+      "disconnect": "Ngắt Kết Nối",
+      "connectError": "Không thể kết nối tích hợp",
+      "disconnectError": "Không thể ngắt kết nối tích hợp",
+      "connectedOn": "Kết nối ngày",
+      "testMode": "Chế Độ Thử Nghiệm",
+      "fromNumber": "Số Gửi",
+      "payments": {
+        "title": "Thanh Toán",
+        "description": "Nhận thanh toán từ phụ huynh qua Stripe hoặc MoMo"
+      },
+      "push": {
+        "title": "Thông Báo Đẩy",
+        "description": "Gửi thông báo đẩy đến thiết bị di động"
+      },
+      "sms": {
+        "title": "SMS",
+        "description": "Gửi thông báo SMS đến phụ huynh"
+      }
+    },
+    "privacy": {
+      "title": "Cài Đặt Quyền Riêng Tư",
+      "description": "Quản lý dữ liệu và tùy chọn quyền riêng tư của bạn",
+      "dataVisibility": {
+        "title": "Hiển Thị Dữ Liệu",
+        "description": "Thông tin hồ sơ của bạn chỉ hiển thị với quản trị viên và giáo viên của trường",
+        "schoolOnly": "Chỉ Trường"
+      },
+      "dataExport": {
+        "title": "Xuất Dữ Liệu",
+        "description": "Tải xuống bản sao tất cả dữ liệu của bạn được lưu trữ trong Tuto",
+        "comingSoon": "Sắp Ra Mắt"
+      },
+      "deleteAccount": {
+        "title": "Xóa Tài Khoản",
+        "description": "Xóa vĩnh viễn tài khoản và tất cả dữ liệu liên quan",
+        "contactAdmin": "Để xóa tài khoản, vui lòng liên hệ quản trị viên trường"
+      },
+      "links": {
+        "title": "Tài Liệu Pháp Lý",
+        "privacyPolicy": "Chính Sách Bảo Mật",
+        "termsOfService": "Điều Khoản Dịch Vụ",
+        "dataRetention": "Chính Sách Lưu Giữ Dữ Liệu"
+      }
+    },
+    "toasts": {
+      "saved": "Đã lưu cài đặt thành công",
+      "error": "Không thể lưu cài đặt. Vui lòng thử lại."
+    }
+  },
   "dailyActivities": "Hoạt Động Hằng Ngày",
   "totalStudents": "Tổng Số Học Sinh",
   "activeTeachers": "Giáo Viên Hoạt Động",
@@ -1188,6 +1341,286 @@
         "saving": "Đang lưu...",
         "requiredFields": "Vui lòng điền vào tất cả các trường bắt buộc"
       }
+    },
+    "payments": {
+      "title": "Thanh Toán",
+      "subtitle": "Quản lý thanh toán và thu phí học sinh",
+      "adminSubtitle": "Theo dõi thanh toán, tạo phí và quản lý thu tiền",
+      "parentSubtitle": "Xem và thanh toán phí cho con bạn",
+      "loading": "Đang tải thanh toán...",
+      "filters": {
+        "dateRange": "Khoảng thời gian",
+        "week": "Tuần",
+        "oneMonth": "1 Tháng",
+        "threeMonths": "3 Tháng",
+        "sixMonths": "6 Tháng",
+        "twelveMonths": "12 Tháng",
+        "custom": "Tùy chỉnh",
+        "class": "Lớp",
+        "student": "Học sinh",
+        "type": "Loại",
+        "status": "Trạng thái",
+        "all": "Tất cả",
+        "allClasses": "Tất cả Lớp",
+        "allStudents": "Tất cả Học sinh",
+        "allTypes": "Tất cả Loại",
+        "from": "Từ",
+        "to": "Đến"
+      },
+      "kpis": {
+        "totalCollection": "Tổng Thu",
+        "paid": "Đã Thanh Toán",
+        "pending": "Đang Chờ",
+        "overdue": "Quá Hạn",
+        "totalStudents": "Tổng Số Học Sinh",
+        "revenuePerStudent": "Doanh Thu / Học Sinh",
+        "nextDue": "Đến Hạn Tiếp Theo",
+        "totalPaid": "Tổng Đã Thanh Toán"
+      },
+      "status": {
+        "pending": "Đang Chờ",
+        "paid": "Đã Thanh Toán",
+        "overdue": "Quá Hạn",
+        "void": "Hủy",
+        "all": "Tất cả"
+      },
+      "type": {
+        "tuition": "Học Phí",
+        "trip": "Chuyến Đi",
+        "club": "Câu Lạc Bộ",
+        "misc": "Khác",
+        "all": "Tất cả Loại"
+      },
+      "table": {
+        "student": "Học sinh",
+        "class": "Lớp",
+        "title": "Tiêu đề",
+        "type": "Loại",
+        "amount": "Số Tiền",
+        "dueDate": "Ngày Đến Hạn",
+        "paidDate": "Ngày Thanh Toán",
+        "status": "Trạng thái",
+        "method": "Phương Thức",
+        "actions": "Thao tác",
+        "remind": "Nhắc Nhở",
+        "pay": "Thanh Toán",
+        "download": "Tải Biên Lai"
+      },
+      "createPayment": {
+        "title": "Tạo Thanh Toán",
+        "fields": {
+          "title": "Tiêu đề",
+          "titlePlaceholder": "ví dụ: Học Phí - Tháng 12",
+          "type": "Loại",
+          "amount": "Số Tiền (VND)",
+          "target": "Đối Tượng",
+          "school": "Toàn Trường",
+          "class": "Lớp",
+          "students": "Học Sinh Đã Chọn",
+          "classLabel": "Lớp",
+          "selectClass": "Chọn một lớp",
+          "studentsLabel": "Học sinh",
+          "selectStudents": "Chọn học sinh",
+          "dueDate": "Ngày Đến Hạn",
+          "lateFee": "Phí Trễ",
+          "enableLateFee": "Bật Phí Trễ",
+          "lateFeeMode": "Chế Độ Phí",
+          "flat": "Số Tiền Cố Định",
+          "percentage": "Phần Trăm",
+          "lateFeeAmount": "Số Tiền Phí Trễ",
+          "lateFeePercent": "Phần Trăm Phí Trễ (%)",
+          "lateFeeAfterDays": "Áp Dụng Sau (ngày)",
+          "notes": "Ghi chú",
+          "notesPlaceholder": "Ghi chú tùy chọn..."
+        },
+        "buttons": {
+          "create": "Tạo Thanh Toán",
+          "cancel": "Hủy",
+          "creating": "Đang tạo..."
+        },
+        "validation": {
+          "titleRequired": "Tiêu đề là bắt buộc",
+          "typeRequired": "Loại là bắt buộc",
+          "amountRequired": "Số tiền là bắt buộc",
+          "amountPositive": "Số tiền phải là số dương",
+          "targetRequired": "Đối tượng là bắt buộc",
+          "classRequired": "Lớp là bắt buộc khi đối tượng là Lớp",
+          "studentsRequired": "Cần ít nhất một học sinh khi đối tượng là Học Sinh",
+          "dueDateRequired": "Ngày đến hạn là bắt buộc"
+        },
+        "success": "Tạo thanh toán thành công",
+        "error": "Không thể tạo thanh toán"
+      },
+      "donut": {
+        "title": "Tổng Quan Thu Phí",
+        "paid": "Đã Thanh Toán",
+        "pending": "Đang Chờ",
+        "overdue": "Quá Hạn",
+        "collected": "Đã Thu"
+      },
+      "trend": {
+        "title": "Xu Hướng Doanh Thu",
+        "revenue": "Doanh Thu",
+        "date": "Ngày"
+      },
+      "buttons": {
+        "createPayment": "Tạo Thanh Toán",
+        "sendReminders": "Gửi Nhắc Nhở",
+        "export": "Xuất CSV",
+        "exporting": "Đang xuất...",
+        "remind": "Nhắc Nhở",
+        "pay": "Thanh Toán Ngay",
+        "downloadReceipt": "Tải Biên Lai"
+      },
+      "remind": {
+        "success": "Gửi nhắc nhở thành công",
+        "error": "Không thể gửi nhắc nhở"
+      },
+      "pay": {
+        "title": "Hoàn Tất Thanh Toán",
+        "processing": "Đang xử lý thanh toán...",
+        "success": "Thanh toán thành công",
+        "error": "Thanh toán thất bại. Vui lòng thử lại.",
+        "successModal": {
+          "title": "Thanh Toán Thành Công",
+          "message": "Thanh toán của bạn đã được xử lý thành công. Biên lai đã được tạo.",
+          "close": "Đóng"
+        }
+      },
+      "receipt": {
+        "download": "Tải Biên Lai",
+        "error": "Không thể tải biên lai"
+      },
+      "methods": {
+        "title": "Phương Thức Thanh Toán",
+        "add": "Thêm Phương Thức Thanh Toán",
+        "primary": "Mặc Định",
+        "noMethods": "Không có phương thức thanh toán đã lưu"
+      },
+      "empty": {
+        "noPayments": "Không tìm thấy thanh toán",
+        "tryDifferentFilters": "Thử điều chỉnh bộ lọc hoặc khoảng thời gian",
+        "noPending": "Không có thanh toán đang chờ"
+      },
+      "errors": {
+        "loadFailed": "Không thể tải thanh toán",
+        "createFailed": "Không thể tạo thanh toán",
+        "remindFailed": "Không thể gửi nhắc nhở"
+      },
+      "parent": {
+        "nextDue": "Đến Hạn Tiếp Theo",
+        "paymentHistory": "Lịch Sử Thanh Toán",
+        "description": "Mô tả",
+        "noHistory": "Không có lịch sử thanh toán"
+      }
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "Kết nối gia đình, giáo viên và nhà trường.",
+      "subtitle": "Quản lý lớp học, theo dõi tiến độ và xây dựng cộng đồng học tập - tất cả trong một nền tảng.",
+      "familiesTitle": "Dành cho Gia đình & Học sinh",
+      "familiesDesc": "Tìm gia sư gần bạn, tham gia nhóm học và theo dõi hành trình học tập của con.",
+      "schoolsTitle": "Dành cho Trường học & Trung tâm",
+      "schoolsDesc": "Vận hành toàn bộ nhà trường với nền tảng quản lý tất cả trong một."
+    },
+    "cta": {
+      "findTeachers": "Tìm Giáo Viên",
+      "exploreFeed": "Khám Phá",
+      "openDashboard": "Đăng Nhập Trường",
+      "enterSchoolCode": "Nhập Mã",
+      "imTeacher": "Tôi là Giáo Viên",
+      "exploreNow": "Khám Phá Ngay",
+      "talkToSales": "Liên Hệ Tư Vấn"
+    },
+    "openApp": {
+      "highlightsTitle": "Hoạt Động Cộng Đồng",
+      "highlightsSubtitle": "Xem những gì đang diễn ra trong cộng đồng Tuto.",
+      "nearbyTitle": "Giáo Viên & Trung Tâm Gần Bạn",
+      "nearbySubtitle": "Khám phá giáo viên và trung tâm uy tín gần bạn.",
+      "viewAll": "Xem Tất Cả",
+      "viewMore": "Xem thêm 120+ giáo viên gần bạn"
+    },
+    "roles": {
+      "title": "Chọn Vai Trò Của Bạn",
+      "subtitle": "Truy cập bảng điều khiển phù hợp với vai trò của bạn tại trường.",
+      "admin": {
+        "title": "Quản Trị Viên",
+        "desc": "Quản lý giáo viên, lớp học, điểm danh và giao tiếp - tất cả trong một bảng điều khiển."
+      },
+      "teacher": {
+        "title": "Giáo Viên",
+        "desc": "Quản lý lớp học, điểm danh, chấm điểm và giao tiếp với phụ huynh."
+      },
+      "parent": {
+        "title": "Phụ Huynh",
+        "desc": "Giữ liên lạc với giáo viên và theo dõi hành trình học tập của con."
+      },
+      "accessPortal": "Truy Cập",
+      "getAccess": "Yêu Cầu Truy Cập"
+    },
+    "features": {
+      "title": "Mọi Thứ Bạn Cần",
+      "subtitle": "Công cụ thiết yếu cho trường học, giáo viên và gia đình.",
+      "attendance": "Điểm Danh",
+      "homework": "Bài Tập",
+      "events": "Sự Kiện",
+      "progress": "Tiến Độ",
+      "health": "Sức Khỏe",
+      "medicine": "Thuốc",
+      "photos": "Album Ảnh",
+      "payments": "Thanh Toán"
+    },
+    "kpis": {
+      "schoolsTrusted": "Trường Tin Dùng",
+      "homeworkCompletion": "Hoàn Thành Bài Tập",
+      "parentEngagement": "Tương Tác Phụ Huynh",
+      "attendanceRate": "Tỷ Lệ Điểm Danh",
+      "liveUpdate": "Cập nhật 2 phút trước"
+    },
+    "ctaSection": {
+      "openApp": "Tham Gia Cộng Đồng Học Tập",
+      "openAppDesc": "Tìm giáo viên chất lượng, tham gia nhóm học và theo dõi tiến độ ngay hôm nay.",
+      "runSchool": "Vận Hành Trường Trên Tuto",
+      "runSchoolDesc": "Hệ điều hành tất cả trong một cho trường học và trung tâm giáo dục hiện đại."
+    },
+    "modals": {
+      "enterSchoolCode": "Nhập Mã Trường",
+      "codeDesc": "Hỏi quản trị viên nhà trường để lấy mã truy cập.",
+      "verifyEnter": "Xác Minh & Vào",
+      "requestAccess": "Yêu Cầu Quyền Truy Cập",
+      "requestDesc": "Nhập email để yêu cầu quyền truy cập từ quản trị viên.",
+      "email": "Địa Chỉ Email",
+      "sendRequest": "Gửi Yêu Cầu",
+      "requestSent": "Đã Gửi Yêu Cầu!",
+      "requestSentDesc": "Chúng tôi đã thông báo cho quản trị viên. Bạn sẽ nhận email khi được duyệt.",
+      "close": "Đóng",
+      "invalidCode": "Mã không hợp lệ. Vui lòng thử lại."
+    },
+    "footer": {
+      "platform": "Nền Tảng",
+      "communityFeed": "Bảng Tin",
+      "aboutUs": "Về Chúng Tôi",
+      "careers": "Tuyển Dụng",
+      "quickAccess": "Truy Cập Nhanh",
+      "features": "Tính Năng",
+      "pricing": "Bảng Giá",
+      "contactSales": "Liên Hệ Kinh Doanh",
+      "support": "Hỗ Trợ",
+      "helpCenter": "Trung Tâm Trợ Giúp",
+      "privacyPolicy": "Chính Sách Bảo Mật",
+      "termsOfService": "Điều Khoản Dịch Vụ",
+      "contactUs": "Liên Hệ"
+    },
+    "nav": {
+      "home": "Trang Chủ",
+      "findTeacher": "Tìm Giáo Viên",
+      "communityFeed": "Bảng Tin",
+      "schoolDashboard": "Trường Học",
+      "dashboard": "Bảng Điều Khiển",
+      "mySchedule": "Lịch Của Tôi",
+      "messages": "Tin Nhắn",
+      "login": "Đăng Nhập"
     }
   }
 }

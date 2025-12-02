@@ -3,6 +3,7 @@
     "ok": "OK",
     "cancel": "Cancel",
     "save": "Save",
+    "saving": "Saving...",
     "delete": "Delete",
     "edit": "Edit",
     "add": "Add",
@@ -33,7 +34,159 @@
   "medicine": "Medicine",
   "extracurricular": "Extracurricular",
   "payments": "Payments",
-  "settings": "Settings",
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your profile, preferences, and integrations",
+    "parentSubtitle": "Manage your profile, preferences, and notifications",
+    "lastSaved": "Last saved",
+    "tabs": {
+      "profile": "Profile",
+      "preferences": "Preferences",
+      "integrations": "Integrations",
+      "notifications": "Notifications",
+      "privacy": "Privacy"
+    },
+    "profile": {
+      "title": "Profile Information",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "Enter your full name",
+      "email": "Email",
+      "emailManaged": "Email is managed by your authentication provider",
+      "phone": "Phone Number",
+      "bio": "Bio",
+      "bioPlaceholder": "Tell us a little about yourself...",
+      "avatarHint": "Click to upload (max 1.5MB)",
+      "invalidFileType": "Invalid file type. Please upload a JPEG, PNG, or WebP image.",
+      "fileTooLarge": "File is too large. Maximum size is 1.5MB.",
+      "uploadError": "Failed to upload avatar",
+      "password": "Password",
+      "passwordHint": "Password is managed by your authentication provider (Google)",
+      "resetPassword": "Reset via Google Account",
+      "twoFactor": "Two-Factor Authentication",
+      "twoFactorHint": "Add an extra layer of security to your account",
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "preferences": {
+      "title": "Preferences",
+      "language": "Language",
+      "theme": "Theme",
+      "themeHint": "System will follow your device settings",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark",
+      "timezone": "Timezone"
+    },
+    "notifications": {
+      "title": "Notification Preferences",
+      "description": "Choose how you want to be notified about different types of updates",
+      "topic": "Topic",
+      "enablePush": "Enable Push Notifications",
+      "pushEnabled": "Push Enabled",
+      "pushError": "Failed to enable push notifications",
+      "topics": {
+        "announcements": "Announcements",
+        "homework": "Homework",
+        "events": "Events",
+        "payments": "Payments",
+        "messages": "Messages",
+        "health": "Health"
+      },
+      "channels": {
+        "email": "Email",
+        "push": "Push",
+        "sms": "SMS"
+      }
+    },
+    "devices": {
+      "title": "Active Sessions",
+      "description": "Manage devices where you're currently signed in",
+      "noDevices": "No active sessions",
+      "revoke": "Revoke",
+      "revokeError": "Failed to revoke device",
+      "on": "on",
+      "justNow": "Just now",
+      "minutesAgo": "min ago",
+      "hoursAgo": "hours ago",
+      "daysAgo": "days ago"
+    },
+    "branding": {
+      "title": "School Branding",
+      "preview": "Preview",
+      "schoolName": "School Name",
+      "tagline": "Education Excellence",
+      "schoolInfo": "School Information",
+      "schoolNameLabel": "School Name",
+      "schoolNamePlaceholder": "Enter your school name",
+      "schoolEmail": "School Email",
+      "schoolPhone": "School Phone",
+      "schoolAddress": "School Address",
+      "schoolAddressPlaceholder": "Enter your school address",
+      "logo": "Logo",
+      "logoHint": "Square image, at least 200x200px",
+      "fileTypes": "JPEG, PNG, or WebP",
+      "primaryColor": "Primary Color",
+      "accentColor": "Accent Color",
+      "headerImage": "Header Image",
+      "headerHint": "Click to upload header image",
+      "invalidFileType": "Invalid file type",
+      "uploadError": "Failed to upload"
+    },
+    "integrations": {
+      "title": "Integrations",
+      "description": "Connect third-party services to enhance your school's capabilities",
+      "selectProvider": "Select Provider",
+      "connect": "Connect",
+      "connecting": "Connecting...",
+      "disconnect": "Disconnect",
+      "connectError": "Failed to connect integration",
+      "disconnectError": "Failed to disconnect integration",
+      "connectedOn": "Connected on",
+      "testMode": "Test Mode",
+      "fromNumber": "From Number",
+      "payments": {
+        "title": "Payments",
+        "description": "Accept payments from parents via Stripe or MoMo"
+      },
+      "push": {
+        "title": "Push Notifications",
+        "description": "Send push notifications to mobile devices"
+      },
+      "sms": {
+        "title": "SMS",
+        "description": "Send SMS notifications to parents"
+      }
+    },
+    "privacy": {
+      "title": "Privacy Settings",
+      "description": "Manage your data and privacy preferences",
+      "dataVisibility": {
+        "title": "Data Visibility",
+        "description": "Your profile information is only visible to school administrators and teachers",
+        "schoolOnly": "School Only"
+      },
+      "dataExport": {
+        "title": "Export Your Data",
+        "description": "Download a copy of all your data stored in Tuto",
+        "comingSoon": "Coming Soon"
+      },
+      "deleteAccount": {
+        "title": "Delete Account",
+        "description": "Permanently delete your account and all associated data",
+        "contactAdmin": "To delete your account, please contact your school administrator"
+      },
+      "links": {
+        "title": "Legal Documents",
+        "privacyPolicy": "Privacy Policy",
+        "termsOfService": "Terms of Service",
+        "dataRetention": "Data Retention Policy"
+      }
+    },
+    "toasts": {
+      "saved": "Settings saved successfully",
+      "error": "Failed to save settings. Please try again."
+    }
+  },
   "dailyActivities": "Daily Activities",
   "totalStudents": "Total Students",
   "activeTeachers": "Active Teachers",
@@ -1188,6 +1341,288 @@
         "saving": "Saving...",
         "requiredFields": "Please fill in all required fields"
       }
+    },
+    "payments": {
+      "title": "Payments",
+      "subtitle": "Manage student payments and fee collection",
+      "adminSubtitle": "Track payments, create charges, and manage collections",
+      "parentSubtitle": "View and pay fees for your child",
+      "loading": "Loading payments...",
+      "filters": {
+        "dateRange": "Date Range",
+        "week": "Week",
+        "oneMonth": "1 Month",
+        "threeMonths": "3 Months",
+        "sixMonths": "6 Months",
+        "twelveMonths": "12 Months",
+        "custom": "Custom",
+        "class": "Class",
+        "student": "Student",
+        "type": "Type",
+        "status": "Status",
+        "all": "All",
+        "allClasses": "All Classes",
+        "allStudents": "All Students",
+        "allTypes": "All Types",
+        "from": "From",
+        "to": "To"
+      },
+      "kpis": {
+        "totalCollection": "Total Collection",
+        "paid": "Paid",
+        "pending": "Pending",
+        "overdue": "Overdue",
+        "totalStudents": "Total Students",
+        "revenuePerStudent": "Revenue / Student",
+        "nextDue": "Next Due",
+        "totalPaid": "Total Paid"
+      },
+      "status": {
+        "pending": "Pending",
+        "paid": "Paid",
+        "overdue": "Overdue",
+        "void": "Void",
+        "all": "All"
+      },
+      "type": {
+        "tuition": "Tuition",
+        "trip": "Trip",
+        "club": "Club",
+        "misc": "Miscellaneous",
+        "all": "All Types"
+      },
+      "table": {
+        "student": "Student",
+        "class": "Class",
+        "title": "Title",
+        "type": "Type",
+        "amount": "Amount",
+        "dueDate": "Due Date",
+        "paidDate": "Paid Date",
+        "status": "Status",
+        "method": "Method",
+        "actions": "Actions",
+        "remind": "Remind",
+        "pay": "Pay",
+        "download": "Download Receipt"
+      },
+      "createPayment": {
+        "title": "Create Payment",
+        "fields": {
+          "title": "Title",
+          "titlePlaceholder": "e.g., Tuition Fee - December",
+          "type": "Type",
+          "amount": "Amount (VND)",
+          "target": "Target",
+          "school": "All School",
+          "class": "Class",
+          "students": "Selected Students",
+          "classLabel": "Class",
+          "selectClass": "Select a class",
+          "studentsLabel": "Students",
+          "selectStudents": "Select students",
+          "dueDate": "Due Date",
+          "lateFee": "Late Fee",
+          "enableLateFee": "Enable Late Fee",
+          "lateFeeMode": "Fee Mode",
+          "flat": "Flat Amount",
+          "percentage": "Percentage",
+          "lateFeeAmount": "Late Fee Amount",
+          "lateFeePercent": "Late Fee Percentage (%)",
+          "lateFeeAfterDays": "Apply After (days)",
+          "notes": "Notes",
+          "notesPlaceholder": "Optional notes..."
+        },
+        "buttons": {
+          "create": "Create Payment",
+          "cancel": "Cancel",
+          "creating": "Creating..."
+        },
+        "validation": {
+          "titleRequired": "Title is required",
+          "typeRequired": "Type is required",
+          "amountRequired": "Amount is required",
+          "amountPositive": "Amount must be positive",
+          "targetRequired": "Target is required",
+          "classRequired": "Class is required when target is Class",
+          "studentsRequired": "At least one student is required when target is Students",
+          "dueDateRequired": "Due date is required"
+        },
+        "success": "Payment created successfully",
+        "error": "Failed to create payment"
+      },
+      "donut": {
+        "title": "Fee Collection Overview",
+        "paid": "Paid",
+        "pending": "Pending",
+        "overdue": "Overdue",
+        "collected": "Collected"
+      },
+      "trend": {
+        "title": "Revenue Trend",
+        "revenue": "Revenue",
+        "date": "Date"
+      },
+      "buttons": {
+        "createPayment": "Create Payment",
+        "sendReminders": "Send Reminders",
+        "export": "Export CSV",
+        "exporting": "Exporting...",
+        "remind": "Remind",
+        "pay": "Pay Now",
+        "downloadReceipt": "Download Receipt"
+      },
+      "remind": {
+        "success": "Reminders sent successfully",
+        "error": "Failed to send reminders"
+      },
+      "pay": {
+        "title": "Complete Payment",
+        "processing": "Processing payment...",
+        "success": "Payment processed successfully",
+        "error": "Payment failed. Please try again.",
+        "successModal": {
+          "title": "Payment Successful",
+          "message": "Your payment has been processed successfully. A receipt has been generated.",
+          "close": "Close"
+        }
+      },
+      "receipt": {
+        "download": "Download Receipt",
+        "error": "Failed to download receipt"
+      },
+      "selectChild": "Select Child",
+      "selectChildFirst": "Please select a child to view payments",
+      "methods": {
+        "title": "Payment Methods",
+        "add": "Add Payment Method",
+        "primary": "Primary",
+        "noMethods": "No payment methods saved"
+      },
+      "empty": {
+        "noPayments": "No payments found",
+        "tryDifferentFilters": "Try adjusting your filters or date range",
+        "noPending": "No pending payments"
+      },
+      "errors": {
+        "loadFailed": "Failed to load payments",
+        "createFailed": "Failed to create payment",
+        "remindFailed": "Failed to send reminders"
+      },
+      "parent": {
+        "nextDue": "Next Due",
+        "paymentHistory": "Payment History",
+        "description": "Description",
+        "noHistory": "No payment history"
+      }
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "Empowering families, teachers, and schools.",
+      "subtitle": "Manage classes, track progress, and build your learning community - all in one place.",
+      "familiesTitle": "For Families & Learners",
+      "familiesDesc": "Find expert tutors nearby, join study groups, and track your child's learning journey.",
+      "schoolsTitle": "For Schools & Centers",
+      "schoolsDesc": "Run your entire institution with our all-in-one school management platform."
+    },
+    "cta": {
+      "findTeachers": "Find Teachers",
+      "exploreFeed": "Explore Feed",
+      "openDashboard": "School Login",
+      "enterSchoolCode": "Enter Code",
+      "imTeacher": "I'm a Teacher",
+      "exploreNow": "Explore Now",
+      "talkToSales": "Talk to Sales"
+    },
+    "openApp": {
+      "highlightsTitle": "Community Highlights",
+      "highlightsSubtitle": "See what's happening across the Tuto community.",
+      "nearbyTitle": "Nearby Teachers & Centers",
+      "nearbySubtitle": "Discover trusted educators and learning centers near you.",
+      "viewAll": "View All",
+      "viewMore": "View 120+ more teachers nearby"
+    },
+    "roles": {
+      "title": "Choose Your Role",
+      "subtitle": "Access your personalized dashboard based on your role in the school.",
+      "admin": {
+        "title": "School Admin",
+        "desc": "Manage teachers, classes, attendance, and communication - all in one dashboard."
+      },
+      "teacher": {
+        "title": "Teacher",
+        "desc": "Manage your classes, attendance, grading, and parent communication."
+      },
+      "parent": {
+        "title": "Parent",
+        "desc": "Stay connected with teachers and track your child's learning journey."
+      },
+      "accessPortal": "Access Portal",
+      "getAccess": "Get Access"
+    },
+    "features": {
+      "title": "Everything You Need",
+      "subtitle": "Essential tools for schools, teachers, and families.",
+      "attendance": "Attendance",
+      "homework": "Homework",
+      "events": "Events",
+      "progress": "Progress",
+      "health": "Health",
+      "medicine": "Medicine",
+      "photos": "Photos",
+      "payments": "Payments"
+    },
+    "kpis": {
+      "schoolsTrusted": "Schools Trusted",
+      "homeworkCompletion": "Homework Completion",
+      "parentEngagement": "Parent Engagement",
+      "attendanceRate": "Avg Attendance",
+      "liveUpdate": "Synced 2m ago"
+    },
+    "ctaSection": {
+      "openApp": "Join the Learning Community",
+      "openAppDesc": "Find expert teachers, join study groups, and track your progress today.",
+      "runSchool": "Run Your School on Tuto",
+      "runSchoolDesc": "The all-in-one operating system for modern education centers and schools."
+    },
+    "modals": {
+      "enterSchoolCode": "Enter School Code",
+      "codeDesc": "Ask your school administrator for the access code.",
+      "verifyEnter": "Verify & Enter",
+      "requestAccess": "Request Teacher Access",
+      "requestDesc": "Enter your email to request access from your school administrator.",
+      "email": "Email Address",
+      "sendRequest": "Send Request",
+      "requestSent": "Request Sent!",
+      "requestSentDesc": "We've notified the school admins. You'll receive an email once approved.",
+      "close": "Close",
+      "invalidCode": "Invalid code. Please try again."
+    },
+    "footer": {
+      "platform": "Platform",
+      "communityFeed": "Community Feed",
+      "aboutUs": "About Us",
+      "careers": "Careers",
+      "quickAccess": "Quick Access",
+      "features": "Features",
+      "pricing": "Pricing",
+      "contactSales": "Contact Sales",
+      "support": "Support",
+      "helpCenter": "Help Center",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "contactUs": "Contact Us"
+    },
+    "nav": {
+      "home": "Home",
+      "findTeacher": "Find Teacher",
+      "communityFeed": "Community Feed",
+      "schoolDashboard": "School Dashboard",
+      "dashboard": "Dashboard",
+      "mySchedule": "My Schedule",
+      "messages": "Messages",
+      "login": "Login"
     }
   }
 }
