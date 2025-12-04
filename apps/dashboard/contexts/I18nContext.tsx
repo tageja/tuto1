@@ -35,6 +35,7 @@ const viFlat: Dict = {
   schoolAdmin: 'Quản trị trường',
   pleaseWait: 'Vui lòng đợi…',
   termsAgreement: 'Bằng cách tiếp tục, bạn đồng ý với Điều khoản Dịch vụ và Chính sách Bảo mật của chúng tôi',
+  confirmEmailSent: 'Vui lòng kiểm tra email để xác nhận tài khoản. Nhấp vào liên kết trong email để hoàn tất đăng ký.',
   emailPlaceholder: 'you@example.com',
   namePlaceholder: 'Nguyễn Văn A',
   newBooking: 'Đặt lịch mới',
@@ -93,6 +94,7 @@ const viFlat: Dict = {
   medicine: 'Thuốc',
   extracurricular: 'Ngoại khóa',
   payments: 'Thanh toán',
+  feedback: 'Phản Hồi',
   settings: 'Cài đặt',
   // Classes Page
   totalClasses: 'Tổng số lớp',
@@ -531,6 +533,7 @@ const enFlat: Dict = {
   schoolAdmin: 'School Admin',
   pleaseWait: 'Please wait…',
   termsAgreement: 'By continuing, you agree to our Terms of Service and Privacy Policy',
+  confirmEmailSent: 'Please check your email to confirm your account. Click the link in the email to complete registration.',
   emailPlaceholder: 'you@example.com',
   namePlaceholder: 'Nguyen Van A',
   newBooking: 'New Booking',
@@ -589,6 +592,7 @@ const enFlat: Dict = {
   medicine: 'Medicine',
   extracurricular: 'Extracurricular',
   payments: 'Payments',
+  feedback: 'Feedback',
   settings: 'Settings',
   // Classes Page
   totalClasses: 'Total Classes',

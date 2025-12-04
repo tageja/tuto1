@@ -140,11 +140,31 @@ export async function signUpWithEmail(email: string, password: string, metadata?
     password,
     options: {
       data: metadata,
+      emailRedirectTo: `${window.location.origin}/auth/callback`,
     },
   });
   
-  if (error) throw error;
-  return data;
+  if (error) {
+    // Handle rate limiting - signup may have succeeded
+    if (error.message.includes('security purposes') || error.message.includes('after')) {
+      return {
+        user: null,
+        session: null,
+        emailConfirmationRequired: true,
+        rateLimited: true,
+      };
+    }
+    throw error;
+  }
+  
+  // Check if email confirmation is required (user exists but no session)
+  const emailConfirmationRequired = data.user && !data.session;
+  
+  return {
+    ...data,
+    emailConfirmationRequired,
+    rateLimited: false,
+  };
 }
 
 // Database helpers

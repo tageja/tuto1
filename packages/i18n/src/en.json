@@ -17,7 +17,13 @@
     "info": "Information",
     "reviews": "reviews",
     "perHour": "per hour",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "all": "All",
+    "select": "Select",
+    "reply": "Reply",
+    "back": "Back",
+    "created": "Created",
+    "newest": "Newest"
   },
   "dashboard": "Dashboard",
   "teachers": "Teachers",
@@ -34,6 +40,7 @@
   "medicine": "Medicine",
   "extracurricular": "Extracurricular",
   "payments": "Payments",
+  "feedback": "Feedback",
   "settings": {
     "title": "Settings",
     "subtitle": "Manage your profile, preferences, and integrations",
@@ -1514,6 +1521,52 @@
         "paymentHistory": "Payment History",
         "description": "Description",
         "noHistory": "No payment history"
+      }
+    },
+    "feedback": {
+      "title": "Feedback",
+      "subtitle": "Send requests, complaints, or information and track the status",
+      "create": {
+        "title": "Create Feedback",
+        "studentLabel": "Student",
+        "categoryLabel": "Category",
+        "titleLabel": "Title",
+        "descriptionLabel": "Description",
+        "submit": "Send Feedback",
+        "info": "The school will reply within 7 days"
+      },
+      "list": {
+        "title": "My Feedback",
+        "noItems": "No feedback yet"
+      },
+      "category": {
+        "request": "Request",
+        "complaint": "Complaint",
+        "information": "Information"
+      },
+      "status": {
+        "open": "Open",
+        "overdue": "Overdue",
+        "closed": "Closed"
+      },
+      "deadline": {
+        "label": "Deadline",
+        "overdue": "Overdue",
+        "dueIn": "Due in {days} days",
+        "overdueBy": "Overdue by {days} days"
+      },
+      "parent": {
+        "thread": {
+          "title": "Conversation"
+        },
+        "replyPlaceholder": "Write a reply...",
+        "closeButton": "Satisfied – Close Feedback"
+      },
+      "admin": {
+        "title": "Parent Feedback",
+        "subtitle": "View and respond to feedback from parents",
+        "replyPlaceholder": "Write a reply to the parent...",
+        "markClosed": "Mark as Closed"
       }
     }
   },

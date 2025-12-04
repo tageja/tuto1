@@ -23,7 +23,8 @@ export function FeesTab({ fees }: FeesTabProps) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat(lang === 'vi' ? 'vi-VN' : 'en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'VND',
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 

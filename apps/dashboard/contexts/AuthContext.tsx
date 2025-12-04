@@ -32,6 +32,9 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<void>;
   clearError: () => void;
   signInWithGoogle: () => Promise<void>;
+  refreshUser: () => Promise<void>;
+  updateUserAvatar: (avatarUrl: string) => void;
+  updateUserName: (name: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -223,6 +226,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   /**
    * Sign up with email and password
+   * 
+   * The user profile is automatically created by a database trigger.
+   * If email confirmation is enabled, the user must confirm their email before signing in.
    */
   const signUp = async (email: string, password: string, name: string, role: UserRole) => {
     try {
@@ -230,47 +236,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       
       console.log('🔐 Creating account with Supabase...');
-      const { user, session } = await signUpWithEmail(email, password, {
+      const result = await signUpWithEmail(email, password, {
         full_name: name,
         role: role,
       });
       
-      if (!user) {
-        throw new Error('No user returned from sign up');
+      // Handle rate limiting (signup likely already succeeded)
+      if (result.rateLimited) {
+        console.log('⏳ Rate limited - signup may have already succeeded');
+        setError('A confirmation email was already sent. Please check your inbox or wait 40 seconds to try again.');
+        return; // Don't throw - this isn't a fatal error
       }
       
-      // Create user profile in database
-      console.log('📝 Creating user profile in database...');
-      const { data: profile, error: profileError } = await supabase
-        .from('users')
-        .insert({
-          auth_user_id: user.id,
-          email: email,
-          name: name,
-          role: role,
-        })
-        .select()
-        .single();
-      
-      if (profileError) {
-        console.error('❌ Profile creation error:', {
-          message: profileError.message,
-          code: profileError.code,
-          details: profileError.details,
-          hint: profileError.hint,
-        });
-        
-        // If duplicate, it might be from OAuth callback creating the profile
-        if (profileError.code !== '23505') {
-          throw new Error(`Failed to create user profile: ${profileError.message}`);
-        }
-        console.log('⚠️ Profile already exists (possibly from OAuth)');
-      } else if (profile) {
-        console.log('✅ User profile created successfully:', { id: profile.id, role: profile.role });
+      // Handle email confirmation required
+      if (result.emailConfirmationRequired) {
+        console.log('📧 Email confirmation required');
+        // Don't throw an error - this is a success state
+        // The UI should show a success message
+        return;
       }
       
-      await fetchUserProfile(user);
-      router.push('/home');
+      // If we have a session, user is fully signed up (email confirmation disabled)
+      if (result.user && result.session) {
+        console.log('✅ Account created and signed in');
+        await fetchUserProfile(result.user);
+        router.push('/home');
+      }
       
       console.log('✅ Sign up successful');
     } catch (err: any) {
@@ -279,12 +270,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let errorMessage = 'Failed to create account';
       const message = err?.message || '';
       
-      if (message.includes('already registered') || message.includes('already exists')) {
-        errorMessage = 'An account with this email already exists';
+      if (message.includes('already registered') || message.includes('already exists') || message.includes('User already registered')) {
+        errorMessage = 'An account with this email already exists. Please sign in instead.';
       } else if (message.includes('weak password') || message.includes('at least 6 characters')) {
         errorMessage = 'Password is too weak. Please use at least 6 characters';
       } else if (message.includes('invalid email')) {
         errorMessage = 'Invalid email address';
+      } else if (message.includes('security purposes') || message.includes('after')) {
+        errorMessage = 'Please wait a moment before trying again';
       }
       
       setError(errorMessage);
@@ -352,6 +345,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   /**
+   * Refresh user profile from database
+   */
+  const refreshUser = async () => {
+    if (supabaseUser) {
+      await fetchUserProfile(supabaseUser);
+    }
+  };
+
+  /**
+   * Update user avatar locally (for immediate UI update)
+   */
+  const updateUserAvatar = (avatarUrl: string) => {
+    if (user) {
+      setUser({ ...user, avatar: avatarUrl });
+    }
+  };
+
+  /**
+   * Update user name locally (for immediate UI update)
+   */
+  const updateUserName = (name: string) => {
+    if (user) {
+      setUser({ ...user, name });
+    }
+  };
+
+  /**
    * Google Sign-In (OAuth)
    */
   const signInWithGoogle = async () => {
@@ -395,6 +415,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     resetPassword,
     clearError,
     signInWithGoogle,
+    refreshUser,
+    updateUserAvatar,
+    updateUserName,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -19,6 +19,7 @@ import {
   Image as ImageIcon,
   GraduationCap,
   Calendar,
+  MessageSquare,
 } from 'lucide-react';
 
 export function ParentSidebar() {
@@ -39,6 +40,7 @@ export function ParentSidebar() {
     { icon: Calendar, label: t('dailyActivities'), href: `/school/${encodedSchoolId}/parent/daily-activities` },
     { icon: Megaphone, label: t('announcements'), href: `/school/${encodedSchoolId}/parent/announcements` },
     { icon: MessageCircle, label: t('messages'), href: `/school/${encodedSchoolId}/parent/messages` },
+    { icon: MessageSquare, label: t('feedback'), href: `/school/${encodedSchoolId}/parent/feedback` },
     { icon: CalendarCheck, label: t('attendance'), href: `/school/${encodedSchoolId}/parent/attendance` },
     { icon: BookOpen, label: t('homework'), href: `/school/${encodedSchoolId}/parent/homework` },
     { icon: TrendingUp, label: t('progressReports'), href: `/school/${encodedSchoolId}/parent/progress-reports` },
@@ -51,15 +53,15 @@ export function ParentSidebar() {
   ];
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 min-h-screen flex flex-col">
+    <div className="w-64 bg-card border-r border-border min-h-screen flex flex-col">
       {/* Logo/Brand */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-border">
         <img 
           src="/images/tuto-logo.png" 
           alt="tuto." 
           className="h-10 w-auto mb-2"
         />
-        <p className="text-xs text-gray-500">learn • connect • grow</p>
+        <p className="text-xs text-text-muted">learn • connect • grow</p>
       </div>
 
       {/* Navigation Menu */}
@@ -83,8 +85,8 @@ export function ParentSidebar() {
                   href={item.href}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     isActive
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-text hover:bg-surface'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -97,8 +99,8 @@ export function ParentSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-200">
-        <p className="text-xs text-center text-gray-500">
+      <div className="p-4 border-t border-border">
+        <p className="text-xs text-center text-text-muted">
           learn • connect • grow
         </p>
       </div>

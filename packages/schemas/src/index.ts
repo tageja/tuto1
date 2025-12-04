@@ -4,5 +4,6 @@ export * from './classes'
 export * from './bookings'
 export * from './payments'
 export * from './reviews'
+export * from './feedback'
 
 

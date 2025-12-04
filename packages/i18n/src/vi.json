@@ -17,7 +17,13 @@
     "info": "Thông tin",
     "reviews": "đánh giá",
     "perHour": "/ giờ",
-    "viewAll": "Xem tất cả"
+    "viewAll": "Xem tất cả",
+    "all": "Tất cả",
+    "select": "Chọn",
+    "reply": "Trả lời",
+    "back": "Quay lại",
+    "created": "Ngày tạo",
+    "newest": "Mới nhất"
   },
   "dashboard": "Bảng Điều Khiển",
   "teachers": "Giáo Viên",
@@ -34,6 +40,7 @@
   "medicine": "Thuốc",
   "extracurricular": "Ngoại Khóa",
   "payments": "Thanh Toán",
+  "feedback": "Phản Hồi",
   "settings": {
     "title": "Cài Đặt",
     "subtitle": "Quản lý hồ sơ, tùy chọn và tích hợp của bạn",
@@ -1512,6 +1519,52 @@
         "paymentHistory": "Lịch Sử Thanh Toán",
         "description": "Mô tả",
         "noHistory": "Không có lịch sử thanh toán"
+      }
+    },
+    "feedback": {
+      "title": "Phản Hồi",
+      "subtitle": "Gửi yêu cầu, khiếu nại hoặc thông tin và theo dõi trạng thái",
+      "create": {
+        "title": "Tạo Phản Hồi",
+        "studentLabel": "Học sinh",
+        "categoryLabel": "Loại",
+        "titleLabel": "Tiêu đề",
+        "descriptionLabel": "Mô tả",
+        "submit": "Gửi Phản Hồi",
+        "info": "Nhà trường sẽ phản hồi trong vòng 7 ngày"
+      },
+      "list": {
+        "title": "Phản Hồi Của Tôi",
+        "noItems": "Chưa có phản hồi nào"
+      },
+      "category": {
+        "request": "Yêu Cầu",
+        "complaint": "Khiếu Nại",
+        "information": "Thông Tin"
+      },
+      "status": {
+        "open": "Mở",
+        "overdue": "Quá Hạn",
+        "closed": "Đã Đóng"
+      },
+      "deadline": {
+        "label": "Hạn chót",
+        "overdue": "Quá hạn",
+        "dueIn": "Còn {days} ngày",
+        "overdueBy": "Quá hạn {days} ngày"
+      },
+      "parent": {
+        "thread": {
+          "title": "Cuộc Trò Chuyện"
+        },
+        "replyPlaceholder": "Viết phản hồi...",
+        "closeButton": "Hài Lòng – Đóng Phản Hồi"
+      },
+      "admin": {
+        "title": "Phản Hồi Từ Phụ Huynh",
+        "subtitle": "Xem và phản hồi phản hồi từ phụ huynh",
+        "replyPlaceholder": "Viết phản hồi cho phụ huynh...",
+        "markClosed": "Đánh Dấu Đã Đóng"
       }
     }
   },

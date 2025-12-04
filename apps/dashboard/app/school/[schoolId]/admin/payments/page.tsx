@@ -1,197 +1,316 @@
-import { Download } from 'lucide-react';
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { Download, Plus } from 'lucide-react';
 import { Button } from '../../../../../components/ui/Button';
-import { Card } from '../../../../../components/ui/Card';
-import { StatusBadge } from '../../../../../components/school/shared/StatusBadge';
+import { PaymentFilters } from '../../../../../components/payments/Filters';
+import { PaymentKpis } from '../../../../../components/payments/Kpis';
+import { PaymentDonut } from '../../../../../components/payments/Donut';
+import { PaymentTrend } from '../../../../../components/payments/Trend';
+import { PaymentTable } from '../../../../../components/payments/Table';
+import { CreatePaymentModal } from '../../../../../components/payments/CreatePaymentModal';
+import { useI18n } from '../../../../../contexts/I18nContext';
+import supabase from '../../../../../lib/supabase';
+import { getDateRangeForPayments, formatDateForAPI } from '../../../../../lib/payments';
+import type { DateRange, PaymentKPIs, PaymentDonutData, TrendDataPoint, PaymentItem } from '../../../../../components/payments/types';
 
-export default async function PaymentsPage({
-  params,
-}: {
-  params: Promise<{ schoolId: string }>;
-}) {
-  const { schoolId } = await params;
-  const decodedSchoolId = decodeURIComponent(schoolId);
+export default function AdminPaymentsPage() {
+  const { t } = useI18n();
+  const router = useRouter();
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const schoolId = decodeURIComponent(params.schoolId as string);
 
-  const totalCollection = 640000;
-  const paid = 485000;
-  const pending = 120000;
-  const overdue = 35000;
+  // URL params
+  const dateParam = searchParams.get('date');
+  const rangeParam = (searchParams.get('range') as DateRange) || '1m';
+  const classIdParam = searchParams.get('classId') || undefined;
+  const studentIdParam = searchParams.get('studentId') || undefined;
+  const typeParam = searchParams.get('type') || undefined;
+  const statusParam = searchParams.get('status') || 'all';
+
+  // State
+  const [selectedDate, setSelectedDate] = useState(() =>
+    dateParam ? new Date(dateParam) : new Date()
+  );
+  const [range, setRange] = useState<DateRange>(rangeParam);
+  const [classId, setClassId] = useState<string | undefined>(classIdParam);
+  const [studentId, setStudentId] = useState<string | undefined>(studentIdParam);
+  const [type, setType] = useState<'tuition' | 'trip' | 'club' | 'misc' | undefined>(typeParam as any);
+  const [status, setStatus] = useState<'all' | 'pending' | 'paid' | 'overdue'>(statusParam as any);
+
+  const [kpis, setKpis] = useState<PaymentKPIs>({
+    total_collection: 0,
+    paid: 0,
+    pending: 0,
+    overdue: 0,
+    total_students: 0,
+    revenue_per_student: 0,
+  });
+  const [donutData, setDonutData] = useState<PaymentDonutData>({
+    labels: ['Paid', 'Pending', 'Overdue'],
+    datasets: [{ data: [0, 0, 0], values: [0, 0, 0] }],
+  });
+  const [trendData, setTrendData] = useState<TrendDataPoint[]>([]);
+  const [items, setItems] = useState<PaymentItem[]>([]);
+  const [classes, setClasses] = useState<Array<{ id: string; name: string }>>([]);
+  const [students, setStudents] = useState<
+    Array<{ id: string; first_name: string; last_name: string; class_id?: string }>
+  >([]);
+  const [loading, setLoading] = useState(true);
+
+  // Modal state
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // Calculate date range
+  const { from, to } = getDateRangeForPayments(selectedDate, range);
+  const fromStr = formatDateForAPI(from);
+  const toStr = formatDateForAPI(to);
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    params.set('date', selectedDate.toISOString().split('T')[0]);
+    params.set('range', range);
+    if (classId) params.set('classId', classId);
+    if (studentId) params.set('studentId', studentId);
+    if (type) params.set('type', type);
+    params.set('status', status);
+    router.push(`?${params.toString()}`, { scroll: false });
+  }, [selectedDate, range, classId, studentId, type, status, router]);
+
+  // Fetch classes and students
+  useEffect(() => {
+    async function fetchDropdowns() {
+      try {
+        const [classesResult, studentsResult] = await Promise.all([
+          supabase
+            .from('school_classes')
+            .select('id, name')
+            .eq('school_id', schoolId)
+            .in('status', ['active', 'Active'])
+            .order('name'),
+          supabase
+            .from('school_students')
+            .select('id, first_name, last_name, class_id')
+            .eq('school_id', schoolId)
+            .in('status', ['active', 'Active'])
+            .order('first_name'),
+        ]);
+
+        setClasses(classesResult.data || []);
+        setStudents(studentsResult.data || []);
+      } catch (error) {
+        console.error('Error fetching dropdowns:', error);
+      }
+    }
+    fetchDropdowns();
+  }, [schoolId]);
+
+  // Fetch students when class changes
+  useEffect(() => {
+    async function fetchStudentsForClass() {
+      if (classId) {
+        try {
+          const { data } = await supabase
+            .from('school_students')
+            .select('id, first_name, last_name, class_id')
+            .eq('school_id', schoolId)
+            .eq('class_id', classId)
+            .in('status', ['active', 'Active'])
+            .order('first_name');
+
+          setStudents(data || []);
+        } catch (error) {
+          console.error('Error fetching students:', error);
+        }
+      } else {
+        // Reset to all students
+        const { data } = await supabase
+          .from('school_students')
+          .select('id, first_name, last_name, class_id')
+          .eq('school_id', schoolId)
+          .in('status', ['active', 'Active'])
+          .order('first_name');
+
+        setStudents(data || []);
+      }
+    }
+    fetchStudentsForClass();
+  }, [classId, schoolId]);
+
+  // Fetch data
+  useEffect(() => {
+    fetchData();
+  }, [schoolId, fromStr, toStr, classId, studentId, type, status]);
+
+  async function fetchData() {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      params.set('schoolId', schoolId);
+      params.set('from', fromStr);
+      params.set('to', toStr);
+      if (classId) params.set('classId', classId);
+      if (studentId) params.set('studentId', studentId);
+      if (type) params.set('type', type);
+      params.set('status', status);
+
+      const [summaryRes, trendRes, itemsRes] = await Promise.all([
+        fetch(`/api/school/payments/summary?${params.toString()}`),
+        fetch(`/api/school/payments/trend?${params.toString()}`),
+        fetch(`/api/school/payments/items?${params.toString()}`),
+      ]);
+
+      const [summaryData, trendData, itemsData] = await Promise.all([
+        summaryRes.json(),
+        trendRes.json(),
+        itemsRes.json(),
+      ]);
+
+      if (summaryData.success) {
+        setKpis(summaryData.data.kpis);
+        setDonutData(summaryData.data.donut);
+      }
+
+      if (trendData.success) {
+        setTrendData(trendData.data);
+      }
+
+      if (itemsData.success) {
+        setItems(itemsData.data);
+      }
+    } catch (error) {
+      console.error('Error fetching payments data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleRemind = async (itemId: string) => {
+    try {
+      const response = await fetch('/api/school/payments/remind', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          schoolId,
+          payment_item_ids: [itemId],
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        alert(t('dashboard.payments.remind.success') || 'Reminders sent successfully');
+      } else {
+        throw new Error(data.error || 'Failed to send reminders');
+      }
+    } catch (error: any) {
+      console.error('Error sending reminders:', error);
+      alert(error.message || t('dashboard.payments.remind.error') || 'Failed to send reminders');
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const params = new URLSearchParams();
+      params.set('schoolId', schoolId);
+      params.set('from', fromStr);
+      params.set('to', toStr);
+      if (classId) params.set('classId', classId);
+      if (studentId) params.set('studentId', studentId);
+      if (type) params.set('type', type);
+      params.set('status', status);
+      params.set('format', 'csv');
+
+      const response = await fetch(`/api/school/payments/items?${params.toString()}`);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `payments-${schoolId}-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error exporting CSV:', error);
+      alert('Failed to export CSV');
+    }
+  };
 
   return (
     <div className="p-6">
-      {/* Page Header */}
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
-          <p className="text-sm text-gray-500 mt-1">{decodedSchoolId}</p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {t('dashboard.payments.title') || 'Payments'}
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">{schoolId}</p>
         </div>
-        <Button variant="outline" className="gap-2" disabled title="Coming in Phase 2">
-          <Download className="w-4 h-4" />
-          Export
-        </Button>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card className="p-4">
-          <p className="text-sm text-gray-600">Total Collection</p>
-          <p className="text-2xl font-bold text-gray-900">${(totalCollection / 1000).toFixed(0)}K</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-gray-600">Paid</p>
-          <p className="text-2xl font-bold text-green-600">${(paid / 1000).toFixed(0)}K</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-gray-600">Pending</p>
-          <p className="text-2xl font-bold text-yellow-600">${(pending / 1000).toFixed(0)}K</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-gray-600">Overdue</p>
-          <p className="text-2xl font-bold text-red-600">${(overdue / 1000).toFixed(0)}K</p>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        {/* Fee Collection Overview */}
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Fee Collection Overview</h3>
-          <div className="flex items-center justify-center mb-4">
-            <div className="relative w-48 h-48">
-              <svg className="w-full h-full" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" strokeWidth="12" />
-                <circle 
-                  cx="50" cy="50" r="40" 
-                  fill="none" 
-                  stroke="#3b82f6" 
-                  strokeWidth="12"
-                  strokeDasharray="251.2"
-                  strokeDashoffset="62.8"
-                  transform="rotate(-90 50 50)"
-                />
-                <circle 
-                  cx="50" cy="50" r="40" 
-                  fill="none" 
-                  stroke="#fbbf24" 
-                  strokeWidth="12"
-                  strokeDasharray="251.2"
-                  strokeDashoffset="188.4"
-                  transform="rotate(90 50 50)"
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-2xl font-bold">75%</div>
-                  <div className="text-xs text-gray-500">Collected</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-blue-600 rounded"></div>
-                <span>Paid</span>
-              </div>
-              <span className="font-medium">75%</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-yellow-500 rounded"></div>
-                <span>Pending</span>
-              </div>
-              <span className="font-medium">19%</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-red-500 rounded"></div>
-                <span>Overdue</span>
-              </div>
-              <span className="font-medium">6%</span>
-            </div>
-          </div>
-        </Card>
-
-        {/* Overdue Payments Alert */}
-        <div className="lg:col-span-2">
-          <Card className="p-6 bg-red-50 border-red-200">
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-red-100 rounded-lg">
-                <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-red-900 mb-2">Overdue Payments</h3>
-                <p className="text-sm text-red-800 mb-4">1 students have overdue payments totaling $35,000.</p>
-                <Button variant="outline" className="border-red-300 text-red-700 hover:bg-red-100" disabled title="Coming in Phase 2">
-                  Send Reminders
-                </Button>
-              </div>
-            </div>
-          </Card>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" className="gap-2" onClick={handleExport}>
+            <Download className="w-4 h-4" />
+            {t('dashboard.payments.buttons.export') || 'Export CSV'}
+          </Button>
+          <Button className="gap-2" onClick={() => setShowCreateModal(true)}>
+            <Plus className="w-4 h-4" />
+            {t('dashboard.payments.buttons.createPayment') || 'Create Payment'}
+          </Button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4 mb-6">
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">All Transactions</button>
-        <button className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm hover:bg-gray-50">Paid</button>
-        <button className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm hover:bg-gray-50">Pending</button>
-        <button className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm hover:bg-gray-50">Overdue</button>
+      <div className="mb-6">
+        <PaymentFilters
+          selectedDate={selectedDate}
+          range={range}
+          classId={classId}
+          studentId={studentId}
+          type={type}
+          status={status}
+          onDateChange={setSelectedDate}
+          onRangeChange={setRange}
+          onClassChange={setClassId}
+          onStudentChange={setStudentId}
+          onTypeChange={setType}
+          onStatusChange={setStatus}
+          classes={classes}
+          students={students}
+        />
       </div>
 
-      {/* Payments Table */}
-      <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Class</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Amount</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Due Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Paid Date</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {[
-                { student: 'Emily Chen', class: 'Grade 5A', type: 'Tuition Fee', amount: '$1200', due: 'Nov 01, 2025', paid: 'Oct 28, 2025', status: 'Paid', method: 'Bank Transfer' },
-                { student: 'Michael Brown', class: 'Grade 5A', type: 'Tuition Fee', amount: '$1200', due: 'Nov 01, 2025', paid: '-', status: 'Pending', method: '-' },
-                { student: 'Sarah Wilson', class: 'Grade 5A', type: 'Field Trip', amount: '$50', due: 'Nov 15, 2025', paid: 'Nov 12, 2025', status: 'Paid', method: 'Credit Card' },
-                { student: 'David Lee', class: 'Grade 5A', type: 'Tuition Fee', amount: '$1200', due: 'Oct 01, 2025', paid: '-', status: 'Overdue', method: '-' },
-                { student: 'Jessica Martinez', class: 'Grade 5A', type: 'Sports Fee', amount: '$150', due: 'Nov 20, 2025', paid: '-', status: 'Pending', method: '-' },
-                { student: 'Ryan Taylor', class: 'Grade 5A', type: 'Library Fee', amount: '$30', due: 'Nov 01, 2025', paid: 'Oct 30, 2025', status: 'Paid', method: 'Cash' },
-              ].map((payment, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{payment.student}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{payment.class}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{payment.type}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">{payment.amount}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{payment.due}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{payment.paid}</td>
-                  <td className="px-6 py-4 text-center">
-                    <StatusBadge status={payment.status} />
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{payment.method}</td>
-                  <td className="px-6 py-4 text-center">
-                    {payment.status === 'Pending' || payment.status === 'Overdue' ? (
-                      <Button size="sm" variant="outline" disabled title="Coming in Phase 2">Remind</Button>
-                    ) : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* KPIs */}
+      <div className="mb-6">
+        <PaymentKpis kpis={kpis} loading={loading} />
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <PaymentDonut donutData={donutData} loading={loading} />
+        <div className="lg:col-span-2">
+          <PaymentTrend trendData={trendData} loading={loading} />
         </div>
-      </Card>
+      </div>
+
+      {/* Table */}
+      <div className="mb-6">
+        <PaymentTable items={items} loading={loading} onRemind={handleRemind} />
+      </div>
+
+      {/* Create Payment Modal */}
+      <CreatePaymentModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={() => {
+          fetchData();
+          setShowCreateModal(false);
+        }}
+        schoolId={schoolId}
+        classes={classes}
+        students={students}
+      />
     </div>
   );
 }
-
-
-
-
-

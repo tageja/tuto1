@@ -2,6 +2,93 @@
 
 ---
 
+## Session: December 20, 2024 - Feedback Feature Implementation
+
+### Overview
+Implemented a complete Feedback feature for Parents and Admins in the school dashboard, allowing parents to submit feedback (requests, complaints, information) and admins to view, respond, and manage feedback with threaded conversations.
+
+### Database Schema
+- **Migration**: `supabase/migrations/025_feedback.sql`
+- **Tables Created**:
+  - `feedbacks`: Stores feedback submissions with code, category, status, deadline
+  - `feedback_messages`: Threaded conversation messages
+- **Features**:
+  - Sequential code generation (FB-YYYY-NNNN format)
+  - Auto-update status to 'overdue' when deadline passes
+  - RLS policies for parent and admin access
+  - Indexes for performance
+
+### API Routes
+**Parent Routes**:
+- `POST /api/feedback/create` - Create new feedback
+- `GET /api/feedback/my` - List parent's feedback
+- `GET /api/feedback/my/[feedbackId]` - Get feedback detail with messages
+
+**Admin Routes**:
+- `GET /api/feedback/school` - List all school feedback with filters
+- `GET /api/feedback/school/[feedbackId]` - Get feedback detail
+- `POST /api/feedback/[feedbackId]/reply` - Reply to feedback (parent or admin)
+- `POST /api/feedback/[feedbackId]/status` - Update status (parent or admin can close)
+
+### Frontend Pages
+- **Parent Feedback Page**: `apps/dashboard/app/school/[schoolId]/parent/feedback/page.tsx`
+  - Create feedback form with student selection, category, title, description
+  - List view with filters (status, category)
+  - Detail drawer with conversation thread, reply, and close functionality
+  
+- **Admin Feedback List**: `apps/dashboard/app/school/[schoolId]/admin/feedback/page.tsx`
+  - List view with search, category, status filters
+  - Quick filter chips
+  - Sort by newest or deadline
+  
+- **Admin Feedback Detail**: `apps/dashboard/app/school/[schoolId]/admin/feedback/[feedbackId]/page.tsx`
+  - Full feedback details with student/parent info
+  - Conversation thread view
+  - Reply functionality
+  - Mark as closed button (admin can close after calling parent)
+
+### Navigation
+- Added "Feedback" menu item to ParentSidebar and AdminSidebar
+- Uses MessageSquare icon from lucide-react
+- Positioned after Messages menu item
+
+### i18n Translations
+- Added comprehensive feedback translations in `packages/i18n/src/vi.json` and `en.json`
+- Includes all UI strings for create, list, detail, categories, statuses, deadlines
+
+### TypeScript Types
+- Created `packages/schemas/src/feedback.ts` with Zod schemas
+- Types: Feedback, FeedbackWithMessages, CreateFeedback, CreateFeedbackMessage, UpdateFeedbackStatus
+- Exported from `packages/schemas/src/index.ts`
+
+### Key Features
+- ✅ Sequential feedback code generation (FB-2025-0001 format)
+- ✅ 7-day default deadline with auto-overdue detection
+- ✅ Threaded conversations between parent and admin
+- ✅ Status tracking (open, overdue, closed)
+- ✅ Category classification (request, complaint, information)
+- ✅ Parent can close feedback when satisfied
+- ✅ Admin can close feedback after resolving (e.g., after calling parent)
+- ✅ Student name linking to student detail page (admin view)
+- ✅ Full i18n support (Vietnamese primary, English secondary)
+- ✅ Responsive design with theme tokens
+- ✅ Loading states and error handling
+
+### Files Created/Modified
+- `supabase/migrations/025_feedback.sql` (new)
+- `packages/schemas/src/feedback.ts` (new)
+- `packages/schemas/src/index.ts` (updated)
+- `apps/dashboard/app/api/feedback/**` (7 new route files)
+- `apps/dashboard/app/school/[schoolId]/parent/feedback/page.tsx` (new)
+- `apps/dashboard/app/school/[schoolId]/admin/feedback/page.tsx` (new)
+- `apps/dashboard/app/school/[schoolId]/admin/feedback/[feedbackId]/page.tsx` (new)
+- `apps/dashboard/components/school/ParentSidebar.tsx` (updated)
+- `apps/dashboard/components/school/AdminSidebar.tsx` (updated)
+- `packages/i18n/src/vi.json` (updated)
+- `packages/i18n/src/en.json` (updated)
+
+---
+
 ## Session: December 1, 2025 - Repository Cleanup & Organization
 
 ### Overview
@@ -135,6 +222,102 @@ Added entries to prevent future build artifacts:
 **Status**: Feature 100% complete and production-ready. All data, security, UI flows working. No blockers.
 
 **Future Enhancements**: Email notifications, calendar integration, photo galleries, attendance tracking, recurring events, RSVP deadlines (Phase 2).
+
+---
+
+## Payments Feature Implementation - December 20, 2024
+
+### Overview
+Implemented complete Payments feature for Admin and Parent dashboards with full CRUD, filtering, analytics, payment processing (mock), and CSV export.
+
+### Database Schema & Migration
+- **Migration 024**: Created 5 tables:
+  - `payment_items` - Individual charges per student (pending/paid/overdue/void)
+  - `payment_batches` - Batch creation with late fee rules (school/class/students targeting)
+  - `payment_receipts` - Receipt tracking with URLs
+  - `payment_methods` - Saved payment methods (future use)
+  - `payment_intents` - Payment processing tracking (mock provider ready)
+- Created materialized view `v_revenue_daily` for trend analytics
+- Added PostgreSQL function `process_overdue_payments()` for cron job (marks overdue, applies late fees)
+- Added trigger `trg_refresh_v_revenue_daily` for auto-refresh
+- Complete RLS policies for admin (full access) and parent (child-scoped read)
+
+### Edge Function
+- Created `supabase/functions/payments-overdue-job/index.ts` to call `process_overdue_payments()`
+- Ready for scheduling via Supabase dashboard or pg_cron
+
+### API Routes (7 Complete)
+- `GET /api/school/payments/summary` - KPIs and donut chart data with filters
+- `GET /api/school/payments/trend` - Daily revenue series from materialized view
+- `GET /api/school/payments/items` - Filtered payment list + CSV export
+- `POST /api/school/payments/batch` - Create batch and fan-out to payment_items
+- `POST /api/school/payments/remind` - Create parent notifications for pending/overdue
+- `POST /api/school/payments/intent` - Create payment intent (mock provider)
+- `POST /api/school/payments/receipt` - Finalize payment, mark paid, create receipt
+
+### Admin UI Components (6 Complete)
+- **PaymentFilters**: Date range, class, student, type, status filters with URL persistence
+- **PaymentKpis**: 6 KPI cards (Total Collection, Paid, Pending, Overdue, Total Students, Revenue/Student)
+- **PaymentDonut**: Fee collection overview chart (Paid/Pending/Overdue breakdown)
+- **PaymentTrend**: Revenue trend line chart over time period
+- **PaymentTable**: Payment items table with remind action buttons
+- **CreatePaymentModal**: Comprehensive form for creating payments (target: school/class/students, late fee config)
+
+### Admin Page
+- Full implementation at `/school/[schoolId]/admin/payments`
+- Filters, KPIs, charts, table all wired
+- Create Payment modal integration
+- Send Reminders functionality (batch notification creation)
+- CSV Export with filtered data
+- URL-driven filter state persistence
+
+### Parent Page
+- Full implementation at `/school/[schoolId]/parent/payments`
+- Child selector (multi-child support)
+- KPIs display (Paid, Pending, Overdue, Next Due)
+- Payment history table with Pay buttons
+- Mock payment processing flow (intent → receipt)
+- Receipt download
+- Saved payment methods display (static for now)
+
+### i18n Support
+- Complete English translations in `packages/i18n/src/en.json`
+- Complete Vietnamese translations in `packages/i18n/src/vi.json`
+- All labels, buttons, errors, validation messages covered
+
+### Helper Libraries
+- Created `lib/payments.ts` with date range calculations and currency formatting
+
+### Files Created (30+)
+- Database: `supabase/migrations/024_payments.sql`
+- Edge Function: `supabase/functions/payments-overdue-job/index.ts`
+- API Routes: 7 route files in `apps/dashboard/app/api/school/payments/`
+- Components: 7 files in `apps/dashboard/components/payments/`
+- Pages: 2 full implementations (admin + parent)
+- Helpers: `apps/dashboard/lib/payments.ts`
+- Types: `apps/dashboard/components/payments/types.ts`
+
+### Remaining Tasks
+- Seed data via Supabase MCP for Grade 5A (including Mung Tageja payments)
+- QA testing (filters, RLS, payment flows, CSV export, cron job)
+- Edge function scheduling in Supabase dashboard
+
+### Status
+~95% complete - All UI components, pages, API routes, and database schema done. Ready for seed data and testing.
+
+### Seed Data (December 20, 2024)
+- ✅ Applied payments migration (025_payments_complete) - Created all 5 tables, indexes, materialized view
+- ✅ Created 3 payment batches for Grade 5A:
+  - November Tuition Fee (with $50 late fee rule, due Nov 1)
+  - December Tuition Fee (with $50 late fee rule, due Dec 1)
+  - Science Museum Field Trip (due Dec 15)
+- ✅ Created 15 payment items across 5 students:
+  - Mung Tageja: 1 overdue (Nov tuition), 2 pending (Dec tuition, field trip)
+  - Other students: Mix of paid and pending statuses
+- ✅ Created 1 payment receipt for a paid transaction
+- ✅ Created 1 saved payment method (VISA card ending 4242) for parent tarun.tageja@gmail.com
+
+**Summary**: 3 batches, 15 items (5 paid, 7 pending, 1 overdue, 2 pending), 1 receipt, 1 payment method
 
 ---
 
@@ -474,4 +657,322 @@ import { useI18n } from '../../../../../contexts/I18nContext';
 ### Result
 - Successfully pushed to `origin/main`
 - Clean repository without build artifacts
+
+---
+
+## Session: December 2, 2025 - Payments Feature: VND Currency Update
+
+### Overview
+Updated all payment-related code to use VND (Vietnamese Dong) instead of USD.
+
+### Files Updated
+- `apps/dashboard/components/payments/Kpis.tsx` - Changed currency format to VND with ₫ symbol
+- `apps/dashboard/components/payments/Table.tsx` - Changed amount display to VND format
+- `apps/dashboard/components/payments/Trend.tsx` - Changed chart axis labels to VND
+- `apps/dashboard/components/payments/CreatePaymentModal.tsx` - Changed currency to VND, removed cents conversion
+- `apps/dashboard/app/api/school/payments/batch/route.ts` - Changed default currency to VND
+- `apps/dashboard/app/api/school/payments/items/route.ts` - Changed CSV header and amount format to VND
+- `apps/dashboard/app/school/[schoolId]/parent/payments/page.tsx` - Changed all currency displays to VND
+- `apps/dashboard/components/students/profile/FeesTab.tsx` - Changed currency format to VND
+- `supabase/migrations/024_payments.sql` - Changed default currency to VND
+- Database seed data - Updated existing records to use VND currency
+
+### Key Changes
+- VND doesn't use decimal places (no cents)
+- Format: `120,000 ₫` using vi-VN locale
+- Store amounts as full values in `amount_cents` field (not actual cents for VND)
+- CSV export now shows "Amount (VND)" instead of "Amount (USD)"
+
+---
+
+## Session: December 2, 2025 - Payments Feature Bug Fixes
+
+### Issues Fixed
+
+**1. Seed Data Date Range**
+- Updated seed payment data from Nov-Dec 2024 to Nov-Dec 2025 so it falls within current date filter range
+
+**2. Parent Page Crash (TypeError)**
+- Fixed `kpis.paid.toLocaleString` error by adding null checks
+- Changed `setKpis(summaryData.data)` to `setKpis(summaryData.data.kpis)` - was setting wrong data structure
+
+**3. i18n Duplicate Keys Fix**
+- Fixed duplicate `buttons` key in `en.json` under `dashboard.payments` - caused button text to show keys like `dashboard.payments.buttons.export`
+- Renamed second `buttons` object to `methods` for payment methods section
+- Updated code references to use correct keys
+
+**4. Remind API Error (500)**
+- Updated `school_notifications` type constraint to include 'payment', 'payment_due', 'payment_overdue'
+- Added `audience_scope: 'Users'` to notifications insert
+- Fixed currency format in notification messages to VND
+
+**5. Create Payment Modal**
+- Changed amount input `step` from "0.01" to "1000" and placeholder to "50000" for VND
+- Updated i18n amount label from "(USD)" to "(VND)" in both en.json and vi.json
+- Added console logging for debugging
+
+**6. Class Dropdown Empty**
+- Changed `ilike('status', 'active')` to `in('status', ['active', 'Active'])` to handle case sensitivity
+
+### Database Changes
+- Applied migration: `update_school_notifications_type_constraint` - adds payment notification types
+
+### Files Modified
+- `apps/dashboard/app/school/[schoolId]/parent/payments/page.tsx`
+- `apps/dashboard/app/school/[schoolId]/admin/payments/page.tsx`
+- `apps/dashboard/app/api/school/payments/remind/route.ts`
+- `apps/dashboard/components/payments/CreatePaymentModal.tsx`
+- `packages/i18n/src/en.json`
+- `packages/i18n/src/vi.json`
+
+### Pending
+- Continue QA testing: filters, RLS, payment flow, CSV export, cron job
+
+---
+
+## Session: December 2, 2025 - Settings Pages MVP Implementation
+
+### Overview
+Implemented fully functional Settings pages for Admin and Parent roles with comprehensive profile management, preferences, notifications, integrations, and device management.
+
+### Database Schema (Migration 025)
+Created 8 new tables with RLS policies:
+- `school_users` - Maps users to schools with roles
+- `user_profiles` - Extended profile data (name, avatar, locale, theme, timezone, 2FA flag)
+- `school_branding` - School visual customization (logo, colors)
+- `school_integrations` - Third-party service configs (payments, push, SMS)
+- `notification_preferences` - User notification preferences matrix (channel × topic)
+- `user_devices` - Device/session tracking
+- `web_push_subscriptions` - Browser push subscriptions
+- `audit_logs` - Settings change audit trail
+
+### Storage
+- Created `user-avatars` bucket (public read)
+- RLS policies: Users can upload to their own folder `{user_id}/*`
+
+### API Routes (8 Total)
+- `GET/PUT /api/school/settings/profile` - User profile CRUD
+- `POST /api/school/settings/avatar` - Avatar upload
+- `GET/PUT /api/school/settings/branding` - School branding (Admin)
+- `GET/PUT/DELETE /api/school/settings/integrations` - Integrations (Admin)
+- `GET/PUT /api/school/settings/notifications` - Notification preferences
+- `GET/DELETE /api/school/settings/devices` - Device management
+- `POST/DELETE /api/school/settings/push-subscription` - Web Push subscriptions
+
+### UI Components (8 Total)
+- `SettingsTabs.tsx` - Tab navigation with role-based tabs
+- `ProfileForm.tsx` - Profile editing with avatar upload
+- `PreferencesForm.tsx` - Language, timezone, theme
+- `NotificationsForm.tsx` - Notification matrix (email/push/SMS × topics)
+- `DevicesList.tsx` - Session management with revoke
+- `BrandingForm.tsx` - School branding (Admin only)
+- `IntegrationsForm.tsx` - Third-party integrations (Admin only)
+- `PrivacyPanel.tsx` - Privacy settings stub (Parent only)
+
+### Pages
+- Admin: `/school/[schoolId]/admin/settings` with tabs: Profile, Preferences, Integrations, Notifications, Security, Devices, Audit Log
+- Parent: `/school/[schoolId]/parent/settings` with tabs: Profile, Preferences, Notifications, Privacy, Security, Devices
+
+### Validation
+- Created Zod schemas in `lib/validation/settings.ts` for all data models
+
+### i18n
+- Added complete `settings.*` namespace to both `en.json` and `vi.json`
+- ~120 new translation keys for all UI elements
+
+### Documentation
+- Created `docs/settings.md` with data model, API reference, and extension guide
+
+### Files Created (20+)
+- Database: `supabase/migrations/025_settings.sql`
+- Validation: `apps/dashboard/lib/validation/settings.ts`
+- API Routes: 8 files in `apps/dashboard/app/api/school/settings/`
+- Components: 9 files in `apps/dashboard/components/settings/`
+- Pages: Updated admin and parent settings pages
+
+### Testing Checklist
+- [ ] Profile form saves and reloads correctly
+- [ ] Avatar upload compresses and uploads
+- [ ] Language/theme/timezone switches apply
+- [ ] Notification matrix toggles work
+- [ ] Admin sees Integrations tab; Parent does not
+- [ ] Device list shows and revokes work
+- [ ] Branding preview updates live
+- [ ] Integration connect/disconnect works
+- [ ] All strings are i18n (no hardcoded text)
+
+### Status
+~95% complete - All UI components, pages, API routes, and database schema done. Ready for browser testing.
+
+---
+
+## Session: December 2, 2025 - Settings Pages Bug Fixes
+
+### Issues Fixed
+
+**1. Logo/Header Upload "Unauthorized" Error**
+- **Root Cause**: No `school-branding` storage bucket existed. Code was incorrectly using the avatar upload endpoint.
+- **Fix**: Created `school-branding` storage bucket with admin upload policies and dedicated `/api/school/settings/branding-upload` API route.
+- **Files**: Migration `add_school_branding_storage`, `apps/dashboard/app/api/school/settings/branding-upload/route.ts`
+
+**2. Save Button Not Active (Profile, Preferences, Branding)**
+- **Root Cause**: `isDirty` tracking didn't work correctly when `initialData` was `null` on first load.
+- **Fix**: Added `initialValues` state that updates when data loads, and compare form changes against `initialValues` instead of `initialData`.
+- **Files**: `ProfileForm.tsx`, `PreferencesForm.tsx`, `BrandingForm.tsx`
+
+**3. Dark Theme Not Applying / Strings Disappearing**
+- **Root Cause**: Components used hardcoded gray/white classes without dark mode variants.
+- **Fix**: Added `dark:` variant classes throughout components and CSS variables in `globals.css`.
+- **Files**: `globals.css`, `Card.tsx`, `ProfileForm.tsx`, `BrandingForm.tsx`, page shells
+
+**4. School Name Edit Option**
+- **Root Cause**: No option to edit school name in settings.
+- **Fix**: Extended `BrandingForm` to include school info fields (name, email, phone, address). Updated branding API to fetch/update school info from `schools` table alongside `school_branding`.
+- **Files**: `BrandingForm.tsx`, `/api/school/settings/branding/route.ts`, i18n translations
+
+### Database Changes
+- Applied migration: `add_school_branding_storage` - Creates `school-branding` bucket with admin upload policies
+
+### Files Modified
+- `apps/dashboard/components/settings/ProfileForm.tsx` - Fixed isDirty tracking + dark mode
+- `apps/dashboard/components/settings/PreferencesForm.tsx` - Fixed isDirty tracking
+- `apps/dashboard/components/settings/BrandingForm.tsx` - Fixed isDirty tracking + dark mode + school info fields
+- `apps/dashboard/components/ui/Card.tsx` - Added dark mode support
+- `apps/dashboard/app/globals.css` - Added dark mode CSS utilities
+- `apps/dashboard/app/school/[schoolId]/admin/settings/page.tsx` - Updated handlers + dark mode
+- `apps/dashboard/app/school/[schoolId]/parent/settings/page.tsx` - Dark mode support
+- `apps/dashboard/app/api/school/settings/branding/route.ts` - Added school info fetch/update
+- `apps/dashboard/app/api/school/settings/branding-upload/route.ts` - NEW dedicated upload route
+- `packages/i18n/src/en.json` - Added school info i18n keys
+- `packages/i18n/src/vi.json` - Added school info i18n keys
+
+### Status
+All reported bugs fixed. Ready for testing.
+
+---
+
+## Session: December 2, 2025 - Settings Header Avatar & Branding Upload Fix
+
+### Issues Fixed
+
+1. **Branding Upload 500 Error**: The `branding-upload` route was still referencing `createAuthenticatedSupabaseClient` which was not imported. Fixed by removing auth dependency and using only `createServerSupabaseClient()`.
+
+2. **Header Avatar Not Updating**: After uploading a profile photo, the avatar in the top-right corner wasn't updating. Fixed by:
+   - Adding `refreshUser()` and `updateUserAvatar()` methods to `AuthContext`
+   - Making the header avatar clickable with a dropdown menu
+   - Passing `onAvatarUpdated` callback from settings pages to `ProfileForm`
+
+3. **Header Avatar Not Clickable**: The avatar in the header was not interactive. Added a dropdown menu with:
+   - User name and email display
+   - Settings link
+   - Profile link
+   - Sign out option
+
+### Files Modified
+
+- `apps/dashboard/app/api/school/settings/branding-upload/route.ts` - Removed auth dependency
+- `apps/dashboard/contexts/AuthContext.tsx` - Added `refreshUser()` and `updateUserAvatar()` methods
+- `apps/dashboard/components/settings/ProfileForm.tsx` - Added `onAvatarUpdated` prop
+- `apps/dashboard/app/school/[schoolId]/admin/layout.tsx` - Added clickable avatar with dropdown menu
+- `apps/dashboard/app/school/[schoolId]/parent/layout.tsx` - Added clickable avatar with dropdown menu
+- `apps/dashboard/app/school/[schoolId]/admin/settings/page.tsx` - Wired `updateUserAvatar` to ProfileForm
+- `apps/dashboard/app/school/[schoolId]/parent/settings/page.tsx` - Wired `updateUserAvatar` to ProfileForm
+
+### Status
+All fixes applied. Header avatar now updates immediately after upload and includes a functional dropdown menu.
+
+---
+
+## Session: December 4, 2025 - Parent Feedback Page: Student Dropdown Bug Fix
+
+### Issue
+When creating feedback from the parent view, the student dropdown was showing 5 random students from the school instead of only the logged-in parent's children.
+
+### Root Cause
+The `/api/feedback/students` endpoint was using a "demo mode" implementation that simply returned the first 5 students from the school without checking authentication:
+
+```typescript
+// For demo mode: Get first few students from the school
+const { data: students, error } = await serviceClient
+  .from('school_students')
+  .select('id, first_name, last_name, student_number')
+  .eq('school_id', schoolId)
+  .limit(5);
+```
+
+### Fix Applied
+Updated `apps/dashboard/app/api/feedback/students/route.ts` to:
+1. Use `createAuthenticatedSupabaseClient` to get the authenticated user from session cookies
+2. Look up the user's database ID from the `users` table using `auth_user_id`
+3. Query `school_parent_students` mapping table filtered by `parent_user_id` to get only that parent's children
+4. Return only the children linked to the authenticated parent
+
+### Technical Details
+- Uses same pattern as `ParentAttendancePage` which correctly fetches parent's children
+- Queries `school_parent_students` with join to `school_students` for student details
+- Returns 401 Unauthorized if user is not authenticated
+
+### Files Modified
+- `apps/dashboard/app/api/feedback/students/route.ts` - Implemented proper parent-children filtering
+
+### Result
+Parent feedback form now correctly shows only the parent's linked children in the student dropdown.
+
+### Additional Fix: Bearer Token Auth for Feedback APIs
+
+**Problem**: After fixing the student dropdown, creating feedback still failed with "Unauthorized" because the API routes used `createAuthenticatedSupabaseClient` which reads cookies, but Supabase stores auth in localStorage.
+
+**Solution**: Updated all feedback API routes to use Bearer token authentication:
+1. Client gets access token: `supabase.auth.getSession()`
+2. Client passes in header: `Authorization: Bearer ${accessToken}`
+3. Server extracts and verifies: `supabase.auth.getUser(accessToken)`
+
+### Files Updated
+- `apps/dashboard/app/api/feedback/create/route.ts` - Bearer token auth
+- `apps/dashboard/app/api/feedback/my/route.ts` - Bearer token auth
+- `apps/dashboard/app/api/feedback/my/[feedbackId]/route.ts` - Bearer token auth
+- `apps/dashboard/app/api/feedback/[feedbackId]/reply/route.ts` - Bearer token auth + fixed import path
+- `apps/dashboard/app/api/feedback/[feedbackId]/status/route.ts` - Bearer token auth + fixed import path
+- `apps/dashboard/app/school/[schoolId]/parent/feedback/page.tsx` - Pass Bearer token in all API calls
+
+### Auth Pattern Standardized
+For parent pages that need authenticated API calls:
+- **Read-only data fetching**: Use client-side Supabase directly (like Attendance)
+- **Mutations via API routes**: Pass Bearer token in Authorization header
+
+This is consistent with how the Events feature works and is the recommended pattern for Next.js + Supabase apps where auth is stored in localStorage.
+
+### Additional Fix: Admin Feedback Routes
+
+**Problem**: After creating feedback successfully from parent view, it wasn't showing on the admin page due to same cookie-based auth issue.
+
+**Root Cause**: The `feedbacks` table and `get_feedback_code` function didn't exist - migration 025_feedback.sql was never applied to the database.
+
+**Fixes Applied**:
+1. Applied migration `025_feedback_tables` via Supabase MCP - created `feedbacks`, `feedback_messages` tables, indexes, RLS policies, and `get_feedback_code()` function
+2. Updated admin API routes to use Bearer token auth:
+   - `/api/feedback/school` - list all school feedback
+   - `/api/feedback/school/[feedbackId]` - get feedback detail
+3. Updated admin pages to pass Bearer token:
+   - `apps/dashboard/app/school/[schoolId]/admin/feedback/page.tsx`
+   - `apps/dashboard/app/school/[schoolId]/admin/feedback/[feedbackId]/page.tsx`
+
+### Files Modified (Total)
+**API Routes (8 files)**:
+- `apps/dashboard/app/api/feedback/create/route.ts`
+- `apps/dashboard/app/api/feedback/my/route.ts`
+- `apps/dashboard/app/api/feedback/my/[feedbackId]/route.ts`
+- `apps/dashboard/app/api/feedback/[feedbackId]/reply/route.ts`
+- `apps/dashboard/app/api/feedback/[feedbackId]/status/route.ts`
+- `apps/dashboard/app/api/feedback/school/route.ts`
+- `apps/dashboard/app/api/feedback/school/[feedbackId]/route.ts`
+- `apps/dashboard/app/api/feedback/students/route.ts` (reverted to not needed)
+
+**Pages (3 files)**:
+- `apps/dashboard/app/school/[schoolId]/parent/feedback/page.tsx`
+- `apps/dashboard/app/school/[schoolId]/admin/feedback/page.tsx`
+- `apps/dashboard/app/school/[schoolId]/admin/feedback/[feedbackId]/page.tsx`
+
+### Result
+Feedback feature now fully functional for both Parent and Admin roles with proper Bearer token authentication.
 
