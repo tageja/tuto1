@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@google-cloud/storage": "^7.17.0",
+    "@supabase/supabase-js": "^2.45.0",
     "airtable": "^0.12.2",
     "axios": "^1.7.7",
     "cors": "^2.8.5",

@@ -1677,5 +1677,84 @@
       "messages": "Messages",
       "login": "Login"
     }
+  },
+  "parentDashboard": {
+    "welcomeBack": "Welcome back, Parent!",
+    "studentInfo": "Student: {student} • Class: {class}",
+    "attendanceRate": "Attendance Rate",
+    "homeworkCompletion": "Homework Completion",
+    "averageGrade": "Average Grade",
+    "upcomingEvents": "Upcoming Events",
+    "recentAnnouncements": "Recent Announcements",
+    "noAnnouncements": "No announcements",
+    "upcomingHomework": "Upcoming Homework",
+    "recentAttendance": "Recent Attendance",
+    "quickActions": "Quick Actions",
+    "messageTeacher": "Message Teacher",
+    "viewProgress": "View Progress",
+    "checkPayments": "Check Payments",
+    "photoAlbums": "Photo Albums",
+    "aiInsights": "AI-Powered Learning Insights",
+    "performanceSummary": "Performance Summary",
+    "performanceText": "{student} is performing excellently in Mathematics and Science. Shows strong analytical skills and consistent improvement in problem-solving.",
+    "recommendations": "Recommendations",
+    "recommendation1": "Consider additional reading practice to strengthen English comprehension",
+    "recommendation2": "Excellent progress in Math - ready for advanced topics",
+    "recommendation3": "Maintain current study routine for optimal results",
+    "due": "Due",
+    "tomorrow": "Tomorrow",
+    "inDays": "In {days} days",
+    "hoursAgo": "{hours} hours ago",
+    "subjects": {
+      "mathematics": "Mathematics",
+      "science": "Science",
+      "english": "English"
+    },
+    "status": {
+      "present": "Present",
+      "absent": "Absent",
+      "late": "Late",
+      "pending": "Pending",
+      "inProgress": "In Progress"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": {
+      "parent": "Updates from your school, teachers, and activities.",
+      "admin": "Important updates from parents, teachers, and daily operations."
+    },
+    "tabs": {
+      "important": "Important",
+      "other": "Other"
+    },
+    "badge": {
+      "new": "New"
+    },
+    "empty": {
+      "urgent": "No important notifications.",
+      "normal": "No other notifications."
+    },
+    "markAllRead": "Mark all as read",
+    "viewAll": "View all",
+    "category": {
+      "attendance": "Attendance",
+      "homework": "Homework",
+      "report": "Report",
+      "message": "Message",
+      "feedback": "Feedback",
+      "event": "Event",
+      "payment": "Payment",
+      "photo_album": "Photo album",
+      "medicine": "Medicine",
+      "activity": "Activity",
+      "announcement": "Announcement",
+      "other": "Other"
+    },
+    "group": {
+      "today": "Today",
+      "thisWeek": "This week",
+      "earlier": "Earlier"
+    }
   }
 }

@@ -8,7 +8,7 @@ import { Button } from '../../../../../components/ui/Button';
 import { useI18n } from '../../../../../contexts/I18nContext';
 import { supabase } from '../../../../../lib/supabase';
 import { Loader2, MessageSquare, Search } from 'lucide-react';
-import type { Feedback } from '../../../../../../packages/schemas/src/feedback';
+import type { Feedback } from '@tuto/schemas';
 
 interface FeedbackItem extends Feedback {
   student_name: string | null;
@@ -236,7 +236,9 @@ export default function AdminFeedbackPage() {
       {loading ? (
         <div className="space-y-4">
           {[...Array(5)].map((_, i) => (
-            <Card key={i} className="h-24 animate-pulse bg-gray-200" />
+            <Card key={i}>
+              <div className="h-24 animate-pulse bg-gray-200 rounded-xl" />
+            </Card>
           ))}
         </div>
       ) : feedbacks.length === 0 ? (

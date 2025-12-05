@@ -8,7 +8,7 @@ import { Button } from '../../../../../components/ui/Button';
 import { useI18n } from '../../../../../contexts/I18nContext';
 import { X, Loader2, MessageSquare } from 'lucide-react';
 import { supabase } from '../../../../../lib/supabase';
-import type { Feedback, FeedbackWithMessages, CreateFeedback } from '../../../../../../packages/schemas/src/feedback';
+import type { Feedback, FeedbackWithMessages, CreateFeedback, FeedbackMessage } from '@tuto/schemas';
 
 interface Child {
   id: string;
@@ -117,7 +117,7 @@ export default function ParentFeedbackPage() {
         
         setChildren(childrenList);
         if (childrenList.length > 0 && !formData.studentId) {
-          setFormData(prev => ({ ...prev, studentId: childrenList[0].id }));
+          setFormData((prev: CreateFeedback) => ({ ...prev, studentId: childrenList[0].id }));
         }
       }
     } catch (error) {
@@ -386,7 +386,7 @@ export default function ParentFeedbackPage() {
               </label>
               <select
                 value={formData.studentId}
-                onChange={(e) => setFormData(prev => ({ ...prev, studentId: e.target.value }))}
+                onChange={(e) => setFormData((prev: CreateFeedback) => ({ ...prev, studentId: e.target.value }))}
                 className="w-full rounded-xl border border-border bg-card text-text px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                 required
               >
@@ -408,7 +408,7 @@ export default function ParentFeedbackPage() {
                   <button
                     key={cat}
                     type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, category: cat }))}
+                    onClick={() => setFormData((prev: CreateFeedback) => ({ ...prev, category: cat }))}
                     className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
                       formData.category === cat
                         ? 'bg-primary text-white'
@@ -427,7 +427,7 @@ export default function ParentFeedbackPage() {
               </label>
               <Input
                 value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                onChange={(e) => setFormData((prev: CreateFeedback) => ({ ...prev, title: e.target.value }))}
                 placeholder={t('dashboard.feedback.create.titleLabel')}
                 required
               />
@@ -439,7 +439,7 @@ export default function ParentFeedbackPage() {
               </label>
               <textarea
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) => setFormData((prev: CreateFeedback) => ({ ...prev, description: e.target.value }))}
                 placeholder={t('dashboard.feedback.create.descriptionLabel')}
                 className="w-full rounded-xl border border-border bg-card text-text px-3 py-2 text-sm min-h-[100px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                 required
@@ -498,7 +498,9 @@ export default function ParentFeedbackPage() {
       {loading ? (
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
-            <Card key={i} className="h-32 animate-pulse bg-gray-200" />
+            <Card key={i}>
+              <div className="h-32 animate-pulse bg-gray-200 rounded-xl" />
+            </Card>
           ))}
         </div>
       ) : filteredFeedbacks.length === 0 ? (
@@ -591,7 +593,7 @@ export default function ParentFeedbackPage() {
                 <h4 className="font-semibold text-text mb-4">{t('dashboard.feedback.parent.thread.title')}</h4>
                 <div className="space-y-4">
                   {selectedFeedback.messages && selectedFeedback.messages.length > 0 ? (
-                    selectedFeedback.messages.map((msg) => (
+                    (selectedFeedback.messages as Array<FeedbackMessage & { sender_name?: string | null }>).map((msg) => (
                       <div
                         key={msg.id}
                         className={`flex ${msg.sender_role === 'parent' ? 'justify-start' : 'justify-end'}`}

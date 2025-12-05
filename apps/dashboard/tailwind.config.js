@@ -87,10 +87,8 @@ module.exports = {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
         },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
+        // Note: 'card' color is already defined above using var(--card) hex values
+        // Do not redefine with HSL here as it causes transparent/broken backgrounds
       },
       spacing: {
         'xs': '0.25rem',    // 4px

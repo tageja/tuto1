@@ -46,10 +46,11 @@ export function AddStudentModal({ isOpen, onClose, onSuccess, schoolId }: AddStu
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  // Fetch classes when modal opens
+  // Fetch classes and next student code when modal opens
   useEffect(() => {
     if (isOpen && schoolId) {
       fetchClasses();
+      fetchNextStudentCode();
     }
   }, [isOpen, schoolId]);
 
@@ -69,6 +70,22 @@ export function AddStudentModal({ isOpen, onClose, onSuccess, schoolId }: AddStu
       console.error('Error fetching classes:', err);
     } finally {
       setLoadingClasses(false);
+    }
+  }
+
+  async function fetchNextStudentCode() {
+    try {
+      const encodedSchoolId = encodeURIComponent(schoolId);
+      const response = await fetch(`/api/school/students?schoolId=${encodedSchoolId}&nextCode=true`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data?.nextCode) {
+          setFormData(prev => ({ ...prev, student_number: data.data.nextCode }));
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching next student code:', err);
     }
   }
 
@@ -124,7 +141,7 @@ export function AddStudentModal({ isOpen, onClose, onSuccess, schoolId }: AddStu
     if (formData.class_id) {
       const selectedClass = classes.find((c) => c.id === formData.class_id);
       if (selectedClass?.grade_level) {
-        setFormData((prev) => ({ ...prev, grade: selectedClass.grade_level }));
+        setFormData((prev) => ({ ...prev, grade: selectedClass.grade_level || '' }));
       }
     }
   }, [formData.class_id, classes]);

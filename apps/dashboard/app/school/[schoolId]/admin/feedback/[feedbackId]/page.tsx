@@ -8,7 +8,7 @@ import { Button } from '../../../../../../components/ui/Button';
 import { useI18n } from '../../../../../../contexts/I18nContext';
 import { supabase } from '../../../../../../lib/supabase';
 import { Loader2, ArrowLeft, User } from 'lucide-react';
-import type { FeedbackWithMessages } from '../../../../../../../packages/schemas/src/feedback';
+import type { FeedbackWithMessages, FeedbackMessage } from '@tuto/schemas';
 
 export default function AdminFeedbackDetailPage() {
   const { t } = useI18n();
@@ -311,7 +311,7 @@ export default function AdminFeedbackDetailPage() {
         </h3>
         <div className="space-y-4">
           {feedback.messages && feedback.messages.length > 0 ? (
-            feedback.messages.map((msg) => (
+            (feedback.messages as Array<FeedbackMessage & { sender_name?: string | null }>).map((msg) => (
               <div
                 key={msg.id}
                 className={`flex ${msg.sender_role === 'parent' ? 'justify-start' : 'justify-end'}`}

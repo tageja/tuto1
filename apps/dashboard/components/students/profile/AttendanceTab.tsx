@@ -10,7 +10,7 @@ import { EmptyState } from '../../shared/EmptyState';
 interface AttendanceTabProps {
   studentId: string;
   schoolId: string;
-  attendanceSummary?: Record<string, { total: number; present: number; percentage: number }> | null;
+  attendanceSummary?: AttendanceSummary | null;
 }
 
 export function AttendanceTab({ studentId, schoolId, attendanceSummary }: AttendanceTabProps) {

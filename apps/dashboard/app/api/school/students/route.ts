@@ -9,6 +9,7 @@ import { mapStudentRow, formatStudentForExport } from '../../../../lib/students/
  * GET  /api/school/students?schoolId=X&classId=Y&status=active&q=John&page=1&pageSize=10
  * GET  /api/school/students?schoolId=X&kpis=true (get KPIs only)
  * GET  /api/school/students?schoolId=X&export=csv (CSV export)
+ * GET  /api/school/students?schoolId=X&nextCode=true (get next student code)
  * POST /api/school/students (admin only)
  * 
  * Architecture: Next.js API → Supabase Database (with RLS)
@@ -87,6 +88,7 @@ export async function GET(request: NextRequest) {
     const schoolIdentifier = searchParams.get('schoolId');
     const exportCsv = searchParams.get('export') === 'csv';
     const kpisOnly = searchParams.get('kpis') === 'true';
+    const nextCode = searchParams.get('nextCode') === 'true';
 
     if (!schoolIdentifier) {
       return NextResponse.json(
@@ -106,6 +108,44 @@ export async function GET(request: NextRequest) {
         { success: false, error: 'School not found' },
         { status: 404 }
       );
+    }
+
+    // Handle next student code request
+    if (nextCode) {
+      // Get the highest student_number that matches the pattern STU###
+      const { data: students } = await supabase
+        .from('school_students')
+        .select('student_number')
+        .eq('school_id', schoolId)
+        .order('student_number', { ascending: false })
+        .limit(100);
+
+      let nextNumber = 1;
+      
+      if (students && students.length > 0) {
+        // Find the highest number from student codes matching patterns like STU001, STU002, etc.
+        for (const student of students) {
+          const code = student.student_number;
+          if (code) {
+            // Match patterns like STU001, STU-001, S001, etc.
+            const match = code.match(/(\d+)$/);
+            if (match) {
+              const num = parseInt(match[1], 10);
+              if (num >= nextNumber) {
+                nextNumber = num + 1;
+              }
+            }
+          }
+        }
+      }
+
+      // Generate next code with STU prefix and padded number
+      const nextStudentCode = `STU${String(nextNumber).padStart(3, '0')}`;
+
+      return NextResponse.json({
+        success: true,
+        data: { nextCode: nextStudentCode },
+      });
     }
 
     // Handle KPIs-only request

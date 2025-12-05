@@ -2,11 +2,14 @@
 
 import { AdminSidebar } from '../../../components/school/AdminSidebar';
 import { SchoolDropdown } from '../../../components/school/SchoolDropdown';
-import { Bell, Search, Globe } from 'lucide-react';
+import { Search, Globe } from 'lucide-react';
 import { useI18n } from '../../../contexts/I18nContext';
+import { NotificationBell } from '../../../components/notifications/NotificationBell';
+import { useSchool } from '../../../contexts/SchoolContext';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { lang, setLang } = useI18n();
+  const { selectedSchool } = useSchool();
 
   const toggleLanguage = () => {
     setLang(lang === 'en' ? 'vi' : 'en');
@@ -45,10 +48,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <SchoolDropdown />
 
               {/* Notifications */}
-              <button className="p-2 hover:bg-gray-100 rounded-lg relative">
-                <Bell className="w-5 h-5 text-gray-600" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
+              <NotificationBell role="admin" schoolIdOverride={selectedSchool?.id} />
 
               {/* User Avatar */}
               <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold">

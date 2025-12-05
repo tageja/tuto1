@@ -66,6 +66,12 @@ export {
   getSchoolStudentById,
 } from './v1/school-students';
 
+export {
+  getNotifications,
+  markNotificationsRead,
+  markAllNotificationsRead,
+} from './v1/notifications';
+
 // Initialize Firebase Admin only if not already initialized
 if (!admin.apps.length) {
   admin.initializeApp();

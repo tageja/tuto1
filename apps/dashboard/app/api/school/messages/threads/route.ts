@@ -6,6 +6,7 @@ import {
   getUsersByIds,
   mapRoleToParticipant,
 } from '../../../../../lib/api/messages';
+import { createNotification } from '../../../../../lib/notifications.server';
 import type {
   MessageAttachment,
   MessagePriority,
@@ -397,6 +398,45 @@ export async function POST(request: NextRequest) {
       .from('message_threads')
       .update({ updated_at: new Date().toISOString() })
       .eq('id', thread.id);
+
+    // Create notifications for all recipients (excluding sender)
+    const recipientUserIds = Array.from(recipientMap.keys()).filter((id) => id !== sender.id);
+    
+    if (recipientUserIds.length > 0) {
+      const notificationPromises = recipientUserIds.map(async (recipientId) => {
+        const recipientRole = recipientMap.get(recipientId);
+        // Determine notification recipient role (parent or admin)
+        // Normalize role to lowercase for comparison (DB stores 'Parent', 'Admin', 'Teacher')
+        const roleLower = recipientRole?.toLowerCase() || '';
+        const notifRole: 'parent' | 'admin' = 
+          roleLower === 'parent' || roleLower === 'guardian' ? 'parent' : 'admin';
+        
+        try {
+          await createNotification({
+            supabase,
+            schoolId,
+            recipientUserId: recipientId,
+            recipientRole: notifRole,
+            type: 'message',
+            title: `New message: ${subject}`,
+            body: messageBody.substring(0, 150) + (messageBody.length > 150 ? '...' : ''),
+            targetType: 'feedback', // Messages link to messages/feedback area
+            targetId: thread.id,
+            meta: {
+              threadId: thread.id,
+              senderId: sender.id,
+              senderName: sender.name || sender.email,
+            },
+          });
+        } catch (notifError) {
+          console.error('Failed to create notification for recipient:', recipientId, notifError);
+          // Don't fail the whole request if notification fails
+        }
+      });
+      
+      await Promise.allSettled(notificationPromises);
+      console.log('✅ Notifications created for', recipientUserIds.length, 'recipients');
+    }
 
     return NextResponse.json(
       {

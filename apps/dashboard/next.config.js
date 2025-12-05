@@ -27,7 +27,7 @@ const nextConfig = {
     ],
   },
   // Ensure local workspace packages are transpiled for Next.js
-  transpilePackages: ['@tuto/ui', '@tuto/api', '@tuto/schemas', '@tuto/i18n'],
+  transpilePackages: ['@tuto/ui', '@tuto/api', '@tuto/schemas', '@tuto/i18n', '@tuto/shared'],
 }
 
 module.exports = nextConfig

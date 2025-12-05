@@ -2,6 +2,136 @@
 
 ---
 
+## Session: December 5, 2025 - Parent Dashboard Fixes
+
+### Issues Fixed
+
+1. **School Logo Not Displaying on Dashboard Home Page**
+   - The `/school/parent/layout.tsx` (context-based route) was missing the `SchoolLogo` component
+   - Added `<SchoolLogo schoolId={selectedSchool?.id || null} size="md" />` to the header
+   - Import added: `import { SchoolLogo } from '../../../components/school/SchoolLogo';`
+
+2. **Missing Vietnamese Translations on Dashboard**
+   - The `/school/parent/page.tsx` had hardcoded English strings
+   - Converted page from server component to client component with `'use client'`
+   - Added `useI18n` hook to access translations
+   - Added new i18n keys in `packages/i18n/src/vi.json` and `en.json` under `parentDashboard.*`:
+     - `welcomeBack`, `studentInfo`, `attendanceRate`, `homeworkCompletion`
+     - `averageGrade`, `upcomingEvents`, `recentAnnouncements`, `noAnnouncements`
+     - `upcomingHomework`, `recentAttendance`, `quickActions`, `messageTeacher`
+     - `viewProgress`, `checkPayments`, `photoAlbums`, `aiInsights`
+     - `performanceSummary`, `performanceText`, `recommendations`, etc.
+     - Nested keys for `subjects` (mathematics, science, english) and `status` (present, absent, late, pending, inProgress)
+
+### Files Modified
+- `apps/dashboard/app/school/parent/layout.tsx` - Added SchoolLogo
+- `apps/dashboard/app/school/parent/page.tsx` - Full i18n integration
+- `packages/i18n/src/vi.json` - Added `parentDashboard.*` translations
+- `packages/i18n/src/en.json` - Added `parentDashboard.*` translations
+
+### Testing Results
+- ✅ School logo now appears in header on parent dashboard home page
+- ✅ Vietnamese translations work correctly when language is switched
+- ✅ All dashboard elements are translated: welcome banner, KPIs, cards, quick actions, AI insights
+
+---
+
+## Session: December 5, 2025 - School Logo Display Feature
+
+### Task
+Display school logo in the parent and admin dashboard headers for schools that have uploaded a logo.
+
+### Implementation
+1. **`useSchoolBranding` hook** (`apps/dashboard/hooks/useSchoolBranding.ts`)
+   - Uses SWR to fetch branding data from `/api/school/settings/branding`
+   - Returns `logoUrl`, `branding`, `isLoading` state
+
+2. **`SchoolLogo` component** (`apps/dashboard/components/school/SchoolLogo.tsx`)
+   - Props: `schoolId`, `size` (sm/md/lg), `showFallback`, `className`
+   - Shows loading skeleton while fetching
+   - Displays logo image if available
+   - Falls back to school initial in a blue circle if no logo
+
+3. **Layout Integration**
+   - Added `<SchoolLogo schoolId={schoolId} size="md" />` to both:
+     - `apps/dashboard/app/school/[schoolId]/admin/layout.tsx`
+     - `apps/dashboard/app/school/[schoolId]/parent/layout.tsx`
+
+### Testing Results
+- ✅ Branding API returns correct data (logo URL from Supabase storage)
+- ✅ SchoolLogo component renders in header
+- ✅ Logo URL is correctly extracted from API response
+- ✅ Component shows fallback when logo is loading or unavailable
+
+### Notes
+- The component relies on `SchoolContext` and URL params for schoolId
+- Schools without uploaded logos will show the school's first initial as fallback
+- The logo is displayed as 40x40px (size="md") with rounded corners
+
+---
+
+## Session: December 5, 2025 - Notifications System (Part 3) - More Fixes
+
+### Issues Fixed:
+
+1. **Bell Dropdown Navigation Not Working**:
+   - Changed `renderItem` from a `<div>` to a `<button>` with `onClick` handler
+   - Now marks notification as read and navigates to the correct page
+
+2. **Message Notifications Going to Wrong Page**:
+   - Routing was only checking `targetType`, which could be 'feedback' for messages from feedback system
+   - Added routing based on `notification.type` first (more specific), then fallback to `targetType`
+   - Message type now correctly routes to `/admin/messages` or `/parent/messages`
+
+3. **Admin-to-Parent Notifications Not Appearing**:
+   - **Root Cause**: Case sensitivity issue in role comparison
+   - Database stores roles as `'Parent'`, `'Admin'`, `'Teacher'` (capitalized)
+   - Notification creation code was checking for lowercase `'parent'` or `'guardian'`
+   - Result: Parent notifications were being created with `recipient_role='admin'` instead of `'parent'`
+   - **Fix**: Added `.toLowerCase()` normalization in both message routes:
+     - `apps/dashboard/app/api/school/messages/[threadId]/messages/route.ts`
+     - `apps/dashboard/app/api/school/messages/threads/route.ts`
+
+---
+
+## Session: December 5, 2025 - Notifications System (Part 2) - Bug Fix
+
+### Issue Identified
+- Notification API routes were returning **401 Unauthorized** because they relied on Supabase session cookies.
+- The dashboard uses client-side Supabase auth with `userAuthId` passed as query params (like messages API), not session cookies.
+
+### Fix Applied
+1. **API Routes Updated** to accept `userAuthId` as query parameter:
+   - `GET /api/notifications?schoolId=X&userAuthId=X&role=X&priority=X`
+   - `POST /api/notifications/mark-read` - body includes `userAuthId`
+   - `POST /api/notifications/mark-all-read` - body includes `userAuthId`
+
+2. **Frontend Components Updated**:
+   - `NotificationBell.tsx` - passes `supabaseUser?.id` as `userAuthId`
+   - `NotificationCenter.tsx` - passes `supabaseUser?.id` as `userAuthId`
+   - Both components now return null/loading state if `userAuthId` is not available
+
+3. **Test Data Inserted**: 13 notifications created for testing:
+   - Admin: 4 urgent (payment, attendance, medicine, message), 3 normal (announcement, photo_album, event)
+   - Parent: 3 urgent (attendance, payment, progress_report), 4 normal (daily_activity, homework, photo_album, event)
+
+### Verification
+- Terminal logs confirm API returning **200** with proper `userAuthId` parameter
+- Previous 401 errors resolved
+- Bell component correctly hides when user not authenticated
+- NotificationCenter shows loading state when auth pending
+
+---
+
+## Session: December 5, 2025 - Notifications System (Part 1)
+
+- Added migration `026_notifications.sql` for notifications table (enum checks, indexes, RLS).
+- Introduced `@tuto/shared` notification types and `defaultPriority` helper.
+- Built Firebase Functions endpoints (get/mark-read/mark-all/create) for notifications.
+- Added Next.js API proxies for fetching and marking notifications (role + school scoped).
+- Implemented `NotificationBell` dropdown and shared `NotificationCenter` with admin/parent pages and i18n (EN/VN).
+- Added SWR-based fetching, mark-all-read UX, and new notification i18n keys.
+
 ## Session: December 20, 2024 - Feedback Feature Implementation
 
 ### Overview
@@ -975,4 +1105,63 @@ This is consistent with how the Events feature works and is the recommended patt
 
 ### Result
 Feedback feature now fully functional for both Parent and Admin roles with proper Bearer token authentication.
+
+---
+
+## Session: December 5, 2025 - School Branding/Logo Feature Testing
+
+### Task
+Test the school logo display feature that was previously implemented.
+
+### Components Tested
+1. `useSchoolBranding` hook - fetches branding data from API
+2. `SchoolLogo` component - displays school logo in header
+3. Branding API route - `/api/school/settings/branding`
+
+### Test Results
+
+**✅ API Working**:
+- Branding API returns correct data with 200 status
+- Response includes `logo_url` pointing to Supabase storage
+- Logo image loads successfully from Supabase storage (200 status)
+
+**✅ Code Implementation Correct**:
+- Hook file exists and exports correctly
+- Component file exists with proper rendering logic
+- Components imported in admin and parent layouts
+- Components appear in React component tree (per console hydration log)
+
+**⚠️ Rendering Issue Identified**:
+Components in the header (SchoolLogo, SchoolDropdown, NotificationBell) are returning `null` because their dependencies aren't ready during initial render:
+
+| Component | Returns null when |
+|-----------|-------------------|
+| `SchoolLogo` | `showFallback=false` AND no `logoUrl` (rare edge case) |
+| `SchoolDropdown` | `!selectedSchool` from SchoolContext |
+| `NotificationBell` | `!schoolId` OR `!userAuthId` |
+
+### Console Evidence
+```
+📊 Dashboard - schoolId: bed99290-... selectedSchool: undefined schoolIdFromUrl: null
+```
+The `selectedSchool` context value is `undefined` on initial load, causing `SchoolDropdown` to return null.
+
+### Root Cause
+The school branding feature code is correct, but the components depend on context values (AuthContext, SchoolContext) that aren't populated during the initial hydration phase. The contexts update after the API calls complete, but by then the component has already rendered null.
+
+### Recommendation
+To fix the rendering issues:
+1. Make SchoolDropdown render a loading skeleton when `selectedSchool` is not yet available
+2. Ensure SchoolContext is populated from URL params before render
+3. Add loading states to NotificationBell for when `userAuthId` isn't ready
+
+### Files Verified
+- `apps/dashboard/hooks/useSchoolBranding.ts` ✅
+- `apps/dashboard/components/school/SchoolLogo.tsx` ✅
+- `apps/dashboard/app/school/[schoolId]/admin/layout.tsx` ✅
+- `apps/dashboard/app/school/[schoolId]/parent/layout.tsx` ✅
+- `apps/dashboard/app/api/school/settings/branding/route.ts` ✅
+
+### Status
+Feature code complete. Rendering dependent on context timing that needs adjustment.
 

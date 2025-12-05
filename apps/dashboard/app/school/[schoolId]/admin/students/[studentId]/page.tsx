@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Pencil } from 'lucide-react';
 import { Button } from '../../../../../../components/ui/Button';
 import { LoadingState } from '../../../../../../components/shared/LoadingState';
 import { ErrorState } from '../../../../../../components/shared/ErrorState';
@@ -14,6 +14,7 @@ import { AttendanceTab } from '../../../../../../components/students/profile/Att
 import { FeesTab } from '../../../../../../components/students/profile/FeesTab';
 import { NotesTab } from '../../../../../../components/students/profile/NotesTab';
 import { ContactsTab } from '../../../../../../components/students/profile/ContactsTab';
+import { EditStudentModal } from '../../../../../../components/students/EditStudentModal';
 import { StudentProfile } from '../../../../../../lib/types/students';
 
 export default function StudentDetailPage() {
@@ -29,6 +30,7 @@ export default function StudentDetailPage() {
   const [student, setStudent] = useState<StudentProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     if (schoolId && studentId) {
@@ -83,18 +85,43 @@ export default function StudentDetailPage() {
     );
   }
 
+  // Prepare student data for edit modal
+  const studentForEdit = student ? {
+    id: student.id,
+    student_number: student.code || undefined,
+    first_name: student.firstName || undefined,
+    last_name: student.lastName || undefined,
+    class_id: student.classId || undefined,
+    gender: student.gender || undefined,
+    date_of_birth: student.dateOfBirth || undefined,
+    status: student.status || undefined,
+    parent_name: student.parentPrimary?.name || undefined,
+    parent_email: student.parentPrimary?.email || undefined,
+    parent_phone: student.parentPrimary?.phone || undefined,
+    address: student.address || undefined,
+  } : null;
+
   return (
     <div className="p-6">
       {/* Header */}
       <div className="mb-6">
-        <Button
-          variant="outline"
-          onClick={() => router.push(`/school/${encodeURIComponent(schoolId)}/admin/students`)}
-          className="mb-4 gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          {t('dashboard.students.profile.back') || 'Back to Students'}
-        </Button>
+        <div className="flex items-center justify-between mb-4">
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/school/${encodeURIComponent(schoolId)}/admin/students`)}
+            className="gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            {t('dashboard.students.profile.back') || 'Back to Students'}
+          </Button>
+          <Button
+            onClick={() => setIsEditModalOpen(true)}
+            className="gap-2"
+          >
+            <Pencil className="w-4 h-4" />
+            {t('dashboard.students.edit.button') || 'Edit Student'}
+          </Button>
+        </div>
         <h1 className="text-2xl font-bold text-gray-900">{student.name}</h1>
         <p className="text-gray-600">
           {t('dashboard.students.profile.subtitle') || 'Student Profile'}
@@ -120,6 +147,18 @@ export default function StudentDetailPage() {
           }
         }}
       </ProfileTabs>
+
+      {/* Edit Student Modal */}
+      <EditStudentModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSuccess={() => {
+          setIsEditModalOpen(false);
+          fetchStudent(); // Refresh student data
+        }}
+        schoolId={schoolId}
+        student={studentForEdit}
+      />
     </div>
   );
 }

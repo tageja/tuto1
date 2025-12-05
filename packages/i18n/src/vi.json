@@ -1675,5 +1675,84 @@
       "messages": "Tin Nhắn",
       "login": "Đăng Nhập"
     }
+  },
+  "parentDashboard": {
+    "welcomeBack": "Chào mừng trở lại, Phụ Huynh!",
+    "studentInfo": "Học sinh: {student} • Lớp: {class}",
+    "attendanceRate": "Tỷ Lệ Điểm Danh",
+    "homeworkCompletion": "Hoàn Thành Bài Tập",
+    "averageGrade": "Điểm Trung Bình",
+    "upcomingEvents": "Sự Kiện Sắp Tới",
+    "recentAnnouncements": "Thông Báo Gần Đây",
+    "noAnnouncements": "Không có thông báo",
+    "upcomingHomework": "Bài Tập Sắp Tới",
+    "recentAttendance": "Điểm Danh Gần Đây",
+    "quickActions": "Thao Tác Nhanh",
+    "messageTeacher": "Nhắn Giáo Viên",
+    "viewProgress": "Xem Tiến Độ",
+    "checkPayments": "Kiểm Tra Thanh Toán",
+    "photoAlbums": "Album Ảnh",
+    "aiInsights": "Phân Tích AI",
+    "performanceSummary": "Tóm Tắt Hiệu Suất",
+    "performanceText": "{student} đang học xuất sắc môn Toán và Khoa học. Thể hiện kỹ năng phân tích mạnh và tiến bộ đều đặn trong giải quyết vấn đề.",
+    "recommendations": "Gợi Ý",
+    "recommendation1": "Cân nhắc luyện đọc thêm để nâng cao khả năng hiểu tiếng Anh",
+    "recommendation2": "Tiến bộ xuất sắc môn Toán - sẵn sàng cho các chủ đề nâng cao",
+    "recommendation3": "Duy trì thói quen học tập hiện tại để đạt kết quả tối ưu",
+    "due": "Hạn nộp",
+    "tomorrow": "Ngày mai",
+    "inDays": "trong {days} ngày",
+    "hoursAgo": "{hours} giờ trước",
+    "subjects": {
+      "mathematics": "Toán",
+      "science": "Khoa Học",
+      "english": "Tiếng Anh"
+    },
+    "status": {
+      "present": "Có Mặt",
+      "absent": "Vắng",
+      "late": "Trễ",
+      "pending": "Chờ",
+      "inProgress": "Đang Làm"
+    }
+  },
+  "notifications": {
+    "title": "Thông báo",
+    "subtitle": {
+      "parent": "Cập nhật từ trường, giáo viên và hoạt động.",
+      "admin": "Cập nhật quan trọng từ phụ huynh, giáo viên và vận hành."
+    },
+    "tabs": {
+      "important": "Quan trọng",
+      "other": "Khác"
+    },
+    "badge": {
+      "new": "Mới"
+    },
+    "empty": {
+      "urgent": "Không có thông báo quan trọng.",
+      "normal": "Không có thông báo khác."
+    },
+    "markAllRead": "Đánh dấu tất cả đã đọc",
+    "viewAll": "Xem tất cả",
+    "category": {
+      "attendance": "Điểm danh",
+      "homework": "Bài tập",
+      "report": "Báo cáo",
+      "message": "Tin nhắn",
+      "feedback": "Phản hồi",
+      "event": "Sự kiện",
+      "payment": "Thanh toán",
+      "photo_album": "Album ảnh",
+      "medicine": "Thuốc",
+      "activity": "Hoạt động",
+      "announcement": "Thông báo",
+      "other": "Khác"
+    },
+    "group": {
+      "today": "Hôm nay",
+      "thisWeek": "Tuần này",
+      "earlier": "Trước đó"
+    }
   }
 }

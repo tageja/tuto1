@@ -3,11 +3,13 @@
 import { useParams, useRouter } from 'next/navigation';
 import { ParentSidebar } from '../../../../components/school/ParentSidebar';
 import { SchoolDropdown } from '../../../../components/school/SchoolDropdown';
-import { Bell, Search, Globe, LogOut, Settings, User } from 'lucide-react';
+import { SchoolLogo } from '../../../../components/school/SchoolLogo';
+import { Search, Globe, LogOut, Settings, User } from 'lucide-react';
 import { useI18n } from '../../../../contexts/I18nContext';
 import { useSchool } from '../../../../contexts/SchoolContext';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useEffect, useState, useRef } from 'react';
+import { NotificationBell } from '../../../../components/notifications/NotificationBell';
 
 export default function ParentLayoutURLBased({ children }: { children: React.ReactNode }) {
   const { lang, setLang } = useI18n();
@@ -78,6 +80,9 @@ export default function ParentLayoutURLBased({ children }: { children: React.Rea
             </div>
 
             <div className="flex items-center gap-4">
+              {/* School Logo */}
+              <SchoolLogo schoolId={schoolId} size="md" />
+
               {/* Language Toggle */}
               <button
                 onClick={toggleLanguage}
@@ -91,10 +96,7 @@ export default function ParentLayoutURLBased({ children }: { children: React.Rea
               <SchoolDropdown />
 
               {/* Notifications */}
-              <button className="p-2 hover:bg-surface rounded-lg relative">
-                <Bell className="w-5 h-5 text-text" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full"></span>
-              </button>
+              <NotificationBell role="parent" schoolIdOverride={schoolId} />
 
               {/* User Avatar with Dropdown */}
               <div className="relative" ref={menuRef}>

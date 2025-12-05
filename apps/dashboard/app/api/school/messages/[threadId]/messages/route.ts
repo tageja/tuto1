@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '../../../../../../lib/supabase';
 import { getUserByAuthId } from '../../../../../../lib/api/messages';
+import { createNotification } from '../../../../../../lib/notifications.server';
 import type { MessageAttachment } from '../../../../../../lib/types/messages';
 
 const DEFAULT_LIMIT = 50;
@@ -162,6 +163,53 @@ export async function POST(
       .from('message_threads')
       .update({ updated_at: new Date().toISOString() })
       .eq('id', threadId);
+
+    // Create notifications for all other participants in the thread
+    const { data: participants } = await supabase
+      .from('message_participants')
+      .select('user_id, role')
+      .eq('thread_id', threadId)
+      .neq('user_id', sender.id);
+
+    if (participants && participants.length > 0) {
+      // Get thread subject for notification
+      const { data: threadData } = await supabase
+        .from('message_threads')
+        .select('subject')
+        .eq('id', threadId)
+        .single();
+
+      const notificationPromises = participants.map(async (participant) => {
+        // Normalize role to lowercase for comparison (DB stores 'Parent', 'Admin', 'Teacher')
+        const roleLower = participant.role?.toLowerCase() || '';
+        const notifRole: 'parent' | 'admin' = 
+          roleLower === 'parent' || roleLower === 'guardian' ? 'parent' : 'admin';
+        
+        try {
+          await createNotification({
+            supabase,
+            schoolId: schoolId!,
+            recipientUserId: participant.user_id,
+            recipientRole: notifRole,
+            type: 'message',
+            title: `New reply: ${threadData?.subject || 'Message'}`,
+            body: body.substring(0, 150) + (body.length > 150 ? '...' : ''),
+            targetType: 'feedback',
+            targetId: threadId,
+            meta: {
+              threadId,
+              senderId: sender.id,
+              senderName: sender.name || sender.email,
+            },
+          });
+        } catch (notifError) {
+          console.error('Failed to create notification for participant:', participant.user_id, notifError);
+        }
+      });
+
+      await Promise.allSettled(notificationPromises);
+      console.log('✅ Notifications created for', participants.length, 'participants');
+    }
 
     return NextResponse.json({ success: true, data: message }, { status: 201 });
   } catch (error) {

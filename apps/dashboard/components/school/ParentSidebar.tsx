@@ -56,11 +56,13 @@ export function ParentSidebar() {
     <div className="w-64 bg-card border-r border-border min-h-screen flex flex-col">
       {/* Logo/Brand */}
       <div className="p-6 border-b border-border">
-        <img 
-          src="/images/tuto-logo.png" 
-          alt="tuto." 
-          className="h-10 w-auto mb-2"
-        />
+        <Link href="/home" className="block">
+          <img 
+            src="/images/tuto-logo.png" 
+            alt="tuto." 
+            className="h-10 w-auto mb-2"
+          />
+        </Link>
         <p className="text-xs text-text-muted">learn • connect • grow</p>
       </div>
 
