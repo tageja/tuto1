@@ -87,6 +87,11 @@ export async function signUpWithEmail(email: string, password: string, metadata?
  * Sign in with Google OAuth
  */
 export async function signInWithGoogle() {
+  console.log('🔧 Supabase signInWithOAuth called with:', {
+    provider: 'google',
+    redirectTo: 'tuto://auth/callback',
+  });
+  
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
@@ -94,8 +99,20 @@ export async function signInWithGoogle() {
     },
   });
   
-  if (error) throw error;
-  return data;
+  console.log('🔧 Supabase OAuth raw response:', {
+    data,
+    error,
+    hasProvider: !!data?.provider,
+    hasUrl: !!data?.url,
+  });
+  
+  if (error) {
+    console.error('🔧 Supabase OAuth error:', error);
+    throw error;
+  }
+  
+  // Return the full response object for destructuring
+  return { data, error };
 }
 
 /**

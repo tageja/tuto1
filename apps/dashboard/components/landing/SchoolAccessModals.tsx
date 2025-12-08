@@ -24,19 +24,34 @@ export default function SchoolAccessModals() {
     setLoading(true);
     setError("");
     
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      if (code.toLowerCase() === "tuto") {
-        // Mock success
-        const mockSchoolId = "s_demo123";
+    try {
+      const response = await fetch('/api/school/validate-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
         // Close modal
         (document.getElementById('school-code-modal') as any)?.close();
-        router.push(schoolLink(undefined, mockSchoolId));
+        
+        // Refresh auth state to pick up new role if needed (client side refresh usually needed)
+        // We'll trust the redirect for now or trigger a reload if needed
+        
+        router.push(schoolLink(undefined, result.school_id));
       } else {
-        setError(t("landing.modals.invalidCode"));
+        setError(result.message || t("landing.modals.invalidCode"));
       }
-    }, 1000);
+    } catch (err) {
+      console.error('Validation error:', err);
+      setError(t("landing.modals.invalidCode"));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleTeacherRequest = (e: React.FormEvent) => {

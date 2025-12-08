@@ -10,6 +10,7 @@ import {
   ViewStyle,
   Dimensions,
   Alert,
+  Linking,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -107,7 +108,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       { key: 'dashboard', icon: 'dashboard', title: t('home.learningDashboard'), color: colors.primary },
       { key: 'feed', icon: 'forum', title: t('feed.title'), color: '#9C27B0' },
       { key: 'ask', icon: 'help', title: t('home.ask'), color: '#FF6B35' },
-      { key: 'chats', icon: 'chat', title: t('home.chats'), color: '#4CAF50' }
+      { key: 'chats', icon: 'chat', title: t('home.chats'), color: '#4CAF50' },
+      { key: 'investors', icon: 'business', title: t('investors.title'), color: '#607D8B' }
     );
 
     // Role-specific actions
@@ -298,13 +300,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                           t('school.dashboard.noSchoolJoinedMessage'),
                           [
                             { text: t('common.cancel'), style: 'cancel' },
-                            { 
-                              text: t('school.invitation.joinButton'), 
+                            {
+                              text: t('school.invitation.joinButton'),
                               onPress: () => navigation.navigate('SchoolInvitation')
                             }
                           ]
                         );
                       }
+                      break;
+                    case 'investors':
+                      Linking.openURL('https://tutoglobal.com/investors').catch(() => {
+                        Alert.alert('Error', 'Unable to open investor page');
+                      });
                       break;
                     default:
                       break;

@@ -7,6 +7,7 @@ import { LoginScreen } from '../screens/LoginScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
 import AuthUnifiedScreen from '../screens/AuthUnifiedScreen';
 import { ForgotPasswordScreen } from '../screens/ForgotPasswordScreen';
+import { ResetPasswordScreen } from '../screens/ResetPasswordScreen';
 import { RoleSelectionScreen } from '../screens/RoleSelectionScreen';
 import { DashboardScreen } from '../screens/DashboardScreen';
 import { AllSubjectsScreen } from '../screens/AllSubjectsScreen';
@@ -54,6 +55,7 @@ export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   ForgotPassword: undefined;
+  ResetPassword: undefined;
   RoleSelection: undefined;
   Home: undefined;
   Dashboard: undefined;
@@ -133,10 +135,24 @@ const RoleGate: React.FC = () => {
   return <ParentTabs />;
 };
 
+const linking = {
+  prefixes: ['tuto://'],
+  config: {
+    screens: {
+      Login: 'login',
+      Register: 'register',
+      ForgotPassword: 'auth/forgot-password',
+      ResetPassword: 'auth/reset-password',
+      Home: 'home',
+    },
+  },
+};
+
 export const AppNavigator = () => {
   console.log('🧭 AppNavigator: Setting up auth flow');
   return (
     <NavigationContainer
+      linking={linking}
       onStateChange={(state) => {
         try {
           const routes = state?.routes || [];
@@ -150,6 +166,7 @@ export const AppNavigator = () => {
         <Stack.Screen name="Login" component={AuthUnifiedScreen as any} initialParams={{ mode: 'login' }} />
         <Stack.Screen name="Register" component={AuthUnifiedScreen as any} initialParams={{ mode: 'register' }} />
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+        <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
         <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
 
         {/* Shell entry - RoleGate decides which tabs to mount */}

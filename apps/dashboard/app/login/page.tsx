@@ -298,6 +298,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState<'teacher' | 'parent' | 'student' | 'school_admin'>('parent');
+  const [schoolCode, setSchoolCode] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -319,6 +320,21 @@ export default function LoginPage() {
     
     try {
       if (activeTab === 'register') {
+        // If school admin, validate code first
+        if (role === 'school_admin' && schoolCode) {
+           const response = await fetch('/api/school/validate-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: schoolCode }),
+          });
+          const result = await response.json();
+          if (!result.success) {
+            throw new Error(result.message || 'Invalid school code');
+          }
+        } else if (role === 'school_admin' && !schoolCode) {
+           throw new Error(t('schoolCodeRequired') || 'School code is required for admins');
+        }
+
         await signUp(email.trim(), password, name.trim() || 'Tuto User', role);
         // If signUp completes without error and we're still here, email confirmation is required
         if (!error) {
@@ -595,6 +611,22 @@ export default function LoginPage() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {role === 'school_admin' && (
+                  <div style={styles.formField}>
+                    <label htmlFor="school-code" style={styles.label}>
+                      {t('enterSchoolCode') || 'School Code'}
+                    </label>
+                    <input
+                      id="school-code"
+                      type="text"
+                      placeholder={t('enterSchoolCode') || 'Enter School Code'}
+                      value={schoolCode || ''}
+                      onChange={(e) => setSchoolCode(e.target.value.toUpperCase())}
+                      style={styles.input}
+                    />
+                  </div>
+                )}
 
                 {successMessage && (
                   <div style={styles.success}>

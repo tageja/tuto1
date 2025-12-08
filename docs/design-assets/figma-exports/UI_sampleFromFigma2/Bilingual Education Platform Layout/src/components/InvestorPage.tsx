@@ -935,13 +935,13 @@ export function InvestorPage() {
                 {t('Contact', 'Liên hệ')}
               </h4>
               <div className="space-y-2">
-                <a href="mailto:investor@tuto.education" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                <a href="mailto:investor@tutoglobal.com" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
                   <Mail className="w-4 h-4" />
-                  investor@tuto.education
+                  investor@tutoglobal.com
                 </a>
-                <a href="https://tuto.education/investors" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                <a href="https://tutoglobal.com/investors" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
                   <Globe className="w-4 h-4" />
-                  tuto.education/investors
+                  tutoglobal.com/investors
                 </a>
               </div>
             </div>

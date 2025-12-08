@@ -838,7 +838,7 @@ const enFlat: Dict = {
   investorInvitationDescription: 'We\'re currently seeking early-stage strategic partners to accelerate our pilot rollout and platform expansion. If you share our vision for smart, inclusive education — we\'d love to connect.',
   investorRequestDeck: 'Request Investor Deck',
   investorScheduleCall: 'Schedule a Call',
-  investorVisitWebsite: 'Visit tuto.education/investors',
+  investorVisitWebsite: 'Visit tutoglobal.com/investors',
   investorResources: 'Investor Resources',
   investorOnePager: 'One-Pager',
   investorFinancials: 'Financials',

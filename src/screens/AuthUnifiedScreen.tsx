@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,16 +6,12 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
-  Dimensions,
-  Animated,
   Platform,
   KeyboardAvoidingView,
   Image,
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useUser } from '../contexts/UserContext';
 import { supabase, signInWithEmail, signUpWithEmail, signInWithGoogle } from '../config/supabase';
@@ -23,8 +19,6 @@ import Constants from 'expo-constants';
 import * as WebBrowser from 'expo-web-browser';
 
 WebBrowser.maybeCompleteAuthSession();
-
-const { width } = Dimensions.get('window');
 
 interface AuthUnifiedScreenProps {
   navigation: any;
@@ -59,8 +53,6 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
 
-  const slideAnim = useRef(new Animated.Value(0)).current;
-
   // Debug: Log Supabase configuration on mount
   useEffect(() => {
     console.log('\n🔍 Supabase Auth Configuration:');
@@ -79,12 +71,6 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
   ];
 
   const handleTabChange = (tab: TabType) => {
-    Animated.spring(slideAnim, {
-      toValue: tab === 'signin' ? 0 : 1,
-      useNativeDriver: true,
-      speed: 14,
-      bounciness: 8,
-    }).start();
     setActiveTab(tab);
   };
 
@@ -98,81 +84,255 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
       console.log('🔐 Google auth callback - signing in to Supabase...');
       
       // Supabase handles the OAuth flow automatically
+      console.log('📞 Getting session from Supabase...');
       const { data, error } = await supabase.auth.getSession();
       
-      if (error) throw error;
+      console.log('📦 Session response:', {
+        hasSession: !!data?.session,
+        hasError: !!error,
+        userId: data?.session?.user?.id,
+        userEmail: data?.session?.user?.email,
+      });
+      
+      if (error) {
+        console.error('❌ Session error:', error);
+        throw error;
+      }
       
       if (data.session) {
         console.log('✅ Supabase sign-in successful:', data.session.user.email);
+        console.log('👤 User metadata:', data.session.user.user_metadata);
+        
+        // First, check if user already exists to get their existing role
+        console.log('🔍 Checking for existing user profile...');
+        const { data: existingProfile } = await supabase
+          .from('users')
+          .select('*')
+          .eq('auth_user_id', data.session.user.id)
+          .single();
+        
+        console.log('📋 Existing profile:', existingProfile ? {
+          id: existingProfile.id,
+          role: existingProfile.role,
+          email: existingProfile.email,
+        } : 'None found');
+        
+        // Check if user is a school admin (mobile app specific check)
+        console.log('🔍 Checking for school admin role in school_users...');
+        const { data: schoolUserRole } = await supabase
+          .from('school_users')
+          .select('role, school_id')
+          .eq('user_id', existingProfile?.id || data.session.user.id)
+          .eq('role', 'admin')
+          .single();
+        
+        console.log('📋 School user role:', schoolUserRole ? {
+          role: schoolUserRole.role,
+          school_id: schoolUserRole.school_id,
+        } : 'None found');
+        
+        // Priority: school_users.role (if admin) > users.role
+        // For new users without existing profile, don't assign default role
+        const userRole = schoolUserRole?.role || existingProfile?.role;
+        console.log('👤 Final role determined:', userRole);
         
         // Create or update user profile in database
+        console.log('💾 Creating/updating user profile in database...');
+        const profileData = {
+          auth_user_id: data.session.user.id,
+          email: data.session.user.email!,
+          name: data.session.user.user_metadata?.full_name || existingProfile?.name || data.session.user.email?.split('@')[0] || 'User',
+          ...(userRole && { role: userRole }), // Only set role if we have one
+        };
+
         const { data: userProfile, error: profileError } = await supabase
           .from('users')
-          .upsert({
-            auth_user_id: data.session.user.id,
-            email: data.session.user.email!,
-            name: data.session.user.user_metadata?.full_name || data.session.user.email?.split('@')[0] || 'User',
-            role: selectedRole,
-          }, { onConflict: 'auth_user_id' })
+          .upsert(profileData, { onConflict: 'auth_user_id' })
           .select()
           .single();
         
+        console.log('💾 Profile result:', {
+          hasProfile: !!userProfile,
+          hasError: !!profileError,
+          profileId: userProfile?.id,
+        });
+        
+        if (profileError) {
+          console.warn('⚠️ Profile error (non-fatal):', profileError);
+        }
+        
+        const finalRole = userProfile?.role || userRole;
         const userData = {
           id: userProfile?.id || data.session.user.id,
           name: userProfile?.name || data.session.user.email?.split('@')[0] || 'User',
           email: data.session.user.email || '',
-          type: (userProfile?.role || selectedRole) as 'parent' | 'student' | 'teacher',
+          type: finalRole as UserType, // Will be null for new users without roles
         };
         
+        console.log('👤 Setting user data:', userData);
         await setUserData(userData);
+        
+        console.log('🎉 Showing success alert and navigating...');
+        
+        // Check if user already has a role - skip role selection if they do
+        const hasExistingRole = !!(schoolUserRole?.role || existingProfile?.role);
+        const navigationTarget = hasExistingRole ? 'Home' : 'RoleSelection';
+        
+        console.log('🧭 Navigation decision:', {
+          hasExistingRole,
+          role: userData.type,
+          navigatingTo: navigationTarget,
+        });
         
         Alert.alert(
           t('auth.loginSuccess'),
           `${t('auth.welcomeBack')} ${userData.name}`,
-          [{ text: t('common.ok'), onPress: () => navigation.navigate('RoleSelection') }]
+          [{ text: t('common.ok'), onPress: () => {
+            console.log(`🧭 Navigating to ${navigationTarget}...`);
+            navigation.navigate(navigationTarget);
+          }}]
+        );
+      } else {
+        console.warn('⚠️ No session found after OAuth callback');
+        Alert.alert(
+          t('auth.loginError'),
+          'No session found. Please try again.'
         );
       }
     } catch (error: any) {
-      console.error('❌ Google sign-in error:', error);
+      console.error('❌ Google auth callback error:', error);
+      console.error('Error details:', {
+        message: error?.message,
+        code: error?.code,
+      });
       Alert.alert(
         t('auth.loginError'), 
-        t('auth.googleSignInFailed') || 'Google sign-in failed. Please try again.'
+        error?.message || (t('auth.googleSignInFailed') || 'Google sign-in failed. Please try again.')
       );
     } finally {
+      console.log('🏁 Callback complete, resetting loading state');
       setLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
+    // Prevent multiple simultaneous calls
+    if (loading) {
+      console.log('⚠️ Google sign-in already in progress, ignoring...');
+      return;
+    }
+
+    setLoading(true);
+    
     try {
       console.log('🚀 Launching Google sign-in with Supabase...');
-      setLoading(true);
       
       // Use Supabase OAuth
+      console.log('📞 Calling signInWithGoogle()...');
       const { data, error } = await signInWithGoogle();
       
-      if (error) throw error;
+      console.log('📦 Response from signInWithGoogle:', { 
+        hasData: !!data, 
+        hasUrl: !!data?.url, 
+        hasError: !!error,
+        errorMessage: error?.message 
+      });
+      
+      if (error) {
+        console.error('❌ Supabase OAuth error:', error);
+        throw error;
+      }
       
       if (data?.url) {
+        console.log('🌐 Opening browser with URL:', data.url.substring(0, 50) + '...');
+        
         // Open browser for OAuth
         const result = await WebBrowser.openAuthSessionAsync(
           data.url,
           'tuto://auth/callback'
         );
         
+        console.log('📱 Browser result:', result);
+        
         if (result.type === 'success') {
-          await handleGoogleAuthCallback();
+          console.log('✅ Browser returned success, handling callback...');
+          console.log('🔗 Callback URL:', result.url);
+          
+          // Parse the URL to extract tokens
+          const url = result.url;
+          const params = new URLSearchParams(url.split('#')[1]);
+          const access_token = params.get('access_token');
+          const refresh_token = params.get('refresh_token');
+          
+          console.log('🔑 Extracted tokens:', {
+            hasAccessToken: !!access_token,
+            hasRefreshToken: !!refresh_token,
+          });
+          
+          if (access_token && refresh_token) {
+            // Set the session with the tokens
+            console.log('💾 Setting session with extracted tokens...');
+            const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+              access_token,
+              refresh_token,
+            });
+            
+            console.log('📦 Set session result:', {
+              hasSession: !!sessionData?.session,
+              hasError: !!sessionError,
+              userId: sessionData?.session?.user?.id,
+            });
+            
+            if (sessionError) {
+              console.error('❌ Session error:', sessionError);
+              throw sessionError;
+            }
+            
+            if (sessionData?.session) {
+              await handleGoogleAuthCallback();
+            } else {
+              console.warn('⚠️ No session created from tokens');
+              Alert.alert(
+                t('auth.loginError'),
+                'Failed to create session. Please try again.'
+              );
+            }
+          } else {
+            console.error('❌ Missing tokens in callback URL');
+            Alert.alert(
+              t('auth.loginError'),
+              'Missing authentication tokens. Please try again.'
+            );
+          }
+        } else if (result.type === 'cancel') {
+          console.log('🚫 User cancelled Google sign-in');
+        } else if (result.type === 'dismiss') {
+          console.log('🚫 User dismissed Google sign-in');
+        } else {
+          console.log('⚠️ Unexpected browser result type:', result.type);
         }
+      } else {
+        console.warn('⚠️ No URL returned from Supabase OAuth');
+        Alert.alert(
+          t('auth.loginError'),
+          'Failed to initialize Google sign-in. Please try again.'
+        );
       }
     } catch (error: any) {
-      console.error('Google sign-in error:', error);
+      console.error('❌ Google sign-in error:', error);
+      console.error('Error details:', {
+        message: error?.message,
+        code: error?.code,
+        stack: error?.stack?.substring(0, 200)
+      });
       Alert.alert(
         t('auth.loginError'),
-        language === 'en' 
-          ? 'Google sign-in is being configured. Please use email/password for now.'
-          : 'Đang cấu hình Google sign-in. Vui lòng dùng email/mật khẩu.'
+        error?.message || (language === 'en' 
+          ? 'Google sign-in failed. Please try again.'
+          : 'Đăng nhập Google thất bại. Vui lòng thử lại.')
       );
     } finally {
+      console.log('🏁 Google sign-in flow complete, resetting loading state');
       setLoading(false);
     }
   };
@@ -221,21 +381,52 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
         userProfile = { data: newProfile, error: null };
       }
       
+      // Check if user is a school admin (mobile app specific check)
+      console.log('🔍 Checking for school admin role in school_users...');
+      const { data: schoolUserRole } = await supabase
+        .from('school_users')
+        .select('role, school_id')
+        .eq('user_id', userProfile.data?.id || user.id)
+        .eq('role', 'admin')
+        .single();
+      
+      console.log('📋 School user role:', schoolUserRole ? {
+        role: schoolUserRole.role,
+        school_id: schoolUserRole.school_id,
+      } : 'None found');
+      
+      // Priority: school_users.role (if admin) > users.role > 'parent'
+      const finalRole = schoolUserRole?.role || userProfile.data?.role || 'parent';
+      console.log('👤 Final role determined:', finalRole);
+      
       // Set user data for app
       const userData = {
         id: userProfile.data?.id || user.id,
         name: userProfile.data?.name || normalizedEmail.split('@')[0],
         email: normalizedEmail,
-        type: (userProfile.data?.role || 'parent') as 'parent' | 'student' | 'teacher',
+        type: finalRole as 'parent' | 'student' | 'teacher' | 'admin',
       };
       
       await setUserData(userData);
       
-      // Navigate to RoleSelection, then Home
+      // Check if user already has a role - skip role selection if they do
+      const hasExistingRole = !!(schoolUserRole?.role || userProfile.data?.role);
+      const navigationTarget = hasExistingRole ? 'Home' : 'RoleSelection';
+      
+      console.log('🧭 Navigation decision:', {
+        hasExistingRole,
+        role: userData.type,
+        navigatingTo: navigationTarget,
+      });
+      
+      // Navigate to Home if user has role, otherwise RoleSelection
       Alert.alert(
         t('auth.loginSuccess'),
         `${t('auth.welcomeBack')} ${userData.name}`,
-        [{ text: t('common.ok'), onPress: () => navigation.navigate('RoleSelection') }]
+        [{ text: t('common.ok'), onPress: () => {
+          console.log(`🧭 Navigating to ${navigationTarget}...`);
+          navigation.navigate(navigationTarget);
+        }}]
       );
     } catch (error: any) {
       console.error('Sign in error:', error);
@@ -308,7 +499,7 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
         id: userProfile?.id || user.id,
         name: registerName,
         email: normalizedEmail,
-        type: selectedRole as 'parent' | 'student' | 'teacher',
+        type: selectedRole as 'parent' | 'student' | 'teacher' | 'admin',
       };
       
       await setUserData(userData);
@@ -341,20 +532,12 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
     }
   };
 
-  const translateX = slideAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, (width - 96) * 0.5],
-  });
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <LinearGradient
-        colors={['#F9FAFC', '#FFFFFF', '#F9FAFC']}
-        style={styles.gradient}
-      >
+      <View style={styles.background}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
@@ -383,51 +566,46 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
             </View>
           </View>
 
-          {/* Glass Card */}
+          {/* White Card */}
           <View style={styles.cardContainer}>
-            <BlurView intensity={10} tint="light" style={styles.blurCard}>
-              <View style={styles.card}>
-                {/* Custom Tabs - Fixed positioning */}
-                <View style={styles.tabContainer}>
-                  <View style={styles.tabBackground}>
-                    <Animated.View
+            <View style={styles.card}>
+              {/* Segmented Control Tabs */}
+              <View style={styles.tabContainer}>
+                <View style={styles.tabBackground}>
+                  <TouchableOpacity
+                    style={[
+                      styles.tabButton,
+                      activeTab === 'signin' && styles.tabButtonActive,
+                    ]}
+                    onPress={() => handleTabChange('signin')}
+                  >
+                    <Text
                       style={[
-                        styles.tabIndicator,
-                        { transform: [{ translateX }] },
+                        styles.tabButtonText,
+                        activeTab === 'signin' && styles.tabButtonTextActive,
                       ]}
-                    />
-                    
-                    {/* Tab buttons on top of indicator */}
-                    <View style={styles.tabButtons}>
-                      <TouchableOpacity
-                        style={styles.tabButton}
-                        onPress={() => handleTabChange('signin')}
-                      >
-                        <Text
-                          style={[
-                            styles.tabButtonText,
-                            activeTab === 'signin' && styles.tabButtonTextActive,
-                          ]}
-                        >
-                          {t('auth.signIn')}
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={styles.tabButton}
-                        onPress={() => handleTabChange('register')}
-                      >
-                        <Text
-                          style={[
-                            styles.tabButtonText,
-                            activeTab === 'register' && styles.tabButtonTextActive,
-                          ]}
-                        >
-                          {t('auth.createAccount')}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
+                    >
+                      {t('auth.signIn')}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.tabButton,
+                      activeTab === 'register' && styles.tabButtonActive,
+                    ]}
+                    onPress={() => handleTabChange('register')}
+                  >
+                    <Text
+                      style={[
+                        styles.tabButtonText,
+                        activeTab === 'register' && styles.tabButtonTextActive,
+                      ]}
+                    >
+                      {t('auth.createAccount')}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
+              </View>
 
                 {/* Sign In Form */}
                 {activeTab === 'signin' && (
@@ -494,20 +672,13 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
                       onPress={handleSignIn}
                       disabled={loading}
                     >
-                      <LinearGradient
-                        colors={['#0B5FFF', '#6366F1']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={styles.buttonGradient}
-                      >
-                        {loading ? (
-                          <ActivityIndicator color="#FFFFFF" />
-                        ) : (
-                          <Text style={styles.primaryButtonText}>
-                            {t('auth.signIn')}
-                          </Text>
-                        )}
-                      </LinearGradient>
+                      {loading ? (
+                        <ActivityIndicator color="#FFFFFF" />
+                      ) : (
+                        <Text style={styles.primaryButtonText}>
+                          {t('auth.signIn')}
+                        </Text>
+                      )}
                     </TouchableOpacity>
 
                     <View style={styles.divider}>
@@ -517,8 +688,8 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
                     </View>
 
                     <TouchableOpacity 
-                      style={styles.googleButton} 
-                      disabled={loading || !request}
+                      style={[styles.googleButton, loading && styles.buttonDisabled]} 
+                      disabled={loading}
                       onPress={handleGoogleSignIn}
                     >
                       <GoogleIcon />
@@ -615,20 +786,13 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
                       onPress={handleRegister}
                       disabled={loading}
                     >
-                      <LinearGradient
-                        colors={['#0B5FFF', '#6366F1']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={styles.buttonGradient}
-                      >
-                        {loading ? (
-                          <ActivityIndicator color="#FFFFFF" />
-                        ) : (
-                          <Text style={styles.primaryButtonText}>
-                            {t('auth.createAccount')}
-                          </Text>
-                        )}
-                      </LinearGradient>
+                      {loading ? (
+                        <ActivityIndicator color="#FFFFFF" />
+                      ) : (
+                        <Text style={styles.primaryButtonText}>
+                          {t('auth.createAccount')}
+                        </Text>
+                      )}
                     </TouchableOpacity>
 
                     <View style={styles.divider}>
@@ -638,8 +802,8 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
                     </View>
 
                     <TouchableOpacity 
-                      style={styles.googleButton} 
-                      disabled={loading || !request}
+                      style={[styles.googleButton, loading && styles.buttonDisabled]} 
+                      disabled={loading}
                       onPress={handleGoogleSignIn}
                     >
                       <GoogleIcon />
@@ -649,8 +813,7 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
                     </TouchableOpacity>
                   </View>
                 )}
-              </View>
-            </BlurView>
+            </View>
           </View>
 
           {/* Footer */}
@@ -659,8 +822,29 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
               ? 'By continuing, you agree to our Terms of Service and Privacy Policy'
               : 'Bằng cách tiếp tục, bạn đồng ý với Điều khoản Dịch vụ và Chính sách Bảo mật của chúng tôi'}
           </Text>
+
+          {/* Temporary Debug: Clear Session Button */}
+          <TouchableOpacity
+            style={styles.debugButton}
+            onPress={async () => {
+              try {
+                console.log('🧹 Clearing all sessions...');
+                await supabase.auth.signOut();
+                await setUserData(null);
+                Alert.alert('✅ Success', 'Session cleared! You can now try Google sign-in.');
+                console.log('✅ All sessions cleared');
+              } catch (error) {
+                console.error('Error clearing session:', error);
+                Alert.alert('Error', 'Failed to clear session');
+              }
+            }}
+          >
+            <Text style={styles.debugButtonText}>
+              🧹 Clear Session (Debug)
+            </Text>
+          </TouchableOpacity>
         </ScrollView>
-      </LinearGradient>
+      </View>
     </KeyboardAvoidingView>
   );
 };
@@ -683,8 +867,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  gradient: {
+  background: {
     flex: 1,
+    backgroundColor: '#F9FAFC',
   },
   scrollContent: {
     paddingBottom: 40,
@@ -734,16 +919,10 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 8,
   },
-  blurCard: {
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: '#FFFFFF',
     padding: 24,
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(229, 231, 235, 0.5)',
   },
   tabContainer: {
     marginBottom: 24,
@@ -753,32 +932,18 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 4,
     height: 48,
-    position: 'relative',
-  },
-  tabIndicator: {
-    position: 'absolute',
-    left: 4,
-    top: 4,
-    width: (width - 96) * 0.5,
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#0B5FFF',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  tabButtons: {
     flexDirection: 'row',
-    position: 'relative',
-    zIndex: 10,
   },
   tabButton: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     height: 40,
+    borderRadius: 10,
+    backgroundColor: 'transparent',
+  },
+  tabButtonActive: {
+    backgroundColor: '#0B5FFF',
   },
   tabButtonText: {
     fontSize: 15,
@@ -786,7 +951,7 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   tabButtonTextActive: {
-    color: '#1F2937',
+    color: '#FFFFFF',
   },
   formContainer: {
     gap: 20,
@@ -889,8 +1054,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   primaryButton: {
+    backgroundColor: '#0B5FFF',
     borderRadius: 12,
-    overflow: 'hidden',
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: '#0B5FFF',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -899,11 +1067,6 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.6,
-  },
-  buttonGradient: {
-    paddingVertical: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   primaryButtonText: {
     fontSize: 16,
@@ -948,6 +1111,23 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     paddingHorizontal: 40,
     marginTop: 32,
+  },
+  debugButton: {
+    marginHorizontal: 24,
+    marginTop: 16,
+    marginBottom: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#FEF2F2',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FCA5A5',
+  },
+  debugButtonText: {
+    fontSize: 13,
+    color: '#991B1B',
+    textAlign: 'center',
+    fontWeight: '600',
   },
 });
 

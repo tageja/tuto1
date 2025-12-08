@@ -2,13 +2,24 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase, getCurrentUser } from '../config/supabase';
 
-type UserType = 'parent' | 'student' | 'teacher' | 'admin';
+type UserType = 'parent' | 'student' | 'teacher' | 'admin' | null;
 
 interface UserData {
   id: string;
   name: string;
   email: string;
   type: UserType;
+}
+
+interface UserContextType {
+  userType: UserType;
+  userData: UserData | null;
+  loading: boolean;
+  setUserType: (type: UserType) => Promise<void>;
+  setActiveRole: (type: UserType) => Promise<void>;
+  setUserData: (data: UserData | Omit<UserData, 'type'> & { type: UserType }) => Promise<void>;
+  refreshProfile: () => Promise<void>;
+  clearUser: () => Promise<void>;
 }
 
 interface UserContextType {

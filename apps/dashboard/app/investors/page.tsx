@@ -812,18 +812,18 @@ export default function InvestorsPage() {
               <h4 className="mb-4 font-semibold text-gray-900">{t('investorContact')}</h4>
               <div className="space-y-2">
                 <a
-                  href="mailto:investor@tuto.education"
+                  href="mailto:investor@tutoglobal.com"
                   className="flex items-center gap-2 text-gray-600 hover:text-[#0B5FFF] transition-colors"
                 >
                   <Mail className="w-4 h-4" />
-                  investor@tuto.education
+                  investor@tutoglobal.com
                 </a>
                 <a
-                  href="https://tuto.education/investors"
+                  href="https://tutoglobal.com/investors"
                   className="flex items-center gap-2 text-gray-600 hover:text-[#0B5FFF] transition-colors"
                 >
                   <Globe className="w-4 h-4" />
-                  tuto.education/investors
+                  tutoglobal.com/investors
                 </a>
               </div>
             </div>
