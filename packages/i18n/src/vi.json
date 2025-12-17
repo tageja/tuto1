@@ -73,7 +73,7 @@
       "avatarPermissionDenied": "Vui lòng cho phép truy cập thư viện ảnh để tải lên ảnh đại diện.",
       "avatarUploadSuccess": "Đã cập nhật ảnh đại diện thành công",
       "updateSuccess": "Đã cập nhật hồ sơ thành công",
-      "phonePlaceholder": "+84..."
+      "phonePlaceholder": "+84...",
       "twoFactor": "Xác Thực Hai Yếu Tố",
       "twoFactorHint": "Thêm một lớp bảo mật cho tài khoản của bạn",
       "enabled": "Đã Bật",

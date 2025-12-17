@@ -73,7 +73,7 @@
       "avatarPermissionDenied": "Please allow photo library access to upload avatar.",
       "avatarUploadSuccess": "Avatar updated successfully",
       "updateSuccess": "Profile updated successfully",
-      "phonePlaceholder": "+84..."
+      "phonePlaceholder": "+84...",
       "twoFactor": "Two-Factor Authentication",
       "twoFactorHint": "Add an extra layer of security to your account",
       "enabled": "Enabled",
