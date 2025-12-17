@@ -11,16 +11,148 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
-import { colors, spacing, typography } from '../theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import { subjects, Subject } from '../data/subjects';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface AllSubjectsScreenProps {
   navigation: any;
 }
 
 export const AllSubjectsScreen: React.FC<AllSubjectsScreenProps> = ({ navigation }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      backgroundColor: colors.background.primary,
+    },
+    backButton: {
+      position: 'absolute',
+      left: spacing.lg,
+      zIndex: 1,
+    },
+    logo: {
+      height: 40,
+      width: 120,
+    },
+    titleContainer: {
+      backgroundColor: colors.primary,
+      paddingVertical: spacing.sm,
+      alignItems: 'center',
+    },
+    title: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.background.primary,
+      textAlign: 'center',
+    },
+    content: {
+      flex: 1,
+    },
+    contentContainer: {
+      padding: spacing.lg,
+    },
+    searchContainer: {
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.sm,
+    },
+    searchBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.background.secondary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+    },
+    searchPlaceholder: {
+      marginLeft: spacing.sm,
+      color: colors.text.secondary,
+      fontSize: typography.fontSize.md,
+    },
+    searchInput: {
+      flex: 1,
+      marginLeft: spacing.sm,
+      color: colors.text.primary,
+      fontSize: typography.fontSize.md,
+      paddingVertical: 0,
+    },
+    tabs: {
+      flexDirection: 'row',
+      marginTop: spacing.sm,
+      gap: spacing.sm,
+    },
+    tab: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      backgroundColor: colors.background.primary,
+    },
+    tabActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    tabText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+      fontFamily: typography.fontFamily.medium,
+    },
+    tabTextActive: {
+      color: colors.background.primary,
+    },
+    section: {
+      marginBottom: spacing.xl,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.md,
+    },
+    pillGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginHorizontal: -spacing.sm,
+    },
+    pillWrapper: {
+      width: '50%',
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+    },
+    subjectPill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.primary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: 12,
+      minHeight: 48,
+    },
+    subjectText: {
+      color: colors.background.primary,
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      marginLeft: spacing.xs,
+      flex: 1,
+      flexShrink: 1,
+    },
+  });
+
   const { language } = useLanguage();
   const [query, setQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'academic' | 'extracurricular'>('all');
@@ -125,132 +257,3 @@ const shadowStyle: ViewStyle = {
   shadowRadius: 4,
   elevation: 2,
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.background.primary,
-  },
-  backButton: {
-    position: 'absolute',
-    left: spacing.lg,
-    zIndex: 1,
-  },
-  logo: {
-    height: 40,
-    width: 120,
-  },
-  titleContainer: {
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.sm,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.background.primary,
-    textAlign: 'center',
-  },
-  content: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: spacing.lg,
-  },
-  searchContainer: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.sm,
-  },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background.secondary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-  },
-  searchPlaceholder: {
-    marginLeft: spacing.sm,
-    color: colors.text.secondary,
-    fontSize: typography.fontSize.md,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: spacing.sm,
-    color: colors.text.primary,
-    fontSize: typography.fontSize.md,
-    paddingVertical: 0,
-  },
-  tabs: {
-    flexDirection: 'row',
-    marginTop: spacing.sm,
-    gap: spacing.sm,
-  },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    backgroundColor: colors.background.primary,
-  },
-  tabActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  tabText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-    fontFamily: typography.fontFamily.medium,
-  },
-  tabTextActive: {
-    color: colors.background.primary,
-  },
-  section: {
-    marginBottom: spacing.xl,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  },
-  pillGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -spacing.sm,
-  },
-  pillWrapper: {
-    width: '50%',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-  },
-  subjectPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: 12,
-    minHeight: 48,
-  },
-  subjectText: {
-    color: colors.background.primary,
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    marginLeft: spacing.xs,
-    flex: 1,
-    flexShrink: 1,
-  },
-});

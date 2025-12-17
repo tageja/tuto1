@@ -16,7 +16,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useUser } from '../contexts/UserContext';
-import { colors, spacing, typography } from '../theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface UserProfileScreenProps {
   navigation: any;
@@ -51,6 +51,151 @@ interface UserData {
 }
 
 export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ navigation }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    backButton: {
+      padding: spacing.xs,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.text.primary,
+    },
+    headerRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    settingsButton: {
+      padding: spacing.xs,
+      marginRight: spacing.xs,
+    },
+    editButton: {
+      padding: spacing.xs,
+    },
+    content: {
+      flex: 1,
+    },
+    photoSection: {
+      alignItems: 'center',
+      paddingVertical: spacing.xl,
+      position: 'relative',
+    },
+    profilePhoto: {
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+    },
+    changePhotoButton: {
+      position: 'absolute',
+      bottom: 0,
+      right: '50%',
+      marginRight: -20,
+      backgroundColor: colors.background.primary,
+      borderRadius: 20,
+      padding: spacing.xs,
+      borderWidth: 2,
+      borderColor: colors.primary,
+    },
+    userTypeContainer: {
+      alignItems: 'center',
+      marginBottom: spacing.lg,
+    },
+    userTypeBadge: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderRadius: 20,
+    },
+    userTypeText: {
+      color: colors.background.primary,
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      textTransform: 'uppercase',
+    },
+    section: {
+      paddingHorizontal: spacing.lg,
+      marginBottom: spacing.xl,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.md,
+    },
+    fieldContainer: {
+      marginBottom: spacing.md,
+    },
+    fieldLabel: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+      marginBottom: spacing.xs,
+    },
+    fieldValue: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.primary,
+      paddingVertical: spacing.xs,
+    },
+    textInput: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.primary,
+      borderWidth: 1,
+      borderColor: colors.border.medium,
+      borderRadius: 8,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      backgroundColor: colors.background.secondary,
+    },
+    actionButtons: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.lg,
+      gap: spacing.md,
+    },
+    cancelButton: {
+      flex: 1,
+      backgroundColor: colors.background.secondary,
+      paddingVertical: spacing.md,
+      borderRadius: 8,
+      alignItems: 'center',
+    },
+    cancelButtonText: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.primary,
+    },
+    saveButton: {
+      flex: 1,
+      backgroundColor: colors.primary,
+      paddingVertical: spacing.md,
+      borderRadius: 8,
+      alignItems: 'center',
+    },
+    saveButtonText: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.background.primary,
+    },
+  }); 
+
   const { language, t } = useLanguage();
   const { userType } = useUser();
   const [isEditing, setIsEditing] = useState(false);
@@ -359,16 +504,24 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ navigation
           <MaterialIcons name="arrow-back" size={24} color={colors.text.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('profile.title')}</Text>
-        <TouchableOpacity 
-          style={styles.editButton}
-          onPress={() => setIsEditing(!isEditing)}
-        >
-          <MaterialIcons 
-            name={isEditing ? "close" : "edit"} 
-            size={24} 
-            color={colors.primary} 
-          />
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <TouchableOpacity 
+            style={styles.settingsButton}
+            onPress={() => navigation.navigate('SettingsStack' as never)}
+          >
+            <MaterialIcons name="settings" size={24} color={colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.editButton}
+            onPress={() => setIsEditing(!isEditing)}
+          >
+            <MaterialIcons 
+              name={isEditing ? "close" : "edit"} 
+              size={24} 
+              color={colors.primary} 
+            />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -422,137 +575,3 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ navigation
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  backButton: {
-    padding: spacing.xs,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.text.primary,
-  },
-  editButton: {
-    padding: spacing.xs,
-  },
-  content: {
-    flex: 1,
-  },
-  photoSection: {
-    alignItems: 'center',
-    paddingVertical: spacing.xl,
-    position: 'relative',
-  },
-  profilePhoto: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-  },
-  changePhotoButton: {
-    position: 'absolute',
-    bottom: 0,
-    right: '50%',
-    marginRight: -20,
-    backgroundColor: colors.background.primary,
-    borderRadius: 20,
-    padding: spacing.xs,
-    borderWidth: 2,
-    borderColor: colors.primary,
-  },
-  userTypeContainer: {
-    alignItems: 'center',
-    marginBottom: spacing.lg,
-  },
-  userTypeBadge: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: 20,
-  },
-  userTypeText: {
-    color: colors.background.primary,
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    textTransform: 'uppercase',
-  },
-  section: {
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.xl,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  },
-  fieldContainer: {
-    marginBottom: spacing.md,
-  },
-  fieldLabel: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-    marginBottom: spacing.xs,
-  },
-  fieldValue: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.primary,
-    paddingVertical: spacing.xs,
-  },
-  textInput: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.primary,
-    borderWidth: 1,
-    borderColor: colors.border.medium,
-    borderRadius: 8,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.background.secondary,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
-    gap: spacing.md,
-  },
-  cancelButton: {
-    flex: 1,
-    backgroundColor: colors.background.secondary,
-    paddingVertical: spacing.md,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.primary,
-  },
-  saveButton: {
-    flex: 1,
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.md,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  saveButtonText: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.background.primary,
-  },
-}); 

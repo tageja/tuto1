@@ -15,7 +15,7 @@ import { FButton } from '../components/ui/FButton';
 import { FField } from '../components/ui/FField';
 import { AuthHeader } from '../components/ui/AuthHeader';
 import { AuthContainer } from '../components/ui/AuthContainer';
-import { colors, spacing, borderRadius, typography } from '../theme';
+
 import { useAirtable } from '../hooks/useAirtable';
 
 interface RegisterScreenProps {
@@ -23,6 +23,136 @@ interface RegisterScreenProps {
 }
 
 export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    scrollContent: {
+      flexGrow: 1,
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.xl,
+      paddingBottom: spacing.xxl,
+    },
+    header: {
+      alignItems: 'center',
+      marginBottom: spacing.xxl,
+    },
+    title: {
+      fontSize: typography.fontSize.xxl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.sm,
+      textAlign: 'center',
+    },
+    subtitle: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.secondary,
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+    roleContainer: {
+      marginBottom: spacing.xl,
+    },
+    roleLabel: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.primary,
+      marginBottom: spacing.md,
+    },
+    roleButtons: {
+      flexDirection: 'row',
+      gap: spacing.md,
+    },
+    roleButton: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      backgroundColor: colors.background.primary,
+    },
+    roleButtonActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    roleButtonText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+      marginLeft: spacing.sm,
+    },
+    roleButtonTextActive: {
+      color: colors.secondary,
+    },
+    form: {
+      flex: 1,
+    },
+    input: {
+      marginBottom: spacing.lg,
+    },
+    registerButton: {
+      marginBottom: spacing.lg,
+    },
+    errorContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.status.error + '10',
+      padding: spacing.md,
+      borderRadius: borderRadius.md,
+      marginBottom: spacing.lg,
+    },
+    errorText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.status.error,
+      marginLeft: spacing.sm,
+      flex: 1,
+    },
+    termsContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      marginBottom: spacing.xl,
+    },
+    termsText: {
+      fontSize: typography.fontSize.xs,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.secondary,
+    },
+    termsLink: {
+      fontSize: typography.fontSize.xs,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.primary,
+    },
+    loginContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    loginText: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.secondary,
+    },
+    loginLink: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.primary,
+    },
+    eyeIcon: {
+      padding: spacing.xs,
+    },
+  }); 
+
   const { t } = useLanguage();
   const { createParent, loading, error, clearError } = useAirtable();
   
@@ -309,130 +439,4 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.xxl,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: spacing.xxl,
-  },
-  title: {
-    fontSize: typography.fontSize.xxl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.sm,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  roleContainer: {
-    marginBottom: spacing.xl,
-  },
-  roleLabel: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  },
-  roleButtons: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  roleButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderRadius: borderRadius.md,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    backgroundColor: colors.background.primary,
-  },
-  roleButtonActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  roleButtonText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-    marginLeft: spacing.sm,
-  },
-  roleButtonTextActive: {
-    color: colors.secondary,
-  },
-  form: {
-    flex: 1,
-  },
-  input: {
-    marginBottom: spacing.lg,
-  },
-  registerButton: {
-    marginBottom: spacing.lg,
-  },
-  errorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.status.error + '10',
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-    marginBottom: spacing.lg,
-  },
-  errorText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.status.error,
-    marginLeft: spacing.sm,
-    flex: 1,
-  },
-  termsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    marginBottom: spacing.xl,
-  },
-  termsText: {
-    fontSize: typography.fontSize.xs,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.secondary,
-  },
-  termsLink: {
-    fontSize: typography.fontSize.xs,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.primary,
-  },
-  loginContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loginText: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.secondary,
-  },
-  loginLink: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.primary,
-  },
-  eyeIcon: {
-    padding: spacing.xs,
-  },
-}); 
+

@@ -12,7 +12,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useUser } from '../contexts/UserContext';
-import { colors, spacing, typography } from '../theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -32,6 +32,169 @@ interface DashboardWidget {
 }
 
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      backgroundColor: colors.background.primary,
+    },
+    headerLeft: {
+      flex: 1,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.xl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    headerSubtitle: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+    },
+    profileButton: {
+      padding: spacing.sm,
+    },
+    content: {
+      flex: 1,
+    },
+    statsContainer: {
+      paddingHorizontal: spacing.lg,
+      marginBottom: spacing.lg,
+    },
+    statsRow: {
+      flexDirection: 'row',
+      gap: spacing.md,
+    },
+    statCard: {
+      flex: 1,
+      backgroundColor: colors.background.secondary,
+      borderRadius: 12,
+      padding: spacing.md,
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    statValue: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginTop: spacing.xs,
+    },
+    statLabel: {
+      fontSize: typography.fontSize.xs,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+      marginTop: spacing.xs,
+      textAlign: 'center',
+    },
+    widgetsSection: {
+      paddingHorizontal: spacing.lg,
+      marginBottom: spacing.xl,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.md,
+    },
+    widgetsContainer: {
+      gap: spacing.md,
+    },
+    widget: {
+      backgroundColor: colors.background.secondary,
+      borderRadius: 12,
+      padding: spacing.md,
+      borderLeftWidth: 4,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    widgetHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    widgetIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: spacing.md,
+    },
+    widgetContent: {
+      flex: 1,
+    },
+    widgetTitle: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    widgetValue: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    widgetSubtitle: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+    },
+    quickActionsSection: {
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.xl,
+    },
+    quickActionsContainer: {
+      flexDirection: 'row',
+      gap: spacing.md,
+    },
+    quickAction: {
+      flex: 1,
+      backgroundColor: colors.background.secondary,
+      borderRadius: 12,
+      padding: spacing.md,
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    quickActionText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.primary,
+      marginTop: spacing.xs,
+      textAlign: 'center',
+    },
+  }); 
+
   const { t } = useLanguage();
   const { userType } = useUser();
   const [studentData, setStudentData] = useState({
@@ -283,163 +446,3 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) 
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.background.primary,
-  },
-  headerLeft: {
-    flex: 1,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.xl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  headerSubtitle: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-  },
-  profileButton: {
-    padding: spacing.sm,
-  },
-  content: {
-    flex: 1,
-  },
-  statsContainer: {
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.lg,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: colors.background.secondary,
-    borderRadius: 12,
-    padding: spacing.md,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  statValue: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginTop: spacing.xs,
-  },
-  statLabel: {
-    fontSize: typography.fontSize.xs,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-    marginTop: spacing.xs,
-    textAlign: 'center',
-  },
-  widgetsSection: {
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.xl,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  },
-  widgetsContainer: {
-    gap: spacing.md,
-  },
-  widget: {
-    backgroundColor: colors.background.secondary,
-    borderRadius: 12,
-    padding: spacing.md,
-    borderLeftWidth: 4,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  widgetHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  widgetIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  widgetContent: {
-    flex: 1,
-  },
-  widgetTitle: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  widgetValue: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  widgetSubtitle: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-  },
-  quickActionsSection: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl,
-  },
-  quickActionsContainer: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  quickAction: {
-    flex: 1,
-    backgroundColor: colors.background.secondary,
-    borderRadius: 12,
-    padding: spacing.md,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  quickActionText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.primary,
-    marginTop: spacing.xs,
-    textAlign: 'center',
-  },
-}); 

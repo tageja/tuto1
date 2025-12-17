@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { View, TextInput, Text, StyleSheet, TouchableOpacity, ViewStyle, TextStyle, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { colors, spacing, borderRadius, typography } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface InputProps {
   label?: string;
@@ -48,6 +48,74 @@ export const Input: React.FC<InputProps> = ({
   rightIcon,
   disableAutofill = false,
 }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      marginBottom: spacing.md,
+    },
+    label: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    inputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.background.primary,
+      paddingHorizontal: spacing.md,
+      minHeight: 48,
+    },
+    inputContainerFocused: {
+      borderColor: colors.primary,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    inputContainerError: {
+      borderColor: colors.status.error,
+    },
+    inputContainerDisabled: {
+      backgroundColor: colors.background.secondary,
+      opacity: 0.6,
+    },
+    input: {
+      flex: 1,
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.primary,
+      paddingVertical: spacing.sm,
+    },
+    inputMultiline: {
+      textAlignVertical: 'top',
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.sm,
+    },
+    rightContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    rightIcon: {
+      marginLeft: spacing.sm,
+    },
+    passwordToggle: {
+      padding: spacing.xs,
+      marginLeft: spacing.sm,
+    },
+    errorText: {
+      fontSize: typography.fontSize.xs,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.status.error,
+      marginTop: spacing.xs,
+    },
+  }); 
+
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const inputRef = useRef<TextInput>(null);
@@ -139,69 +207,3 @@ export const Input: React.FC<InputProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: spacing.md,
-  },
-  label: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.background.primary,
-    paddingHorizontal: spacing.md,
-    minHeight: 48,
-  },
-  inputContainerFocused: {
-    borderColor: colors.primary,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  inputContainerError: {
-    borderColor: colors.status.error,
-  },
-  inputContainerDisabled: {
-    backgroundColor: colors.background.secondary,
-    opacity: 0.6,
-  },
-  input: {
-    flex: 1,
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.primary,
-    paddingVertical: spacing.sm,
-  },
-  inputMultiline: {
-    textAlignVertical: 'top',
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.sm,
-  },
-  rightContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  rightIcon: {
-    marginLeft: spacing.sm,
-  },
-  passwordToggle: {
-    padding: spacing.xs,
-    marginLeft: spacing.sm,
-  },
-  errorText: {
-    fontSize: typography.fontSize.xs,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.status.error,
-    marginTop: spacing.xs,
-  },
-}); 

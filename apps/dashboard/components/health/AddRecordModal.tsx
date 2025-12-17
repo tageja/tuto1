@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
@@ -19,18 +19,27 @@ interface AddRecordModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  studentId: string;
+  studentId?: string | null;
+  schoolId?: string;
 }
 
 export function AddRecordModal({
   isOpen,
   onClose,
   onSuccess,
-  studentId,
+  studentId: preSelectedStudentId,
+  schoolId,
 }: AddRecordModalProps) {
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState('general');
   const [loading, setLoading] = useState(false);
+
+  // Student selection state (when not pre-selected)
+  const [selectedClassId, setSelectedClassId] = useState('');
+  const [selectedStudentId, setSelectedStudentId] = useState(preSelectedStudentId || '');
+  const [availableClasses, setAvailableClasses] = useState<Array<{ id: string; name: string }>>([]);
+  const [availableStudents, setAvailableStudents] = useState<Array<{ id: string; firstName: string; lastName: string }>>([]);
+  const [loadingStudents, setLoadingStudents] = useState(false);
 
   // General fields
   const [title, setTitle] = useState('');
@@ -56,6 +65,49 @@ export function AddRecordModal({
   const [weight, setWeight] = useState('');
   const [recordedAt, setRecordedAt] = useState(new Date().toISOString().split('T')[0]);
 
+  // Fetch classes when modal opens and no student is pre-selected
+  useEffect(() => {
+    if (isOpen && !preSelectedStudentId && schoolId) {
+      fetch(`/api/school/classes?schoolId=${encodeURIComponent(schoolId)}&status=active&limit=100`)
+        .then(r => r.json())
+        .then(result => {
+          if (result.success && result.data?.records) {
+            setAvailableClasses(result.data.records.map((c: any) => ({
+              id: c.id,
+              name: c.name,
+            })));
+          }
+        })
+        .catch(console.error);
+    }
+  }, [isOpen, preSelectedStudentId, schoolId]);
+
+  // Fetch students when class is selected
+  useEffect(() => {
+    if (selectedClassId && schoolId) {
+      setLoadingStudents(true);
+      fetch(`/api/health/students?schoolId=${encodeURIComponent(schoolId)}&classId=${selectedClassId}`)
+        .then(r => r.json())
+        .then(result => {
+          if (result.success) {
+            setAvailableStudents(result.data || []);
+          }
+        })
+        .catch(console.error)
+        .finally(() => setLoadingStudents(false));
+    } else {
+      setAvailableStudents([]);
+      setSelectedStudentId('');
+    }
+  }, [selectedClassId, schoolId]);
+
+  // Update selected student when pre-selected changes
+  useEffect(() => {
+    if (preSelectedStudentId) {
+      setSelectedStudentId(preSelectedStudentId);
+    }
+  }, [preSelectedStudentId]);
+
   // Vaccine entry management
   const addVaccineEntry = () => {
     if (vaccineEntries.length < MAX_VACCINE_ENTRIES) {
@@ -77,6 +129,14 @@ export function AddRecordModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate student selection
+    const studentIdToUse = preSelectedStudentId || selectedStudentId;
+    if (!studentIdToUse) {
+      alert(t('dashboard.health.errors.selectStudent') || 'Please select a student');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -95,7 +155,7 @@ export function AddRecordModal({
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              studentId,
+              studentId: studentIdToUse,
               record_type: 'vaccination',
               title: entry.name,
               details: {
@@ -155,7 +215,7 @@ export function AddRecordModal({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            studentId,
+            studentId: studentIdToUse,
             record_type: recordType,
             title: title || null,
             details,
@@ -195,6 +255,9 @@ export function AddRecordModal({
     setHeight('');
     setWeight('');
     setRecordedAt(new Date().toISOString().split('T')[0]);
+    setSelectedClassId('');
+    setSelectedStudentId('');
+    setAvailableStudents([]);
     onClose();
   };
 
@@ -215,6 +278,58 @@ export function AddRecordModal({
               <X className="w-6 h-6" />
             </button>
           </div>
+
+          {/* Student Selection - Show only when no student is pre-selected */}
+          {!preSelectedStudentId && schoolId && (
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">
+                {t('dashboard.health.addRecord.selectStudent') || 'Select Student'}
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    {t('dashboard.health.addRecord.class') || 'Class'} *
+                  </label>
+                  <select
+                    value={selectedClassId}
+                    onChange={(e) => setSelectedClassId(e.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    disabled={loading}
+                  >
+                    <option value="">{t('common.select') || 'Select...'}</option>
+                    {availableClasses.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    {t('dashboard.health.addRecord.student') || 'Student'} *
+                  </label>
+                  <select
+                    value={selectedStudentId}
+                    onChange={(e) => setSelectedStudentId(e.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+                    disabled={!selectedClassId || loadingStudents || loading}
+                  >
+                    <option value="">
+                      {loadingStudents 
+                        ? (t('common.loading') || 'Loading...') 
+                        : (t('common.select') || 'Select...')
+                      }
+                    </option>
+                    {availableStudents.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.firstName} {s.lastName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="mb-4">

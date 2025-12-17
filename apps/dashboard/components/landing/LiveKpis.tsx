@@ -1,34 +1,48 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useI18n } from "../../contexts/I18nContext";
 import { motion } from "framer-motion";
 import { School, CheckCircle2, Users, Clock } from "lucide-react";
+import { getPlatformStats } from "../../lib/homeData";
 
 export default function LiveKpis() {
   const { t } = useI18n();
+  const [data, setData] = useState({
+    schools_count: 120,
+    homework_completion_rate: 94,
+    parent_engagement_rate: 88,
+    attendance_rate: 98.5
+  });
+
+  useEffect(() => {
+    getPlatformStats().then(stats => {
+      if (stats) setData(stats);
+    });
+  }, []);
 
   const stats = [
     { 
       label: t("landing.kpis.schoolsTrusted"), 
-      value: "120+", 
+      value: `${data.schools_count}+`, 
       icon: School,
       color: "text-blue-600"
     },
     { 
       label: t("landing.kpis.homeworkCompletion"), 
-      value: "94%+", 
+      value: `${data.homework_completion_rate}%+`, 
       icon: CheckCircle2,
       color: "text-green-600"
     },
     { 
       label: t("landing.kpis.parentEngagement"), 
-      value: "88%+", 
+      value: `${data.parent_engagement_rate}%+`, 
       icon: Users,
       color: "text-purple-600"
     },
     { 
       label: t("landing.kpis.attendanceRate"), 
-      value: "98.5%", 
+      value: `${data.attendance_rate}%`, 
       icon: Clock,
       color: "text-amber-600"
     },
@@ -65,4 +79,3 @@ export default function LiveKpis() {
     </section>
   );
 }
-

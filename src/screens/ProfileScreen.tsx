@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useLanguage } from '../contexts/LanguageContext';
-import { colors, spacing, typography } from '../theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface ProfileScreenProps {
   navigation: any;
@@ -9,6 +9,31 @@ interface ProfileScreenProps {
 }
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: spacing.lg,
+    },
+    title: {
+      fontSize: typography.fontSize.xl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.md,
+    },
+    subtitle: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.secondary,
+      textAlign: 'center',
+    },
+  }); 
+
   const { t } = useLanguage();
 
   return (
@@ -18,25 +43,3 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route 
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.lg,
-  },
-  title: {
-    fontSize: typography.fontSize.xl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  },
-  subtitle: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.secondary,
-    textAlign: 'center',
-  },
-}); 

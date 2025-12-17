@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { 
-  View, 
+import {
+  View,
   Text, 
   TextInput, 
   TouchableOpacity, 
@@ -13,6 +13,7 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { resetPassword } from '../config/supabase';
 
@@ -22,6 +23,122 @@ interface ForgotPasswordScreenProps {
 }
 
 export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation, route }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    background: {
+      flex: 1,
+      backgroundColor: colors.background.secondary,
+    },
+    scrollContent: {
+      flexGrow: 1,
+      paddingHorizontal: 24,
+      paddingTop: 60,
+      paddingBottom: 40,
+    },
+    header: {
+      alignItems: 'center',
+      marginBottom: 40,
+    },
+    logo: {
+      width: 120,
+      height: 40,
+    },
+    cardContainer: {
+      width: '100%',
+      marginBottom: 24,
+    },
+    card: {
+      backgroundColor: colors.background.primary,
+      padding: 24,
+      borderRadius: 20,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    backButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 24,
+    },
+    backButtonText: {
+      fontSize: 16,
+      color: colors.text.secondary,
+      marginLeft: 8,
+      fontWeight: '500',
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: '700',
+      color: colors.text.primary,
+      marginBottom: 12,
+      textAlign: 'center',
+    },
+    subtitle: {
+      fontSize: 15,
+      color: colors.text.secondary,
+      marginBottom: 32,
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+    formContainer: {
+      gap: 16,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: '#374151',
+      marginBottom: 8,
+    },
+    input: {
+      backgroundColor: colors.background.primary,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      fontSize: 16,
+      color: colors.text.primary,
+      marginBottom: 8,
+    },
+    primaryButton: {
+      borderRadius: 12,
+      overflow: 'hidden',
+      shadowColor: '#0B5FFF',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 4,
+      backgroundColor: '#0B5FFF',
+      paddingVertical: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 8,
+    },
+    primaryButtonText: {
+      color: colors.background.primary,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    buttonDisabled: {
+      opacity: 0.6,
+    },
+    footerText: {
+      fontSize: 14,
+      color: colors.text.secondary,
+      textAlign: 'center',
+      marginTop: 16,
+    },
+    footerLink: {
+      color: '#0B5FFF',
+      fontWeight: '600',
+    },
+  }); 
   const { t, language } = useLanguage();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -178,118 +295,3 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navi
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  background: {
-    flex: 1,
-    backgroundColor: '#F9FAFC',
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 40,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  logo: {
-    width: 120,
-    height: 40,
-  },
-  cardContainer: {
-    width: '100%',
-    marginBottom: 24,
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    padding: 24,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: '#6B7280',
-    marginLeft: 8,
-    fontWeight: '500',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#1F2937',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 15,
-    color: '#6B7280',
-    marginBottom: 32,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  formContainer: {
-    gap: 16,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: '#1F2937',
-    marginBottom: 8,
-  },
-  primaryButton: {
-    borderRadius: 12,
-    overflow: 'hidden',
-    shadowColor: '#0B5FFF',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-    backgroundColor: '#0B5FFF',
-    paddingVertical: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-  },
-  primaryButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  footerText: {
-    fontSize: 14,
-    color: '#6B7280',
-    textAlign: 'center',
-    marginTop: 16,
-  },
-  footerLink: {
-    color: '#0B5FFF',
-    fontWeight: '600',
-  },
-}); 

@@ -12,7 +12,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLanguage } from '../contexts/LanguageContext';
-import { colors, spacing, typography } from '../theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -32,6 +32,194 @@ interface StoreItem {
 }
 
 export const TutoStoreScreen: React.FC<TutoStoreScreenProps> = ({ navigation }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      backgroundColor: colors.background.primary,
+    },
+    backButton: {
+      padding: spacing.sm,
+    },
+    headerCenter: {
+      flex: 1,
+      alignItems: 'center',
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    tokenBalance: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    tokenBalanceText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.semiBold,
+      color: '#4CAF50',
+    },
+    historyButton: {
+      padding: spacing.sm,
+    },
+    categoryTabs: {
+      backgroundColor: colors.background.secondary,
+      paddingVertical: 8,
+      paddingBottom: 12,
+      height: 60,
+    },
+    categoryTabsContent: {
+      paddingHorizontal: spacing.lg,
+      gap: spacing.sm,
+    },
+    categoryTab: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: 16,
+      backgroundColor: colors.background.primary,
+      minWidth: 60,
+      height: 36,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    activeCategoryTab: {
+      backgroundColor: colors.primary,
+    },
+    categoryTabText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+    },
+    activeCategoryTabText: {
+      color: colors.background.primary,
+      fontFamily: typography.fontFamily.semiBold,
+    },
+    content: {
+      flex: 1,
+    },
+    itemsContainer: {
+      padding: spacing.lg,
+    },
+    storeItem: {
+      backgroundColor: colors.background.secondary,
+      borderRadius: 12,
+      marginBottom: spacing.md,
+      overflow: 'hidden',
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    itemImageContainer: {
+      position: 'relative',
+    },
+    itemImage: {
+      width: '100%',
+      height: 150,
+    },
+    stockBadge: {
+      position: 'absolute',
+      top: spacing.sm,
+      right: spacing.sm,
+      backgroundColor: colors.status.warning,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: 12,
+    },
+    stockText: {
+      fontSize: typography.fontSize.xs,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.background.primary,
+    },
+    itemInfo: {
+      padding: spacing.md,
+    },
+    itemName: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    itemDescription: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+      marginBottom: spacing.md,
+      lineHeight: typography.lineHeight.normal * typography.fontSize.sm,
+    },
+    itemFooter: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    tokenPrice: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    tokenPriceText: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.bold,
+      color: '#4CAF50',
+    },
+    redeemButton: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: 8,
+    },
+    redeemButtonDisabled: {
+      backgroundColor: colors.border.light,
+    },
+    redeemButtonText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.background.primary,
+    },
+    redeemButtonTextDisabled: {
+      color: colors.text.secondary,
+    },
+    bottomInfo: {
+      backgroundColor: colors.background.secondary,
+      padding: spacing.lg,
+      alignItems: 'center',
+    },
+    bottomInfoText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+      textAlign: 'center',
+      marginBottom: spacing.sm,
+    },
+    earnTokensButton: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      borderRadius: 8,
+    },
+    earnTokensButtonText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.background.primary,
+    },
+  }); 
+
   const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState<'all' | 'digital' | 'physical' | 'experience'>('all');
   const [studentTokens, setStudentTokens] = useState(85);
@@ -251,188 +439,3 @@ export const TutoStoreScreen: React.FC<TutoStoreScreenProps> = ({ navigation }) 
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.background.primary,
-  },
-  backButton: {
-    padding: spacing.sm,
-  },
-  headerCenter: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  tokenBalance: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  tokenBalanceText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.semiBold,
-    color: '#4CAF50',
-  },
-  historyButton: {
-    padding: spacing.sm,
-  },
-  categoryTabs: {
-    backgroundColor: colors.background.secondary,
-    paddingVertical: 8,
-    paddingBottom: 12,
-    height: 60,
-  },
-  categoryTabsContent: {
-    paddingHorizontal: spacing.lg,
-    gap: spacing.sm,
-  },
-  categoryTab: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: 16,
-    backgroundColor: colors.background.primary,
-    minWidth: 60,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activeCategoryTab: {
-    backgroundColor: colors.primary,
-  },
-  categoryTabText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-  },
-  activeCategoryTabText: {
-    color: colors.background.primary,
-    fontFamily: typography.fontFamily.semiBold,
-  },
-  content: {
-    flex: 1,
-  },
-  itemsContainer: {
-    padding: spacing.lg,
-  },
-  storeItem: {
-    backgroundColor: colors.background.secondary,
-    borderRadius: 12,
-    marginBottom: spacing.md,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  itemImageContainer: {
-    position: 'relative',
-  },
-  itemImage: {
-    width: '100%',
-    height: 150,
-  },
-  stockBadge: {
-    position: 'absolute',
-    top: spacing.sm,
-    right: spacing.sm,
-    backgroundColor: colors.status.warning,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: 12,
-  },
-  stockText: {
-    fontSize: typography.fontSize.xs,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.background.primary,
-  },
-  itemInfo: {
-    padding: spacing.md,
-  },
-  itemName: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  itemDescription: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-    marginBottom: spacing.md,
-    lineHeight: typography.lineHeight.normal * typography.fontSize.sm,
-  },
-  itemFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  tokenPrice: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  tokenPriceText: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.bold,
-    color: '#4CAF50',
-  },
-  redeemButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: 8,
-  },
-  redeemButtonDisabled: {
-    backgroundColor: colors.border.light,
-  },
-  redeemButtonText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.background.primary,
-  },
-  redeemButtonTextDisabled: {
-    color: colors.text.secondary,
-  },
-  bottomInfo: {
-    backgroundColor: colors.background.secondary,
-    padding: spacing.lg,
-    alignItems: 'center',
-  },
-  bottomInfoText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    marginBottom: spacing.sm,
-  },
-  earnTokensButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderRadius: 8,
-  },
-  earnTokensButtonText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.background.primary,
-  },
-}); 

@@ -9,7 +9,6 @@ import { ErrorState } from '../../../../../components/shared/ErrorState';
 import { useI18n } from '../../../../../contexts/I18nContext';
 import { useSchool } from '../../../../../contexts/SchoolContext';
 import { Toast } from '../../../../../components/ui/Toast';
-import { supabase } from '../../../../../lib/supabase';
 import { ActivitiesFilters } from '../../../../../components/activities/ActivitiesFilters';
 import { ActivitiesKpis } from '../../../../../components/activities/ActivitiesKpis';
 import { ActivitiesTimeline } from '../../../../../components/activities/ActivitiesTimeline';
@@ -261,41 +260,10 @@ export default function AdminDailyActivitiesPage() {
       setLoading(true);
       setError(null);
 
-      // Resolve schoolId to UUID if it's a name
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      let resolvedSchoolId = schoolId;
-      
-      if (!uuidRegex.test(schoolId)) {
-        // It's a school name, need to resolve to UUID
-        const { data: schoolData } = await supabase
-          .from('schools')
-          .select('id')
-          .eq('name', schoolId)
-          .maybeSingle();
-        
-        if (schoolData?.id) {
-          resolvedSchoolId = schoolData.id;
-        } else {
-          // Try case-insensitive
-          const { data: schoolData2 } = await supabase
-            .from('schools')
-            .select('id, name')
-            .ilike('name', schoolId)
-            .limit(1)
-            .maybeSingle();
-          
-          if (schoolData2?.id) {
-            resolvedSchoolId = schoolData2.id;
-          } else {
-            throw new Error(`School not found: ${schoolId}`);
-          }
-        }
-      }
-
       // Debug logging
       if (process.env.NODE_ENV === 'development') {
-        console.log('🔍 Fetching activities:', {
-          resolvedSchoolId,
+        console.log('🔍 Fetching activities via API:', {
+          schoolId,
           selectedDate,
           selectedClassIds,
           selectedTypes,
@@ -304,109 +272,60 @@ export default function AdminDailyActivitiesPage() {
         });
       }
 
-      // Query exactly as specified - use resolved UUID
-      let query = supabase
-        .from('school_daily_activities')
-        .select('id,date,time,class_id,grade,title,description,type,status,teacher_id,menu_details,outdoor_detail,attachments,updated_at')
-        .eq('school_id', resolvedSchoolId)
-        .eq('date', selectedDate);
+      // Build query params
+      const params = new URLSearchParams({
+        schoolId,
+        date: selectedDate,
+      });
 
-      // Apply filters
-      if (selectedClassIds.length > 0) {
-        query = query.in('class_id', selectedClassIds);
-      }
-      if (selectedTypes.length > 0) {
-        query = query.in('type', selectedTypes);
-      }
-      if (selectedStatuses.length > 0) {
-        query = query.in('status', selectedStatuses);
-      }
+      selectedClassIds.forEach(id => params.append('classId', id));
+      selectedTypes.forEach(type => params.append('type', type));
+      selectedStatuses.forEach(status => params.append('status', status));
       if (debouncedSearch) {
-        query = query.or(`title.ilike.%${debouncedSearch}%,description.ilike.%${debouncedSearch}%`);
+        params.set('q', debouncedSearch);
       }
 
-      // Order by time
-      query = query.order('time', { ascending: true });
-
-      const { data, error: queryError } = await query;
-
-      // Debug logging
-      if (process.env.NODE_ENV === 'development') {
-        console.log('📊 Activities query result:', {
-          count: data?.length || 0,
-          error: queryError?.message,
-          sample: data?.[0],
-        });
-      }
+      // Call API route
+      const response = await fetch(`/api/school/daily-activities?${params.toString()}`, {
+        signal,
+      });
 
       // Check if request was aborted
       if (signal?.aborted) {
         return;
       }
 
-      if (queryError) {
-        console.error('❌ Activities query error:', queryError);
-        if (signal?.aborted) {
-          return;
-        }
-        setError(queryError.message || 'Failed to fetch activities');
-        setLoading(false);
-        return;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch activities');
       }
 
-      // Handle empty result
-      if (!data || data.length === 0) {
-        if (signal?.aborted) {
-          return;
-        }
-        setActivities([]);
-        setLoading(false);
-        if (process.env.NODE_ENV === 'development') {
-          console.log('ℹ️ No activities found for date:', selectedDate);
-        }
-        return;
+      const result = await response.json();
+
+      // Debug logging
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📊 Activities API result:', {
+          count: result.data?.length || 0,
+          success: result.success,
+        });
       }
-
-      // Fetch class and teacher names separately (Supabase doesn't support nested selects easily)
-      const mapped = await Promise.all((data || []).map(async (item: any) => {
-        let class_name = '';
-        let teacher_name = null;
-
-        if (item.class_id) {
-          const { data: classData } = await supabase
-            .from('school_classes')
-            .select('name')
-            .eq('id', item.class_id)
-            .maybeSingle();
-          class_name = classData?.name || '';
-        }
-
-        if (item.teacher_id) {
-          const { data: teacherData } = await supabase
-            .from('school_teachers')
-            .select('name')
-            .eq('id', item.teacher_id)
-            .maybeSingle();
-          teacher_name = teacherData?.name || null;
-        }
-
-        return {
-          ...item,
-          class_name: class_name || item.grade || 'Unknown Class',
-          teacher_name,
-        };
-      }));
 
       // Check if request was aborted before setting state
       if (signal?.aborted) {
         return;
       }
 
-      if (process.env.NODE_ENV === 'development') {
-        console.log('✅ Activities loaded:', mapped.length, 'activities');
+      if (!result.success) {
+        setError(result.error || 'Failed to fetch activities');
+        setLoading(false);
+        return;
       }
 
-      setActivities(mapped);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Activities loaded:', result.data.length, 'activities');
+      }
+
+      setActivities(result.data || []);
     } catch (err: any) {
       // Ignore abort errors
       if (err.name === 'AbortError' || (signal && signal.aborted)) {
@@ -502,12 +421,19 @@ export default function AdminDailyActivitiesPage() {
         prev.map((a) => (a.id === activityId ? { ...a, status: newStatus } : a))
       );
 
-      const { error } = await supabase
-        .from('school_daily_activities')
-        .update({ status: newStatus })
-        .eq('id', activityId);
+      const response = await fetch('/api/school/daily-activities', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          activityId,
+          updates: { status: newStatus },
+        }),
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update status');
+      }
 
       // KPIs will update automatically when activities state updates
       setToast({
@@ -674,12 +600,14 @@ export default function AdminDailyActivitiesPage() {
         }}
         onDelete={async (activityId) => {
           try {
-            const { error } = await supabase
-              .from('school_daily_activities')
-              .delete()
-              .eq('id', activityId);
+            const response = await fetch(`/api/school/daily-activities?activityId=${activityId}`, {
+              method: 'DELETE',
+            });
 
-            if (error) throw error;
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || 'Failed to delete activity');
+            }
 
             handleActivityDeleted();
             if (selectedActivity?.id === activityId) {
@@ -768,12 +696,14 @@ export default function AdminDailyActivitiesPage() {
           }}
           onDelete={async () => {
             try {
-              const { error } = await supabase
-                .from('school_daily_activities')
-                .delete()
-                .eq('id', selectedActivity.id);
+              const response = await fetch(`/api/school/daily-activities?activityId=${selectedActivity.id}`, {
+                method: 'DELETE',
+              });
 
-              if (error) throw error;
+              if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to delete activity');
+              }
 
               handleActivityDeleted();
               setIsDrawerOpen(false);

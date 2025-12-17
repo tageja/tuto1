@@ -68,6 +68,191 @@ interface ModerationScreenProps {
 }
 
 export const ModerationScreen: React.FC<ModerationScreenProps> = ({ navigation }) => {
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      backgroundColor: colors.background.primary,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    title: {
+      fontSize: typography.fontSize.xl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+    },
+    statsContainer: {
+      backgroundColor: colors.surface,
+      margin: spacing.lg,
+      padding: spacing.lg,
+      borderRadius: 12,
+    },
+    statsTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.md,
+    },
+    statsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+    },
+    statItem: {
+      width: '48%',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    statNumber: {
+      fontSize: typography.fontSize.xxl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.primary,
+    },
+    statLabel: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+      textAlign: 'center',
+    },
+    filterContainer: {
+      flexDirection: 'row',
+      paddingHorizontal: spacing.lg,
+      marginBottom: spacing.md,
+    },
+    filterButton: {
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      borderRadius: 20,
+      backgroundColor: colors.surface,
+      marginRight: spacing.sm,
+    },
+    filterButtonActive: {
+      backgroundColor: colors.primary,
+    },
+    filterButtonText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+    },
+    filterButtonTextActive: {
+      color: colors.background.primary,
+    },
+    listContainer: {
+      padding: spacing.lg,
+    },
+    reportCard: {
+      backgroundColor: colors.background.primary,
+      padding: spacing.lg,
+      marginBottom: spacing.md,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+    },
+    reportHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    reportType: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+    },
+    reportTime: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+    },
+    reportDescription: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.primary,
+      marginBottom: spacing.sm,
+    },
+    reportMeta: {
+      marginBottom: spacing.md,
+    },
+    reportMetaText: {
+      fontSize: typography.fontSize.xs,
+      color: colors.text.secondary,
+      marginBottom: spacing.xs,
+    },
+    reportActions: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+    actionButton: {
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      borderRadius: 8,
+      flex: 1,
+      marginHorizontal: spacing.xs,
+    },
+    dismissButton: {
+      backgroundColor: colors.text.secondary,
+    },
+    resolveButton: {
+      backgroundColor: colors.error,
+    },
+    actionButtonText: {
+      color: colors.background.primary,
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      textAlign: 'center',
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    loadingText: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.secondary,
+      marginTop: spacing.md,
+    },
+    errorContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: spacing.lg,
+    },
+    errorTitle: {
+      fontSize: typography.fontSize.xl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.error,
+      marginTop: spacing.md,
+      marginBottom: spacing.sm,
+    },
+    errorMessage: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.secondary,
+      textAlign: 'center',
+    },
+    emptyContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: spacing.xl,
+    },
+    emptyTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginTop: spacing.md,
+      marginBottom: spacing.sm,
+    },
+    emptyMessage: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.secondary,
+      textAlign: 'center',
+    },
+  });
+
   const { t } = useLanguage();
   const { userData } = useUser();
   const [reports, setReports] = useState<Report[]>([]);
@@ -289,186 +474,3 @@ export const ModerationScreen: React.FC<ModerationScreenProps> = ({ navigation }
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.background.primary,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  title: {
-    fontSize: typography.fontSize.xl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-  },
-  statsContainer: {
-    backgroundColor: colors.surface,
-    margin: spacing.lg,
-    padding: spacing.lg,
-    borderRadius: 12,
-  },
-  statsTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  statItem: {
-    width: '48%',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  statNumber: {
-    fontSize: typography.fontSize.xxl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.primary,
-  },
-  statLabel: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-    textAlign: 'center',
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.md,
-  },
-  filterButton: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderRadius: 20,
-    backgroundColor: colors.surface,
-    marginRight: spacing.sm,
-  },
-  filterButtonActive: {
-    backgroundColor: colors.primary,
-  },
-  filterButtonText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-  },
-  filterButtonTextActive: {
-    color: colors.background.primary,
-  },
-  listContainer: {
-    padding: spacing.lg,
-  },
-  reportCard: {
-    backgroundColor: colors.background.primary,
-    padding: spacing.lg,
-    marginBottom: spacing.md,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-  },
-  reportHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  reportType: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-  },
-  reportTime: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-  },
-  reportDescription: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.primary,
-    marginBottom: spacing.sm,
-  },
-  reportMeta: {
-    marginBottom: spacing.md,
-  },
-  reportMetaText: {
-    fontSize: typography.fontSize.xs,
-    color: colors.text.secondary,
-    marginBottom: spacing.xs,
-  },
-  reportActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  actionButton: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderRadius: 8,
-    flex: 1,
-    marginHorizontal: spacing.xs,
-  },
-  dismissButton: {
-    backgroundColor: colors.text.secondary,
-  },
-  resolveButton: {
-    backgroundColor: colors.error,
-  },
-  actionButtonText: {
-    color: colors.background.primary,
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    textAlign: 'center',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.secondary,
-    marginTop: spacing.md,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.lg,
-  },
-  errorTitle: {
-    fontSize: typography.fontSize.xl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.error,
-    marginTop: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  errorMessage: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.secondary,
-    textAlign: 'center',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.xl,
-  },
-  emptyTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginTop: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  emptyMessage: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.secondary,
-    textAlign: 'center',
-  },
-});

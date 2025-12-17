@@ -12,6 +12,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useUser } from '../contexts/UserContext';
 import { supabase, signInWithEmail, signUpWithEmail, signInWithGoogle } from '../config/supabase';
@@ -35,6 +36,275 @@ interface Role {
 }
 
 export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation, route }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    background: {
+      flex: 1,
+      backgroundColor: colors.background.secondary,
+    },
+    scrollContent: {
+      paddingBottom: 40,
+      paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 24,
+      paddingBottom: 40,
+    },
+    logo: {
+      width: 100,
+      height: 50,
+    },
+    languageToggle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      backgroundColor: colors.background.primary,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      gap: 8,
+    },
+    languageText: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: colors.text.light,
+    },
+    languageActive: {
+      color: '#0B5FFF',
+    },
+    languageSeparator: {
+      fontSize: 14,
+      color: colors.border.medium,
+    },
+    cardContainer: {
+      marginHorizontal: 24,
+      borderRadius: 20,
+      overflow: 'hidden',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.08,
+      shadowRadius: 16,
+      elevation: 8,
+    },
+    card: {
+      backgroundColor: colors.background.primary,
+      padding: 24,
+      borderRadius: 20,
+    },
+    tabContainer: {
+      marginBottom: 24,
+    },
+    tabBackground: {
+      backgroundColor: colors.background.tertiary,
+      borderRadius: 12,
+      padding: 4,
+      height: 48,
+      flexDirection: 'row',
+    },
+    tabButton: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: 40,
+      borderRadius: 10,
+      backgroundColor: 'transparent',
+    },
+    tabButtonActive: {
+      backgroundColor: '#0B5FFF',
+    },
+    tabButtonText: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: colors.text.secondary,
+    },
+    tabButtonTextActive: {
+      color: colors.background.primary,
+    },
+    formContainer: {
+      gap: 20,
+    },
+    inputGroup: {
+      gap: 8,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: '#374151',
+    },
+    input: {
+      backgroundColor: colors.background.primary,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      fontSize: 16,
+      color: colors.text.primary,
+    },
+    picker: {
+      backgroundColor: colors.background.primary,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    pickerText: {
+      fontSize: 16,
+      color: colors.text.primary,
+    },
+    pickerArrow: {
+      fontSize: 10,
+      color: colors.text.secondary,
+    },
+    pickerOptions: {
+      backgroundColor: colors.background.primary,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      borderRadius: 12,
+      marginTop: 8,
+      overflow: 'hidden',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.1,
+      shadowRadius: 12,
+      elevation: 4,
+    },
+    pickerOption: {
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.background.tertiary,
+    },
+    pickerOptionText: {
+      fontSize: 16,
+      color: colors.text.primary,
+    },
+    rememberContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    checkboxContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    checkbox: {
+      width: 20,
+      height: 20,
+      borderWidth: 2,
+      borderColor: colors.border.medium,
+      borderRadius: 4,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    checkboxChecked: {
+      backgroundColor: '#0B5FFF',
+      borderColor: '#0B5FFF',
+    },
+    checkmark: {
+      color: colors.background.primary,
+      fontSize: 12,
+      fontWeight: 'bold',
+    },
+    checkboxLabel: {
+      fontSize: 14,
+      color: colors.text.secondary,
+    },
+    forgotPassword: {
+      fontSize: 14,
+      color: '#0B5FFF',
+      fontWeight: '600',
+    },
+    primaryButton: {
+      backgroundColor: '#0B5FFF',
+      borderRadius: 12,
+      paddingVertical: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: '#0B5FFF',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    buttonDisabled: {
+      opacity: 0.6,
+    },
+    primaryButtonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.background.primary,
+    },
+    divider: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: 4,
+    },
+    dividerLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: colors.border.light,
+    },
+    dividerText: {
+      paddingHorizontal: 16,
+      fontSize: 14,
+      color: colors.text.light,
+    },
+    googleButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background.primary,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      borderRadius: 12,
+      paddingVertical: 14,
+      gap: 12,
+    },
+    googleButtonText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.text.primary,
+    },
+    footerText: {
+      fontSize: 12,
+      color: colors.text.light,
+      textAlign: 'center',
+      lineHeight: 18,
+      paddingHorizontal: 40,
+      marginTop: 32,
+    },
+    debugButton: {
+      marginHorizontal: 24,
+      marginTop: 16,
+      marginBottom: 8,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      backgroundColor: '#FEF2F2',
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: '#FCA5A5',
+    },
+    debugButtonText: {
+      fontSize: 13,
+      color: '#991B1B',
+      textAlign: 'center',
+      fontWeight: '600',
+    },
+  });
   const { t, language, setLanguage } = useLanguage();
   const { setUserData } = useUser();
   
@@ -495,11 +765,12 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
       }
       
       // Set user data with selected role
+      // Don't set userData.type yet - let RoleSelectionScreen handle it
       const userData = {
         id: userProfile?.id || user.id,
         name: registerName,
         email: normalizedEmail,
-        type: selectedRole as 'parent' | 'student' | 'teacher' | 'admin',
+        type: null as any, // Will be set in RoleSelectionScreen
       };
       
       await setUserData(userData);
@@ -863,272 +1134,5 @@ function GoogleIcon() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  background: {
-    flex: 1,
-    backgroundColor: '#F9FAFC',
-  },
-  scrollContent: {
-    paddingBottom: 40,
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingBottom: 40,
-  },
-  logo: {
-    width: 100,
-    height: 50,
-  },
-  languageToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    gap: 8,
-  },
-  languageText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#9CA3AF',
-  },
-  languageActive: {
-    color: '#0B5FFF',
-  },
-  languageSeparator: {
-    fontSize: 14,
-    color: '#D1D5DB',
-  },
-  cardContainer: {
-    marginHorizontal: 24,
-    borderRadius: 20,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    padding: 24,
-    borderRadius: 20,
-  },
-  tabContainer: {
-    marginBottom: 24,
-  },
-  tabBackground: {
-    backgroundColor: '#F3F4F6',
-    borderRadius: 12,
-    padding: 4,
-    height: 48,
-    flexDirection: 'row',
-  },
-  tabButton: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: 'transparent',
-  },
-  tabButtonActive: {
-    backgroundColor: '#0B5FFF',
-  },
-  tabButtonText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#6B7280',
-  },
-  tabButtonTextActive: {
-    color: '#FFFFFF',
-  },
-  formContainer: {
-    gap: 20,
-  },
-  inputGroup: {
-    gap: 8,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-  },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: '#1F2937',
-  },
-  picker: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  pickerText: {
-    fontSize: 16,
-    color: '#1F2937',
-  },
-  pickerArrow: {
-    fontSize: 10,
-    color: '#6B7280',
-  },
-  pickerOptions: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-    marginTop: 8,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  pickerOption: {
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  pickerOptionText: {
-    fontSize: 16,
-    color: '#1F2937',
-  },
-  rememberContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 2,
-    borderColor: '#D1D5DB',
-    borderRadius: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxChecked: {
-    backgroundColor: '#0B5FFF',
-    borderColor: '#0B5FFF',
-  },
-  checkmark: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  checkboxLabel: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
-  forgotPassword: {
-    fontSize: 14,
-    color: '#0B5FFF',
-    fontWeight: '600',
-  },
-  primaryButton: {
-    backgroundColor: '#0B5FFF',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#0B5FFF',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  primaryButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 4,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#E5E7EB',
-  },
-  dividerText: {
-    paddingHorizontal: 16,
-    fontSize: 14,
-    color: '#9CA3AF',
-  },
-  googleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-    paddingVertical: 14,
-    gap: 12,
-  },
-  googleButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
-  },
-  footerText: {
-    fontSize: 12,
-    color: '#9CA3AF',
-    textAlign: 'center',
-    lineHeight: 18,
-    paddingHorizontal: 40,
-    marginTop: 32,
-  },
-  debugButton: {
-    marginHorizontal: 24,
-    marginTop: 16,
-    marginBottom: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: '#FEF2F2',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#FCA5A5',
-  },
-  debugButtonText: {
-    fontSize: 13,
-    color: '#991B1B',
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-});
 
 export default AuthUnifiedScreen;

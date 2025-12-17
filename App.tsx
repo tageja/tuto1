@@ -7,6 +7,7 @@ import { View, Text } from 'react-native';
 import { LanguageProvider } from './src/contexts/LanguageContext';
 import { UserProvider } from './src/contexts/UserContext';
 import { SchoolProvider } from './src/contexts/SchoolContext';
+import { ThemeProvider } from './src/contexts/ThemeContext';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { SplashScreen } from './src/screens/SplashScreen';
 import { initMonitoring, mark, measureAndLog } from './src/services/analytics';
@@ -37,28 +38,30 @@ export default function App() {
   };
 
   return (
-    <LanguageProvider>
-      <UserProvider>
-        <SchoolProvider>
-          <QueryClientProvider client={queryClient}>
-            <ErrorBoundary
-              fallbackRender={({ error, resetErrorBoundary }) => (
-                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-                  <Text style={{ fontSize: 18, marginBottom: 12 }}>Something went wrong</Text>
-                  <Text selectable style={{ opacity: 0.7 }}>{String(error)}</Text>
-                </View>
-              )}
-            >
-              {/* Show video splash, then proceed to app. Fonts load in background. */}
-              {showSplash ? (
-                <SplashScreen onVideoEnd={handleSplashEnd} />
-              ) : (
-                <AppNavigator />
-              )}
-            </ErrorBoundary>
-          </QueryClientProvider>
-        </SchoolProvider>
-      </UserProvider>
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <UserProvider>
+          <SchoolProvider>
+            <QueryClientProvider client={queryClient}>
+              <ErrorBoundary
+                fallbackRender={({ error, resetErrorBoundary }) => (
+                  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+                    <Text style={{ fontSize: 18, marginBottom: 12 }}>Something went wrong</Text>
+                    <Text selectable style={{ opacity: 0.7 }}>{String(error)}</Text>
+                  </View>
+                )}
+              >
+                {/* Show video splash, then proceed to app. Fonts load in background. */}
+                {showSplash ? (
+                  <SplashScreen onVideoEnd={handleSplashEnd} />
+                ) : (
+                  <AppNavigator />
+                )}
+              </ErrorBoundary>
+            </QueryClientProvider>
+          </SchoolProvider>
+        </UserProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }

@@ -67,6 +67,191 @@ const DataRetentionScreen: React.FC = () => {
   const [confirmDeletion, setConfirmDeletion] = useState(false);
   const [processing, setProcessing] = useState(false);
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    header: {
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      backgroundColor: colors.background.primary,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.xl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+    },
+    content: {
+      padding: spacing.lg,
+    },
+    section: {
+      marginBottom: spacing.lg,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.md,
+    },
+    listItem: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+      marginBottom: spacing.xs,
+      lineHeight: 20,
+    },
+    retentionItem: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    retentionLabel: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.primary,
+      flex: 1,
+    },
+    retentionValue: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.primary,
+    },
+    actionsSection: {
+      marginTop: spacing.xl,
+    },
+    exportButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.primary,
+      marginBottom: spacing.md,
+    },
+    exportButtonText: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.primary,
+      marginLeft: spacing.sm,
+    },
+    deletionButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.text.error,
+    },
+    deletionButtonText: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.error,
+      marginLeft: spacing.sm,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    loadingText: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.secondary,
+      marginTop: spacing.md,
+    },
+    modalContainer: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    modalTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+    },
+    modalContent: {
+      flex: 1,
+      padding: spacing.lg,
+    },
+    modalDescription: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+      lineHeight: 20,
+      marginBottom: spacing.lg,
+    },
+    warningText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.warning,
+      lineHeight: 20,
+      marginBottom: spacing.md,
+    },
+    inputLabel: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.primary,
+      marginBottom: spacing.sm,
+    },
+    textInput: {
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      borderRadius: 8,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      fontSize: typography.fontSize.md,
+      color: colors.text.primary,
+      backgroundColor: colors.background.primary,
+      marginBottom: spacing.md,
+      textAlignVertical: 'top',
+    },
+    checkboxContainer: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      marginBottom: spacing.lg,
+    },
+    checkboxText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.primary,
+      marginLeft: spacing.sm,
+      flex: 1,
+      lineHeight: 20,
+    },
+    modalButton: {
+      backgroundColor: colors.primary,
+      borderRadius: 8,
+      paddingVertical: spacing.md,
+      alignItems: 'center',
+    },
+    deleteButton: {
+      backgroundColor: colors.text.error,
+    },
+    modalButtonDisabled: {
+      opacity: 0.6,
+    },
+    modalButtonText: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.background.primary,
+    },
+  });
+
+
   useEffect(() => {
     loadRetentionPolicy();
   }, []);
@@ -408,189 +593,6 @@ const DataRetentionScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  header: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.background.primary,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.xl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-  },
-  content: {
-    padding: spacing.lg,
-  },
-  section: {
-    marginBottom: spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  },
-  listItem: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-    marginBottom: spacing.xs,
-    lineHeight: 20,
-  },
-  retentionItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  retentionLabel: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.primary,
-    flex: 1,
-  },
-  retentionValue: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.primary,
-  },
-  actionsSection: {
-    marginTop: spacing.xl,
-  },
-  exportButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    marginBottom: spacing.md,
-  },
-  exportButtonText: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.primary,
-    marginLeft: spacing.sm,
-  },
-  deletionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.text.error,
-  },
-  deletionButtonText: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.error,
-    marginLeft: spacing.sm,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.secondary,
-    marginTop: spacing.md,
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  modalTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-  },
-  modalContent: {
-    flex: 1,
-    padding: spacing.lg,
-  },
-  modalDescription: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-    lineHeight: 20,
-    marginBottom: spacing.lg,
-  },
-  warningText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.warning,
-    lineHeight: 20,
-    marginBottom: spacing.md,
-  },
-  inputLabel: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.primary,
-    marginBottom: spacing.sm,
-  },
-  textInput: {
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    borderRadius: 8,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: typography.fontSize.md,
-    color: colors.text.primary,
-    backgroundColor: colors.background.primary,
-    marginBottom: spacing.md,
-    textAlignVertical: 'top',
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: spacing.lg,
-  },
-  checkboxText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.primary,
-    marginLeft: spacing.sm,
-    flex: 1,
-    lineHeight: 20,
-  },
-  modalButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-  },
-  deleteButton: {
-    backgroundColor: colors.text.error,
-  },
-  modalButtonDisabled: {
-    opacity: 0.6,
-  },
-  modalButtonText: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.background.primary,
-  },
-});
 
 export default DataRetentionScreen;
 

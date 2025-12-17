@@ -65,6 +65,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           value = value[k];
         } else {
           console.warn('🌐 LanguageProvider: Translation not found for key:', key);
+          console.warn('🌐 LanguageProvider: Available keys at this level:', value ? Object.keys(value).slice(0, 10) : 'undefined');
           return key; // Return the key if translation not found
         }
       }

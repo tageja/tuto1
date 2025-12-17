@@ -5,6 +5,7 @@ import SchoolHeader from '../../components/common/SchoolHeader';
 import { useAirtable } from '../../hooks/useAirtable';
 import { useSchool } from '../../contexts/SchoolContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 type ActivityItem = {
   id: string;
@@ -47,6 +48,19 @@ const ActivityCard = ({ item }: { item: ActivityItem }) => (
 );
 
 const ActivitiesScreen: React.FC = () => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+  const styles = StyleSheet.create({
+    card: { backgroundColor: colors.background.secondary, borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: colors.border.light },
+    title: { fontSize: 16, fontWeight: '600', color: colors.text.primary },
+    meta: { fontSize: 12, color: colors.text.secondary },
+    searchBar: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, marginTop: 12, marginBottom: 8, backgroundColor: colors.background.secondary, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: colors.border.light },
+    searchInput: { flex: 1, paddingHorizontal: 8, paddingVertical: 6, fontSize: 16 },
+    loadingText: { fontSize: 12, color: colors.text.secondary, marginTop: 8 },
+    emptyWrap: { alignItems: 'center', marginTop: 48, paddingHorizontal: 24 },
+    emptyTitle: { fontSize: 16, color: colors.text.primary, marginTop: 12 },
+    emptySubtitle: { fontSize: 12, color: colors.text.secondary, marginTop: 4, textAlign: 'center' },
+  });
   const { t } = useLanguage();
   const { currentSchool } = useSchool();
   const { fetchRecords, loading } = useAirtable();
@@ -83,7 +97,7 @@ const ActivitiesScreen: React.FC = () => {
   }, [items, query]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F9FAFC' }}>
+    <View style={{ flex: 1, backgroundColor: colors.background.secondary }}>
       <SchoolHeader />
       <View style={styles.searchBar}>
         <MaterialIcons name="search" size={20} color="#888888" />
@@ -121,16 +135,5 @@ const ActivitiesScreen: React.FC = () => {
 
 export default ActivitiesScreen;
 
-const styles = StyleSheet.create({
-  card: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#EEF2F7' },
-  title: { fontSize: 16, fontWeight: '600', color: '#333333' },
-  meta: { fontSize: 12, color: '#888888' },
-  searchBar: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, marginTop: 12, marginBottom: 8, backgroundColor: '#FFFFFF', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#EEF2F7' },
-  searchInput: { flex: 1, paddingHorizontal: 8, paddingVertical: 6, fontSize: 16 },
-  loadingText: { fontSize: 12, color: '#888888', marginTop: 8 },
-  emptyWrap: { alignItems: 'center', marginTop: 48, paddingHorizontal: 24 },
-  emptyTitle: { fontSize: 16, color: '#333333', marginTop: 12 },
-  emptySubtitle: { fontSize: 12, color: '#888888', marginTop: 4, textAlign: 'center' },
-});
 
 

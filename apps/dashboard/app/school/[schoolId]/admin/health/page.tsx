@@ -52,7 +52,7 @@ export default function AdminHealthPage() {
           .from('school_classes')
           .select('id, name')
           .eq('school_id', schoolId)
-          .ilike('status', 'active')
+          .in('status', ['active', 'Active'])
           .order('name');
 
         if (error) throw error;
@@ -100,12 +100,8 @@ export default function AdminHealthPage() {
     // If a student is selected in the drawer, use that
     // Otherwise, if a student is selected in filters, use that
     const studentToUse = selectedStudentId || studentIdParam;
-    if (studentToUse) {
-      setSelectedStudentForRecord(studentToUse);
-      setShowAddRecord(true);
-    } else {
-      alert('Please select a student first');
-    }
+    setSelectedStudentForRecord(studentToUse || null);
+    setShowAddRecord(true);
   };
 
   const handleRecordAdded = () => {
@@ -189,7 +185,7 @@ export default function AdminHealthPage() {
       />
 
       {/* Modals */}
-      {showAddRecord && selectedStudentForRecord && (
+      {showAddRecord && (
         <AddRecordModal
           isOpen={showAddRecord}
           onClose={() => {
@@ -198,17 +194,8 @@ export default function AdminHealthPage() {
           }}
           onSuccess={handleRecordAdded}
           studentId={selectedStudentForRecord}
+          schoolId={schoolId}
         />
-      )}
-
-      {showAddRecord && !selectedStudentForRecord && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-md p-6">
-            <h3 className="text-lg font-semibold mb-4">Select Student</h3>
-            <p className="text-gray-600 mb-4">Please select a student from the list or filters before adding a record.</p>
-            <Button onClick={() => setShowAddRecord(false)}>Close</Button>
-          </Card>
-        </div>
       )}
 
       {showStudentDrawer && (

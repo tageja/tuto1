@@ -1,7 +1,22 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SchoolContextType, School, SchoolUser, JoinedSchool } from '../types/school';
-import { useAirtable } from '../hooks/useAirtable';
+// import { useAirtable } from '../hooks/useAirtable';
+
+// School ID mapping from Airtable to Supabase
+const SCHOOL_ID_MAPPING: Record<string, string> = {
+  'rec6oStnXAgY4VCrC': 'bed99290-1b7c-4e90-ac55-0ec7f496491b', // Tuto Demo School
+  // Add more mappings as needed
+};
+
+/**
+ * Resolve school ID from Airtable format to Supabase UUID
+ */
+function resolveSchoolId(schoolId: string): string {
+  const resolved = SCHOOL_ID_MAPPING[schoolId] || schoolId;
+  console.log('🏫 SchoolContext resolveSchoolId:', { input: schoolId, output: resolved, mapped: !!SCHOOL_ID_MAPPING[schoolId] });
+  return resolved;
+}
 
 const SchoolContext = createContext<SchoolContextType | undefined>(undefined);
 
@@ -15,7 +30,7 @@ export const SchoolProvider: React.FC<SchoolProviderProps> = ({ children }) => {
   const [schoolUser, setSchoolUser] = useState<SchoolUser | null>(null);
   const [isSchoolMode, setIsSchoolMode] = useState<boolean>(false);
   
-  const { fetchRecords, createRecord, updateRecord } = useAirtable();
+// const { fetchRecords, createRecord, updateRecord } = useAirtable();
 
   // Load school data from storage on app start
   useEffect(() => {
@@ -33,7 +48,16 @@ export const SchoolProvider: React.FC<SchoolProviderProps> = ({ children }) => {
         setJoinedSchools(JSON.parse(storedJoinedSchools));
       }
       if (storedCurrentSchool) {
-        setCurrentSchool(JSON.parse(storedCurrentSchool));
+        const school = JSON.parse(storedCurrentSchool);
+        // Ensure school ID is resolved to Supabase UUID
+        if (school.id) {
+          const originalId = school.id;
+          school.id = resolveSchoolId(school.id);
+          console.log('🏫 SchoolContext: School ID resolved:', { originalId, resolvedId: school.id });
+        }
+        setCurrentSchool(school);
+        // Save back to storage with resolved ID
+        await AsyncStorage.setItem('currentSchool', JSON.stringify(school));
       }
       if (storedSchoolUser) {
         setSchoolUser(JSON.parse(storedSchoolUser));
@@ -64,81 +88,87 @@ export const SchoolProvider: React.FC<SchoolProviderProps> = ({ children }) => {
 
   const joinSchool = async (code: string): Promise<boolean> => {
     try {
-      // Validate invitation code
-      const invitations = await fetchRecords('TutoSchoolInvitations', {
-        filterByFormula: `{Invitation Code} = '${code}'`
-      });
+      // Import supabase client
+      const { supabase } = await import('../config/supabase');
+      
+      // Validate invitation code in Supabase
+      const { data: invitations, error: invError } = await supabase
+        .from('school_invitations')
+        .select('*')
+        .eq('token', code)
+        .maybeSingle();
 
-      if (!invitations || invitations.length === 0) {
+      if (invError || !invitations) {
         throw new Error('Invalid invitation code');
       }
 
-      const invitation = invitations[0];
+      const invitation = invitations;
       
-      // Check if invitation is active and not expired
-      if (invitation.fields['Status'] !== 'Active') {
+      // Check if invitation is active
+      if (invitation.status !== 'pending') {
         throw new Error('Invitation code is not active');
       }
 
-      const expiryDate = new Date(invitation.fields['Expiry Date']);
-      if (expiryDate < new Date()) {
-        throw new Error('Invitation code has expired');
+      // Check if expired
+      if (invitation.expires_at) {
+        const expiryDate = new Date(invitation.expires_at);
+        if (expiryDate < new Date()) {
+          throw new Error('Invitation code has expired');
+        }
       }
 
-      // Check if max uses reached
-      if (invitation.fields['Current Uses'] >= invitation.fields['Max Uses']) {
-        throw new Error('Invitation code usage limit reached');
-      }
+      // Get school information from Supabase
+      const { data: school, error: schoolError } = await supabase
+        .from('schools')
+        .select('*')
+        .eq('id', invitation.school_id)
+        .single();
 
-      // Get school information
-      const schools = await fetchRecords('TutoSchools', {
-        filterByFormula: `{School Name} = '${invitation.fields['School Name']}'`
-      });
-
-      if (!schools || schools.length === 0) {
+      if (schoolError || !school) {
         throw new Error('School not found');
       }
 
-      const school = {
-        id: schools[0].id,
-        name: schools[0].fields['School Name'] || schools[0].fields['name'],
-        code: schools[0].fields['School Code'] || '',
-        address: schools[0].fields['Address'] || '',
-        phone: schools[0].fields['Phone'] || '',
-        email: schools[0].fields['Email'] || '',
-        website: schools[0].fields['Website'] || undefined,
-        principalName: schools[0].fields['Principal Name'] || '',
-        principalEmail: schools[0].fields['Principal Email'] || '',
-        principalPhone: schools[0].fields['Principal Phone'] || '',
-        schoolType: schools[0].fields['School Type'] || 'Public',
-        gradeLevels: schools[0].fields['Grade Levels'] || [],
-        studentCount: schools[0].fields['Student Count'] || 0,
-        teacherCount: schools[0].fields['Teacher Count'] || 0,
-        foundedYear: schools[0].fields['Founded Year'] || new Date().getFullYear(),
-        status: schools[0].fields['Status'] || 'Active',
-        createdDate: schools[0].fields['Created Date'] || new Date().toISOString(),
-        updatedDate: schools[0].fields['Updated Date'] || new Date().toISOString(),
-      } as School;
-      
-      // Update invitation usage
-      await updateRecord('TutoSchoolInvitations', invitation.id, {
-        'Current Uses': invitation.fields['Current Uses'] + 1
-      });
+      const schoolData: School = {
+        id: school.id,
+        name: school.name,
+        code: school.school_code || '',
+        address: school.address || '',
+        phone: school.phone || '',
+        email: school.email || '',
+        website: undefined,
+        principalName: '',
+        principalEmail: '',
+        principalPhone: '',
+        schoolType: 'Public',
+        gradeLevels: [],
+        studentCount: 0,
+        teacherCount: 0,
+        foundedYear: new Date().getFullYear(),
+        status: school.status || 'active',
+        createdDate: school.created_at || new Date().toISOString(),
+        updatedDate: school.updated_at || new Date().toISOString(),
+      };
+
+      // Mark invitation as used
+      await supabase
+        .from('school_invitations')
+        .update({ status: 'accepted' })
+        .eq('id', invitation.id);
 
       // Add to joined schools if not already joined
-      const existingSchool = joinedSchools.find(js => js.school.id === school.id);
+      const existingSchool = joinedSchools.find(js => js.school.id === schoolData.id);
       if (!existingSchool) {
         const newJoinedSchool: JoinedSchool = {
-          school,
+          school: schoolData,
           joinedDate: new Date().toISOString(),
           invitationCode: code,
-          role: 'parent', // Default role, can be updated later
+          role: 'teacher', // Teachers use invitation codes
         };
         setJoinedSchools(prev => [...prev, newJoinedSchool]);
       }
 
       // Set as current school
-      setCurrentSchool(school);
+      setCurrentSchool(schoolData);
       setIsSchoolMode(true);
 
       return true;
@@ -172,60 +202,42 @@ export const SchoolProvider: React.FC<SchoolProviderProps> = ({ children }) => {
     if (!currentSchool) return;
 
     try {
+      const { supabase } = await import('../config/supabase');
+      
       // Refresh school information
-      const schools = await fetchRecords('TutoSchools', {
-        filterByFormula: `{School Name} = '${currentSchool.name}'`
-      });
+      const { data: school, error } = await supabase
+        .from('schools')
+        .select('*')
+        .eq('id', currentSchool.id)
+        .single();
 
-      if (schools && schools.length > 0) {
-        const mapped = {
-          id: schools[0].id,
-          name: schools[0].fields['School Name'] || schools[0].fields['name'],
-          code: schools[0].fields['School Code'] || '',
-          address: schools[0].fields['Address'] || '',
-          phone: schools[0].fields['Phone'] || '',
-          email: schools[0].fields['Email'] || '',
-          website: schools[0].fields['Website'] || undefined,
-          principalName: schools[0].fields['Principal Name'] || '',
-          principalEmail: schools[0].fields['Principal Email'] || '',
-          principalPhone: schools[0].fields['Principal Phone'] || '',
-          schoolType: schools[0].fields['School Type'] || 'Public',
-          gradeLevels: schools[0].fields['Grade Levels'] || [],
-          studentCount: schools[0].fields['Student Count'] || 0,
-          teacherCount: schools[0].fields['Teacher Count'] || 0,
-          foundedYear: schools[0].fields['Founded Year'] || new Date().getFullYear(),
-          status: schools[0].fields['Status'] || 'Active',
-          createdDate: schools[0].fields['Created Date'] || new Date().toISOString(),
-          updatedDate: schools[0].fields['Updated Date'] || new Date().toISOString(),
-        } as School;
+      if (!error && school) {
+        const mapped: School = {
+          id: resolveSchoolId(school.id),
+          name: school.name,
+          code: school.school_code || '',
+          address: school.address || '',
+          phone: school.phone || '',
+          email: school.email || '',
+          website: undefined,
+          principalName: '',
+          principalEmail: '',
+          principalPhone: '',
+          schoolType: 'Public',
+          gradeLevels: [],
+          studentCount: 0,
+          teacherCount: 0,
+          foundedYear: new Date().getFullYear(),
+          status: school.status || 'active',
+          createdDate: school.created_at || new Date().toISOString(),
+          updatedDate: school.updated_at || new Date().toISOString(),
+        };
+        console.log('🏫 Mapped school:', mapped);
         setCurrentSchool(mapped);
       }
 
-      // Refresh school user information if exists
-      if (schoolUser) {
-        const schoolUsers = await fetchRecords('TutoSchoolUsers', {
-          filterByFormula: `{User ID} = '${schoolUser.userId}' AND {School Name} = '${currentSchool.name}'`
-        });
-
-        if (schoolUsers && schoolUsers.length > 0) {
-          const su = schoolUsers[0];
-          const mappedUser: SchoolUser = {
-            id: su.id,
-            userId: su.fields['User ID'] || su.fields['userId'],
-            schoolId: su.fields['School ID'] || '',
-            schoolName: su.fields['School Name'] || currentSchool.name,
-            role: su.fields['Role'] || 'parent',
-            className: su.fields['Class Name'] || undefined,
-            studentId: su.fields['Student ID'] || undefined,
-            parentId: su.fields['Parent ID'] || undefined,
-            teacherId: su.fields['Teacher ID'] || undefined,
-            status: su.fields['Status'] || 'Active',
-            joinedDate: su.fields['Joined Date'] || new Date().toISOString(),
-            createdDate: su.fields['Created Date'] || new Date().toISOString(),
-          };
-          setSchoolUser(mappedUser);
-        }
-      }
+      // School user information would need to be queried from a different table if needed
+      // For now, we'll skip this part since the mobile app may not need it
     } catch (error) {
       console.error('Error refreshing school data:', error);
     }

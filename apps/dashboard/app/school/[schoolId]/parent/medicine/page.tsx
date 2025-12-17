@@ -57,20 +57,31 @@ export default function ParentMedicinePage() {
   useEffect(() => {
     async function fetchChildren() {
       try {
+        console.log('[Medicine] Fetching children for schoolId:', schoolId);
         const { data: { user: authUser } } = await supabase.auth.getUser();
-        if (!authUser) return;
+        console.log('[Medicine] Auth user:', authUser?.email, authUser?.id);
+        if (!authUser) {
+          console.error('[Medicine] No authenticated user');
+          return;
+        }
 
         // First, get the users table ID from auth_user_id
-        const { data: userData } = await supabase
+        const { data: userData, error: userError } = await supabase
           .from('users')
-          .select('id')
+          .select('id, email')
           .eq('auth_user_id', authUser.id)
           .single();
 
+        console.log('[Medicine] Users table lookup:', { userData, userError });
         if (!userData) {
-          console.error('User not found in users table');
+          console.error('[Medicine] User not found in users table');
           return;
         }
+
+        console.log('[Medicine] Querying school_parent_students with:', {
+          parent_user_id: userData.id,
+          school_id: schoolId,
+        });
 
         // Get children via school_parent_students using the users.id
         const { data: parentStudents, error } = await supabase
@@ -82,8 +93,14 @@ export default function ParentMedicinePage() {
           .eq('parent_user_id', userData.id)
           .eq('school_id', schoolId);
 
+        console.log('[Medicine] Parent students query result:', { 
+          count: parentStudents?.length || 0,
+          error,
+          data: parentStudents 
+        });
+
         if (error) {
-          console.error('Error fetching parent students:', error);
+          console.error('[Medicine] Error fetching parent students:', error);
           return;
         }
 
@@ -93,13 +110,16 @@ export default function ParentMedicinePage() {
             first_name: ps.school_students.first_name,
             last_name: ps.school_students.last_name,
           }));
+          console.log('[Medicine] Setting children:', childrenList);
           setChildren(childrenList);
           if (childrenList.length > 0) {
             setSelectedChildId(childrenList[0].id);
           }
+        } else {
+          console.warn('[Medicine] No children found - parentStudents is empty');
         }
       } catch (error) {
-        console.error('Error fetching children:', error);
+        console.error('[Medicine] Error fetching children:', error);
       }
     }
 

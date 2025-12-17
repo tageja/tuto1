@@ -1,128 +1,61 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Text, TextInput, ActivityIndicator, FlatList, StyleSheet } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import SchoolHeader from '../../components/common/SchoolHeader';
-import { useAirtable } from '../../hooks/useAirtable';
-import { useSchool } from '../../contexts/SchoolContext';
-import { useLanguage } from '../../contexts/LanguageContext';
+/**
+ * MedicineScreen - Legacy screen, now redirects to role-based screens
+ * This file is kept for backward compatibility but redirects to AdminMedicine or ParentMedicine
+ * based on user role. All Airtable dependencies have been removed.
+ */
 
-type MedicineItem = {
-  id: string;
-  studentName?: string;
-  medicineName?: string;
-  dosage?: string;
-  frequency?: string;
-  time?: string;
-  status?: string;
-};
-
-const TABLE = 'TutoMedicineReminders';
-
-const MedicineCard = ({ item }: { item: MedicineItem }) => (
-  <View style={styles.card}>
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-      <Text style={styles.title} numberOfLines={1}>{item.medicineName || '—'}</Text>
-      {item.status && (
-        <View style={{ backgroundColor: '#E8F2FF', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 }}>
-          <Text style={{ color: '#0B5FFF', fontWeight: '600', fontSize: 12 }}>{item.status}</Text>
-        </View>
-      )}
-    </View>
-    <Text style={[styles.meta, { marginTop: 6 }]} numberOfLines={1}>{item.studentName || ''}</Text>
-    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-      <MaterialIcons name="schedule" size={16} color="#888888" />
-      <Text style={styles.meta}> {item.frequency || '—'} {item.time ? `• ${item.time}` : ''}</Text>
-    </View>
-    {!!item.dosage && <Text style={[styles.meta, { marginTop: 4 }]} numberOfLines={1}>{item.dosage}</Text>}
-  </View>
-);
+import React, { useEffect } from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useUser } from '../../contexts/UserContext';
+import { DashboardHeader } from '../../components/school/DashboardHeader';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const MedicineScreen: React.FC = () => {
-  const { t } = useLanguage();
-  const { currentSchool } = useSchool();
-  const { fetchRecords, loading } = useAirtable();
-  const [query, setQuery] = useState('');
-  const [items, setItems] = useState<MedicineItem[]>([]);
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+  const navigation = useNavigation<any>();
+  const { userType } = useUser();
 
-  const load = useCallback(async () => {
-    if (!currentSchool) return;
-    const recs = await fetchRecords(TABLE, {
-      filterByFormula: `{School Name} = '${currentSchool.name}'`,
-      sort: [{ field: 'Time', direction: 'asc' }],
-      pageSize: 50,
-    });
-    const mapped = (recs || []).map((r: any) => {
-      const f = r.fields || {};
-      return {
-        id: r.id,
-        studentName: f['Student Name'] || f.studentName,
-        medicineName: f['Medicine Name'] || f.medicineName,
-        dosage: f['Dosage'] || f.dosage,
-        frequency: f['Frequency'] || f.frequency,
-        time: f['Time'] || f.time,
-        status: f['Status'] || f.status,
-      } as MedicineItem;
-    });
-    setItems(mapped);
-  }, [currentSchool, fetchRecords]);
+  useEffect(() => {
+    // Redirect to role-based screen
+    const isAdmin = userType === 'teacher' || userType === 'admin';
+    if (isAdmin) {
+      navigation.replace('AdminMedicine' as never);
+    } else {
+      navigation.replace('ParentMedicine' as never);
+    }
+  }, [userType, navigation]);
 
-  useEffect(() => { load(); }, [load]);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter((i) => [i.studentName, i.medicineName, i.status].filter(Boolean).some((v) => String(v).toLowerCase().includes(q)));
-  }, [items, query]);
+  // Styles with dynamic theme
+
+
+  const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.surface,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F9FAFC' }}>
-      <SchoolHeader />
-      <View style={styles.searchBar}>
-        <MaterialIcons name="search" size={20} color="#888888" />
-        <TextInput
-          placeholder={t('school.medicine.searchPlaceholder')}
-          placeholderTextColor="#888888"
-          value={query}
-          onChangeText={setQuery}
-          style={styles.searchInput}
-        />
+    <View style={styles.container}>
+      <DashboardHeader
+        schoolName="Medicine Management"
+        onNotificationPress={() => navigation.navigate('Notifications' as never)}
+      />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
-      {loading ? (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color="#0B5FFF" />
-          <Text style={styles.loadingText}>{t('school.common.loading')}</Text>
-        </View>
-      ) : (
-        <FlatList
-          contentContainerStyle={{ paddingVertical: 8, paddingHorizontal: 16 }}
-          data={filtered}
-          keyExtractor={(it) => it.id}
-          renderItem={({ item }) => <MedicineCard item={item} />}
-          ListEmptyComponent={
-            <View style={styles.emptyWrap}>
-              <MaterialIcons name="medication" size={48} color="#D0D4DA" />
-              <Text style={styles.emptyTitle}>{t('school.medicine.noRecords')}</Text>
-              <Text style={styles.emptySubtitle}>{t('school.medicine.noRecordsSubtitle')}</Text>
-            </View>
-          }
-        />
-      )}
     </View>
   );
 };
 
 export default MedicineScreen;
-
-const styles = StyleSheet.create({
-  card: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#EEF2F7' },
-  title: { fontSize: 16, fontWeight: '600', color: '#333333' },
-  meta: { fontSize: 12, color: '#888888' },
-  searchBar: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, marginTop: 12, marginBottom: 8, backgroundColor: '#FFFFFF', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#EEF2F7' },
-  searchInput: { flex: 1, paddingHorizontal: 8, paddingVertical: 6, fontSize: 16 },
-  loadingText: { fontSize: 12, color: '#888888', marginTop: 8 },
-  emptyWrap: { alignItems: 'center', marginTop: 48, paddingHorizontal: 24 },
-  emptyTitle: { fontSize: 16, color: '#333333', marginTop: 12 },
-  emptySubtitle: { fontSize: 12, color: '#888888', marginTop: 4, textAlign: 'center' },
-});
 
 

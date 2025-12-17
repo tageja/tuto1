@@ -15,7 +15,7 @@ import { useSchool } from '../../contexts/SchoolContext';
 import { useAirtable } from '../../hooks/useAirtable';
 import { translations } from '../../translations';
 import SchoolHeader from '../../components/common/SchoolHeader';
-import { theme } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface Message {
   id: string;
@@ -36,6 +36,7 @@ interface Message {
 }
 
 const MessagesScreen: React.FC = () => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
   const navigation = useNavigation<any>();
   const { currentSchool, isSchoolMode } = useSchool();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -116,11 +117,11 @@ const MessagesScreen: React.FC = () => {
       case 'High':
         return '#FF9800';
       case 'Normal':
-        return theme.colors.primary;
+        return colors.primary;
       case 'Low':
         return '#4CAF50';
       default:
-        return theme.colors.disabled;
+        return colors.disabled;
     }
   };
 
@@ -185,7 +186,7 @@ const MessagesScreen: React.FC = () => {
           <MaterialIcons
             name={getStatusIcon(message.fields['Status']) as any}
             size={20}
-            color={message.fields['Status'] === 'Read' ? theme.colors.disabled : theme.colors.primary}
+            color={message.fields['Status'] === 'Read' ? colors.disabled : colors.primary}
             style={styles.statusIcon}
           />
         </View>
@@ -276,79 +277,14 @@ const MessagesScreen: React.FC = () => {
 
   const filteredMessages = getFilteredMessages();
 
-  return (
-    <View style={styles.container}>
-      <SchoolHeader />
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <MaterialIcons name="arrow-back" size={24} color={theme.colors.onSurface} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t.messages.title}</Text>
-        <TouchableOpacity
-          style={styles.composeButton}
-          onPress={() => navigation.navigate('SchoolMessageDetail' as never)}
-        >
-          <MaterialIcons name="edit" size={24} color={theme.colors.primary} />
-        </TouchableOpacity>
-      </View>
 
-      <View style={styles.searchContainer}>
-        <MaterialIcons name="search" size={20} color={theme.colors.disabled} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder={t.messages.searchPlaceholder}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholderTextColor={theme.colors.disabled}
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => setSearchQuery('')}>
-            <MaterialIcons name="clear" size={20} color={theme.colors.disabled} />
-          </TouchableOpacity>
-        )}
-      </View>
+  // Styles with dynamic theme
 
-      {renderFilterButtons()}
 
-      <ScrollView
-        style={styles.content}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>{t.common.loading}</Text>
-          </View>
-        ) : filteredMessages.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <MaterialIcons name="email" size={64} color={theme.colors.disabled} />
-            <Text style={styles.emptyTitle}>{t.messages.noMessages}</Text>
-            <Text style={styles.emptySubtitle}>{t.messages.noMessagesSubtitle}</Text>
-            <TouchableOpacity
-              style={styles.composeFirstButton}
-              onPress={() => navigation.navigate('SchoolComposeMessage' as never)}
-            >
-              <Text style={styles.composeFirstButtonText}>{t.messages.composeFirst}</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.messagesList}>
-            {filteredMessages.map(renderMessageCard)}
-          </View>
-        )}
-      </ScrollView>
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
+  const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background.primary,
+    backgroundColor: colors.background.primary,
   },
   header: {
     flexDirection: 'row',
@@ -356,9 +292,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: theme.colors.surface,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: colors.border.light,
   },
   backButton: {
     padding: 8,
@@ -366,7 +302,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: theme.colors.onSurface,
+    color: colors.onSurface,
   },
   composeButton: {
     padding: 8,
@@ -376,23 +312,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: theme.colors.surface,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: colors.border.light,
   },
   searchInput: {
     flex: 1,
     marginLeft: 8,
     fontSize: 16,
-    color: theme.colors.onSurface,
+    color: colors.onSurface,
   },
   filterContainer: {
     flexDirection: 'row',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: theme.colors.surface,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: colors.border.light,
   },
   filterButton: {
     flex: 1,
@@ -400,15 +336,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginHorizontal: 2,
     borderRadius: 16,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: colors.background.tertiary,
     alignItems: 'center',
   },
   filterButtonActive: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: colors.primary,
   },
   filterButtonText: {
     fontSize: 12,
-    color: theme.colors.disabled,
+    color: colors.disabled,
     fontWeight: '500',
   },
   filterButtonTextActive: {
@@ -425,7 +361,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: theme.colors.disabled,
+    color: colors.disabled,
   },
   emptyContainer: {
     flex: 1,
@@ -437,13 +373,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: theme.colors.onSurface,
+    color: colors.onSurface,
     marginTop: 16,
     textAlign: 'center',
   },
   emptySubtitle: {
     fontSize: 14,
-    color: theme.colors.disabled,
+    color: colors.disabled,
     marginTop: 8,
     textAlign: 'center',
     lineHeight: 20,
@@ -452,7 +388,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     paddingVertical: 12,
     paddingHorizontal: 24,
-    backgroundColor: theme.colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 24,
   },
   composeFirstButtonText: {
@@ -464,7 +400,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   messageCard: {
-    backgroundColor: theme.colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -487,7 +423,7 @@ const styles = StyleSheet.create({
   messageSubject: {
     fontSize: 16,
     fontWeight: '600',
-    color: theme.colors.onSurface,
+    color: colors.onSurface,
     marginBottom: 4,
   },
   messageMeta: {
@@ -497,11 +433,11 @@ const styles = StyleSheet.create({
   },
   messageFrom: {
     fontSize: 14,
-    color: theme.colors.disabled,
+    color: colors.disabled,
   },
   messageDate: {
     fontSize: 12,
-    color: theme.colors.disabled,
+    color: colors.disabled,
   },
   messageStatus: {
     alignItems: 'flex-end',
@@ -522,7 +458,7 @@ const styles = StyleSheet.create({
   },
   messageContent: {
     fontSize: 14,
-    color: theme.colors.onSurface,
+    color: colors.onSurface,
     lineHeight: 20,
     marginBottom: 8,
   },
@@ -533,16 +469,86 @@ const styles = StyleSheet.create({
   },
   messageRole: {
     fontSize: 12,
-    color: theme.colors.disabled,
+    color: colors.disabled,
     fontStyle: 'italic',
   },
   unreadIndicator: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: theme.colors.primary,
+    backgroundColor: colors.primary,
   },
 });
+
+
+  return (
+    <View style={styles.container}>
+      <SchoolHeader />
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <MaterialIcons name="arrow-back" size={24} color={colors.onSurface} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{t.messages.title}</Text>
+        <TouchableOpacity
+          style={styles.composeButton}
+          onPress={() => navigation.navigate('SchoolMessageDetail' as never)}
+        >
+          <MaterialIcons name="edit" size={24} color={colors.primary} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.searchContainer}>
+        <MaterialIcons name="search" size={20} color={colors.disabled} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder={t.messages.searchPlaceholder}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholderTextColor={colors.disabled}
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={() => setSearchQuery('')}>
+            <MaterialIcons name="clear" size={20} color={colors.disabled} />
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {renderFilterButtons()}
+
+      <ScrollView
+        style={styles.content}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>{t.common.loading}</Text>
+          </View>
+        ) : filteredMessages.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <MaterialIcons name="email" size={64} color={colors.disabled} />
+            <Text style={styles.emptyTitle}>{t.messages.noMessages}</Text>
+            <Text style={styles.emptySubtitle}>{t.messages.noMessagesSubtitle}</Text>
+            <TouchableOpacity
+              style={styles.composeFirstButton}
+              onPress={() => navigation.navigate('SchoolComposeMessage' as never)}
+            >
+              <Text style={styles.composeFirstButtonText}>{t.messages.composeFirst}</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.messagesList}>
+            {filteredMessages.map(renderMessageCard)}
+          </View>
+        )}
+      </ScrollView>
+    </View>
+  );
+};
 
 export default MessagesScreen;
 

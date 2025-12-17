@@ -15,7 +15,7 @@ import { FButton } from '../components/ui/FButton';
 import { FField } from '../components/ui/FField';
 import { AuthHeader } from '../components/ui/AuthHeader';
 import { AuthContainer } from '../components/ui/AuthContainer';
-import { colors, spacing, borderRadius, typography } from '../theme';
+
 import { useAirtable } from '../hooks/useAirtable';
 import { useUser } from '../contexts/UserContext';
 import { useForm } from 'react-hook-form';
@@ -32,6 +32,137 @@ const schema = yup.object({
 });
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    scrollContent: {
+      flexGrow: 1,
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.xl,
+      paddingBottom: spacing.xxl,
+    },
+    header: {
+      alignItems: 'center',
+      marginBottom: spacing.xxl,
+    },
+    title: {
+      fontSize: typography.fontSize.xxl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.sm,
+      textAlign: 'center',
+    },
+    subtitle: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.secondary,
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+    form: {
+      flex: 1,
+    },
+    input: {
+      marginBottom: spacing.lg,
+    },
+    forgotPassword: {
+      alignSelf: 'flex-end',
+      marginBottom: spacing.xl,
+    },
+    forgotPasswordText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.primary,
+    },
+    loginButton: {
+      marginBottom: spacing.lg,
+    },
+    errorContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.status.error + '10',
+      padding: spacing.md,
+      borderRadius: borderRadius.md,
+      marginBottom: spacing.lg,
+    },
+    errorText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.status.error,
+      marginLeft: spacing.sm,
+      flex: 1,
+    },
+    divider: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: spacing.xl,
+    },
+    dividerLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: colors.border.light,
+    },
+    dividerText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+      marginHorizontal: spacing.md,
+    },
+    socialButtons: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: spacing.xxl,
+    },
+    socialButton: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      backgroundColor: colors.background.primary,
+      marginHorizontal: spacing.xs,
+    },
+    googleButton: {
+      borderColor: '#DB4437',
+    },
+    facebookButton: {
+      borderColor: '#4267B2',
+    },
+    socialButtonText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.primary,
+      marginLeft: spacing.sm,
+    },
+    registerContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    registerText: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.secondary,
+    },
+    registerLink: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.primary,
+    },
+    eyeIcon: {
+      padding: spacing.xs,
+    },
+  }); 
+
   const { t } = useLanguage();
   const { loading, error, clearError, authenticate } = useAirtable();
   const { setUserType, setUserData } = useUser();
@@ -221,131 +352,4 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.xxl,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: spacing.xxl,
-  },
-  title: {
-    fontSize: typography.fontSize.xxl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.sm,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  form: {
-    flex: 1,
-  },
-  input: {
-    marginBottom: spacing.lg,
-  },
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginBottom: spacing.xl,
-  },
-  forgotPasswordText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.primary,
-  },
-  loginButton: {
-    marginBottom: spacing.lg,
-  },
-  errorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.status.error + '10',
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-    marginBottom: spacing.lg,
-  },
-  errorText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.status.error,
-    marginLeft: spacing.sm,
-    flex: 1,
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: spacing.xl,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.border.light,
-  },
-  dividerText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-    marginHorizontal: spacing.md,
-  },
-  socialButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: spacing.xxl,
-  },
-  socialButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderRadius: borderRadius.md,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    backgroundColor: colors.background.primary,
-    marginHorizontal: spacing.xs,
-  },
-  googleButton: {
-    borderColor: '#DB4437',
-  },
-  facebookButton: {
-    borderColor: '#4267B2',
-  },
-  socialButtonText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.primary,
-    marginLeft: spacing.sm,
-  },
-  registerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  registerText: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.secondary,
-  },
-  registerLink: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.primary,
-  },
-  eyeIcon: {
-    padding: spacing.xs,
-  },
-}); 
+

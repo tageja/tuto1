@@ -10,8 +10,8 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLanguage } from '../contexts/LanguageContext';
-import { colors, spacing, typography } from '../theme';
 import { subjects, Subject } from '../data/subjects';
+import { useTheme } from '../contexts/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -35,6 +35,235 @@ interface SubjectProgress {
 }
 
 export const ProgressScreen: React.FC<ProgressScreenProps> = ({ navigation }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      backgroundColor: colors.background.primary,
+    },
+    backButton: {
+      padding: spacing.sm,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+    },
+    headerRight: {
+      width: 40,
+    },
+    content: {
+      flex: 1,
+    },
+    periodTabs: {
+      flexDirection: 'row',
+      backgroundColor: colors.background.secondary,
+      marginHorizontal: spacing.lg,
+      marginVertical: spacing.md,
+      borderRadius: 12,
+      padding: spacing.xs,
+    },
+    periodTab: {
+      flex: 1,
+      paddingVertical: spacing.sm,
+      alignItems: 'center',
+      borderRadius: 8,
+    },
+    activePeriodTab: {
+      backgroundColor: colors.background.primary,
+    },
+    periodTabText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+    },
+    activePeriodTabText: {
+      color: colors.primary,
+      fontFamily: typography.fontFamily.semiBold,
+    },
+    graphContainer: {
+      padding: spacing.lg,
+    },
+    graphTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.md,
+    },
+    graphArea: {
+      backgroundColor: colors.background.secondary,
+      borderRadius: 12,
+      padding: spacing.lg,
+      marginBottom: spacing.lg,
+    },
+    graphBars: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      justifyContent: 'space-around',
+      height: 140,
+    },
+    barContainer: {
+      alignItems: 'center',
+      flex: 1,
+    },
+    bar: {
+      width: 20,
+      backgroundColor: colors.primary,
+      borderRadius: 10,
+      marginBottom: spacing.xs,
+    },
+    barLabel: {
+      fontSize: typography.fontSize.xs,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+    },
+    barValue: {
+      fontSize: typography.fontSize.xs,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginTop: spacing.xs,
+    },
+    subjectsSection: {
+      padding: spacing.lg,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.md,
+    },
+    subjectCard: {
+      backgroundColor: colors.background.secondary,
+      borderRadius: 12,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    subjectHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    subjectIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: colors.background.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: spacing.md,
+    },
+    subjectInfo: {
+      flex: 1,
+    },
+    subjectName: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    scoreContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    currentScore: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+    },
+    scoreChange: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    scoreChangeText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+    },
+    trendContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    trendText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+    },
+    alertBadge: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    attentionContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      marginTop: spacing.sm,
+      paddingTop: spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: colors.border.light,
+    },
+    attentionText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      flex: 1,
+    },
+    alertsSection: {
+      padding: spacing.lg,
+    },
+    alertCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.background.secondary,
+      borderRadius: 12,
+      padding: spacing.md,
+      marginBottom: spacing.sm,
+      borderLeftWidth: 4,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    alertInfo: {
+      flex: 1,
+      marginLeft: spacing.md,
+    },
+    alertTitle: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    alertDescription: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+    },
+  }); 
+
   const { t, language } = useLanguage();
   const [selectedPeriod, setSelectedPeriod] = useState<'1m' | '3m' | '6m' | '12m'>('3m');
   
@@ -277,229 +506,3 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({ navigation }) =>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.background.primary,
-  },
-  backButton: {
-    padding: spacing.sm,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-  },
-  headerRight: {
-    width: 40,
-  },
-  content: {
-    flex: 1,
-  },
-  periodTabs: {
-    flexDirection: 'row',
-    backgroundColor: colors.background.secondary,
-    marginHorizontal: spacing.lg,
-    marginVertical: spacing.md,
-    borderRadius: 12,
-    padding: spacing.xs,
-  },
-  periodTab: {
-    flex: 1,
-    paddingVertical: spacing.sm,
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-  activePeriodTab: {
-    backgroundColor: colors.background.primary,
-  },
-  periodTabText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-  },
-  activePeriodTabText: {
-    color: colors.primary,
-    fontFamily: typography.fontFamily.semiBold,
-  },
-  graphContainer: {
-    padding: spacing.lg,
-  },
-  graphTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  },
-  graphArea: {
-    backgroundColor: colors.background.secondary,
-    borderRadius: 12,
-    padding: spacing.lg,
-    marginBottom: spacing.lg,
-  },
-  graphBars: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-around',
-    height: 140,
-  },
-  barContainer: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  bar: {
-    width: 20,
-    backgroundColor: colors.primary,
-    borderRadius: 10,
-    marginBottom: spacing.xs,
-  },
-  barLabel: {
-    fontSize: typography.fontSize.xs,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-  },
-  barValue: {
-    fontSize: typography.fontSize.xs,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginTop: spacing.xs,
-  },
-  subjectsSection: {
-    padding: spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  },
-  subjectCard: {
-    backgroundColor: colors.background.secondary,
-    borderRadius: 12,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  subjectHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  subjectIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.background.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  subjectInfo: {
-    flex: 1,
-  },
-  subjectName: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  scoreContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  currentScore: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-  },
-  scoreChange: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  scoreChangeText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-  },
-  trendContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  trendText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-  },
-  alertBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  attentionContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    marginTop: spacing.sm,
-    paddingTop: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: colors.border.light,
-  },
-  attentionText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    flex: 1,
-  },
-  alertsSection: {
-    padding: spacing.lg,
-  },
-  alertCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background.secondary,
-    borderRadius: 12,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    borderLeftWidth: 4,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  alertInfo: {
-    flex: 1,
-    marginLeft: spacing.md,
-  },
-  alertTitle: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  alertDescription: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-  },
-}); 

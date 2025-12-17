@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Linking, P
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLanguage } from '../contexts/LanguageContext';
-import { colors, spacing, typography } from '../theme';
+import { useTheme } from '../contexts/ThemeContext';
 import { useAirtable } from '../hooks/useAirtable';
 
 interface TeacherProfileScreenProps {
@@ -22,13 +22,147 @@ interface TeacherProfileScreenProps {
   };
 }
 
-export const TeacherProfileScreen: React.FC<TeacherProfileScreenProps> = ({ 
-  navigation, 
-  route 
-}) => {
-  const { teacherId, teacherName, subject, imageUrl, rating = 4.5, reviews = 127, experience = 5, hourlyRate = 25 } = route.params;
-  const { language, t } = useLanguage();
-  const { getTeacherById, loading, error } = useAirtable();
+export const TeacherProfileScreen: React.FC<TeacherProfileScreenProps> = ({ navigation, route }) => {
+  const { teacherId, teacherName, subject, imageUrl, rating, reviews, experience, hourlyRate } = route.params;
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+  const { t } = useLanguage();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    backButton: {
+      marginRight: spacing.md,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.text.primary,
+    },
+    content: {
+      flex: 1,
+    },
+    profileHeader: {
+      alignItems: 'center',
+      paddingVertical: spacing.xl,
+    },
+    profileImage: {
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+      marginBottom: spacing.md,
+    },
+    teacherName: {
+      fontSize: typography.fontSize.xl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    subject: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.secondary,
+      marginBottom: spacing.sm,
+    },
+    ratingContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    rating: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.primary,
+      marginLeft: spacing.xs,
+    },
+    reviews: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.secondary,
+      marginLeft: spacing.xs,
+    },
+    statsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      paddingVertical: spacing.lg,
+      borderTopWidth: 1,
+      borderBottomWidth: 1,
+      borderColor: colors.border.light,
+      marginBottom: spacing.lg,
+    },
+    statItem: {
+      alignItems: 'center',
+    },
+    statValue: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginVertical: spacing.xs,
+    },
+    statLabel: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.secondary,
+      textAlign: 'center',
+    },
+    section: {
+      padding: spacing.lg,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.text.primary,
+      marginBottom: spacing.md,
+    },
+    aboutText: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.secondary,
+      lineHeight: 24,
+    },
+    subjectTags: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginHorizontal: -spacing.xs,
+    },
+    subjectTag: {
+      backgroundColor: colors.background.secondary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: 20,
+      margin: spacing.xs,
+    },
+    subjectTagText: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.primary,
+    },
+    bookButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.primary,
+      margin: spacing.lg,
+      padding: spacing.md,
+      borderRadius: 12,
+      marginBottom: spacing.xl,
+    },
+    bookButtonText: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.secondary,
+      marginRight: spacing.sm,
+    },
+  });
+
   const [teacher, setTeacher] = useState<any>(null);
 
   useEffect(() => {
@@ -176,139 +310,3 @@ export const TeacherProfileScreen: React.FC<TeacherProfileScreenProps> = ({
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  backButton: {
-    marginRight: spacing.md,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.text.primary,
-  },
-  content: {
-    flex: 1,
-  },
-  profileHeader: {
-    alignItems: 'center',
-    paddingVertical: spacing.xl,
-  },
-  profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    marginBottom: spacing.md,
-  },
-  teacherName: {
-    fontSize: typography.fontSize.xl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  subject: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.secondary,
-    marginBottom: spacing.sm,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  rating: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.primary,
-    marginLeft: spacing.xs,
-  },
-  reviews: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.secondary,
-    marginLeft: spacing.xs,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: spacing.lg,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: colors.border.light,
-    marginBottom: spacing.lg,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginVertical: spacing.xs,
-  },
-  statLabel: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.secondary,
-    textAlign: 'center',
-  },
-  section: {
-    padding: spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  },
-  aboutText: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.secondary,
-    lineHeight: 24,
-  },
-  subjectTags: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -spacing.xs,
-  },
-  subjectTag: {
-    backgroundColor: colors.background.secondary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: 20,
-    margin: spacing.xs,
-  },
-  subjectTagText: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.primary,
-  },
-  bookButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.primary,
-    margin: spacing.lg,
-    padding: spacing.md,
-    borderRadius: 12,
-    marginBottom: spacing.xl,
-  },
-  bookButtonText: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.secondary,
-    marginRight: spacing.sm,
-  },
-});

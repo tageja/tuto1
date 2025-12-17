@@ -6,6 +6,7 @@ import { useAirtable } from '../../hooks/useAirtable';
 import { useSchool } from '../../contexts/SchoolContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import SchoolHeader from '../../components/common/SchoolHeader';
+import { useTheme } from '../../contexts/ThemeContext';
 
 type AttendanceRecord = {
   id: string;
@@ -45,6 +46,27 @@ const AttendanceItem = ({ item }: { item: AttendanceRecord }) => {
 };
 
 const AttendanceScreen: React.FC = () => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+  const styles = StyleSheet.create({
+    cardRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: 16,
+      backgroundColor: colors.background.primary,
+      borderRadius: 16,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+    },
+    title: { fontSize: 16, fontWeight: '600', color: colors.text.primary },
+    meta: { fontSize: 12, color: colors.text.secondary, marginTop: 4 },
+    loadingText: { fontSize: 12, color: colors.text.secondary, marginTop: 8 },
+    emptyWrap: { alignItems: 'center', marginTop: 48, paddingHorizontal: 24 },
+    emptyTitle: { fontSize: 16, color: colors.text.primary, marginTop: 12 },
+    emptySubtitle: { fontSize: 12, color: colors.text.secondary, marginTop: 4, textAlign: 'center' },
+  });
   const { t } = useLanguage();
   const { currentSchool } = useSchool();
   const { fetchRecords, loading } = useAirtable();
@@ -84,7 +106,7 @@ const AttendanceScreen: React.FC = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F9FAFC' }}>
+    <View style={{ flex: 1, backgroundColor: colors.background.secondary }}>
       <SchoolHeader />
       <CalendarList
         onDayPress={onDayPress}
@@ -127,24 +149,5 @@ const AttendanceScreen: React.FC = () => {
 
 export default AttendanceScreen;
 
-const styles = StyleSheet.create({
-  cardRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#EEF2F7',
-  },
-  title: { fontSize: 16, fontWeight: '600', color: '#333333' },
-  meta: { fontSize: 12, color: '#888888', marginTop: 4 },
-  loadingText: { fontSize: 12, color: '#888888', marginTop: 8 },
-  emptyWrap: { alignItems: 'center', marginTop: 48, paddingHorizontal: 24 },
-  emptyTitle: { fontSize: 16, color: '#333333', marginTop: 12 },
-  emptySubtitle: { fontSize: 12, color: '#888888', marginTop: 4, textAlign: 'center' },
-});
 
 

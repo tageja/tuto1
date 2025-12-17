@@ -7,7 +7,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { colors, spacing, typography } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { FilterType, SubjectFilter } from '../../screens/FeedScreen';
 
 interface FilterBarProps {
@@ -39,6 +39,51 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onRoleFilterChange,
   onSubjectFilterChange,
 }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      backgroundColor: colors.background.primary,
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    filterSection: {
+      marginBottom: spacing.sm,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+      paddingHorizontal: spacing.lg,
+    },
+    filterRow: {
+      paddingHorizontal: spacing.lg,
+    },
+    filterPill: {
+      backgroundColor: colors.background.secondary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: 20,
+      marginRight: spacing.sm,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+    },
+    activeFilterPill: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    filterText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+    },
+    activeFilterText: {
+      color: colors.background.primary,
+    },
+  }); 
+
   const { t } = useLanguage();
 
   const renderFilterPill = (
@@ -105,46 +150,4 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: colors.background.primary,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  filterSection: {
-    marginBottom: spacing.sm,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-    paddingHorizontal: spacing.lg,
-  },
-  filterRow: {
-    paddingHorizontal: spacing.lg,
-  },
-  filterPill: {
-    backgroundColor: colors.background.secondary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: 20,
-    marginRight: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-  },
-  activeFilterPill: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  filterText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-  },
-  activeFilterText: {
-    color: colors.background.primary,
-  },
-}); 
+

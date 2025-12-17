@@ -11,7 +11,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLanguage } from '../contexts/LanguageContext';
-import { colors, spacing, typography } from '../theme';
+
 
 const { width } = Dimensions.get('window');
 
@@ -40,6 +40,277 @@ interface RewardHistory {
 }
 
 export const RewardsScreen: React.FC<RewardsScreenProps> = ({ navigation }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      backgroundColor: colors.background.primary,
+    },
+    backButton: {
+      padding: spacing.sm,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+    },
+    headerRight: {
+      width: 40,
+    },
+    tabContainer: {
+      flexDirection: 'row',
+      backgroundColor: colors.background.secondary,
+      marginHorizontal: spacing.lg,
+      borderRadius: 12,
+      padding: spacing.xs,
+    },
+    tab: {
+      flex: 1,
+      paddingVertical: spacing.sm,
+      alignItems: 'center',
+      borderRadius: 8,
+    },
+    activeTab: {
+      backgroundColor: colors.background.primary,
+    },
+    tabText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+    },
+    activeTabText: {
+      color: colors.primary,
+      fontFamily: typography.fontFamily.semiBold,
+    },
+    content: {
+      flex: 1,
+    },
+    overviewContainer: {
+      padding: spacing.lg,
+    },
+    levelCard: {
+      backgroundColor: colors.background.secondary,
+      borderRadius: 16,
+      padding: spacing.lg,
+      marginBottom: spacing.lg,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    levelHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    levelTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginLeft: spacing.sm,
+    },
+    progressContainer: {
+      marginTop: spacing.sm,
+    },
+    progressBar: {
+      height: 8,
+      backgroundColor: colors.border.light,
+      borderRadius: 4,
+      overflow: 'hidden',
+    },
+    progressFill: {
+      height: '100%',
+      backgroundColor: colors.primary,
+      borderRadius: 4,
+    },
+    progressText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+      marginTop: spacing.xs,
+      textAlign: 'center',
+    },
+    statsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.md,
+      marginBottom: spacing.lg,
+    },
+    statCard: {
+      width: (width - spacing.lg * 3) / 2,
+      backgroundColor: colors.background.secondary,
+      borderRadius: 12,
+      padding: spacing.md,
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    statValue: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginTop: spacing.xs,
+    },
+    statLabel: {
+      fontSize: typography.fontSize.xs,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+      marginTop: spacing.xs,
+      textAlign: 'center',
+    },
+    quickActionsContainer: {
+      flexDirection: 'row',
+      gap: spacing.md,
+    },
+    quickAction: {
+      flex: 1,
+      backgroundColor: colors.background.secondary,
+      borderRadius: 12,
+      padding: spacing.md,
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    quickActionText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.primary,
+      marginTop: spacing.xs,
+      textAlign: 'center',
+    },
+    achievementsContainer: {
+      padding: spacing.lg,
+    },
+    achievementCard: {
+      backgroundColor: colors.background.secondary,
+      borderRadius: 12,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    achievementHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    achievementIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: spacing.md,
+    },
+    achievementInfo: {
+      flex: 1,
+    },
+    achievementTitle: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    achievementDescription: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+      marginBottom: spacing.xs,
+    },
+    achievementRewards: {
+      flexDirection: 'row',
+      gap: spacing.md,
+    },
+    rewardItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    rewardText: {
+      fontSize: typography.fontSize.xs,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.primary,
+    },
+    historyContainer: {
+      padding: spacing.lg,
+    },
+    historyCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.background.secondary,
+      borderRadius: 12,
+      padding: spacing.md,
+      marginBottom: spacing.sm,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    historyIcon: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.background.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: spacing.md,
+    },
+    historyInfo: {
+      flex: 1,
+    },
+    historyReason: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    historyDate: {
+      fontSize: typography.fontSize.xs,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.secondary,
+    },
+    historyAmount: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.bold,
+    },
+  }); 
+
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'history'>('overview');
   
@@ -346,271 +617,4 @@ export const RewardsScreen: React.FC<RewardsScreenProps> = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.background.primary,
-  },
-  backButton: {
-    padding: spacing.sm,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-  },
-  headerRight: {
-    width: 40,
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    backgroundColor: colors.background.secondary,
-    marginHorizontal: spacing.lg,
-    borderRadius: 12,
-    padding: spacing.xs,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: spacing.sm,
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-  activeTab: {
-    backgroundColor: colors.background.primary,
-  },
-  tabText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-  },
-  activeTabText: {
-    color: colors.primary,
-    fontFamily: typography.fontFamily.semiBold,
-  },
-  content: {
-    flex: 1,
-  },
-  overviewContainer: {
-    padding: spacing.lg,
-  },
-  levelCard: {
-    backgroundColor: colors.background.secondary,
-    borderRadius: 16,
-    padding: spacing.lg,
-    marginBottom: spacing.lg,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  levelHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  levelTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginLeft: spacing.sm,
-  },
-  progressContainer: {
-    marginTop: spacing.sm,
-  },
-  progressBar: {
-    height: 8,
-    backgroundColor: colors.border.light,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: colors.primary,
-    borderRadius: 4,
-  },
-  progressText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-    marginTop: spacing.xs,
-    textAlign: 'center',
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
-    marginBottom: spacing.lg,
-  },
-  statCard: {
-    width: (width - spacing.lg * 3) / 2,
-    backgroundColor: colors.background.secondary,
-    borderRadius: 12,
-    padding: spacing.md,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  statValue: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginTop: spacing.xs,
-  },
-  statLabel: {
-    fontSize: typography.fontSize.xs,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-    marginTop: spacing.xs,
-    textAlign: 'center',
-  },
-  quickActionsContainer: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  quickAction: {
-    flex: 1,
-    backgroundColor: colors.background.secondary,
-    borderRadius: 12,
-    padding: spacing.md,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  quickActionText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.primary,
-    marginTop: spacing.xs,
-    textAlign: 'center',
-  },
-  achievementsContainer: {
-    padding: spacing.lg,
-  },
-  achievementCard: {
-    backgroundColor: colors.background.secondary,
-    borderRadius: 12,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  achievementHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  achievementIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  achievementInfo: {
-    flex: 1,
-  },
-  achievementTitle: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  achievementDescription: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-    marginBottom: spacing.xs,
-  },
-  achievementRewards: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  rewardItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  rewardText: {
-    fontSize: typography.fontSize.xs,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.primary,
-  },
-  historyContainer: {
-    padding: spacing.lg,
-  },
-  historyCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background.secondary,
-    borderRadius: 12,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  historyIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.background.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  historyInfo: {
-    flex: 1,
-  },
-  historyReason: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  historyDate: {
-    fontSize: typography.fontSize.xs,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.secondary,
-  },
-  historyAmount: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.bold,
-  },
-}); 
+

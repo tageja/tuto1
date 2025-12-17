@@ -1,5 +1,8 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { View, Text, ActivityIndicator } from 'react-native';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { useTheme } from '../contexts/ThemeContext';
+import { StatusBar } from 'expo-status-bar';
 import { setCurrentScreen } from '../services/analytics';
 import { createStackNavigator } from '@react-navigation/stack';
 import { HomeScreen } from '../screens/HomeScreen';
@@ -32,24 +35,59 @@ import { useSchool } from '../contexts/SchoolContext';
 import SchoolInvitationScreen from '../screens/SchoolInvitationScreen';
 import SchoolDashboardScreen from '../screens/SchoolDashboardScreen';
 import SchoolSelectionScreen from '../screens/SchoolSelectionScreen';
-import DailyActivitiesScreen from '../screens/school/DailyActivitiesScreen';
+import AdminDailyActivitiesScreen from '../screens/school/AdminDailyActivitiesScreen';
+import ParentDailyActivitiesScreen from '../screens/school/ParentDailyActivitiesScreen';
 import MessagesScreen from '../screens/school/MessagesScreen';
-import AnnouncementsScreen from '../screens/school/AnnouncementsScreen';
-import PhotoAlbumsScreen from '../screens/school/PhotoAlbumsScreen';
+import AdminAnnouncementsScreen from '../screens/school/AdminAnnouncementsScreen';
+import ParentAnnouncementsScreen from '../screens/school/ParentAnnouncementsScreen';
 import TeachersScreen from '../screens/school/TeachersScreen';
 import ClassesScreen from '../screens/school/ClassesScreen';
+import StudentsScreen from '../screens/school/StudentsScreen';
+import StudentDetailScreen from '../screens/school/StudentDetailScreen';
 import AttendanceScreen from '../screens/school/AttendanceScreen';
+import ParentAttendanceScreen from '../screens/school/ParentAttendanceScreen';
+import AdminAttendanceScreen from '../screens/school/AdminAttendanceScreen';
+import AdminTeachersScreen from '../screens/school/AdminTeachersScreen';
+import TeacherDetailScreen from '../screens/school/TeacherDetailScreen';
+import ClassDetailScreen from '../screens/school/ClassDetailScreen';
 import SchoolHomeworkScreen from '../screens/school/HomeworkScreen';
+import ParentHomeworkScreen from '../screens/school/ParentHomeworkScreen';
+import AdminHomeworkScreen from '../screens/school/AdminHomeworkScreen';
+import CreateHomeworkAssignmentScreen from '../screens/school/CreateHomeworkAssignmentScreen';
 import SchoolProgressScreen from '../screens/school/ProgressScreen';
-import SchoolEventsScreen from '../screens/school/EventsScreen';
+import AdminEventsScreen from '../screens/school/AdminEventsScreen';
+import AdminCreateEventScreen from '../screens/school/AdminCreateEventScreen';
+import AdminPhotoAlbumsScreen from '../screens/school/AdminPhotoAlbumsScreen';
+import AdminCreateAlbumScreen from '../screens/school/AdminCreateAlbumScreen';
+import ParentEventsScreen from '../screens/school/ParentEventsScreen';
+import ParentPhotoAlbumsScreen from '../screens/school/ParentPhotoAlbumsScreen';
 import SchoolPaymentsScreen from '../screens/school/PaymentsScreen';
 import SchoolHealthScreen from '../screens/school/HealthScreen';
+import AdminHealthRecordsScreen from '../screens/school/AdminHealthRecordsScreen';
+import ParentHealthRecordsScreen from '../screens/school/ParentHealthRecordsScreen';
+import AddHealthRecordScreen from '../screens/school/AddHealthRecordScreen';
+import StudentHealthDetailScreen from '../screens/school/StudentHealthDetailScreen';
 import SchoolMedicineScreen from '../screens/school/MedicineScreen';
+import AdminMedicineScreen from '../screens/school/AdminMedicineScreen';
+import ParentMedicineScreen from '../screens/school/ParentMedicineScreen';
+import AddMedicineReminderScreen from '../screens/school/AddMedicineReminderScreen';
+import LogMedicineScreen from '../screens/school/LogMedicineScreen';
 import SchoolActivitiesScreen from '../screens/school/ActivitiesScreen';
 import SchoolActivityDetailScreen from '../screens/school/ActivityDetailScreen';
+import AddActivityScreen from '../screens/school/AddActivityScreen';
+import AddAnnouncementScreen from '../screens/school/AddAnnouncementScreen';
 import SchoolMessageDetailScreen from '../screens/school/MessageDetailScreen';
 import SchoolAnnouncementDetailScreen from '../screens/school/AnnouncementDetailScreen';
 import SchoolAlbumDetailScreen from '../screens/school/AlbumDetailScreen';
+import MessagesListAdminScreen from '../screens/school/MessagesListAdminScreen';
+import MessagesListParentScreen from '../screens/school/MessagesListParentScreen';
+import MessagesConversationScreen from '../screens/school/MessagesConversationScreen';
+import MessagesComposeScreen from '../screens/school/MessagesComposeScreen';
+import ParentFeedbackListScreen from '../screens/school/ParentFeedbackListScreen';
+import AdminFeedbackListScreen from '../screens/school/AdminFeedbackListScreen';
+import ParentCreateFeedbackScreen from '../screens/school/ParentCreateFeedbackScreen';
+import FeedbackDetailsScreen from '../screens/school/FeedbackDetailsScreen';
+import { SettingsStackNavigator } from './SettingsStack';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -99,15 +137,38 @@ export type RootStackParamList = {
   SchoolTeachers: undefined;
   SchoolClasses: undefined;
   SchoolAttendance: undefined;
+  SchoolAddActivity: { activity?: any } | undefined;
+  SchoolAddAnnouncement: { announcement?: any } | undefined;
+  // Teacher & Class Detail Screens
+  TeacherDetail: { teacherId: string };
+  AdminTeachers: undefined;
+  ClassDetail: { classId: string };
+  StudentsScreen: undefined;
+  StudentDetail: { studentId: string };
   SchoolHomework: undefined;
+  SchoolCreateHomework: undefined;
   SchoolProgress: undefined;
   SchoolEvents: undefined;
+  AdminEvents: undefined;
+  AdminCreateEvent: undefined;
+  AdminPhotoAlbums: undefined;
+  AdminCreateAlbum: undefined;
+  ParentEvents: undefined;
+  ParentPhotoAlbums: undefined;
   SchoolPayments: undefined;
   SchoolHealth: undefined;
+  AddHealthRecord: { studentId?: string };
+  StudentHealthDetail: { studentId: string };
   SchoolMedicine: undefined;
+  AdminMedicine: undefined;
+  ParentMedicine: undefined;
+  AddMedicineReminder: { studentId?: string };
+  LogMedicine: { reminderId: string };
   SchoolActivities: undefined;
   SchoolSurveys: undefined;
   SchoolSubscriptions: undefined;
+  SchoolFeedback: undefined;
+  SchoolSettings: undefined;
   SchoolActivityDetail: { activity: any };
   SchoolMessageDetail: { message: any };
   SchoolAnnouncementDetail: { announcement: any };
@@ -117,20 +178,44 @@ export type RootStackParamList = {
   SchoolAddAnnouncement: undefined;
   SchoolAddAlbum: undefined;
   SchoolComposeMessage: undefined;
+  MessagesListAdmin: undefined;
+  MessagesListParent: undefined;
+  MessagesConversation: { threadId: string; userRole?: 'admin' | 'parent' };
+  MessagesCompose: undefined;
+  SchoolFeedback: undefined;
+  FeedbackCreate: undefined;
+  FeedbackDetails: { feedbackId: string };
+  // Settings stack
+  SettingsStack: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 const RoleGate: React.FC = () => {
-  const { userType } = useUser();
+  const { userType, loading } = useUser();
+  
+  console.log('🚪 RoleGate: Checking user type', { userType, loading });
+  
+  // Show loading while user data is being loaded
+  if (loading) {
+    console.log('🚪 RoleGate: Loading user data...');
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background.secondary }}>
+        <ActivityIndicator size="large" color="#0B5FFF" />
+        <Text style={{ marginTop: 16, fontSize: 16, color: colors.text.secondary }}>Loading...</Text>
+      </View>
+    );
+  }
   
   // If no userType set yet, show RoleSelection
   if (!userType) {
+    console.log('🚪 RoleGate: No user type, showing RoleSelection');
     return <RoleSelectionScreen navigation={undefined as any} />;
   }
   
   // Always show the appropriate tabs based on user type
   // Users will navigate to school features from within the app
+  console.log('🚪 RoleGate: Showing tabs for', userType);
   if (userType === 'teacher') return <TeacherTabs />;
   return <ParentTabs />;
 };
@@ -150,8 +235,24 @@ const linking = {
 
 export const AppNavigator = () => {
   console.log('🧭 AppNavigator: Setting up auth flow');
+  const { isDark, colors } = useTheme();
+
+  const navigationTheme = {
+    ...(isDark ? DarkTheme : DefaultTheme),
+    colors: {
+      ...(isDark ? DarkTheme.colors : DefaultTheme.colors),
+      primary: colors.primary,
+      background: colors.background.primary,
+      card: colors.background.secondary,
+      text: colors.text.primary,
+      border: colors.border.light,
+      notification: colors.status.error,
+    },
+  };
+
   return (
     <NavigationContainer
+      theme={navigationTheme}
       linking={linking}
       onStateChange={(state) => {
         try {
@@ -162,6 +263,7 @@ export const AppNavigator = () => {
         } catch {}
       }}
     >
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={AuthUnifiedScreen as any} initialParams={{ mode: 'login' }} />
         <Stack.Screen name="Register" component={AuthUnifiedScreen as any} initialParams={{ mode: 'register' }} />
@@ -194,24 +296,169 @@ export const AppNavigator = () => {
         <Stack.Screen name="SchoolInvitation" component={SchoolInvitationScreen} />
         <Stack.Screen name="SchoolDashboard" component={SchoolDashboardScreen} />
         <Stack.Screen name="SchoolSelection" component={SchoolSelectionScreen} />
-        <Stack.Screen name="SchoolDailyActivities" component={DailyActivitiesScreen} />
-        <Stack.Screen name="SchoolMessages" component={MessagesScreen} />
-        <Stack.Screen name="SchoolAnnouncements" component={AnnouncementsScreen} />
-        <Stack.Screen name="SchoolPhotoAlbums" component={PhotoAlbumsScreen} />
+        <Stack.Screen name="SchoolDailyActivities">
+          {(props) => {
+            const { userType } = useUser();
+            // Treat 'teacher' as admin for school dashboard features
+            const isAdmin = userType === 'teacher' || userType === 'admin';
+            return isAdmin ? (
+              <AdminDailyActivitiesScreen />
+            ) : (
+              <ParentDailyActivitiesScreen />
+            );
+          }}
+        </Stack.Screen>
+        <Stack.Screen name="SchoolMessages">
+          {(props) => {
+            const { userType } = useUser();
+            const isAdmin = userType === 'teacher' || userType === 'admin';
+            return isAdmin ? (
+              <MessagesListAdminScreen />
+            ) : (
+              <MessagesListParentScreen />
+            );
+          }}
+        </Stack.Screen>
+        <Stack.Screen 
+          name="MessagesListAdmin" 
+          component={MessagesListAdminScreen} 
+        />
+        <Stack.Screen 
+          name="MessagesListParent" 
+          component={MessagesListParentScreen} 
+        />
+        <Stack.Screen 
+          name="MessagesConversation" 
+          component={MessagesConversationScreen} 
+        />
+        <Stack.Screen 
+          name="MessagesCompose" 
+          component={MessagesComposeScreen} 
+        />
+        <Stack.Screen name="SchoolAnnouncements">
+          {(props) => {
+            const { userType } = useUser();
+            const isAdmin = userType === 'teacher' || userType === 'admin';
+            return isAdmin ? (
+              <AdminAnnouncementsScreen />
+            ) : (
+              <ParentAnnouncementsScreen />
+            );
+          }}
+        </Stack.Screen>
+        <Stack.Screen name="SchoolFeedback">
+          {(props) => {
+            const { userType } = useUser();
+            const isAdmin = userType === 'teacher' || userType === 'admin';
+            return isAdmin ? (
+              <AdminFeedbackListScreen />
+            ) : (
+              <ParentFeedbackListScreen />
+            );
+          }}
+        </Stack.Screen>
+        <Stack.Screen name="FeedbackCreate" component={ParentCreateFeedbackScreen} />
+        <Stack.Screen name="FeedbackDetails" component={FeedbackDetailsScreen} />
         <Stack.Screen name="SchoolTeachers" component={TeachersScreen} />
         <Stack.Screen name="SchoolClasses" component={ClassesScreen} />
-        <Stack.Screen name="SchoolAttendance" component={AttendanceScreen} />
-        <Stack.Screen name="SchoolHomework" component={SchoolHomeworkScreen} />
+        <Stack.Screen name="SchoolStudents" component={StudentsScreen} />
+        <Stack.Screen name="StudentDetail" component={StudentDetailScreen} />
+        <Stack.Screen name="SchoolAttendance">
+          {(props) => {
+            const { userType } = useUser();
+            const isAdmin = userType === 'teacher' || userType === 'admin';
+            return isAdmin ? <AdminAttendanceScreen /> : <ParentAttendanceScreen />;
+          }}
+        </Stack.Screen>
+        <Stack.Screen name="SchoolHomework">
+          {(props) => {
+            const { userType } = useUser();
+            const isAdmin = userType === 'teacher' || userType === 'admin';
+            return isAdmin ? (
+              <AdminHomeworkScreen />
+            ) : (
+              <ParentHomeworkScreen />
+            );
+          }}
+        </Stack.Screen>
+        <Stack.Screen name="SchoolCreateHomework" component={CreateHomeworkAssignmentScreen} />
         <Stack.Screen name="SchoolProgress" component={SchoolProgressScreen} />
-        <Stack.Screen name="SchoolEvents" component={SchoolEventsScreen} />
+        <Stack.Screen name="SchoolEvents">
+          {(props) => {
+            const { userType } = useUser();
+            const isAdmin = userType === 'teacher' || userType === 'admin';
+            return isAdmin ? <AdminEventsScreen /> : <ParentEventsScreen />;
+          }}
+        </Stack.Screen>
+        <Stack.Screen name="SchoolPhotoAlbums">
+          {(props) => {
+            const { userType } = useUser();
+            const isAdmin = userType === 'teacher' || userType === 'admin';
+            return isAdmin ? <AdminPhotoAlbumsScreen /> : <ParentPhotoAlbumsScreen />;
+          }}
+        </Stack.Screen>
+        <Stack.Screen name="AdminEvents" component={AdminEventsScreen} />
+        <Stack.Screen name="AdminCreateEvent" component={AdminCreateEventScreen} />
+        <Stack.Screen name="AdminPhotoAlbums" component={AdminPhotoAlbumsScreen} />
+        <Stack.Screen name="AdminCreateAlbum" component={AdminCreateAlbumScreen} />
+        <Stack.Screen name="ParentEvents" component={ParentEventsScreen} />
+        <Stack.Screen name="ParentPhotoAlbums" component={ParentPhotoAlbumsScreen} />
         <Stack.Screen name="SchoolPayments" component={SchoolPaymentsScreen} />
-        <Stack.Screen name="SchoolHealth" component={SchoolHealthScreen} />
-        <Stack.Screen name="SchoolMedicine" component={SchoolMedicineScreen} />
+        <Stack.Screen name="SchoolHealth">
+          {(props) => {
+            const { userType } = useUser();
+            const isAdmin = userType === 'teacher' || userType === 'admin';
+            return isAdmin ? (
+              <AdminHealthRecordsScreen />
+            ) : (
+              <ParentHealthRecordsScreen />
+            );
+          }}
+        </Stack.Screen>
+        <Stack.Screen name="AddHealthRecord" component={AddHealthRecordScreen} />
+        <Stack.Screen name="StudentHealthDetail" component={StudentHealthDetailScreen} />
+        <Stack.Screen name="SchoolMedicine">
+          {(props) => {
+            const { userType } = useUser();
+            const isAdmin = userType === 'teacher' || userType === 'admin';
+            return isAdmin ? (
+              <AdminMedicineScreen />
+            ) : (
+              <ParentMedicineScreen />
+            );
+          }}
+        </Stack.Screen>
+        <Stack.Screen name="AdminMedicine" component={AdminMedicineScreen} />
+        <Stack.Screen name="ParentMedicine" component={ParentMedicineScreen} />
+        <Stack.Screen name="AddMedicineReminder" component={AddMedicineReminderScreen} />
+        <Stack.Screen name="LogMedicine" component={LogMedicineScreen} />
         <Stack.Screen name="SchoolActivities" component={SchoolActivitiesScreen} />
         <Stack.Screen name="SchoolActivityDetail" component={SchoolActivityDetailScreen} />
+        <Stack.Screen name="SchoolAddActivity" component={AddActivityScreen} />
+        <Stack.Screen name="SchoolAddAnnouncement" component={AddAnnouncementScreen} />
         <Stack.Screen name="SchoolMessageDetail" component={SchoolMessageDetailScreen} />
         <Stack.Screen name="SchoolAnnouncementDetail" component={SchoolAnnouncementDetailScreen} />
         <Stack.Screen name="SchoolAlbumDetail" component={SchoolAlbumDetailScreen} />
+        
+        {/* Teacher & Class Detail Screens */}
+        <Stack.Screen 
+          name="TeacherDetail" 
+          component={TeacherDetailScreen} 
+          options={{ title: 'Teacher Details' }}
+        />
+        <Stack.Screen 
+          name="AdminTeachers" 
+          component={AdminTeachersScreen} 
+          options={{ title: 'Teachers' }}
+        />
+        <Stack.Screen 
+          name="ClassDetail" 
+          component={ClassDetailScreen} 
+          options={{ title: 'Class Details' }}
+        />
+        
+        {/* Settings Stack */}
+        <Stack.Screen name="SettingsStack" component={SettingsStackNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
   );

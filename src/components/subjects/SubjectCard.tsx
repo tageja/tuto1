@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Subject } from '../../data/subjects';
-import { colors, spacing, borderRadius, typography } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface SubjectCardProps {
   subject: Subject;
@@ -18,6 +18,98 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
   variant = 'default',
   selected = false,
 }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+  const styles = StyleSheet.create({
+    defaultCard: {
+      backgroundColor: colors.background.primary,
+      borderRadius: borderRadius.lg,
+      padding: spacing.md,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      minWidth: 100,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    compactCard: {
+      backgroundColor: colors.background.primary,
+      borderRadius: borderRadius.md,
+      padding: spacing.sm,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      minWidth: 80,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    largeCard: {
+      backgroundColor: colors.background.primary,
+      borderRadius: borderRadius.lg,
+      padding: spacing.lg,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      minWidth: 160,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    selectedCard: {
+      borderWidth: 2,
+      backgroundColor: colors.background.secondary,
+    },
+    iconContainer: {
+      marginBottom: spacing.sm,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    defaultText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      textAlign: 'center',
+      lineHeight: 18,
+    },
+    compactText: {
+      fontSize: typography.fontSize.xs,
+      fontFamily: typography.fontFamily.medium,
+      textAlign: 'center',
+      lineHeight: 16,
+    },
+    largeText: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.semiBold,
+      textAlign: 'center',
+      lineHeight: 22,
+      marginBottom: spacing.sm,
+    },
+    description: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.secondary,
+      textAlign: 'center',
+      lineHeight: 18,
+      marginBottom: spacing.md,
+    },
+    categoryBadge: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.full,
+    },
+    categoryText: {
+      fontSize: typography.fontSize.xs,
+      fontFamily: typography.fontFamily.medium,
+    },
+  }); 
+
   const { language } = useLanguage();
   const isVietnamese = language === 'vi';
 
@@ -95,93 +187,3 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  defaultCard: {
-    backgroundColor: colors.background.primary,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    minWidth: 100,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  compactCard: {
-    backgroundColor: colors.background.primary,
-    borderRadius: borderRadius.md,
-    padding: spacing.sm,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    minWidth: 80,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  largeCard: {
-    backgroundColor: colors.background.primary,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    minWidth: 160,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  selectedCard: {
-    borderWidth: 2,
-    backgroundColor: colors.background.secondary,
-  },
-  iconContainer: {
-    marginBottom: spacing.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  defaultText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    textAlign: 'center',
-    lineHeight: 18,
-  },
-  compactText: {
-    fontSize: typography.fontSize.xs,
-    fontFamily: typography.fontFamily.medium,
-    textAlign: 'center',
-    lineHeight: 16,
-  },
-  largeText: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.semiBold,
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: spacing.sm,
-  },
-  description: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    lineHeight: 18,
-    marginBottom: spacing.md,
-  },
-  categoryBadge: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.full,
-  },
-  categoryText: {
-    fontSize: typography.fontSize.xs,
-    fontFamily: typography.fontFamily.medium,
-  },
-}); 

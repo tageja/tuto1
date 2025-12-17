@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useUser } from '../contexts/UserContext';
-import { colors, spacing, typography } from '../theme';
+
 import { Teacher } from '../types';
 import { MapMarker, TeacherCallout } from '../components/MapMarker';
 import { clusterTeachers, getClusterRadius, Cluster } from '../utils/clustering';
@@ -17,6 +17,80 @@ interface MapScreenProps {
 }
 
 export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      backgroundColor: colors.background.primary,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.xl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+    },
+    locationButton: {
+      padding: spacing.sm,
+      borderRadius: 20,
+      backgroundColor: colors.surface,
+    },
+    map: {
+      flex: 1,
+    },
+    loadingOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(255, 255, 255, 0.8)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    loadingText: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.primary,
+    },
+    mapInfo: {
+      position: 'absolute',
+      bottom: spacing.lg,
+      left: spacing.lg,
+      right: spacing.lg,
+      backgroundColor: colors.background.primary,
+      padding: spacing.md,
+      borderRadius: 12,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
+    },
+    mapInfoText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    mapInfoSubtext: {
+      fontSize: typography.fontSize.xs,
+      color: colors.text.secondary,
+    },
+  }); 
+
   const { t } = useLanguage();
   const { userData } = useUser();
   const { location, requestPermission } = useLocation();
@@ -255,74 +329,4 @@ export const MapScreen: React.FC<MapScreenProps> = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.background.primary,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.xl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-  },
-  locationButton: {
-    padding: spacing.sm,
-    borderRadius: 20,
-    backgroundColor: colors.surface,
-  },
-  map: {
-    flex: 1,
-  },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.primary,
-  },
-  mapInfo: {
-    position: 'absolute',
-    bottom: spacing.lg,
-    left: spacing.lg,
-    right: spacing.lg,
-    backgroundColor: colors.background.primary,
-    padding: spacing.md,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  mapInfoText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  mapInfoSubtext: {
-    fontSize: typography.fontSize.xs,
-    color: colors.text.secondary,
-  },
-}); 
+

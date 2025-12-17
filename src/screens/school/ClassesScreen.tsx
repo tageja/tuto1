@@ -1,157 +1,321 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Text, FlatList, TextInput, ActivityIndicator, StyleSheet } from 'react-native';
+/**
+ * Admin Classes Screen
+ * Full-featured class management for school admins
+ * Mirrors web admin/classes page with mobile-optimized UI
+ */
+
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, FlatList, TextInput, ActivityIndicator, StyleSheet, RefreshControl, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useAirtable } from '../../hooks/useAirtable';
 import { useSchool } from '../../contexts/SchoolContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useNavigation } from '@react-navigation/native';
 import SchoolHeader from '../../components/common/SchoolHeader';
+import { ClassListItem } from '../../components/school/ClassListItem';
+import { KpiRow, KpiItem } from '../../components/kpi/KpiRow';
+import { FilterChips, FilterOption } from '../../components/filters/FilterChips';
+import { useTheme } from '../../contexts/ThemeContext';
+import {
+  getClasses,
+  getClassKPIs,
+  getClassGrades,
+  SchoolClass,
+} from '../../services/supabase-classes';
 
-type SchoolClass = {
-  id: string;
-  name: string;
-  grade?: string;
-  teacherName?: string;
-  schedule?: string;
-  studentsCount?: number;
-};
-
-const TABLE = 'TutoSchoolClasses';
-
-const ClassItem = ({ item }: { item: SchoolClass }) => {
-  return (
-    <View style={styles.card}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Text style={styles.title} numberOfLines={1}>{item.name}</Text>
-        <Text style={styles.meta}>{item.grade || '—'}</Text>
-      </View>
-      {!!item.teacherName && (
-        <View style={styles.row}>
-          <MaterialIcons name="person" size={16} color="#888888" />
-          <Text style={styles.meta} numberOfLines={1}>{item.teacherName}</Text>
-        </View>
-      )}
-      {!!item.schedule && (
-        <View style={styles.row}>
-          <MaterialIcons name="schedule" size={16} color="#888888" />
-          <Text style={styles.meta} numberOfLines={1}>{item.schedule}</Text>
-        </View>
-      )}
-      <View style={styles.row}>
-        <MaterialIcons name="people" size={16} color="#888888" />
-        <Text style={styles.meta}>{item.studentsCount ?? 0}</Text>
-      </View>
-    </View>
-  );
-};
 
 const ClassesScreen: React.FC = () => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.secondary,
+    },
+    headerSection: {
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      paddingBottom: 8,
+    },
+    screenTitle: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: colors.text.primary,
+      marginBottom: 4,
+    },
+    screenSubtitle: {
+      fontSize: 14,
+      color: colors.text.secondary,
+    },
+    filtersSection: {
+      marginTop: 8,
+    },
+    searchBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginHorizontal: 16,
+      marginVertical: 8,
+      backgroundColor: colors.background.primary,
+      borderRadius: 16,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    searchInput: {
+      flex: 1,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      fontSize: 16,
+      color: colors.text.primary,
+    },
+    resultsHeader: {
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+    },
+    resultsText: {
+      fontSize: 14,
+      color: colors.text.secondary,
+      fontWeight: '500',
+    },
+    loadingWrap: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 64,
+    },
+    loadingText: {
+      fontSize: 14,
+      color: colors.text.secondary,
+      marginTop: 12,
+    },
+    emptyWrap: {
+      alignItems: 'center',
+      paddingVertical: 64,
+      paddingHorizontal: 32,
+    },
+    emptyTitle: {
+      fontSize: 18,
+      color: colors.text.primary,
+      marginTop: 16,
+      fontWeight: '600',
+    },
+    emptySubtitle: {
+      fontSize: 14,
+      color: colors.text.secondary,
+      marginTop: 8,
+      textAlign: 'center',
+      lineHeight: 20,
+    },
+    emptyListContent: {
+      flexGrow: 1,
+    },
+  });
   const { t } = useLanguage();
   const { currentSchool } = useSchool();
-  const { fetchRecords, loading } = useAirtable();
+  const navigation = useNavigation();
+  
   const [query, setQuery] = useState('');
-  const [items, setItems] = useState<SchoolClass[]>([]);
+  const [selectedGrade, setSelectedGrade] = useState('all');
+  const [classes, setClasses] = useState<SchoolClass[]>([]);
+  const [grades, setGrades] = useState<string[]>([]);
+  const [kpis, setKpis] = useState({
+    totalClasses: 0,
+    activeClasses: 0,
+    totalStudents: 0,
+    capacityUsage: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const load = useCallback(async () => {
-    if (!currentSchool) return;
-    const records = await fetchRecords(TABLE, {
-      filterByFormula: `{School ID} = '${currentSchool.id}'`,
-      sort: [{ field: 'name', direction: 'asc' }],
-      pageSize: 50,
-    });
-    const mapped = (records || []).map((r) => {
-      const f = r.fields || {};
-      const teacherName = Array.isArray(f.teacherName) ? f.teacherName[0] : (f.teacherName || f['Teacher Name'] || '');
-      return {
-        id: r.id,
-        name: f.name || f['Class Name'] || '—',
-        grade: f.grade || f.Grade,
-        teacherName,
-        schedule: f.schedule || f.Schedule,
-        studentsCount: typeof f.studentsCount === 'number' ? f.studentsCount : (Array.isArray(f.students) ? f.students.length : undefined),
-      } as SchoolClass;
-    });
-    setItems(mapped);
-  }, [currentSchool, fetchRecords]);
+  const loadKPIs = useCallback(async () => {
+    if (!currentSchool?.id) return;
+    
+    try {
+      const kpisData = await getClassKPIs(currentSchool.id);
+      setKpis(kpisData);
+    } catch (error) {
+      console.error('Error loading class KPIs:', error);
+    }
+  }, [currentSchool]);
+
+  const loadGrades = useCallback(async () => {
+    if (!currentSchool?.id) return;
+    
+    try {
+      const gradesData = await getClassGrades(currentSchool.id);
+      setGrades(gradesData);
+    } catch (error) {
+      console.error('Error loading grades:', error);
+    }
+  }, [currentSchool]);
+
+  const loadClasses = useCallback(async () => {
+    if (!currentSchool?.id) return;
+    
+    try {
+      setLoading(true);
+      const { classes: classesData } = await getClasses(currentSchool.id, {
+        search: query,
+        grade: selectedGrade !== 'all' ? selectedGrade : undefined,
+        limit: 100,
+      });
+      setClasses(classesData);
+    } catch (error) {
+      console.error('Error loading classes:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [currentSchool, query, selectedGrade]);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    loadKPIs();
+    loadGrades();
+  }, [loadKPIs, loadGrades]);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter((it) => [it.name, it.grade, it.teacherName, it.schedule].filter(Boolean).some((v) => String(v).toLowerCase().includes(q)));
-  }, [items, query]);
+  useEffect(() => {
+    loadClasses();
+  }, [loadClasses]);
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadKPIs();
+    loadGrades();
+    loadClasses();
+  }, [loadKPIs, loadGrades, loadClasses]);
+
+  const handleClassPress = useCallback((classId: string) => {
+    // @ts-ignore - Navigation types to be added
+    navigation.navigate('ClassDetail', { classId });
+  }, [navigation]);
+
+  // Build KPI items
+  const kpiItems: KpiItem[] = [
+    {
+      icon: 'class',
+      label: t('school.classes.kpis.total'),
+      value: kpis.totalClasses,
+      color: '#0B5FFF',
+      iconColor: '#0B5FFF',
+    },
+    {
+      icon: 'check-circle',
+      label: t('school.classes.kpis.active'),
+      value: kpis.activeClasses,
+      color: '#10B981',
+      iconColor: '#10B981',
+    },
+    {
+      icon: 'people',
+      label: t('school.classes.kpis.students'),
+      value: kpis.totalStudents,
+      color: '#8B5CF6',
+      iconColor: '#8B5CF6',
+    },
+    {
+      icon: 'pie-chart',
+      label: t('school.classes.kpis.capacity'),
+      value: `${kpis.capacityUsage}%`,
+      color: '#F59E0B',
+      iconColor: '#F59E0B',
+    },
+  ];
+
+  // Build grade filter options
+  const gradeOptions: FilterOption[] = [
+    { id: 'all', label: t('school.classes.filters.allGrades') },
+    ...grades.map((grade) => ({ id: grade, label: grade })),
+  ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F9FAFC' }}>
+    <View style={styles.container}>
       <SchoolHeader />
-      <View style={styles.searchBar}>
-        <MaterialIcons name="search" size={20} color="#888888" />
-        <TextInput
-          placeholder={t('school.classes.searchPlaceholder')}
-          placeholderTextColor="#888888"
-          value={query}
-          onChangeText={setQuery}
-          style={styles.searchInput}
-        />
-      </View>
-      {loading ? (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color="#0B5FFF" />
-          <Text style={styles.loadingText}>{t('school.common.loading')}</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={filtered}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <ClassItem item={item} />}
-          ListEmptyComponent={
+      
+      <FlatList
+        data={classes}
+        keyExtractor={(item) => item.id}
+        ListHeaderComponent={
+          <>
+            {/* Header Section */}
+            <View style={styles.headerSection}>
+              <Text style={styles.screenTitle}>{t('school.classes.title')}</Text>
+              <Text style={styles.screenSubtitle}>{t('school.classes.subtitle')}</Text>
+            </View>
+
+            {/* KPI Cards */}
+            <KpiRow kpis={kpiItems} />
+
+            {/* Search & Filters Section */}
+            <View style={styles.filtersSection}>
+              {/* Search Bar */}
+              <View style={styles.searchBar}>
+                <MaterialIcons name="search" size={20} color={colors.text.secondary} />
+                <TextInput
+                  placeholder={t('school.classes.searchPlaceholder')}
+                  placeholderTextColor={colors.text.secondary}
+                  value={query}
+                  onChangeText={setQuery}
+                  style={styles.searchInput}
+                />
+              </View>
+
+              {/* Grade Filter */}
+              {grades.length > 0 && (
+                <FilterChips
+                  options={gradeOptions}
+                  selected={selectedGrade}
+                  onSelect={setSelectedGrade}
+                />
+              )}
+            </View>
+
+            {/* Results Count */}
+            <View style={styles.resultsHeader}>
+              <Text style={styles.resultsText}>
+                {t('school.classes.showing')} {classes.length} {classes.length === 1 ? t('school.classes.class') : t('school.classes.classes')}
+              </Text>
+            </View>
+          </>
+        }
+        renderItem={({ item }) => (
+          <ClassListItem
+            classData={item}
+            onPress={() => handleClassPress(item.id)}
+          />
+        )}
+        ListEmptyComponent={
+          loading ? (
+            <View style={styles.loadingWrap}>
+              <ActivityIndicator color="#0B5FFF" size="large" />
+              <Text style={styles.loadingText}>{t('school.common.loading')}</Text>
+            </View>
+          ) : (
             <View style={styles.emptyWrap}>
-              <MaterialIcons name="class" size={48} color="#D0D4DA" />
+              <MaterialIcons name="class" size={64} color="#D0D4DA" />
               <Text style={styles.emptyTitle}>{t('school.classes.noClasses')}</Text>
               <Text style={styles.emptySubtitle}>{t('school.classes.noClassesSubtitle')}</Text>
             </View>
-          }
-        />
-      )}
+          )
+        }
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor="#0B5FFF"
+            colors={['#0B5FFF']}
+          />
+        }
+        contentContainerStyle={classes.length === 0 ? styles.emptyListContent : undefined}
+      />
     </View>
   );
 };
 
 export default ClassesScreen;
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    marginHorizontal: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#EEF2F7',
-  },
-  title: { fontSize: 16, fontWeight: '600', color: '#333333' },
-  meta: { fontSize: 12, color: '#888888', marginLeft: 6 },
-  row: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    marginTop: 12,
-    marginBottom: 8,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#EEF2F7',
-  },
-  searchInput: { flex: 1, paddingHorizontal: 8, paddingVertical: 6, fontSize: 16 },
-  loadingText: { fontSize: 12, color: '#888888', marginTop: 8 },
-  emptyWrap: { alignItems: 'center', marginTop: 48, paddingHorizontal: 24 },
-  emptyTitle: { fontSize: 16, color: '#333333', marginTop: 12 },
-  emptySubtitle: { fontSize: 12, color: '#888888', marginTop: 4, textAlign: 'center' },
-});
 
 

@@ -12,7 +12,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Modal, Pressable, Animated, PanResponder } from 'react-native';
 import { PinchGestureHandler, PanGestureHandler, State } from 'react-native-gesture-handler';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { colors, spacing, typography } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { Post } from '../../screens/FeedScreen';
 
 const { width } = Dimensions.get('window');
@@ -35,7 +35,7 @@ const getRoleBadge = (role: string) => {
     case 'student':
       return { icon: '👦', label: 'Student', color: '#FF9800' };
     default:
-      return { icon: '👤', label: 'User', color: colors.text.secondary };
+      return { icon: '👤', label: 'User', color: colors.text.secondary }; // Hardcoded fallback
   }
 };
 
@@ -59,6 +59,55 @@ export const PostCard: React.FC<PostCardProps> = ({
   onSave,
   onReport,
 }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      backgroundColor: colors.background.primary,
+      borderRadius: 12,
+      padding: spacing.md,
+      marginBottom: spacing.sm,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing.md,
+    },
+    authorInfo: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+    avatar: { width: 40, height: 40, borderRadius: 20, marginRight: spacing.sm },
+    authorDetails: { flex: 1 },
+    authorName: { fontSize: typography.fontSize.md, fontFamily: typography.fontFamily.semiBold, color: colors.text.primary, marginBottom: spacing.xs },
+    roleContainer: { flexDirection: 'row', alignItems: 'center' },
+    roleIcon: { fontSize: 16, marginRight: spacing.xs },
+    roleLabel: { fontSize: typography.fontSize.xs, fontFamily: typography.fontFamily.medium },
+    timestamp: { fontSize: typography.fontSize.xs, color: colors.text.light },
+    content: { marginBottom: spacing.md },
+    postText: { fontSize: 16, color: colors.text.primary, lineHeight: 22, marginBottom: spacing.sm },
+    mediaImage: { width: '100%', height: 200, borderRadius: 8, marginBottom: spacing.sm },
+    lightboxBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.9)' },
+    lightboxHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.xl, paddingBottom: spacing.md },
+    lightboxInstructions: { color: 'white', fontSize: typography.fontSize.sm, opacity: 0.8 },
+    closeButton: { padding: spacing.sm, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.2)' },
+    lightboxImageContainer: { position: 'absolute', top: 60, left: 0, right: 0, bottom: 60, justifyContent: 'center', alignItems: 'center' },
+    lightboxImage: { width: width - 40, height: '80%', maxWidth: width - 40, maxHeight: '80%' },
+    videoContainer: { position: 'relative', marginBottom: spacing.sm },
+    playButton: { position: 'absolute', top: '50%', left: '50%', transform: [{ translateX: -20 }, { translateY: -20 }], backgroundColor: 'rgba(0, 0, 0, 0.6)', borderRadius: 20, width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+    subjectsContainer: { flexDirection: 'row', flexWrap: 'wrap', marginTop: spacing.sm },
+    subjectTag: { backgroundColor: colors.background.secondary, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 12, marginRight: spacing.xs, marginBottom: spacing.xs },
+    subjectText: { fontSize: typography.fontSize.xs, color: colors.primary, fontFamily: typography.fontFamily.medium },
+    interactions: { flexDirection: 'row', justifyContent: 'space-between', paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border.light },
+    interactionButton: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.xs, paddingHorizontal: spacing.sm },
+    interactionCount: { fontSize: typography.fontSize.xs, color: colors.text.secondary, marginLeft: spacing.xs },
+  }); 
+
   const { t } = useLanguage();
   const roleBadge = getRoleBadge(post.author.role);
   const [showImage, setShowImage] = useState(false);
@@ -298,7 +347,7 @@ export const PostCard: React.FC<PostCardProps> = ({
             styles.postText,
             {
               fontFamily: Platform.select({ ios: 'System', android: 'sans-serif' }),
-              color: '#1A1A1A',
+              color: colors.text.primary,
               fontSize: 16,
             },
           ]}
@@ -352,50 +401,3 @@ export const PostCard: React.FC<PostCardProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: colors.background.primary,
-    borderRadius: 12,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.md,
-  },
-  authorInfo: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  avatar: { width: 40, height: 40, borderRadius: 20, marginRight: spacing.sm },
-  authorDetails: { flex: 1 },
-  authorName: { fontSize: typography.fontSize.md, fontFamily: typography.fontFamily.semiBold, color: colors.text.primary, marginBottom: spacing.xs },
-  roleContainer: { flexDirection: 'row', alignItems: 'center' },
-  roleIcon: { fontSize: 16, marginRight: spacing.xs },
-  roleLabel: { fontSize: typography.fontSize.xs, fontFamily: typography.fontFamily.medium },
-  timestamp: { fontSize: typography.fontSize.xs, color: colors.text.light },
-  content: { marginBottom: spacing.md },
-  postText: { fontSize: 16, color: '#1A1A1A', lineHeight: 22, marginBottom: spacing.sm },
-  mediaImage: { width: '100%', height: 200, borderRadius: 8, marginBottom: spacing.sm },
-  lightboxBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.9)' },
-  lightboxHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.xl, paddingBottom: spacing.md },
-  lightboxInstructions: { color: 'white', fontSize: typography.fontSize.sm, opacity: 0.8 },
-  closeButton: { padding: spacing.sm, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.2)' },
-  lightboxImageContainer: { position: 'absolute', top: 60, left: 0, right: 0, bottom: 60, justifyContent: 'center', alignItems: 'center' },
-  lightboxImage: { width: width - 40, height: '80%', maxWidth: width - 40, maxHeight: '80%' },
-  videoContainer: { position: 'relative', marginBottom: spacing.sm },
-  playButton: { position: 'absolute', top: '50%', left: '50%', transform: [{ translateX: -20 }, { translateY: -20 }], backgroundColor: 'rgba(0, 0, 0, 0.6)', borderRadius: 20, width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  subjectsContainer: { flexDirection: 'row', flexWrap: 'wrap', marginTop: spacing.sm },
-  subjectTag: { backgroundColor: colors.background.secondary, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 12, marginRight: spacing.xs, marginBottom: spacing.xs },
-  subjectText: { fontSize: typography.fontSize.xs, color: colors.primary, fontFamily: typography.fontFamily.medium },
-  interactions: { flexDirection: 'row', justifyContent: 'space-between', paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border.light },
-  interactionButton: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.xs, paddingHorizontal: spacing.sm },
-  interactionCount: { fontSize: typography.fontSize.xs, color: colors.text.secondary, marginLeft: spacing.xs },
-}); 

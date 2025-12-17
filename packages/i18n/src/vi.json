@@ -69,6 +69,11 @@
       "password": "Mật Khẩu",
       "passwordHint": "Mật khẩu được quản lý bởi nhà cung cấp xác thực (Google)",
       "resetPassword": "Đặt lại qua Tài khoản Google",
+      "editProfile": "Chỉnh Sửa Hồ Sơ",
+      "avatarPermissionDenied": "Vui lòng cho phép truy cập thư viện ảnh để tải lên ảnh đại diện.",
+      "avatarUploadSuccess": "Đã cập nhật ảnh đại diện thành công",
+      "updateSuccess": "Đã cập nhật hồ sơ thành công",
+      "phonePlaceholder": "+84..."
       "twoFactor": "Xác Thực Hai Yếu Tố",
       "twoFactorHint": "Thêm một lớp bảo mật cho tài khoản của bạn",
       "enabled": "Đã Bật",
@@ -82,7 +87,9 @@
       "system": "Hệ Thống",
       "light": "Sáng",
       "dark": "Tối",
-      "timezone": "Múi Giờ"
+      "timezone": "Múi Giờ",
+      "themeUpdated": "Đã cập nhật giao diện",
+      "timezoneUpdated": "Đã cập nhật múi giờ"
     },
     "notifications": {
       "title": "Tùy Chọn Thông Báo",
@@ -91,6 +98,7 @@
       "enablePush": "Bật Thông Báo Đẩy",
       "pushEnabled": "Đã Bật Thông Báo Đẩy",
       "pushError": "Không thể bật thông báo đẩy",
+      "pushDescription": "Thông báo đẩy đã được bật trên thiết bị này",
       "topics": {
         "announcements": "Thông Báo",
         "homework": "Bài Tập",
@@ -151,7 +159,12 @@
       "connectedOn": "Kết nối ngày",
       "testMode": "Chế Độ Thử Nghiệm",
       "fromNumber": "Số Gửi",
-      "payments": {
+      "payments": "Thanh Toán",
+      "pushNotifications": "Thông Báo Đẩy",
+      "sms": "SMS",
+      "connected": "Đã Kết Nối",
+      "notConnected": "Chưa Kết Nối",
+      "paymentsDetail": {
         "title": "Thanh Toán",
         "description": "Nhận thanh toán từ phụ huynh qua Stripe hoặc MoMo"
       },
@@ -167,31 +180,78 @@
     "privacy": {
       "title": "Cài Đặt Quyền Riêng Tư",
       "description": "Quản lý dữ liệu và tùy chọn quyền riêng tư của bạn",
-      "dataVisibility": {
-        "title": "Hiển Thị Dữ Liệu",
-        "description": "Thông tin hồ sơ của bạn chỉ hiển thị với quản trị viên và giáo viên của trường",
-        "schoolOnly": "Chỉ Trường"
-      },
-      "dataExport": {
+      "matters": "Quyền Riêng Tư Của Bạn Quan Trọng",
+      "dataVisibility": "Hiển Thị Dữ Liệu",
+      "dataVisibilityDescription": "Chọn ai có thể xem thông tin của bạn",
+      "schoolOnly": "Chỉ Trường",
+      "exportData": {
         "title": "Xuất Dữ Liệu",
-        "description": "Tải xuống bản sao tất cả dữ liệu của bạn được lưu trữ trong Tuto",
-        "comingSoon": "Sắp Ra Mắt"
+        "description": "Tải xuống bản sao tất cả dữ liệu của bạn",
+        "button": "Xuất Dữ Liệu",
+        "comingSoon": "Tính năng xuất dữ liệu sắp ra mắt"
       },
       "deleteAccount": {
         "title": "Xóa Tài Khoản",
-        "description": "Xóa vĩnh viễn tài khoản và tất cả dữ liệu liên quan",
-        "contactAdmin": "Để xóa tài khoản, vui lòng liên hệ quản trị viên trường"
+        "description": "Xóa vĩnh viễn tài khoản và tất cả dữ liệu",
+        "warning": "Hành động này không thể hoàn tác",
+        "warningDescription": "Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn",
+        "contactAdmin": "Liên Hệ Quản Trị Viên Trường"
       },
-      "links": {
-        "title": "Tài Liệu Pháp Lý",
-        "privacyPolicy": "Chính Sách Bảo Mật",
-        "termsOfService": "Điều Khoản Dịch Vụ",
-        "dataRetention": "Chính Sách Lưu Giữ Dữ Liệu"
-      }
+      "legalDocuments": "Tài Liệu Pháp Lý",
+      "privacyPolicy": "Chính Sách Bảo Mật",
+      "termsOfService": "Điều Khoản Dịch Vụ",
+      "dataRetentionPolicy": "Chính Sách Lưu Giữ Dữ Liệu",
+      "yourRights": "Quyền Riêng Tư Của Bạn",
+      "rightsDescription": "Bạn có quyền truy cập, sửa đổi hoặc xóa dữ liệu cá nhân của mình. Liên hệ với chúng tôi để được hỗ trợ.",
+      "openUrlError": "Không thể mở liên kết",
+      "mailtoError": "Không thể mở ứng dụng email"
     },
     "toasts": {
       "saved": "Đã lưu cài đặt thành công",
       "error": "Không thể lưu cài đặt. Vui lòng thử lại."
+    },
+    "role": {
+      "admin": "Quản Trị",
+      "parent": "Phụ Huynh"
+    },
+    "signOut": {
+      "title": "Đăng Xuất",
+      "message": "Bạn có chắc muốn đăng xuất?",
+      "confirm": "Đăng Xuất",
+      "button": "Đăng Xuất"
+    },
+    "device": {
+      "title": "Thiết Bị & Ứng Dụng",
+      "security": "Bảo Mật & Xác Thực",
+      "biometricHint": "Sử dụng Face ID hoặc vân tay để mở khóa ứng dụng",
+      "notifications": "Thông Báo & Cảnh Báo",
+      "pushNotifications": "Thông Báo Đẩy",
+      "pushDescription": "Nhận thông báo đẩy trên thiết bị này",
+      "soundAlerts": "Cảnh Báo Âm Thanh",
+      "soundDescription": "Phát âm thanh cho thông báo trong ứng dụng",
+      "vibrationAlerts": "Cảnh Báo Rung",
+      "vibrationDescription": "Rung cho thông báo trong ứng dụng",
+      "dataUsage": "Sử Dụng Dữ Liệu",
+      "dataSaver": "Tiết Kiệm Dữ Liệu",
+      "dataSaverDescription": "Tải hình ảnh độ phân giải thấp hơn để tiết kiệm dữ liệu",
+      "wifiOnly": "Chỉ Tải Qua Wi-Fi",
+      "wifiOnlyDescription": "Chỉ tải phương tiện nặng khi có Wi-Fi",
+      "dataUsageTip": "Các cài đặt này giúp bạn tiết kiệm dữ liệu và giảm việc sử dụng dữ liệu di động."
+    },
+    "about": {
+      "title": "Giới Thiệu & Pháp Lý",
+      "tagline": "Kết nối trường học, giáo viên và gia đình",
+      "appInfo": "Thông Tin Ứng Dụng",
+      "version": "Phiên Bản",
+      "buildNumber": "Số Bản Dựng",
+      "platform": "Nền Tảng",
+      "lastUpdated": "Cập Nhật Lần Cuối",
+      "legalDocuments": "Tài Liệu Pháp Lý",
+      "resources": "Tài Nguyên & Hỗ Trợ",
+      "helpCenter": "Trung Tâm Trợ Giúp",
+      "contactSupport": "Liên Hệ Hỗ Trợ",
+      "openSource": "Giấy Phép Mã Nguồn Mở",
+      "madeWith": "Được tạo bằng ❤️ cho giáo dục"
     }
   },
   "dailyActivities": "Hoạt Động Hằng Ngày",
@@ -983,7 +1043,8 @@
         "error": "Không thể tạo bài tập",
         "required": "Bắt buộc",
         "fillAllFields": "Vui lòng điền đầy đủ các trường bắt buộc",
-        "selectAtLeastOneClass": "Vui lòng chọn ít nhất một lớp"
+        "selectAtLeastOneClass": "Vui lòng chọn ít nhất một lớp",
+        "totalTasks": "Tổng Số Nhiệm Vụ"
       },
       "detailDrawer": {
         "title": "Chi Tiết Bài Tập",

@@ -5,6 +5,7 @@ import { useAirtable } from '../../hooks/useAirtable';
 import { useSchool } from '../../contexts/SchoolContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import SchoolHeader from '../../components/common/SchoolHeader';
+import { useTheme } from '../../contexts/ThemeContext';
 
 type SchoolHomework = {
   id: string;
@@ -53,6 +54,44 @@ const HomeworkItem = ({ item }: { item: SchoolHomework }) => {
 };
 
 const HomeworkScreen: React.FC = () => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+  const styles = StyleSheet.create({
+    card: {
+      backgroundColor: colors.background.primary,
+      borderRadius: 16,
+      padding: 16,
+      marginHorizontal: 16,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+    },
+    title: { fontSize: 16, fontWeight: '600', color: colors.text.primary, flex: 1, marginRight: 8 },
+    metaRow: { flexDirection: 'row', alignItems: 'center' },
+    meta: { fontSize: 12, color: colors.text.secondary, marginLeft: 6 },
+    statusPill: { backgroundColor: '#F0F4FF', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 },
+    statusText: { fontSize: 12, fontWeight: '600', color: '#0B5FFF' },
+    duePill: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#E8F2FF', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 },
+    dueText: { color: '#0B5FFF', fontSize: 12, marginLeft: 4, fontWeight: '600' },
+    searchBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginHorizontal: 16,
+      marginTop: 12,
+      marginBottom: 8,
+      backgroundColor: colors.background.primary,
+      borderRadius: 16,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+    },
+    searchInput: { flex: 1, paddingHorizontal: 8, paddingVertical: 6, fontSize: 16 },
+    loadingText: { fontSize: 12, color: colors.text.secondary, marginTop: 8 },
+    emptyWrap: { alignItems: 'center', marginTop: 48, paddingHorizontal: 24 },
+    emptyTitle: { fontSize: 16, color: colors.text.primary, marginTop: 12 },
+    emptySubtitle: { fontSize: 12, color: colors.text.secondary, marginTop: 4, textAlign: 'center' },
+  });
   const { t } = useLanguage();
   const { currentSchool } = useSchool();
   const { fetchRecords, loading } = useAirtable();
@@ -91,7 +130,7 @@ const HomeworkScreen: React.FC = () => {
   }, [items, query]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F9FAFC' }}>
+    <View style={{ flex: 1, backgroundColor: colors.background.secondary }}>
       <SchoolHeader />
       <View style={styles.searchBar}>
         <MaterialIcons name="search" size={20} color="#888888" />
@@ -129,41 +168,5 @@ const HomeworkScreen: React.FC = () => {
 
 export default HomeworkScreen;
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    marginHorizontal: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#EEF2F7',
-  },
-  title: { fontSize: 16, fontWeight: '600', color: '#333333', flex: 1, marginRight: 8 },
-  metaRow: { flexDirection: 'row', alignItems: 'center' },
-  meta: { fontSize: 12, color: '#888888', marginLeft: 6 },
-  statusPill: { backgroundColor: '#F0F4FF', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 },
-  statusText: { fontSize: 12, fontWeight: '600', color: '#0B5FFF' },
-  duePill: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#E8F2FF', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 },
-  dueText: { color: '#0B5FFF', fontSize: 12, marginLeft: 4, fontWeight: '600' },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    marginTop: 12,
-    marginBottom: 8,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#EEF2F7',
-  },
-  searchInput: { flex: 1, paddingHorizontal: 8, paddingVertical: 6, fontSize: 16 },
-  loadingText: { fontSize: 12, color: '#888888', marginTop: 8 },
-  emptyWrap: { alignItems: 'center', marginTop: 48, paddingHorizontal: 24 },
-  emptyTitle: { fontSize: 16, color: '#333333', marginTop: 12 },
-  emptySubtitle: { fontSize: 12, color: '#888888', marginTop: 4, textAlign: 'center' },
-});
 
 

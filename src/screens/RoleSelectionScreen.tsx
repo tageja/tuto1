@@ -19,9 +19,9 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useUser } from '../contexts/UserContext';
 import { useSchool } from '../contexts/SchoolContext';
 import { validateSchoolCode } from '../services/schoolCode';
-import { colors, spacing, typography } from '../theme';
-import { Backend } from '../services/backend';
+// import { Backend } from '../services/backend';
 import { getAuthSafe } from '../config/firebase';
+import { useTheme } from '../contexts/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -30,8 +30,175 @@ interface RoleSelectionScreenProps {
 }
 
 export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({ navigation }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: spacing.lg,
+      justifyContent: 'space-between',
+    },
+    header: {
+      alignItems: 'center',
+      paddingTop: spacing.xl * 2,
+      paddingBottom: spacing.xl,
+    },
+    logo: {
+      height: 40,
+      width: 120,
+      marginBottom: spacing.xl,
+    },
+    title: {
+      fontSize: typography.fontSize.xxl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      textAlign: 'center',
+      marginBottom: spacing.sm,
+    },
+    subtitle: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+      textAlign: 'center',
+      lineHeight: typography.lineHeight.normal * typography.fontSize.md,
+    },
+    roleContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      gap: spacing.xl,
+    },
+    roleCard: {
+      backgroundColor: colors.background.secondary,
+      borderRadius: 20,
+      padding: spacing.xl,
+      alignItems: 'center',
+      borderWidth: 2,
+      borderColor: colors.border.light,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.15,
+      shadowRadius: 12,
+      elevation: 6,
+    },
+    roleIconContainer: {
+      alignItems: 'center',
+      marginBottom: spacing.lg,
+    },
+    roleTitle: {
+      fontSize: typography.fontSize.xl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      textAlign: 'center',
+    },
+    footer: {
+      alignItems: 'center',
+      paddingBottom: spacing.lg,
+    },
+    footerText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.secondary,
+      textAlign: 'center',
+    },
+    // Modal Styles
+    modalContainer: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'flex-end',
+    },
+    modalContent: {
+      backgroundColor: colors.background.primary,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      maxHeight: '70%',
+      minHeight: 400,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    closeButton: {
+      padding: spacing.xs,
+    },
+    modalTitle: {
+      fontSize: typography.fontSize.xl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      textAlign: 'center',
+    },
+    modalBody: {
+      padding: spacing.xl,
+      alignItems: 'center',
+    },
+    schoolIcon: {
+      marginBottom: spacing.lg,
+    },
+    modalSubtitle: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.secondary,
+      textAlign: 'center',
+      lineHeight: 22,
+      marginBottom: spacing.xl,
+    },
+    inputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      marginBottom: spacing.xl,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      width: '100%',
+    },
+    input: {
+      flex: 1,
+      fontSize: 16,
+      color: colors.text.primary,
+      marginLeft: 12,
+    },
+    submitButton: {
+      backgroundColor: colors.primary,
+      borderRadius: 12,
+      paddingVertical: 16,
+      alignItems: 'center',
+      width: '100%',
+      marginBottom: spacing.md,
+    },
+    submitButtonText: {
+      color: colors.white,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    disabledButton: {
+      opacity: 0.6,
+    },
+    cancelButton: {
+      paddingVertical: spacing.md,
+    },
+    cancelButtonText: {
+      color: colors.text.secondary,
+      fontSize: 16,
+      fontWeight: '500',
+    },
+  }); 
+
   const { t, language } = useLanguage();
-  const { setUserType } = useUser();
+  const { setUserType, setUserData } = useUser();
   const { joinSchool } = useSchool();
   const [pending, setPending] = useState(false);
   const [schoolCodeModal, setSchoolCodeModal] = useState<{
@@ -259,7 +426,7 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({ naviga
                   autoCapitalize="characters"
                   autoCorrect={false}
                   editable={!schoolCodeLoading}
-                  maxLength={10}
+                  maxLength={20}
                 />
               </View>
 
@@ -293,167 +460,3 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({ naviga
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: spacing.lg,
-    justifyContent: 'space-between',
-  },
-  header: {
-    alignItems: 'center',
-    paddingTop: spacing.xl * 2,
-    paddingBottom: spacing.xl,
-  },
-  logo: {
-    height: 40,
-    width: 120,
-    marginBottom: spacing.xl,
-  },
-  title: {
-    fontSize: typography.fontSize.xxl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    textAlign: 'center',
-    marginBottom: spacing.sm,
-  },
-  subtitle: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    lineHeight: typography.lineHeight.normal * typography.fontSize.md,
-  },
-  roleContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    gap: spacing.xl,
-  },
-  roleCard: {
-    backgroundColor: colors.background.secondary,
-    borderRadius: 20,
-    padding: spacing.xl,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: colors.border.light,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  roleIconContainer: {
-    alignItems: 'center',
-    marginBottom: spacing.lg,
-  },
-  roleTitle: {
-    fontSize: typography.fontSize.xl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    textAlign: 'center',
-  },
-  footer: {
-    alignItems: 'center',
-    paddingBottom: spacing.lg,
-  },
-  footerText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-    textAlign: 'center',
-  },
-  // Modal Styles
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: colors.background.primary,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: '70%',
-    minHeight: 400,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  closeButton: {
-    padding: spacing.xs,
-  },
-  modalTitle: {
-    fontSize: typography.fontSize.xl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    textAlign: 'center',
-  },
-  modalBody: {
-    padding: spacing.xl,
-    alignItems: 'center',
-  },
-  schoolIcon: {
-    marginBottom: spacing.lg,
-  },
-  modalSubtitle: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: spacing.xl,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: spacing.xl,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    width: '100%',
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: colors.text.primary,
-    marginLeft: 12,
-  },
-  submitButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: spacing.md,
-  },
-  submitButtonText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  disabledButton: {
-    opacity: 0.6,
-  },
-  cancelButton: {
-    paddingVertical: spacing.md,
-  },
-  cancelButtonText: {
-    color: colors.text.secondary,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-}); 

@@ -14,7 +14,7 @@ import { useSchool } from '../../contexts/SchoolContext';
 import { useAirtable } from '../../hooks/useAirtable';
 import { translations } from '../../translations';
 import SchoolHeader from '../../components/common/SchoolHeader';
-import { theme } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface DailyActivity {
   id: string;
@@ -36,6 +36,7 @@ interface DailyActivity {
 }
 
 const DailyActivitiesScreen: React.FC = () => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
   const navigation = useNavigation<any>();
   const { currentSchool, isSchoolMode } = useSchool();
   const [activities, setActivities] = useState<DailyActivity[]>([]);
@@ -93,7 +94,7 @@ const DailyActivitiesScreen: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Scheduled':
-        return theme.colors.primary;
+        return colors.primary;
       case 'In Progress':
         return '#FFA500';
       case 'Completed':
@@ -101,7 +102,7 @@ const DailyActivitiesScreen: React.FC = () => {
       case 'Cancelled':
         return '#F44336';
       default:
-        return theme.colors.disabled;
+        return colors.disabled;
     }
   };
 
@@ -136,33 +137,33 @@ const DailyActivitiesScreen: React.FC = () => {
 
       <View style={styles.activityDetails}>
         <View style={styles.detailRow}>
-          <MaterialIcons name="class" size={16} color={theme.colors.disabled} />
+          <MaterialIcons name="class" size={16} color={colors.disabled} />
           <Text style={styles.detailText}>{activity.fields['Class Name']}</Text>
         </View>
 
         <View style={styles.detailRow}>
-          <MaterialIcons name="event" size={16} color={theme.colors.disabled} />
+          <MaterialIcons name="event" size={16} color={colors.disabled} />
           <Text style={styles.detailText}>
             {formatDate(activity.fields['Date'])}
           </Text>
         </View>
 
         <View style={styles.detailRow}>
-          <MaterialIcons name="schedule" size={16} color={theme.colors.disabled} />
+          <MaterialIcons name="schedule" size={16} color={colors.disabled} />
           <Text style={styles.detailText}>
             {formatTime(activity.fields['Start Time'])} - {formatTime(activity.fields['End Time'])}
           </Text>
         </View>
 
         <View style={styles.detailRow}>
-          <MaterialIcons name="location-on" size={16} color={theme.colors.disabled} />
+          <MaterialIcons name="location-on" size={16} color={colors.disabled} />
           <Text style={styles.detailText} numberOfLines={1}>
             {activity.fields['Location'] || 'No location specified'}
           </Text>
         </View>
 
         <View style={styles.detailRow}>
-          <MaterialIcons name="category" size={16} color={theme.colors.disabled} />
+          <MaterialIcons name="category" size={16} color={colors.disabled} />
           <Text style={styles.detailText}>{activity.fields['Activity Type']}</Text>
         </View>
       </View>
@@ -230,63 +231,14 @@ const DailyActivitiesScreen: React.FC = () => {
 
   const filteredActivities = getFilteredActivities();
 
-  return (
-    <View style={styles.container}>
-      <SchoolHeader />
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <MaterialIcons name="arrow-back" size={24} color={theme.colors.onSurface} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t.dailyActivities.title}</Text>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => navigation.navigate('SchoolActivityDetail' as never)}
-        >
-          <MaterialIcons name="add" size={24} color={theme.colors.primary} />
-        </TouchableOpacity>
-      </View>
 
-      {renderFilterButtons()}
+  // Styles with dynamic theme
 
-      <ScrollView
-        style={styles.content}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>{t.common.loading}</Text>
-          </View>
-        ) : filteredActivities.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <MaterialIcons name="event-busy" size={64} color={theme.colors.disabled} />
-            <Text style={styles.emptyTitle}>{t.dailyActivities.noActivities}</Text>
-            <Text style={styles.emptySubtitle}>{t.dailyActivities.noActivitiesSubtitle}</Text>
-            <TouchableOpacity
-              style={styles.addFirstButton}
-              onPress={() => navigation.navigate('SchoolAddActivity' as never)}
-            >
-              <Text style={styles.addFirstButtonText}>{t.dailyActivities.addFirst}</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.activitiesList}>
-            {filteredActivities.map(renderActivityCard)}
-          </View>
-        )}
-      </ScrollView>
-    </View>
-  );
-};
 
-const styles = StyleSheet.create({
+  const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background.primary,
+    backgroundColor: colors.background.primary,
   },
   header: {
     flexDirection: 'row',
@@ -294,9 +246,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: theme.colors.surface,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: colors.border.light,
   },
   backButton: {
     padding: 8,
@@ -304,7 +256,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: theme.colors.onSurface,
+    color: colors.onSurface,
   },
   addButton: {
     padding: 8,
@@ -313,9 +265,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: theme.colors.surface,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: colors.border.light,
   },
   filterButton: {
     flex: 1,
@@ -323,15 +275,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginHorizontal: 4,
     borderRadius: 20,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: colors.background.tertiary,
     alignItems: 'center',
   },
   filterButtonActive: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: colors.primary,
   },
   filterButtonText: {
     fontSize: 14,
-    color: theme.colors.disabled,
+    color: colors.disabled,
     fontWeight: '500',
   },
   filterButtonTextActive: {
@@ -348,7 +300,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: theme.colors.disabled,
+    color: colors.disabled,
   },
   emptyContainer: {
     flex: 1,
@@ -360,13 +312,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: theme.colors.onSurface,
+    color: colors.onSurface,
     marginTop: 16,
     textAlign: 'center',
   },
   emptySubtitle: {
     fontSize: 14,
-    color: theme.colors.disabled,
+    color: colors.disabled,
     marginTop: 8,
     textAlign: 'center',
     lineHeight: 20,
@@ -375,7 +327,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     paddingVertical: 12,
     paddingHorizontal: 24,
-    backgroundColor: theme.colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 24,
   },
   addFirstButtonText: {
@@ -387,7 +339,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   activityCard: {
-    backgroundColor: theme.colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -406,7 +358,7 @@ const styles = StyleSheet.create({
   activityTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: theme.colors.onSurface,
+    color: colors.onSurface,
     flex: 1,
     marginRight: 12,
   },
@@ -430,16 +382,70 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 14,
-    color: theme.colors.onSurface,
+    color: colors.onSurface,
     marginLeft: 8,
     flex: 1,
   },
   description: {
     fontSize: 14,
-    color: theme.colors.disabled,
+    color: colors.disabled,
     lineHeight: 20,
   },
 });
+
+
+  return (
+    <View style={styles.container}>
+      <SchoolHeader />
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <MaterialIcons name="arrow-back" size={24} color={colors.onSurface} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{t.dailyActivities.title}</Text>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => navigation.navigate('SchoolActivityDetail' as never)}
+        >
+          <MaterialIcons name="add" size={24} color={colors.primary} />
+        </TouchableOpacity>
+      </View>
+
+      {renderFilterButtons()}
+
+      <ScrollView
+        style={styles.content}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>{t.common.loading}</Text>
+          </View>
+        ) : filteredActivities.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <MaterialIcons name="event-busy" size={64} color={colors.disabled} />
+            <Text style={styles.emptyTitle}>{t.dailyActivities.noActivities}</Text>
+            <Text style={styles.emptySubtitle}>{t.dailyActivities.noActivitiesSubtitle}</Text>
+            <TouchableOpacity
+              style={styles.addFirstButton}
+              onPress={() => navigation.navigate('SchoolAddActivity' as never)}
+            >
+              <Text style={styles.addFirstButtonText}>{t.dailyActivities.addFirst}</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.activitiesList}>
+            {filteredActivities.map(renderActivityCard)}
+          </View>
+        )}
+      </ScrollView>
+    </View>
+  );
+};
 
 export default DailyActivitiesScreen;
 

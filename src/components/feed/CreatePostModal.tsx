@@ -15,7 +15,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { logDebug, logError, logWarn } from '../../services/logger';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useUser } from '../../contexts/UserContext';
-import { colors, spacing, typography } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { subjects } from '../../data/subjects';
 
 interface CreatePostModalProps {
@@ -36,6 +36,162 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   onClose,
   onSubmit,
   }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    cancelButton: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.secondary,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+    },
+    postButton: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.primary,
+    },
+    postButtonDisabled: {
+      color: colors.text.light,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: spacing.lg,
+    },
+    userInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: spacing.md,
+    },
+    avatarPlaceholder: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.background.secondary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: spacing.sm,
+    },
+    userDetails: {
+      flex: 1,
+    },
+    userName: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.text.primary,
+    },
+    postPrivacy: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+    },
+    textInput: {
+      fontSize: typography.fontSize.lg,
+      color: colors.text.primary,
+      minHeight: 120,
+      paddingVertical: spacing.md,
+      textAlignVertical: 'top',
+    },
+    mediaSection: {
+      marginTop: spacing.lg,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.text.primary,
+      marginBottom: spacing.sm,
+    },
+    mediaButtons: {
+      flexDirection: 'row',
+      gap: spacing.md,
+    },
+    mediaButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.background.secondary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: 8,
+      flex: 1,
+    },
+    mediaButtonText: {
+      marginLeft: spacing.xs,
+      fontSize: typography.fontSize.sm,
+      color: colors.text.primary,
+    },
+    mediaPreview: {
+      marginTop: spacing.md,
+      position: 'relative',
+    },
+    mediaImage: {
+      width: '100%',
+      height: 200,
+      borderRadius: 8,
+    },
+    removeMediaButton: {
+      position: 'absolute',
+      top: spacing.xs,
+      right: spacing.xs,
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+      borderRadius: 12,
+      width: 24,
+      height: 24,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    subjectsSection: {
+      marginTop: spacing.lg,
+    },
+    subjectsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.xs,
+    },
+    subjectChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.background.secondary,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+    },
+    selectedSubjectChip: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    subjectChipText: {
+      marginLeft: spacing.xs,
+      fontSize: typography.fontSize.xs,
+      color: colors.text.primary,
+    },
+    selectedSubjectChipText: {
+      color: colors.background.primary,
+    },
+    characterCount: {
+      textAlign: 'right',
+      fontSize: typography.fontSize.xs,
+      color: colors.text.light,
+      marginTop: spacing.md,
+      marginBottom: spacing.lg,
+    },
+  }); 
+
   const { t } = useLanguage();
   const { userType } = useUser();
   
@@ -264,157 +420,3 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  cancelButton: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.secondary,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-  },
-  postButton: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.primary,
-  },
-  postButtonDisabled: {
-    color: colors.text.light,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: spacing.lg,
-  },
-  userInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-  },
-  avatarPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.background.secondary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.sm,
-  },
-  userDetails: {
-    flex: 1,
-  },
-  userName: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.text.primary,
-  },
-  postPrivacy: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-  },
-  textInput: {
-    fontSize: typography.fontSize.lg,
-    color: colors.text.primary,
-    minHeight: 120,
-    paddingVertical: spacing.md,
-    textAlignVertical: 'top',
-  },
-  mediaSection: {
-    marginTop: spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.text.primary,
-    marginBottom: spacing.sm,
-  },
-  mediaButtons: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  mediaButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background.secondary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: 8,
-    flex: 1,
-  },
-  mediaButtonText: {
-    marginLeft: spacing.xs,
-    fontSize: typography.fontSize.sm,
-    color: colors.text.primary,
-  },
-  mediaPreview: {
-    marginTop: spacing.md,
-    position: 'relative',
-  },
-  mediaImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 8,
-  },
-  removeMediaButton: {
-    position: 'absolute',
-    top: spacing.xs,
-    right: spacing.xs,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    borderRadius: 12,
-    width: 24,
-    height: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  subjectsSection: {
-    marginTop: spacing.lg,
-  },
-  subjectsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
-  },
-  subjectChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background.secondary,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-  },
-  selectedSubjectChip: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  subjectChipText: {
-    marginLeft: spacing.xs,
-    fontSize: typography.fontSize.xs,
-    color: colors.text.primary,
-  },
-  selectedSubjectChipText: {
-    color: colors.background.primary,
-  },
-  characterCount: {
-    textAlign: 'right',
-    fontSize: typography.fontSize.xs,
-    color: colors.text.light,
-    marginTop: spacing.md,
-    marginBottom: spacing.lg,
-  },
-}); 

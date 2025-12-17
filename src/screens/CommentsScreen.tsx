@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { colors, spacing, typography } from '../theme';
+
 import { useAirtable } from '../hooks/useAirtable';
 import { useUser } from '../contexts/UserContext';
 
@@ -12,6 +12,77 @@ interface CommentsScreenProps {
 }
 
 export const CommentsScreen: React.FC<CommentsScreenProps> = ({ navigation, route }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background.primary },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.text.primary,
+    },
+    commentItem: {
+      flexDirection: 'row',
+      marginBottom: spacing.md,
+    },
+    commentAuthor: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.primary,
+    },
+    commentText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+    },
+    commentTime: {
+      fontSize: typography.fontSize.xs,
+      color: colors.text.secondary,
+      marginTop: 2,
+    },
+    empty: { alignItems: 'center', marginTop: spacing.xl },
+    emptyText: { 
+      color: colors.text.secondary,
+      fontSize: typography.fontSize.md,
+      textAlign: 'center',
+      fontFamily: 'Inter',
+      writingDirection: 'ltr',
+    },
+    inputBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: colors.border.light,
+      backgroundColor: colors.background.primary,
+    },
+    input: {
+      flex: 1,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      borderRadius: 12,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      marginRight: spacing.sm,
+      color: colors.text.primary,
+    },
+    sendButton: {
+      backgroundColor: colors.primary,
+      padding: spacing.sm,
+      borderRadius: 20,
+    },
+  });
+
   const { postId } = route.params;
   const { addComment, getComments } = useAirtable();
   const { userData } = useUser();
@@ -120,71 +191,4 @@ export const CommentsScreen: React.FC<CommentsScreenProps> = ({ navigation, rout
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background.primary },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.text.primary,
-  },
-  commentItem: {
-    flexDirection: 'row',
-    marginBottom: spacing.md,
-  },
-  commentAuthor: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.primary,
-  },
-  commentText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-  },
-  commentTime: {
-    fontSize: typography.fontSize.xs,
-    color: colors.text.secondary,
-    marginTop: 2,
-  },
-  empty: { alignItems: 'center', marginTop: spacing.xl },
-  emptyText: { 
-    color: colors.text.secondary,
-    fontSize: typography.fontSize.md,
-    textAlign: 'center',
-    fontFamily: 'Inter',
-    writingDirection: 'ltr',
-  },
-  inputBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: colors.border.light,
-    backgroundColor: colors.background.primary,
-  },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    borderRadius: 12,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    marginRight: spacing.sm,
-    color: colors.text.primary,
-  },
-  sendButton: {
-    backgroundColor: colors.primary,
-    padding: spacing.sm,
-    borderRadius: 20,
-  },
-});
 

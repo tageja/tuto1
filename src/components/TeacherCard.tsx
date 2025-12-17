@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { colors, spacing, typography } from '../theme';
+import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
 import { Teacher } from '../types';
@@ -18,7 +18,72 @@ interface TeacherCardProps {
 }
 
 export const TeacherCard: React.FC<TeacherCardProps> = ({ teacher, onPress }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
   const { t } = useLanguage();
+
+  const styles = StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      backgroundColor: colors.background.primary,
+      borderRadius: 12,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+      ...shadows.sm,
+    },
+    image: {
+      width: 80,
+      height: 80,
+      borderRadius: 8,
+    },
+    info: {
+      flex: 1,
+      marginLeft: spacing.md,
+      justifyContent: 'center',
+    },
+    name: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    subjects: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.secondary,
+      marginBottom: spacing.xs,
+    },
+    ratingContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    rating: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.primary,
+      marginLeft: spacing.xs,
+    },
+    reviews: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.secondary,
+      marginLeft: spacing.xs,
+    },
+    priceContainer: {
+      alignItems: 'flex-end',
+      justifyContent: 'center',
+    },
+    price: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.primary,
+      marginBottom: 2,
+    },
+    perHour: {
+      fontSize: typography.fontSize.xs,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.secondary,
+    },
+  });
 
   return (
     <TouchableOpacity 
@@ -69,70 +134,3 @@ export const TeacherCard: React.FC<TeacherCardProps> = ({ teacher, onPress }) =>
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    backgroundColor: colors.background.primary,
-    borderRadius: 12,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  image: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginRight: spacing.md,
-  },
-  info: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  name: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  subjects: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.secondary,
-    marginBottom: spacing.xs,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  rating: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.primary,
-    marginLeft: spacing.xs,
-  },
-  reviews: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.secondary,
-    marginLeft: spacing.xs,
-  },
-  priceContainer: {
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-  },
-  price: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.primary,
-  },
-  perHour: {
-    fontSize: typography.fontSize.xs,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.secondary,
-  },
-});

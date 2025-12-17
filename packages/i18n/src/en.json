@@ -69,6 +69,11 @@
       "password": "Password",
       "passwordHint": "Password is managed by your authentication provider (Google)",
       "resetPassword": "Reset via Google Account",
+      "editProfile": "Edit Profile",
+      "avatarPermissionDenied": "Please allow photo library access to upload avatar.",
+      "avatarUploadSuccess": "Avatar updated successfully",
+      "updateSuccess": "Profile updated successfully",
+      "phonePlaceholder": "+84..."
       "twoFactor": "Two-Factor Authentication",
       "twoFactorHint": "Add an extra layer of security to your account",
       "enabled": "Enabled",
@@ -82,7 +87,9 @@
       "system": "System",
       "light": "Light",
       "dark": "Dark",
-      "timezone": "Timezone"
+      "timezone": "Timezone",
+      "themeUpdated": "Theme updated",
+      "timezoneUpdated": "Timezone updated"
     },
     "notifications": {
       "title": "Notification Preferences",
@@ -91,6 +98,7 @@
       "enablePush": "Enable Push Notifications",
       "pushEnabled": "Push Enabled",
       "pushError": "Failed to enable push notifications",
+      "pushDescription": "Push notifications are enabled on this device",
       "topics": {
         "announcements": "Announcements",
         "homework": "Homework",
@@ -151,7 +159,12 @@
       "connectedOn": "Connected on",
       "testMode": "Test Mode",
       "fromNumber": "From Number",
-      "payments": {
+      "payments": "Payments",
+      "pushNotifications": "Push Notifications",
+      "sms": "SMS",
+      "connected": "Connected",
+      "notConnected": "Not Connected",
+      "paymentsDetail": {
         "title": "Payments",
         "description": "Accept payments from parents via Stripe or MoMo"
       },
@@ -167,31 +180,78 @@
     "privacy": {
       "title": "Privacy Settings",
       "description": "Manage your data and privacy preferences",
-      "dataVisibility": {
-        "title": "Data Visibility",
-        "description": "Your profile information is only visible to school administrators and teachers",
-        "schoolOnly": "School Only"
-      },
-      "dataExport": {
+      "matters": "Your Privacy Matters",
+      "dataVisibility": "Data Visibility",
+      "dataVisibilityDescription": "Choose who can see your information",
+      "schoolOnly": "School Only",
+      "exportData": {
         "title": "Export Your Data",
-        "description": "Download a copy of all your data stored in Tuto",
-        "comingSoon": "Coming Soon"
+        "description": "Download a copy of all your data",
+        "button": "Export Data",
+        "comingSoon": "Data export is coming soon"
       },
       "deleteAccount": {
         "title": "Delete Account",
-        "description": "Permanently delete your account and all associated data",
-        "contactAdmin": "To delete your account, please contact your school administrator"
+        "description": "Permanently delete your account and all data",
+        "warning": "This action cannot be undone",
+        "warningDescription": "All your data will be permanently deleted",
+        "contactAdmin": "Contact School Admin"
       },
-      "links": {
-        "title": "Legal Documents",
-        "privacyPolicy": "Privacy Policy",
-        "termsOfService": "Terms of Service",
-        "dataRetention": "Data Retention Policy"
-      }
+      "legalDocuments": "Legal Documents",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "dataRetentionPolicy": "Data Retention Policy",
+      "yourRights": "Your Privacy Rights",
+      "rightsDescription": "You have the right to access, correct, or delete your personal data. Contact us for assistance.",
+      "openUrlError": "Could not open link",
+      "mailtoError": "Could not open email client"
     },
     "toasts": {
       "saved": "Settings saved successfully",
       "error": "Failed to save settings. Please try again."
+    },
+    "role": {
+      "admin": "Admin",
+      "parent": "Parent"
+    },
+    "signOut": {
+      "title": "Sign Out",
+      "message": "Are you sure you want to sign out?",
+      "confirm": "Sign Out",
+      "button": "Sign Out"
+    },
+    "device": {
+      "title": "Device & App",
+      "security": "Security & Authentication",
+      "biometricHint": "Use Face ID or fingerprint to unlock the app",
+      "notifications": "Notifications & Alerts",
+      "pushNotifications": "Push Notifications",
+      "pushDescription": "Receive push notifications on this device",
+      "soundAlerts": "Sound Alerts",
+      "soundDescription": "Play sounds for in-app notifications",
+      "vibrationAlerts": "Vibration Alerts",
+      "vibrationDescription": "Vibrate for in-app notifications",
+      "dataUsage": "Data Usage",
+      "dataSaver": "Data Saver",
+      "dataSaverDescription": "Load lower-resolution images to save data",
+      "wifiOnly": "Download over Wi-Fi Only",
+      "wifiOnlyDescription": "Only download heavy media when on Wi-Fi",
+      "dataUsageTip": "These settings help you save data and reduce your mobile data usage."
+    },
+    "about": {
+      "title": "About & Legal",
+      "tagline": "Connecting schools, teachers, and families",
+      "appInfo": "App Information",
+      "version": "Version",
+      "buildNumber": "Build Number",
+      "platform": "Platform",
+      "lastUpdated": "Last Updated",
+      "legalDocuments": "Legal Documents",
+      "resources": "Resources & Support",
+      "helpCenter": "Help Center",
+      "contactSupport": "Contact Support",
+      "openSource": "Open Source Licenses",
+      "madeWith": "Made with ❤️ for education"
     }
   },
   "dailyActivities": "Daily Activities",
@@ -983,7 +1043,8 @@
         "error": "Failed to create assignment",
         "required": "Required",
         "fillAllFields": "Please fill in all required fields",
-        "selectAtLeastOneClass": "Please select at least one class"
+        "selectAtLeastOneClass": "Please select at least one class",
+        "totalTasks": "Total Tasks"
       },
       "detailDrawer": {
         "title": "Assignment Details",

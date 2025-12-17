@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
-import { colors, spacing, typography } from '../theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -260,12 +260,189 @@ interface NotificationsScreenProps {
   navigation: any;
 }
 
-export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
-  navigation,
-}) => {
+export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ navigation }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
   const { t } = useLanguage();
   const [notifications, setNotifications] = useState<Notification[]>(() => generateDummyNotifications(t));
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    backButton: {
+      padding: spacing.xs,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.xl,
+      fontWeight: 'bold',
+      color: colors.text.primary,
+    },
+    headerRight: {
+      width: 40,
+    },
+    filterContainer: {
+      flexDirection: 'row',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    filterButton: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      marginHorizontal: spacing.xs,
+      borderRadius: spacing.sm,
+      backgroundColor: colors.background.secondary,
+    },
+    filterButtonActive: {
+      backgroundColor: colors.primary,
+    },
+    filterButtonText: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.primary,
+      fontWeight: '500',
+    },
+    filterButtonTextActive: {
+      color: colors.background.primary,
+    },
+    badge: {
+      marginLeft: spacing.xs,
+      paddingHorizontal: spacing.xs,
+      paddingVertical: 2,
+      borderRadius: 10,
+      minWidth: 20,
+      alignItems: 'center',
+    },
+    badgeImportant: {
+      backgroundColor: colors.status.error,
+    },
+    badgeRegular: {
+      backgroundColor: colors.text.light,
+    },
+    badgeText: {
+      fontSize: 10,
+      color: colors.background.primary,
+      fontWeight: 'bold',
+    },
+    notificationsList: {
+      flex: 1,
+      paddingHorizontal: spacing.md,
+    },
+    notificationItem: {
+      backgroundColor: colors.background.primary,
+      borderRadius: spacing.sm,
+      padding: spacing.md,
+      marginVertical: spacing.xs,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    unreadItem: {
+      borderLeftWidth: 4,
+      borderLeftColor: colors.primary,
+    },
+    notificationContent: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+    },
+    notificationHeader: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+    },
+    iconContainer: {
+      position: 'relative',
+      marginRight: spacing.sm,
+    },
+    unreadIndicator: {
+      position: 'absolute',
+      top: -2,
+      right: -2,
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+    },
+    unreadImportant: {
+      backgroundColor: colors.status.error,
+    },
+    unreadRegular: {
+      backgroundColor: colors.primary,
+    },
+    notificationInfo: {
+      flex: 1,
+    },
+    notificationTitle: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: '600',
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    unreadTitle: {
+      fontWeight: 'bold',
+    },
+    notificationMessage: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.light,
+      marginBottom: spacing.xs,
+      lineHeight: 20,
+    },
+    notificationTime: {
+      fontSize: typography.fontSize.xs,
+      color: colors.text.light,
+    },
+    categoryBadge: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: spacing.xs,
+      marginLeft: spacing.sm,
+    },
+    categoryBadgeImportant: {
+      backgroundColor: colors.status.error + '20',
+    },
+    categoryBadgeRegular: {
+      backgroundColor: colors.background.secondary,
+    },
+    categoryText: {
+      fontSize: typography.fontSize.xs,
+      fontWeight: '500',
+    },
+    categoryTextImportant: {
+      color: colors.status.error,
+    },
+    categoryTextRegular: {
+      color: colors.text.light,
+    },
+    emptyState: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.xl * 2,
+    },
+    emptyStateText: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.light,
+      marginTop: spacing.md,
+      textAlign: 'center',
+    },
+  });
 
   // Filter notifications based on active filter
   const filteredNotifications = useMemo(() => {
@@ -422,180 +599,3 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  backButton: {
-    padding: spacing.xs,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.xl,
-    fontWeight: 'bold',
-    color: colors.text.primary,
-  },
-  headerRight: {
-    width: 40,
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  filterButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    marginHorizontal: spacing.xs,
-    borderRadius: spacing.sm,
-    backgroundColor: colors.background.secondary,
-  },
-  filterButtonActive: {
-    backgroundColor: colors.primary,
-  },
-  filterButtonText: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.primary,
-    fontWeight: '500',
-  },
-  filterButtonTextActive: {
-    color: colors.background.primary,
-  },
-  badge: {
-    marginLeft: spacing.xs,
-    paddingHorizontal: spacing.xs,
-    paddingVertical: 2,
-    borderRadius: 10,
-    minWidth: 20,
-    alignItems: 'center',
-  },
-  badgeImportant: {
-    backgroundColor: colors.status.error,
-  },
-  badgeRegular: {
-    backgroundColor: colors.text.light,
-  },
-  badgeText: {
-    fontSize: 10,
-    color: colors.background.primary,
-    fontWeight: 'bold',
-  },
-  notificationsList: {
-    flex: 1,
-    paddingHorizontal: spacing.md,
-  },
-  notificationItem: {
-    backgroundColor: colors.background.primary,
-    borderRadius: spacing.sm,
-    padding: spacing.md,
-    marginVertical: spacing.xs,
-    shadowColor: colors.text.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  unreadItem: {
-    borderLeftWidth: 4,
-    borderLeftColor: colors.primary,
-  },
-  notificationContent: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-  },
-  notificationHeader: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  iconContainer: {
-    position: 'relative',
-    marginRight: spacing.sm,
-  },
-  unreadIndicator: {
-    position: 'absolute',
-    top: -2,
-    right: -2,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  unreadImportant: {
-    backgroundColor: colors.status.error,
-  },
-  unreadRegular: {
-    backgroundColor: colors.primary,
-  },
-  notificationInfo: {
-    flex: 1,
-  },
-  notificationTitle: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: '600',
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  unreadTitle: {
-    fontWeight: 'bold',
-  },
-  notificationMessage: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.light,
-    marginBottom: spacing.xs,
-    lineHeight: 20,
-  },
-  notificationTime: {
-    fontSize: typography.fontSize.xs,
-    color: colors.text.light,
-  },
-  categoryBadge: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: spacing.xs,
-    marginLeft: spacing.sm,
-  },
-  categoryBadgeImportant: {
-    backgroundColor: colors.status.error + '20',
-  },
-  categoryBadgeRegular: {
-    backgroundColor: colors.background.secondary,
-  },
-  categoryText: {
-    fontSize: typography.fontSize.xs,
-    fontWeight: '500',
-  },
-  categoryTextImportant: {
-    color: colors.status.error,
-  },
-  categoryTextRegular: {
-    color: colors.text.light,
-  },
-  emptyState: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xl * 2,
-  },
-  emptyStateText: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.light,
-    marginTop: spacing.md,
-    textAlign: 'center',
-  },
-}); 

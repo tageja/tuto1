@@ -14,15 +14,105 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useSchool } from '../contexts/SchoolContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { colors } from '../theme';
 import SchoolHeader from '../components/common/SchoolHeader';
+import { useTheme } from '../contexts/ThemeContext';
 
 const SchoolInvitationScreen: React.FC = () => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
   const [invitationCode, setInvitationCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
   const { joinSchool } = useSchool();
   const { language, t } = useLanguage();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    scrollContent: {
+      flexGrow: 1,
+      padding: 24,
+      justifyContent: 'center',
+    },
+    header: {
+      alignItems: 'center',
+      marginBottom: 48,
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: colors.text.primary,
+      textAlign: 'center',
+      marginTop: 16,
+      marginBottom: 8,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: colors.text.secondary,
+      textAlign: 'center',
+      lineHeight: 24,
+    },
+    form: {
+      marginBottom: 32,
+    },
+    inputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      marginBottom: 24,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+    },
+    input: {
+      flex: 1,
+      fontSize: 16,
+      color: colors.text.primary,
+      marginLeft: 12,
+    },
+    joinButton: {
+      backgroundColor: colors.primary,
+      borderRadius: 12,
+      paddingVertical: 16,
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    disabledButton: {
+      opacity: 0.6,
+    },
+    buttonText: {
+      color: colors.white,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    skipButton: {
+      alignItems: 'center',
+      paddingVertical: 12,
+    },
+    skipButtonText: {
+      color: colors.text.secondary,
+      fontSize: 16,
+    },
+    info: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      padding: 16,
+    },
+    infoText: {
+      flex: 1,
+      fontSize: 14,
+      color: colors.text.secondary,
+      lineHeight: 20,
+      marginLeft: 8,
+    },
+  });
+
 
   const handleJoinSchool = async () => {
     if (!invitationCode.trim()) {
@@ -124,91 +214,5 @@ const SchoolInvitationScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    padding: 24,
-    justifyContent: 'center',
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 48,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.text.primary,
-    textAlign: 'center',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  form: {
-    marginBottom: 32,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: colors.text.primary,
-    marginLeft: 12,
-  },
-  joinButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  disabledButton: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  skipButton: {
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  skipButtonText: {
-    color: colors.text.secondary,
-    fontSize: 16,
-  },
-  info: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 16,
-  },
-  infoText: {
-    flex: 1,
-    fontSize: 14,
-    color: colors.text.secondary,
-    lineHeight: 20,
-    marginLeft: 8,
-  },
-});
 
 export default SchoolInvitationScreen;

@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { colors, spacing, typography } from '../../theme';
 
 interface PostCardErrorBoundaryProps {
   children: React.ReactNode;
@@ -32,7 +31,7 @@ export class PostCardErrorBoundary extends React.Component<PostCardErrorBoundary
     if (this.state.hasError) {
       return (
         <View style={styles.errorContainer}>
-          <MaterialIcons name="error" size={24} color={colors.status.error} />
+          <MaterialIcons name="error" size={24} color="#E53E3E" />
           <Text style={styles.errorTitle}>Post Error</Text>
           <Text style={styles.errorMessage}>
             {this.state.error?.message || 'Something went wrong displaying this post'}
@@ -51,39 +50,40 @@ export class PostCardErrorBoundary extends React.Component<PostCardErrorBoundary
   }
 }
 
+// Class component - can't use hooks, so hardcode colors
 const styles = StyleSheet.create({
   errorContainer: {
-    backgroundColor: colors.background.primary,
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    padding: spacing.lg,
-    marginBottom: spacing.sm,
+    padding: 24,
+    marginBottom: 8,
     borderWidth: 1,
-    borderColor: colors.status.error,
+    borderColor: '#E53E3E',
     alignItems: 'center',
   },
   errorTitle: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.status.error,
-    marginTop: spacing.sm,
-    marginBottom: spacing.xs,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#E53E3E',
+    marginTop: 8,
+    marginBottom: 4,
   },
   errorMessage: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
+    fontSize: 14,
+    color: '#666666',
     textAlign: 'center',
-    marginBottom: spacing.md,
+    marginBottom: 16,
   },
   retryButton: {
-    backgroundColor: colors.status.error,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    backgroundColor: '#E53E3E',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 8,
   },
   retryText: {
-    color: colors.background.primary,
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 

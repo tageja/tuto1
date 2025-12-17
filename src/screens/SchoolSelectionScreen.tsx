@@ -11,13 +11,142 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useSchool } from '../contexts/SchoolContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { colors } from '../theme';
 import SchoolHeader from '../components/common/SchoolHeader';
+import { useTheme } from '../contexts/ThemeContext';
 
 const SchoolSelectionScreen: React.FC = () => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
   const navigation = useNavigation();
   const { joinedSchools, switchToSchool, removeSchool } = useSchool();
   const { language, t } = useLanguage();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    header: {
+      padding: 24,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: colors.primary,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: colors.text.secondary,
+      marginTop: 4,
+    },
+    section: {
+      padding: 24,
+    },
+    sectionTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.text.primary,
+      marginBottom: 16,
+    },
+    schoolCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+    },
+    schoolInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    schoolDetails: {
+      marginLeft: 12,
+      flex: 1,
+    },
+    schoolName: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: colors.text.primary,
+    },
+    schoolType: {
+      fontSize: 14,
+      color: colors.text.secondary,
+      marginTop: 2,
+    },
+    joinDate: {
+      fontSize: 12,
+      color: colors.text.secondary,
+      marginTop: 4,
+    },
+    schoolActions: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    selectButton: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 8,
+    },
+    selectButtonText: {
+      color: colors.white,
+      fontSize: 14,
+      fontWeight: '500',
+    },
+    removeButton: {
+      padding: 8,
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: 40,
+    },
+    emptyTitle: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: colors.text.primary,
+      marginTop: 16,
+    },
+    emptySubtitle: {
+      fontSize: 14,
+      color: colors.text.secondary,
+      textAlign: 'center',
+      marginTop: 8,
+    },
+    joinNewButton: {
+      backgroundColor: colors.primary,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 16,
+      borderRadius: 12,
+    },
+    joinNewButtonText: {
+      color: colors.white,
+      fontSize: 16,
+      fontWeight: '600',
+      marginLeft: 8,
+    },
+    backToHomeButton: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      padding: 16,
+      borderRadius: 12,
+      alignItems: 'center',
+    },
+    backToHomeButtonText: {
+      color: colors.text.primary,
+      fontSize: 16,
+      fontWeight: '500',
+    },
+  });
+
 
   const handleSchoolSelect = (school: any) => {
     switchToSchool(school);
@@ -118,130 +247,5 @@ const SchoolSelectionScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  header: {
-    padding: 24,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.primary,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: colors.text.secondary,
-    marginTop: 4,
-  },
-  section: {
-    padding: 24,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text.primary,
-    marginBottom: 16,
-  },
-  schoolCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-  },
-  schoolInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  schoolDetails: {
-    marginLeft: 12,
-    flex: 1,
-  },
-  schoolName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text.primary,
-  },
-  schoolType: {
-    fontSize: 14,
-    color: colors.text.secondary,
-    marginTop: 2,
-  },
-  joinDate: {
-    fontSize: 12,
-    color: colors.text.secondary,
-    marginTop: 4,
-  },
-  schoolActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  selectButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  selectButtonText: {
-    color: colors.white,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  removeButton: {
-    padding: 8,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text.primary,
-    marginTop: 16,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    marginTop: 8,
-  },
-  joinNewButton: {
-    backgroundColor: colors.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    borderRadius: 12,
-  },
-  joinNewButtonText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  backToHomeButton: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  backToHomeButtonText: {
-    color: colors.text.primary,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-});
 
 export default SchoolSelectionScreen;

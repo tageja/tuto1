@@ -18,7 +18,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useUser } from '../contexts/UserContext';
-import { colors, spacing, typography } from '../theme';
 import { PostCard } from '../components/feed/PostCard';
 import { PostCardErrorBoundary } from '../components/common/PostCardErrorBoundary';
 import { FilterBar } from '../components/feed/FilterBar';
@@ -26,6 +25,7 @@ import { CreatePostModal } from '../components/feed/CreatePostModal';
 import { useAirtable } from '../hooks/useAirtable';
 import { uploadImageAuto } from '../services/upload';
 import { logDebug, logError } from '../services/logger';
+import { useTheme } from '../contexts/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -69,6 +69,81 @@ export interface Post {
 }
 
 export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      backgroundColor: colors.background.primary,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    headerLeft: {
+      flex: 1,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.xl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    headerSubtitle: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+    },
+    createPostButton: {
+      backgroundColor: colors.primary,
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    postList: {
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.md,
+    },
+    postSeparator: {
+      height: spacing.md,
+    },
+    emptyState: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.xl * 2,
+    },
+    emptyStateTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.text.primary,
+      marginTop: spacing.md,
+      marginBottom: spacing.xs,
+    },
+    emptyStateSubtitle: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.secondary,
+      textAlign: 'center',
+      paddingHorizontal: spacing.lg,
+    },
+  }); 
+
   const { t } = useLanguage();
   const { userType, userData } = useUser();
   const { getPosts, createPost, setPostLike, setPostSave, addComment, loading, error } = useAirtable();
@@ -453,75 +528,3 @@ export const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.background.primary,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  headerLeft: {
-    flex: 1,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.xl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  headerSubtitle: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-  },
-  createPostButton: {
-    backgroundColor: colors.primary,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  postList: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-  },
-  postSeparator: {
-    height: spacing.md,
-  },
-  emptyState: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xl * 2,
-  },
-  emptyStateTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.text.primary,
-    marginTop: spacing.md,
-    marginBottom: spacing.xs,
-  },
-  emptyStateSubtitle: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    paddingHorizontal: spacing.lg,
-  },
-}); 

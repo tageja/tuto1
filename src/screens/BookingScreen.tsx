@@ -10,8 +10,8 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLanguage } from '../contexts/LanguageContext';
-import { colors, spacing, typography } from '../theme';
 import { useAirtable } from '../hooks/useAirtable';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface BookingScreenProps {
   navigation: any;
@@ -42,6 +42,132 @@ const timeSlots: TimeSlot[] = [
 ];
 
 export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation, route }) => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    backButton: {
+      marginRight: spacing.md,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.text.primary,
+    },
+    content: {
+      flex: 1,
+      padding: spacing.lg,
+    },
+    teacherInfo: {
+      marginBottom: spacing.xl,
+    },
+    teacherName: {
+      fontSize: typography.fontSize.xl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    subject: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.regular,
+      color: colors.text.secondary,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.text.primary,
+      marginBottom: spacing.md,
+    },
+    dateScroll: {
+      marginBottom: spacing.xl,
+    },
+    dateButton: {
+      width: 64,
+      height: 80,
+      backgroundColor: colors.background.secondary,
+      borderRadius: 12,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: spacing.md,
+    },
+    selectedDateButton: {
+      backgroundColor: colors.primary,
+    },
+    dayText: {
+      fontSize: typography.fontSize.sm,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    dateText: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+    },
+    selectedDateText: {
+      color: colors.secondary,
+    },
+    timeGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginHorizontal: -spacing.xs,
+      marginBottom: spacing.xl,
+    },
+    timeSlot: {
+      width: '23%',
+      aspectRatio: 2,
+      backgroundColor: colors.background.secondary,
+      borderRadius: 8,
+      justifyContent: 'center',
+      alignItems: 'center',
+      margin: '1%',
+    },
+    selectedTimeSlot: {
+      backgroundColor: colors.primary,
+    },
+    unavailableSlot: {
+      backgroundColor: colors.background.tertiary,
+      opacity: 0.5,
+    },
+    timeText: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.primary,
+    },
+    selectedTimeText: {
+      color: colors.secondary,
+    },
+    unavailableText: {
+      color: colors.text.secondary,
+    },
+    bookButton: {
+      backgroundColor: colors.primary,
+      paddingVertical: spacing.md,
+      borderRadius: 12,
+      alignItems: 'center',
+    },
+    disabledButton: {
+      opacity: 0.7,
+    },
+    bookButtonText: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.semiBold,
+      color: colors.secondary,
+    },
+  });
+
   const { teacherId, teacherName, subject } = route.params;
   const { language, t } = useLanguage();
   const { createBooking } = useAirtable();
@@ -220,126 +346,3 @@ export const BookingScreen: React.FC<BookingScreenProps> = ({ navigation, route 
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  backButton: {
-    marginRight: spacing.md,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.text.primary,
-  },
-  content: {
-    flex: 1,
-    padding: spacing.lg,
-  },
-  teacherInfo: {
-    marginBottom: spacing.xl,
-  },
-  teacherName: {
-    fontSize: typography.fontSize.xl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  subject: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.regular,
-    color: colors.text.secondary,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  },
-  dateScroll: {
-    marginBottom: spacing.xl,
-  },
-  dateButton: {
-    width: 64,
-    height: 80,
-    backgroundColor: colors.background.secondary,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing.md,
-  },
-  selectedDateButton: {
-    backgroundColor: colors.primary,
-  },
-  dayText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  dateText: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-  },
-  selectedDateText: {
-    color: colors.secondary,
-  },
-  timeGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -spacing.xs,
-    marginBottom: spacing.xl,
-  },
-  timeSlot: {
-    width: '23%',
-    aspectRatio: 2,
-    backgroundColor: colors.background.secondary,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: '1%',
-  },
-  selectedTimeSlot: {
-    backgroundColor: colors.primary,
-  },
-  unavailableSlot: {
-    backgroundColor: colors.background.tertiary,
-    opacity: 0.5,
-  },
-  timeText: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.primary,
-  },
-  selectedTimeText: {
-    color: colors.secondary,
-  },
-  unavailableText: {
-    color: colors.text.secondary,
-  },
-  bookButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.md,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  disabledButton: {
-    opacity: 0.7,
-  },
-  bookButtonText: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.semiBold,
-    color: colors.secondary,
-  },
-});

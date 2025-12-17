@@ -1,185 +1,242 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { View, Text, TextInput, FlatList, Image, ActivityIndicator, StyleSheet } from 'react-native';
+/**
+ * Parent Teachers Screen
+ * Shows active teachers for parents
+ * Mirrors web parent/teachers page with mobile-optimized UI
+ */
+
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, TextInput, FlatList, ActivityIndicator, StyleSheet, RefreshControl } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useAirtable } from '../../hooks/useAirtable';
 import { useSchool } from '../../contexts/SchoolContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useNavigation } from '@react-navigation/native';
+import { useUser } from '../../contexts/UserContext';
 import SchoolHeader from '../../components/common/SchoolHeader';
+import { TeacherListItem } from '../../components/school/TeacherListItem';
+import { getParentTeachers, getActiveTeachers, SchoolTeacher } from '../../services/supabase-teachers';
+import { useTheme } from '../../contexts/ThemeContext';
 
-type SchoolTeacher = {
-  id: string;
-  fullName?: string;
-  email?: string;
-  phone?: string;
-  avatarUrl?: string;
-  subjects?: string[];
-  rating?: number;
-};
-
-const TABLE = 'TutoSchoolTeachers';
-
-const TeacherItem = ({ teacher }: { teacher: SchoolTeacher }) => {
-  return (
-    <View style={styles.card}>
-      <Image
-        source={teacher.avatarUrl ? { uri: teacher.avatarUrl } : require('../../../assets/images/default-teacher.png.png')}
-        style={styles.avatar}
-      />
-      <View style={{ flex: 1 }}>
-        <Text style={styles.title} numberOfLines={1}>{teacher.fullName || '—'}</Text>
-        {!!teacher.subjects?.length && (
-          <Text style={styles.subtitle} numberOfLines={1}>{teacher.subjects.join(', ')}</Text>
-        )}
-        {typeof teacher.rating === 'number' && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-            <MaterialIcons name="star" size={16} color="#F5A524" />
-            <Text style={styles.meta}>{teacher.rating?.toFixed(1)}</Text>
-          </View>
-        )}
-      </View>
-      <MaterialIcons name="chevron-right" size={24} color="#888888" />
-    </View>
-  );
-};
 
 const TeachersScreen: React.FC = () => {
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.secondary,
+    },
+    headerSection: {
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      paddingBottom: 8,
+    },
+    screenTitle: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: colors.text.primary,
+      marginBottom: 4,
+    },
+    screenSubtitle: {
+      fontSize: 14,
+      color: colors.text.secondary,
+    },
+    searchBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginHorizontal: 16,
+      marginVertical: 12,
+      backgroundColor: colors.background.primary,
+      borderRadius: 16,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    searchInput: {
+      flex: 1,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      fontSize: 16,
+      color: colors.text.primary,
+    },
+    resultsHeader: {
+      paddingHorizontal: 16,
+      paddingBottom: 12,
+    },
+    resultsText: {
+      fontSize: 14,
+      color: colors.text.secondary,
+      fontWeight: '500',
+    },
+    loadingWrap: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 64,
+    },
+    loadingText: {
+      fontSize: 14,
+      color: colors.text.secondary,
+      marginTop: 12,
+    },
+    emptyWrap: {
+      alignItems: 'center',
+      paddingVertical: 64,
+      paddingHorizontal: 32,
+    },
+    emptyTitle: {
+      fontSize: 18,
+      color: colors.text.primary,
+      marginTop: 16,
+      fontWeight: '600',
+    },
+    emptySubtitle: {
+      fontSize: 14,
+      color: colors.text.secondary,
+      marginTop: 8,
+      textAlign: 'center',
+      lineHeight: 20,
+    },
+    emptyListContent: {
+      flexGrow: 1,
+    },
+  });
   const { t } = useLanguage();
   const { currentSchool } = useSchool();
-  const { fetchRecords, loading } = useAirtable();
+  const { userData } = useUser();
+  const navigation = useNavigation();
   const [query, setQuery] = useState('');
-  const [items, setItems] = useState<SchoolTeacher[]>([]);
+  const [teachers, setTeachers] = useState<SchoolTeacher[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
-    if (!currentSchool) return;
-    const records = await fetchRecords(TABLE, {
-      filterByFormula: `{School ID} = '${currentSchool.id}'`,
-      sort: [{ field: 'fullName', direction: 'asc' }],
-      pageSize: 50,
-    });
-    const mapped = (records || []).map((r) => {
-      const f = r.fields || {};
-      return {
-        id: r.id,
-        fullName: f.fullName || f['Full Name'] || f.name || '',
-        email: f.email || f.Email,
-        phone: f.phone || f.Phone,
-        avatarUrl: (Array.isArray(f.avatar) && f.avatar[0]?.url) || f.avatarUrl || f.Avatar || undefined,
-        subjects: f.subjects || f.Subjects || [],
-        rating: typeof f.rating === 'number' ? f.rating : typeof f.Rating === 'number' ? f.Rating : undefined,
-      } as SchoolTeacher;
-    });
-    setItems(mapped);
-  }, [currentSchool, fetchRecords]);
+    if (!currentSchool?.id) return;
+    
+    try {
+      setLoading(true);
+      // Try to fetch teachers for parent's children first
+      let data: SchoolTeacher[] = [];
+      
+      if (userData?.email) {
+        data = await getParentTeachers(currentSchool.id, userData.email);
+      }
+      
+      // Fallback: if no parent-specific teachers or no email, show all active teachers
+      if (data.length === 0) {
+        data = await getActiveTeachers(currentSchool.id, query);
+      }
+      
+      setTeachers(data);
+    } catch (error) {
+      console.error('Error loading teachers:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [currentSchool, userData?.email, query]);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter((it) =>
-      [it.fullName, it.email, ...(it.subjects || [])]
-        .filter(Boolean)
-        .some((v) => String(v).toLowerCase().includes(q)),
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    load();
+  }, [load]);
+
+  const handleTeacherPress = useCallback((teacherId: string) => {
+    // @ts-ignore - Navigation types to be added
+    navigation.navigate('TeacherDetail', { teacherId });
+  }, [navigation]);
+
+  // Filter teachers by search query (client-side for parent view)
+  const filteredTeachers = teachers.filter((teacher) => {
+    if (!query.trim()) return true;
+    const searchLower = query.toLowerCase();
+    return (
+      teacher.name?.toLowerCase().includes(searchLower) ||
+      teacher.email?.toLowerCase().includes(searchLower) ||
+      teacher.subjects?.some(s => s.toLowerCase().includes(searchLower))
     );
-  }, [items, query]);
+  });
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F9FAFC' }}>
+    <View style={styles.container}>
       <SchoolHeader />
-      <View style={styles.searchBar}>
-        <MaterialIcons name="search" size={20} color="#888888" />
-        <TextInput
-          placeholder={t('school.teachers.searchPlaceholder')}
-          placeholderTextColor="#888888"
-          value={query}
-          onChangeText={setQuery}
-          style={styles.searchInput}
-        />
-      </View>
-      {loading ? (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color="#0B5FFF" />
-          <Text style={styles.loadingText}>{t('school.common.loading')}</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={filtered}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <TeacherItem teacher={item} />}
-          ListEmptyComponent={
+      
+      <FlatList
+        data={filteredTeachers}
+        keyExtractor={(item) => item.id}
+        ListHeaderComponent={
+          <>
+            {/* Header Section */}
+            <View style={styles.headerSection}>
+              <Text style={styles.screenTitle}>{t('school.teachers.title')}</Text>
+              <Text style={styles.screenSubtitle}>{t('school.teachers.parentSubtitle')}</Text>
+            </View>
+
+            {/* Search Bar */}
+            <View style={styles.searchBar}>
+              <MaterialIcons name="search" size={20} color={colors.text.secondary} />
+              <TextInput
+                placeholder={t('school.teachers.searchPlaceholder')}
+                placeholderTextColor={colors.text.secondary}
+                value={query}
+                onChangeText={setQuery}
+                style={styles.searchInput}
+              />
+            </View>
+
+            {/* Results Count */}
+            {!loading && (
+              <View style={styles.resultsHeader}>
+                <Text style={styles.resultsText}>
+                  {filteredTeachers.length} {filteredTeachers.length === 1 ? t('school.teachers.teacher') : t('school.teachers.teachers')}
+                </Text>
+              </View>
+            )}
+          </>
+        }
+        renderItem={({ item }) => (
+          <TeacherListItem
+            teacher={item}
+            onPress={() => handleTeacherPress(item.id)}
+          />
+        )}
+        ListEmptyComponent={
+          loading ? (
+            <View style={styles.loadingWrap}>
+              <ActivityIndicator color="#0B5FFF" size="large" />
+              <Text style={styles.loadingText}>{t('school.common.loading')}</Text>
+            </View>
+          ) : (
             <View style={styles.emptyWrap}>
-              <MaterialIcons name="group" size={48} color="#D0D4DA" />
+              <MaterialIcons name="school" size={64} color="#D0D4DA" />
               <Text style={styles.emptyTitle}>{t('school.teachers.noTeachers')}</Text>
               <Text style={styles.emptySubtitle}>{t('school.teachers.noTeachersSubtitle')}</Text>
             </View>
-          }
-        />
-      )}
+          )
+        }
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor="#0B5FFF"
+            colors={['#0B5FFF']}
+          />
+        }
+        contentContainerStyle={filteredTeachers.length === 0 ? styles.emptyListContent : undefined}
+      />
     </View>
   );
 };
 
 export default TeachersScreen;
 
-const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    marginHorizontal: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#EEF2F7',
-  },
-  avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    marginRight: 12,
-    backgroundColor: '#F0F2F5',
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333333',
-  },
-  subtitle: {
-    fontSize: 12,
-    color: '#888888',
-    marginTop: 4,
-  },
-  meta: {
-    fontSize: 12,
-    color: '#888888',
-    marginLeft: 6,
-  },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    marginTop: 12,
-    marginBottom: 8,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#EEF2F7',
-  },
-  searchInput: {
-    flex: 1,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    fontSize: 16,
-  },
-  loadingText: { fontSize: 12, color: '#888888', marginTop: 8 },
-  emptyWrap: { alignItems: 'center', marginTop: 48, paddingHorizontal: 24 },
-  emptyTitle: { fontSize: 16, color: '#333333', marginTop: 12 },
-  emptySubtitle: { fontSize: 12, color: '#888888', marginTop: 4, textAlign: 'center' },
-});
 
 

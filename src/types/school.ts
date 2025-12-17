@@ -60,23 +60,41 @@ export interface SchoolStudent {
   id: string;
   name: string;
   schoolId: string;
-  schoolName: string;
-  classId: string;
-  className: string;
-  studentId: string;
-  dateOfBirth: string;
-  gender: 'Male' | 'Female' | 'Other';
-  gradeLevel: string;
-  parentName: string;
-  parentEmail: string;
-  parentPhone: string;
-  address: string;
-  emergencyContact: string;
-  emergencyPhone: string;
+  schoolName?: string;
+  classId: string | null;
+  className: string | null;
+  studentId?: string;
+  code: string; // student_number
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string | null;
+  dob: string | null;
+  gender: 'Male' | 'Female' | 'Other' | string | null;
+  gradeLevel: string | null;
+  grade: string | null;
+  parentName?: string;
+  parent: string | null;
+  parentEmail: string | null;
+  parentPhone: string | null;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  address: string | null;
+  emergencyContact?: string;
+  emergencyPhone?: string;
   medicalNotes?: string;
-  status: 'Active' | 'Inactive' | 'Graduated';
-  enrollmentDate: string;
-  createdDate: string;
+  status: 'Active' | 'Inactive' | 'Graduated' | 'active' | 'inactive' | string;
+  enrollmentDate: string | null;
+  enrolledAt: string | null;
+  photoUrl: string | null;
+  createdDate?: string;
+}
+
+export interface StudentKPI {
+  total: number;
+  active: number;
+  inactive: number;
+  avgAttendance: number;
+  lastUpdated?: string;
 }
 
 export interface SchoolTeacher {
@@ -174,6 +192,7 @@ export interface SchoolAnnouncement {
   createdDate: string;
 }
 
+// Legacy HealthRecord interface (kept for backward compatibility)
 export interface HealthRecord {
   id: string;
   recordId: string;
@@ -193,6 +212,98 @@ export interface HealthRecord {
   emergencyPhone: string;
   notes?: string;
   createdDate: string;
+}
+
+// Supabase-aligned Health Record Types
+export interface SupabaseHealthRecord {
+  id: string;
+  school_id: string;
+  student_id: string;
+  record_type: 'general' | 'vaccination' | 'vitals' | 'note';
+  title?: string | null;
+  details: Record<string, any>;
+  recorded_at: string;
+  created_by?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface AllergyRecord {
+  id: string;
+  name: string;
+  severity: 'low' | 'medium' | 'high';
+  notes?: string;
+  recordedAt: string;
+}
+
+export interface MedicationRecord {
+  id: string;
+  name: string;
+  dose?: string;
+  schedule?: string;
+  recordedAt: string;
+}
+
+export interface VaccinationRecord {
+  id: string;
+  vaccine: string;
+  status: 'done' | 'pending' | 'due' | 'scheduled';
+  date: string;
+  recordedAt: string;
+}
+
+export interface VitalsRecord {
+  id: string;
+  heightCm?: number | null;
+  weightKg?: number | null;
+  recordedAt: string;
+}
+
+export interface HealthKPIs {
+  totalStudents: number;
+  allergies: number;
+  medications: number;
+  updatedThisMonth: number;
+}
+
+export interface StudentHealthSummary {
+  id: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  classId: string | null;
+  className: string;
+  hasAllergy: boolean;
+  hasMedication: boolean;
+}
+
+export interface StudentHealthDetail {
+  student: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    fullName: string;
+    dateOfBirth: string | null;
+    classId: string | null;
+    className: string;
+    schoolId: string;
+  };
+  allergies: AllergyRecord[];
+  medications: MedicationRecord[];
+  emergencyContacts: {
+    primaryName: string | null;
+    primaryPhone: string | null;
+    altName: string | null;
+    altPhone: string | null;
+  };
+  vaccinations: VaccinationRecord[];
+  vitals: VitalsRecord[];
+  notes: Array<{
+    id: string;
+    title: string | null;
+    details: any;
+    recordedAt: string;
+  }>;
 }
 
 export interface MedicineReminder {

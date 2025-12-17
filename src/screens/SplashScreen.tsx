@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Dimensions, StatusBar, Text } from 'react-native';
 import { Video, ResizeMode } from 'expo-av';
-import { colors } from '../theme';
 
 const { width, height } = Dimensions.get('window');
 
@@ -36,7 +35,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onVideoEnd }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#1A1A1A',
     justifyContent: 'center',
     alignItems: 'center',
   },

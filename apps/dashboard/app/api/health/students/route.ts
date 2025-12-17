@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       .from('school_students')
       .select('id, first_name, last_name, class_id, school_id, status')
       .eq('school_id', schoolId)
-      .ilike('status', 'active');
+      .in('status', ['active', 'Active']);
 
     if (classId) {
       studentQuery = studentQuery.eq('class_id', classId);

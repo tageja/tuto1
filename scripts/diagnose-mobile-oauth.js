@@ -52,3 +52,8 @@ console.log('Press Ctrl+C in the Expo terminal, then run: npm start');
 console.log('═'.repeat(50) + '\n');
 
 
+
+
+
+
+

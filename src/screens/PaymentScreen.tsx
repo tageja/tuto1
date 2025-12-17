@@ -75,6 +75,178 @@ interface PaymentScreenProps {
 }
 
 export const PaymentScreen: React.FC<PaymentScreenProps> = ({ navigation, route }) => {
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.xl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+    },
+    content: {
+      flex: 1,
+      padding: spacing.lg,
+    },
+    summaryCard: {
+      backgroundColor: colors.surface,
+      padding: spacing.lg,
+      borderRadius: 12,
+      marginBottom: spacing.lg,
+    },
+    summaryTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.md,
+    },
+    summaryRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    summaryLabel: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.secondary,
+    },
+    summaryValue: {
+      fontSize: typography.fontSize.md,
+      fontFamily: typography.fontFamily.medium,
+      color: colors.text.primary,
+    },
+    section: {
+      marginBottom: spacing.lg,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginBottom: spacing.md,
+    },
+    paymentMethodCard: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: colors.background.primary,
+      padding: spacing.lg,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      marginBottom: spacing.sm,
+    },
+    paymentMethodCardSelected: {
+      borderColor: colors.primary,
+      backgroundColor: colors.surface,
+    },
+    paymentMethodContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    paymentMethodText: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.secondary,
+      marginLeft: spacing.md,
+    },
+    paymentMethodTextSelected: {
+      color: colors.primary,
+      fontFamily: typography.fontFamily.medium,
+    },
+    securityNotice: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      padding: spacing.md,
+      borderRadius: 8,
+      marginTop: spacing.lg,
+    },
+    securityText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+      marginLeft: spacing.sm,
+    },
+    footer: {
+      padding: spacing.lg,
+      borderTopWidth: 1,
+      borderTopColor: colors.border.light,
+    },
+    payButton: {
+      backgroundColor: colors.primary,
+      paddingVertical: spacing.md,
+      borderRadius: 12,
+      alignItems: 'center',
+    },
+    payButtonDisabled: {
+      backgroundColor: colors.text.secondary,
+    },
+    payButtonText: {
+      color: colors.background.primary,
+      fontSize: typography.fontSize.lg,
+      fontFamily: typography.fontFamily.bold,
+    },
+    processingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: spacing.xl,
+    },
+    processingTitle: {
+      fontSize: typography.fontSize.xl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginTop: spacing.lg,
+      marginBottom: spacing.sm,
+    },
+    processingText: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.secondary,
+      textAlign: 'center',
+      lineHeight: 24,
+    },
+    resultContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: spacing.xl,
+    },
+    resultTitle: {
+      fontSize: typography.fontSize.xl,
+      fontFamily: typography.fontFamily.bold,
+      color: colors.text.primary,
+      marginTop: spacing.lg,
+      marginBottom: spacing.sm,
+    },
+    resultText: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.secondary,
+      textAlign: 'center',
+      lineHeight: 24,
+      marginBottom: spacing.lg,
+    },
+    paymentDetails: {
+      backgroundColor: colors.surface,
+      padding: spacing.lg,
+      borderRadius: 12,
+      width: '100%',
+    },
+    paymentDetailsText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+      marginBottom: spacing.xs,
+    },
+  });
+
   const { t } = useLanguage();
   const { amount, currency = Currency.VND, description, bookingId } = route.params;
   
@@ -356,173 +528,3 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({ navigation, route 
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.xl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-  },
-  content: {
-    flex: 1,
-    padding: spacing.lg,
-  },
-  summaryCard: {
-    backgroundColor: colors.surface,
-    padding: spacing.lg,
-    borderRadius: 12,
-    marginBottom: spacing.lg,
-  },
-  summaryTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  summaryLabel: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.secondary,
-  },
-  summaryValue: {
-    fontSize: typography.fontSize.md,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.primary,
-  },
-  section: {
-    marginBottom: spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  },
-  paymentMethodCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: colors.background.primary,
-    padding: spacing.lg,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    marginBottom: spacing.sm,
-  },
-  paymentMethodCardSelected: {
-    borderColor: colors.primary,
-    backgroundColor: colors.surface,
-  },
-  paymentMethodContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  paymentMethodText: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.secondary,
-    marginLeft: spacing.md,
-  },
-  paymentMethodTextSelected: {
-    color: colors.primary,
-    fontFamily: typography.fontFamily.medium,
-  },
-  securityNotice: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    padding: spacing.md,
-    borderRadius: 8,
-    marginTop: spacing.lg,
-  },
-  securityText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-    marginLeft: spacing.sm,
-  },
-  footer: {
-    padding: spacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: colors.border.light,
-  },
-  payButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.md,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  payButtonDisabled: {
-    backgroundColor: colors.text.secondary,
-  },
-  payButtonText: {
-    color: colors.background.primary,
-    fontSize: typography.fontSize.lg,
-    fontFamily: typography.fontFamily.bold,
-  },
-  processingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.xl,
-  },
-  processingTitle: {
-    fontSize: typography.fontSize.xl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginTop: spacing.lg,
-    marginBottom: spacing.sm,
-  },
-  processingText: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  resultContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.xl,
-  },
-  resultTitle: {
-    fontSize: typography.fontSize.xl,
-    fontFamily: typography.fontFamily.bold,
-    color: colors.text.primary,
-    marginTop: spacing.lg,
-    marginBottom: spacing.sm,
-  },
-  resultText: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: spacing.lg,
-  },
-  paymentDetails: {
-    backgroundColor: colors.surface,
-    padding: spacing.lg,
-    borderRadius: 12,
-    width: '100%',
-  },
-  paymentDetailsText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-    marginBottom: spacing.xs,
-  },
-});

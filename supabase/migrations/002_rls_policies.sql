@@ -90,6 +90,16 @@ BEGIN
         SELECT DISTINCT school_id
         FROM public.school_students
         WHERE parent_email IN (SELECT email FROM public.users WHERE auth_user_id = auth.uid())
+        
+        UNION
+        
+        -- Global admins can access ALL schools
+        SELECT id FROM public.schools 
+        WHERE EXISTS(
+            SELECT 1 FROM public.users 
+            WHERE auth_user_id = auth.uid() 
+            AND role = 'admin'
+        )
     );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
