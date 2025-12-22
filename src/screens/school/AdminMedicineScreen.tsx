@@ -645,7 +645,7 @@ const AdminMedicineScreen: React.FC = () => {
       {/* FAB */}
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => navigation.navigate('AddMedicineReminderScreen' as never)}
+        onPress={() => navigation.navigate('AddMedicineReminder' as never)}
       >
         <MaterialIcons name="add" size={24} color="#FFFFFF" />
       </TouchableOpacity>
@@ -660,4 +660,6 @@ const AdminMedicineScreen: React.FC = () => {
 };
 
 export default AdminMedicineScreen;
+
+
 

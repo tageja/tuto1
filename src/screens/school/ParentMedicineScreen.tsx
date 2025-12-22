@@ -514,7 +514,7 @@ const ParentMedicineScreen: React.FC = () => {
       <TouchableOpacity
         style={styles.fab}
         onPress={() =>
-          navigation.navigate('AddMedicineReminderScreen' as never, {
+          navigation.navigate('AddMedicineReminder' as never, {
             studentId: selectedChildId,
           } as never)
         }
@@ -526,4 +526,6 @@ const ParentMedicineScreen: React.FC = () => {
 };
 
 export default ParentMedicineScreen;
+
+
 
