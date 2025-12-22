@@ -469,7 +469,7 @@ const AdminMedicineScreen: React.FC = () => {
           </Text>
         )}
         <Text style={styles.medicineDetails}>
-          {t('school.medicine.frequency') || 'Frequency'}: {formatFrequency(item.frequency)}
+          {t('school.medicine.log.frequency') || 'Frequency'}: {formatFrequency(item.frequency)}
         </Text>
         {item.time_of_day && item.time_of_day.length > 0 && (
           <Text style={styles.medicineDetails}>
