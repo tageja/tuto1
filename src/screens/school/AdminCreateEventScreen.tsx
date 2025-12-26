@@ -77,9 +77,13 @@ const AdminCreateEventScreen: React.FC = () => {
 
     setLoading(true);
     try {
+      // Use resolved school ID from currentSchool to ensure consistency
+      const schoolId = currentSchool.id || currentSchool.name;
+      console.log('📝 Creating event for school:', schoolId);
+      
       await createEvent({
         ...data,
-        school_id: currentSchool.id || currentSchool.name,
+        school_id: schoolId,
       });
 
       Alert.alert(t("common.success"), t("school.events.createSuccess"), [

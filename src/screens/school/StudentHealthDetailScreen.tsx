@@ -78,7 +78,7 @@ const StudentHealthDetailScreen: React.FC = () => {
       loadData();
       Alert.alert(
         t('common.success') || 'Success',
-        t('dashboard.health.toasts.contactsUpdated') || 'Emergency contacts updated'
+        t('school.health.toasts.contactsUpdated') || 'Emergency contacts updated'
       );
     } catch (error: any) {
       console.error('Error updating contacts:', error);
@@ -115,11 +115,8 @@ const StudentHealthDetailScreen: React.FC = () => {
     }
   };
 
-  if (loading) {
-
-    // Styles with dynamic theme
-
-    const styles = StyleSheet.create({
+  // Styles with dynamic theme
+  const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.surface,
@@ -462,6 +459,7 @@ const StudentHealthDetailScreen: React.FC = () => {
   },
 });
 
+  if (loading) {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
@@ -516,7 +514,7 @@ const StudentHealthDetailScreen: React.FC = () => {
         {/* Medical Information */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            {t('dashboard.health.sections.medicalInfo') || 'Medical Information'}
+            {t('school.health.sections.medicalInfo') || 'Medical Information'}
           </Text>
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
@@ -549,7 +547,7 @@ const StudentHealthDetailScreen: React.FC = () => {
         {/* Allergies & Conditions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            {t('dashboard.health.sections.allergies') || 'Allergies & Conditions'}
+            {t('school.health.sections.allergies') || 'Allergies & Conditions'}
           </Text>
           {data.allergies.length > 0 ? (
             <View style={styles.list}>
@@ -582,7 +580,7 @@ const StudentHealthDetailScreen: React.FC = () => {
           ) : (
             <View style={styles.emptySection}>
               <Text style={styles.emptyText}>
-                {t('dashboard.health.empty.noAllergies') || 'No allergies recorded'}
+                {t('school.health.empty.noAllergies') || 'No allergies recorded'}
               </Text>
             </View>
           )}
@@ -591,7 +589,7 @@ const StudentHealthDetailScreen: React.FC = () => {
         {/* Medications */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            {t('dashboard.health.sections.medications') || 'Medications'}
+            {t('school.health.sections.medications') || 'Medications'}
           </Text>
           {data.medications.length > 0 ? (
             <View style={styles.list}>
@@ -621,7 +619,7 @@ const StudentHealthDetailScreen: React.FC = () => {
           ) : (
             <View style={styles.emptySection}>
               <Text style={styles.emptyText}>
-                {t('dashboard.health.empty.noMedications') || 'No medications recorded'}
+                {t('school.health.empty.noMedications') || 'No medications recorded'}
               </Text>
             </View>
           )}
@@ -631,7 +629,7 @@ const StudentHealthDetailScreen: React.FC = () => {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>
-              {t('dashboard.health.sections.emergencyContacts') || 'Emergency Contacts'}
+              {t('school.health.sections.emergencyContacts') || 'Emergency Contacts'}
             </Text>
             <TouchableOpacity
               onPress={() => setShowEditContacts(true)}
@@ -639,7 +637,7 @@ const StudentHealthDetailScreen: React.FC = () => {
             >
               <MaterialIcons name="edit" size={20} color={colors.primary} />
               <Text style={styles.editButtonText}>
-                {t('dashboard.health.buttons.editContacts') || 'Edit'}
+                {t('school.health.buttons.editContacts') || 'Edit'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -667,7 +665,7 @@ const StudentHealthDetailScreen: React.FC = () => {
         {/* Vaccination Records */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            {t('dashboard.health.sections.vaccinations') || 'Vaccination Records'}
+            {t('school.health.sections.vaccinations') || 'Vaccination Records'}
           </Text>
           {data.vaccinations.length > 0 ? (
             <View style={styles.list}>
@@ -697,7 +695,7 @@ const StudentHealthDetailScreen: React.FC = () => {
           ) : (
             <View style={styles.emptySection}>
               <Text style={styles.emptyText}>
-                {t('dashboard.health.empty.noVaccinations') || 'No vaccinations recorded'}
+                {t('school.health.empty.noVaccinations') || 'No vaccinations recorded'}
               </Text>
             </View>
           )}
@@ -706,7 +704,7 @@ const StudentHealthDetailScreen: React.FC = () => {
         {/* Vitals */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            {t('dashboard.health.sections.vitals') || 'Vitals Log'} (Last 12 entries)
+            {t('school.health.sections.vitals') || 'Vitals Log'} (Last 12 entries)
           </Text>
           {data.vitals.length > 0 ? (
             <View style={styles.vitalsTable}>
@@ -736,7 +734,7 @@ const StudentHealthDetailScreen: React.FC = () => {
           ) : (
             <View style={styles.emptySection}>
               <Text style={styles.emptyText}>
-                {t('dashboard.health.empty.noVitals') || 'No vitals recorded'}
+                {t('school.health.empty.noVitals') || 'No vitals recorded'}
               </Text>
             </View>
           )}

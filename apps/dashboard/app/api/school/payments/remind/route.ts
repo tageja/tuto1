@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '../../../../../lib/supabase';
 import { resolveSchoolId } from '../../../../../lib/school/resolveSchoolId';
+import { createNotification } from '../../../../../lib/notifications.server';
 
 /**
  * Payments Remind API Route - Uses Supabase
@@ -96,7 +97,8 @@ export async function POST(request: NextRequest) {
     );
 
     // Create notifications for each payment item
-    const notifications: any[] = [];
+    const notificationPromises: Promise<any>[] = [];
+    let notificationCount = 0;
 
     for (const item of paymentItems) {
       const student = item.school_students as any;
@@ -115,53 +117,55 @@ export async function POST(request: NextRequest) {
       }
 
       const isOverdue = item.status === 'overdue' || (item.due_date && new Date(item.due_date) < new Date());
-      // Use 'payment' as type since the notification type constraint might not include payment_due/payment_overdue
-      const notificationType = 'payment';
       const formattedAmount = (item.amount_cents || 0).toLocaleString('vi-VN');
+      const dueDateStr = item.due_date ? new Date(item.due_date).toLocaleDateString('vi-VN') : 'N/A';
 
-      notifications.push({
-        school_id: schoolId,
-        user_id: parentUserId,
-        type: notificationType,
-        ref_id: item.id,
-        title: isOverdue ? 'Thanh Toán Quá Hạn / Payment Overdue' : 'Nhắc Thanh Toán / Payment Due',
-        message: `${student?.first_name || ''} ${student?.last_name || ''} - ${item.title}: ${formattedAmount} ₫ hạn ${new Date(item.due_date).toLocaleDateString('vi-VN')}`,
-        audience_scope: 'Users',
-        payload: {
-          payment_item_id: item.id,
-          student_id: item.student_id,
-          student_name: `${student?.first_name || ''} ${student?.last_name || ''}`,
-          title: item.title,
-          amount_cents: item.amount_cents,
-          due_date: item.due_date,
-          status: item.status,
-        },
-      });
+      notificationPromises.push(
+        createNotification({
+          supabase,
+          schoolId: schoolId,
+          recipientUserId: parentUserId,
+          recipientRole: 'parent',
+          type: 'payment',
+          priority: isOverdue ? 'urgent' : 'urgent', // Payment reminders are always urgent
+          title: isOverdue ? 'Thanh Toán Quá Hạn / Payment Overdue' : 'Nhắc Thanh Toán / Payment Due',
+          body: `${student?.first_name || ''} ${student?.last_name || ''} - ${item.title}: ${formattedAmount} ₫ hạn ${dueDateStr}`,
+          targetType: 'payment',
+          targetId: item.id,
+          meta: {
+            payment_item_id: item.id,
+            student_id: item.student_id,
+            student_name: `${student?.first_name || ''} ${student?.last_name || ''}`,
+            title: item.title,
+            amount_cents: item.amount_cents,
+            due_date: item.due_date,
+            status: item.status,
+            is_overdue: isOverdue,
+          },
+        }).then(() => {
+          notificationCount++;
+        }).catch((notifError) => {
+          console.error('Failed to create notification for parent:', parentUserId, notifError);
+        })
+      );
     }
 
-    if (notifications.length === 0) {
+    if (notificationPromises.length === 0) {
       return NextResponse.json(
         { success: false, error: 'No valid parent users found for the payment items' },
         { status: 400 }
       );
     }
 
-    // Insert notifications
-    const { data: createdNotifications, error: notifError } = await supabase
-      .from('school_notifications')
-      .insert(notifications)
-      .select();
+    // Wait for all notifications to be created
+    await Promise.allSettled(notificationPromises);
 
-    if (notifError) {
-      console.error('Error creating notifications:', notifError);
-      throw notifError;
-    }
+    console.log('✅ Payment reminder notifications created:', notificationCount);
 
     return NextResponse.json({
       success: true,
       data: {
-        notifications: createdNotifications || [],
-        count: createdNotifications?.length || 0,
+        count: notificationCount,
       },
     }, { status: 201 });
   } catch (error: any) {

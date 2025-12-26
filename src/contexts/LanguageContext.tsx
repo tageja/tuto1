@@ -5,7 +5,7 @@ import { translations, Language } from '../translations';
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string>) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -55,7 +55,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  const t = (key: string): string => {
+  const t = (key: string, params?: Record<string, string>): string => {
     try {
       const keys = key.split('.');
       let value: any = translations[language];
@@ -70,7 +70,16 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
       }
       
-      return typeof value === 'string' ? value : key;
+      let result = typeof value === 'string' ? value : key;
+      
+      // Handle interpolation: replace {{variableName}} with actual values
+      if (params && typeof result === 'string') {
+        Object.entries(params).forEach(([paramKey, paramValue]) => {
+          result = result.replace(new RegExp(`\\{\\{${paramKey}\\}\\}`, 'g'), paramValue);
+        });
+      }
+      
+      return result;
     } catch (error) {
       console.error('🌐 LanguageProvider: Error in translation function:', error);
       return key;

@@ -383,6 +383,11 @@ export async function fetchParentChildren(schoolIdentifier: string): Promise<Par
   }
 
   // Get children via school_parent_students
+  console.log('📚 fetchParentChildren: Looking up children for:', {
+    parentUserId: userData.id,
+    schoolId,
+  });
+  
   const { data: parentStudents, error } = await supabase
     .from('school_parent_students')
     .select(`
@@ -391,6 +396,15 @@ export async function fetchParentChildren(schoolIdentifier: string): Promise<Par
     `)
     .eq('parent_user_id', userData.id)
     .eq('school_id', schoolId);
+
+  console.log('📚 fetchParentChildren: Query result:', {
+    count: parentStudents?.length || 0,
+    error: error?.message,
+    students: parentStudents?.map((ps: any) => ({
+      id: ps.school_students?.id,
+      name: `${ps.school_students?.first_name} ${ps.school_students?.last_name}`,
+    })),
+  });
 
   if (error) {
     throw error;

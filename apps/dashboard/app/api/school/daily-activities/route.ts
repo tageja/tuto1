@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '../../../../lib/supabase';
+import { createNotification } from '../../../../lib/notifications.server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -178,6 +179,67 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Created activity:', data.id);
 
+    // Create notifications for parents of students in the class
+    try {
+      if (activity.class_id) {
+        // Get all parents of students in this class
+        const { data: studentsInClass } = await supabase
+          .from('school_students')
+          .select('id')
+          .eq('school_id', resolvedSchoolId)
+          .eq('class_id', activity.class_id);
+
+        if (studentsInClass && studentsInClass.length > 0) {
+          const studentIds = studentsInClass.map(s => s.id);
+          const { data: parentMappings } = await supabase
+            .from('school_parent_students')
+            .select('parent_user_id')
+            .eq('school_id', resolvedSchoolId)
+            .in('student_id', studentIds);
+
+          if (parentMappings && parentMappings.length > 0) {
+            const parentUserIds = new Set<string>();
+            parentMappings.forEach((m: any) => {
+              if (m.parent_user_id) {
+                parentUserIds.add(m.parent_user_id);
+              }
+            });
+
+            const notificationPromises = Array.from(parentUserIds).map(async (parentUserId) => {
+              try {
+                await createNotification({
+                  supabase,
+                  schoolId: resolvedSchoolId,
+                  recipientUserId: parentUserId,
+                  recipientRole: 'parent',
+                  type: 'daily_activity',
+                  priority: 'normal',
+                  title: activity.title || 'New Daily Activity',
+                  body: (activity.description || '').substring(0, 150) + ((activity.description || '').length > 150 ? '...' : ''),
+                  targetType: 'daily_activity',
+                  targetId: data.id,
+                  meta: {
+                    date: activity.date,
+                    time: activity.time,
+                    type: activity.type,
+                    class_id: activity.class_id,
+                  },
+                });
+              } catch (notifError) {
+                console.error('Failed to create notification for parent:', parentUserId, notifError);
+              }
+            });
+
+            await Promise.allSettled(notificationPromises);
+            console.log('✅ Daily activity notifications created for', parentUserIds.size, 'parents');
+          }
+        }
+      }
+    } catch (notifError) {
+      // Don't fail the request if notifications fail
+      console.error('Error creating daily activity notifications:', notifError);
+    }
+
     return NextResponse.json({
       success: true,
       data,
@@ -275,6 +337,9 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
+
+
+
 
 
 

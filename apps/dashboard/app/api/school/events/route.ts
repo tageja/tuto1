@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '../../../../lib/supabase';
 import { resolveSchoolId } from '../../../../lib/school/resolveSchoolId';
+import { createNotification } from '../../../../lib/notifications.server';
 
 /**
  * Events API Route - Uses Supabase
@@ -396,22 +397,117 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // If status is 'published', create notification
+    // If status is 'published', create notifications for parents and admins
     if (body.status === 'published') {
-      const audienceScope = body.class_id ? 'Classes' : 'School';
-      const classIds = body.class_id ? [body.class_id] : null;
+      try {
+        // Get all parents in the school (or specific class if class event)
+        let parentQuery = supabase
+          .from('school_parent_students')
+          .select('parent_user_id')
+          .eq('school_id', body.school_id);
+        
+        // If event is class-specific, filter by class_id
+        if (body.category === 'class' && body.class_id) {
+          // Get student IDs in that class
+          const { data: studentsInClass } = await supabase
+            .from('school_students')
+            .select('id')
+            .eq('school_id', body.school_id)
+            .eq('class_id', body.class_id);
+          
+          if (studentsInClass && studentsInClass.length > 0) {
+            const studentIds = studentsInClass.map(s => s.id);
+            parentQuery = parentQuery.in('student_id', studentIds);
+          } else {
+            // No students in that class, skip parent notifications
+            parentQuery = null;
+          }
+        }
 
-      await supabase.from('school_notifications').insert([
-        {
-          school_id: body.school_id,
-          type: 'event',
-          ref_id: eventData.id,
-          title: body.title,
-          message: body.description || null,
-          audience_scope: audienceScope,
-          class_ids: classIds,
-        },
-      ]);
+        // Get unique parent user IDs
+        const parentUserIds = new Set<string>();
+        if (parentQuery) {
+          const { data: parentMappings } = await parentQuery;
+          if (parentMappings) {
+            parentMappings.forEach((m: any) => {
+              if (m.parent_user_id) {
+                parentUserIds.add(m.parent_user_id);
+              }
+            });
+          }
+        }
+
+        // Create notifications for each parent
+        const notificationPromises = Array.from(parentUserIds).map(async (parentUserId) => {
+          try {
+            await createNotification({
+              supabase,
+              schoolId: body.school_id,
+              recipientUserId: parentUserId,
+              recipientRole: 'parent',
+              type: 'event',
+              priority: 'normal',
+              title: body.title,
+              body: (body.description || '').substring(0, 150) + ((body.description || '').length > 150 ? '...' : ''),
+              targetType: 'event',
+              targetId: eventData.id,
+              meta: {
+                category: body.category,
+                starts_at: body.starts_at,
+                ends_at: body.ends_at,
+                location: body.location,
+                class_id: body.class_id,
+              },
+            });
+          } catch (notifError) {
+            console.error('Failed to create notification for parent:', parentUserId, notifError);
+          }
+        });
+
+        await Promise.allSettled(notificationPromises);
+        console.log('✅ Event notifications created for', parentUserIds.size, 'parents');
+
+        // Also notify admins about the new event
+        const { data: adminUsers } = await supabase
+          .from('school_users')
+          .select('user_id')
+          .eq('school_id', body.school_id)
+          .in('role', ['admin', 'teacher']);
+
+        if (adminUsers && adminUsers.length > 0) {
+          const adminNotificationPromises = adminUsers.map(async (admin) => {
+            try {
+              await createNotification({
+                supabase,
+                schoolId: body.school_id,
+                recipientUserId: admin.user_id,
+                recipientRole: 'admin',
+                type: 'event',
+                priority: 'normal',
+                title: `New Event: ${body.title}`,
+                body: `Event published${body.category === 'class' ? ' for specific class' : ' for all parents'}`,
+                targetType: 'event',
+                targetId: eventData.id,
+                meta: {
+                  category: body.category,
+                  starts_at: body.starts_at,
+                  ends_at: body.ends_at,
+                  location: body.location,
+                  class_id: body.class_id,
+                },
+              });
+            } catch (notifError) {
+              console.error('Failed to create notification for admin:', admin.user_id, notifError);
+            }
+          });
+
+          await Promise.allSettled(adminNotificationPromises);
+          console.log('✅ Event notifications created for', adminUsers.length, 'admins');
+        }
+      } catch (notifError) {
+        // Don't fail the request if notifications fail
+        console.error('Error creating event notifications:', notifError);
+      }
     }
 
     return NextResponse.json({

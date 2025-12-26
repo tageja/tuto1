@@ -1,348 +1,107 @@
-import { supabase, getCurrentUser } from '../../config/supabase';
+/**
+ * Homework Service
+ * Handles all homework-related data operations for mobile app
+ */
+
+import { supabase } from '../../config/supabase';
+import { getCurrentUser } from '../../config/supabase';
+import { resolveSchoolId } from '../school-id';
 import type {
-  HomeworkKPIs,
-  HomeworkListItem,
-  ScoreDataPoint,
-  DateRange,
+  HomeworkAssignment,
+  HomeworkSubmission,
+  HomeworkStats,
+  HomeworkFilters,
+  HomeworkStatusTab,
+  TimeRange,
   Child,
   ClassOption,
+  SubjectOption,
   StudentOption,
 } from '../../types/school/homework';
 
-/**
- * Resolve school identifier (name or UUID) to UUID
- */
-async function resolveSchoolId(schoolIdentifier: string): Promise<string | null> {
-  try {
-    console.log('🏫 Resolving school ID:', schoolIdentifier);
-    
-    // If it's already a valid UUID, return it
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (uuidRegex.test(schoolIdentifier)) {
-      console.log('✅ School ID is valid UUID:', schoolIdentifier);
-      return schoolIdentifier;
-    }
-
-    // If it's an Airtable record ID (starts with 'rec'), try to find by name fallback
-    if (schoolIdentifier.startsWith('rec')) {
-      console.log('⚠️ Detected Airtable record ID, using fallback');
-      // Try common demo school names
-      const fallbackNames = ['Tuto Demo School', 'Demo School', schoolIdentifier];
-      
-      for (const name of fallbackNames) {
-        const { data, error } = await supabase
-          .from('schools')
-          .select('id')
-          .ilike('name', name)
-          .limit(1)
-          .single();
-        
-        if (data && !error) {
-          console.log('✅ Found school by fallback name:', name, '→', data.id);
-          return data.id;
-        }
-      }
-    }
-
-    // Try to find school by exact name match
-    const { data, error } = await supabase
-      .from('schools')
-      .select('id')
-      .eq('name', schoolIdentifier)
-      .single();
-
-    if (error) {
-      console.warn('⚠️ School not found by exact name:', schoolIdentifier, error.message);
-      
-      // Try case-insensitive match as fallback
-      const { data: dataIlike, error: errorIlike } = await supabase
-        .from('schools')
-        .select('id')
-        .ilike('name', schoolIdentifier)
-        .limit(1)
-        .single();
-      
-      if (dataIlike && !errorIlike) {
-        console.log('✅ Found school by case-insensitive match:', dataIlike.id);
-        return dataIlike.id;
-      }
-      
-      // Last resort: get first school
-      const { data: firstSchool } = await supabase
-        .from('schools')
-        .select('id')
-        .limit(1)
-        .single();
-      
-      if (firstSchool) {
-        console.warn('⚠️ Using first available school as fallback:', firstSchool.id);
-        return firstSchool.id;
-      }
-      
-      return null;
-    }
-
-    if (!data) {
-      console.error('❌ No school found for identifier:', schoolIdentifier);
-      return null;
-    }
-
-    console.log('✅ Resolved school ID:', data.id);
-    return data.id;
-  } catch (error) {
-    console.error('❌ Error resolving school ID:', error);
-    return null;
-  }
-}
+// ============================================================================
+// Date Range Calculations
+// ============================================================================
 
 /**
- * Calculate date range based on filter
+ * Calculate date range based on time range selection
  */
-export function getDateRangeForHomework(
-  date: Date,
-  range: DateRange
-): { from: Date; to: Date } {
-  const to = new Date(date);
-  to.setHours(23, 59, 59, 999);
-  
-  const from = new Date(date);
-  from.setHours(0, 0, 0, 0);
-  
+export function calculateDateRange(
+  range: TimeRange,
+  baseDate: Date = new Date()
+): [Date, Date] {
+  const today = new Date(baseDate);
+  today.setHours(0, 0, 0, 0);
+
+  let startDate: Date;
+  let endDate: Date = new Date(today);
+
   switch (range) {
     case 'week': {
-      // Get Monday of current week
-      const day = from.getDay();
-      const diff = from.getDate() - day + (day === 0 ? -6 : 1);
-      from.setDate(diff);
-      
-      // Get Sunday of current week
-      const toDate = new Date(from);
-      toDate.setDate(from.getDate() + 6);
-      toDate.setHours(23, 59, 59, 999);
-      
-      return { from, to: toDate };
+      // Monday-Sunday of the week containing baseDate
+      const dayOfWeek = today.getDay();
+      const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+      startDate = new Date(today);
+      startDate.setDate(today.getDate() + mondayOffset);
+      endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+      break;
     }
     case '1m': {
-      const start = new Date(date.getFullYear(), date.getMonth(), 1);
-      start.setHours(0, 0, 0, 0);
-      const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-      end.setHours(23, 59, 59, 999);
-      return { from: start, to: end };
+      startDate = new Date(today);
+      startDate.setMonth(today.getMonth() - 1);
+      break;
     }
     case '3m': {
-      const start = new Date(date.getFullYear(), date.getMonth(), 1);
-      start.setHours(0, 0, 0, 0);
-      const end = new Date(date.getFullYear(), date.getMonth() + 3, 0);
-      end.setHours(23, 59, 59, 999);
-      return { from: start, to: end };
+      startDate = new Date(today);
+      startDate.setMonth(today.getMonth() - 3);
+      break;
     }
     case '6m': {
-      const start = new Date(date.getFullYear(), date.getMonth(), 1);
-      start.setHours(0, 0, 0, 0);
-      const end = new Date(date.getFullYear(), date.getMonth() + 6, 0);
-      end.setHours(23, 59, 59, 999);
-      return { from: start, to: end };
-    }
-    case 'course': {
-      const start = new Date(date.getFullYear(), date.getMonth(), 1);
-      start.setHours(0, 0, 0, 0);
-      const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-      end.setHours(23, 59, 59, 999);
-      return { from: start, to: end };
+      startDate = new Date(today);
+      startDate.setMonth(today.getMonth() - 6);
+      break;
     }
     default:
-      return { from, to };
+      startDate = today;
+      endDate = today;
   }
+
+  startDate.setHours(0, 0, 0, 0);
+  endDate.setHours(23, 59, 59, 999);
+
+  return [startDate, endDate];
 }
 
-/**
- * Format date as YYYY-MM-DD
- */
-export function formatDate(date: Date): string {
-  return date.toISOString().split('T')[0];
-}
+// ============================================================================
+// Parent Children
+// ============================================================================
 
 /**
- * Check if assignment is overdue
+ * Fetch children for current parent user
  */
-export function isOverdue(dueDate: string): boolean {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  
-  const due = new Date(dueDate);
-  due.setHours(0, 0, 0, 0);
-  
-  return due < today;
-}
-
-/**
- * Fetch homework KPIs
- */
-export async function fetchHomeworkKpis(
-  schoolId: string,
-  from: Date,
-  to: Date,
-  classId?: string | null,
-  subject?: string | null,
-  studentId?: string | null,
-  status: string = 'all'
-): Promise<HomeworkKPIs> {
+export async function fetchParentChildren(schoolIdentifier: string): Promise<Child[]> {
   try {
-    const resolvedSchoolId = await resolveSchoolId(schoolId);
-    if (!resolvedSchoolId) {
-      throw new Error('Invalid school ID');
-    }
-
-    const { data, error } = await supabase.rpc('hw_kpis', {
-      p_school: resolvedSchoolId,
-      p_from: formatDate(from),
-      p_to: formatDate(to),
-      p_class: classId || null,
-      p_subject: subject || null,
-      p_student: studentId || null,
-      p_status: status,
-    });
-
-    if (error) {
-      console.error('Error fetching homework KPIs:', error);
-      return { total: 0, pending: 0, completed: 0, completion_rate: 0 };
-    }
-
-    // RPC returns array with single row
-    const result = data?.[0] || { total: 0, pending: 0, completed: 0, completion_rate: 0 };
-    
-    return {
-      total: result.total || 0,
-      pending: result.pending || 0,
-      completed: result.completed || 0,
-      completion_rate: result.completion_rate || 0,
-    };
-  } catch (error) {
-    console.error('Error in fetchHomeworkKpis:', error);
-    return { total: 0, pending: 0, completed: 0, completion_rate: 0 };
-  }
-}
-
-/**
- * Fetch homework list
- */
-export async function fetchHomeworkList(
-  schoolId: string,
-  from: Date,
-  to: Date,
-  classId?: string | null,
-  subject?: string | null,
-  studentId?: string | null,
-  status: string = 'all'
-): Promise<HomeworkListItem[]> {
-  try {
-    const resolvedSchoolId = await resolveSchoolId(schoolId);
-    if (!resolvedSchoolId) {
-      throw new Error('Invalid school ID');
-    }
-
-    const { data, error } = await supabase.rpc('hw_list', {
-      p_school: resolvedSchoolId,
-      p_from: formatDate(from),
-      p_to: formatDate(to),
-      p_class: classId || null,
-      p_subject: subject || null,
-      p_student: studentId || null,
-      p_status: status,
-    });
-
-    if (error) {
-      console.error('Error fetching homework list:', error);
+    const schoolId = await resolveSchoolId(schoolIdentifier);
+    if (!schoolId) {
+      console.warn('School not found for identifier:', schoolIdentifier);
       return [];
     }
 
-    return (data || []).map((item: any) => ({
-      assignment_id: item.assignment_id,
-      subject: item.subject,
-      title: item.title,
-      class_name: item.class_name,
-      due_date: item.due_date,
-      status: item.status,
-      submitted: item.submitted || 0,
-      total: item.total || 0,
-      progress_percent: item.progress_percent || 0,
-      child_status: item.child_status || null,
-      child_score: item.child_score || null,
-    }));
-  } catch (error) {
-    console.error('Error in fetchHomeworkList:', error);
-    return [];
-  }
-}
-
-/**
- * Fetch scores series for charts
- */
-export async function fetchScoresSeries(
-  schoolId: string,
-  from: Date,
-  to: Date,
-  classId?: string | null,
-  subject?: string | null,
-  studentId?: string | null
-): Promise<ScoreDataPoint[]> {
-  try {
-    const resolvedSchoolId = await resolveSchoolId(schoolId);
-    if (!resolvedSchoolId) {
-      throw new Error('Invalid school ID');
-    }
-
-    const { data, error } = await supabase.rpc('hw_scores_series', {
-      p_school: resolvedSchoolId,
-      p_from: formatDate(from),
-      p_to: formatDate(to),
-      p_class: classId || null,
-      p_subject: subject || null,
-      p_student: studentId || null,
-    });
-
-    if (error) {
-      console.error('Error fetching scores series:', error);
-      return [];
-    }
-
-    return (data || []).map((item: any) => ({
-      d: item.d,
-      avg_score: item.avg_score || 0,
-    }));
-  } catch (error) {
-    console.error('Error in fetchScoresSeries:', error);
-    return [];
-  }
-}
-
-/**
- * Fetch parent's children for a school
- */
-export async function fetchParentChildren(schoolId: string): Promise<Child[]> {
-  try {
     const user = await getCurrentUser();
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
+    if (!user) throw new Error('User not authenticated');
 
-    const resolvedSchoolId = await resolveSchoolId(schoolId);
-    if (!resolvedSchoolId) {
-      throw new Error('Invalid school ID');
-    }
-
-    // Get user's database ID
-    const { data: userData, error: userError } = await supabase
+    const { data: userProfile, error: userError } = await supabase
       .from('users')
       .select('id')
       .eq('auth_user_id', user.id)
       .single();
 
-    if (userError || !userData) {
+    if (userError || !userProfile) {
       throw new Error('User profile not found');
     }
 
-    // Fetch children via parent-student mapping
+    // Get parent-student relationships with student details joined
     const { data: mappings, error: mappingsError } = await supabase
       .from('school_parent_students')
       .select(
@@ -352,12 +111,13 @@ export async function fetchParentChildren(schoolId: string): Promise<Child[]> {
           id,
           first_name,
           last_name,
+          class_id,
           school_classes (name)
         )
       `
       )
-      .eq('school_id', resolvedSchoolId)
-      .eq('parent_user_id', userData.id);
+      .eq('school_id', schoolId)
+      .eq('parent_user_id', userProfile.id);
 
     if (mappingsError) {
       console.error('Error fetching parent-student mappings:', mappingsError);
@@ -368,7 +128,8 @@ export async function fetchParentChildren(schoolId: string): Promise<Child[]> {
       id: m.school_students.id,
       firstName: m.school_students.first_name || '',
       lastName: m.school_students.last_name || '',
-      className: m.school_students.school_classes?.[0]?.name,
+      className: m.school_students.school_classes?.[0]?.name || null,
+      classId: m.school_students.class_id,
     }));
   } catch (error) {
     console.error('Error in fetchParentChildren:', error);
@@ -376,193 +137,512 @@ export async function fetchParentChildren(schoolId: string): Promise<Child[]> {
   }
 }
 
+// ============================================================================
+// Admin Data Fetching
+// ============================================================================
+
 /**
- * Fetch classes for a school (for admin filters)
+ * Fetch homework statistics for admin view
  */
-export async function fetchClassesForSchool(schoolId: string): Promise<ClassOption[]> {
-  try {
-    console.log('📚 fetchClassesForSchool called with:', schoolId);
-    const resolvedSchoolId = await resolveSchoolId(schoolId);
-    console.log('📚 Resolved school ID:', resolvedSchoolId);
-    
-    if (!resolvedSchoolId) {
-      console.error('❌ Invalid school ID, cannot fetch classes');
-      throw new Error('Invalid school ID');
-    }
-
-    console.log('📚 Querying school_classes for school_id:', resolvedSchoolId);
-    const { data, error } = await supabase
-      .from('school_classes')
-      .select('id, name')
-      .eq('school_id', resolvedSchoolId)
-      .ilike('status', 'active')
-      .order('name', { ascending: true });
-
-    if (error) {
-      console.error('❌ Error fetching classes from Supabase:', error);
-      return [];
-    }
-
-    console.log('✅ Classes fetched successfully:', data?.length || 0, 'classes');
-    if (data && data.length > 0) {
-      console.log('📚 First class:', data[0]);
-    }
-
-    return (data || []).map((c: any) => ({
-      id: c.id,
-      name: c.name,
-    }));
-  } catch (error) {
-    console.error('❌ Error in fetchClassesForSchool:', error);
-    return [];
+export async function fetchHomeworkStats(
+  schoolIdentifier: string,
+  filters?: HomeworkFilters
+): Promise<HomeworkStats> {
+  const schoolId = await resolveSchoolId(schoolIdentifier);
+  if (!schoolId) {
+    throw new Error('School not found');
   }
+
+  const [startDate, endDate] = filters?.range && filters?.baseDate
+    ? calculateDateRange(filters.range, filters.baseDate)
+    : [null, null];
+
+  // Build query for assignments in date range
+  let assignmentQuery = supabase
+    .from('school_homework_assignments')
+    .select('id')
+    .eq('school_id', schoolId)
+    .eq('is_active', true);
+
+  if (startDate && endDate) {
+    assignmentQuery = assignmentQuery
+      .gte('due_date', startDate.toISOString().split('T')[0])
+      .lte('due_date', endDate.toISOString().split('T')[0]);
+  }
+
+  if (filters?.classId) {
+    assignmentQuery = assignmentQuery.eq('class_id', filters.classId);
+  }
+
+  if (filters?.subject) {
+    assignmentQuery = assignmentQuery.eq('subject', filters.subject);
+  }
+
+  const { data: assignments, error: assignError } = await assignmentQuery;
+
+  if (assignError) throw assignError;
+  const assignmentIds = (assignments || []).map((a) => a.id);
+
+  if (assignmentIds.length === 0) {
+    return { total: 0, pending: 0, completed: 0, completionRate: 0 };
+  }
+
+  // Get submissions for these assignments
+  let submissionQuery = supabase
+    .from('school_homework_submissions')
+    .select('status, assignment_id')
+    .in('assignment_id', assignmentIds);
+
+  if (filters?.studentId) {
+    submissionQuery = submissionQuery.eq('student_id', filters.studentId);
+  }
+
+  const { data: submissions, error: subError } = await submissionQuery;
+  if (subError) throw subError;
+
+  const total = submissions?.length || 0;
+  const pending = submissions?.filter((s) => s.status === 'pending').length || 0;
+  const completed = submissions?.filter((s) => s.status === 'graded' || s.status === 'submitted').length || 0;
+  const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+  return { total, pending, completed, completionRate };
 }
 
 /**
- * Fetch students for a school (for admin filters)
+ * Fetch homework assignments for admin view
  */
-export async function fetchStudentsForSchool(
-  schoolId: string,
-  classId?: string | null
-): Promise<StudentOption[]> {
-  try {
-    console.log('👥 fetchStudentsForSchool called with:', { schoolId, classId });
-    const resolvedSchoolId = await resolveSchoolId(schoolId);
-    console.log('👥 Resolved school ID:', resolvedSchoolId);
-    
-    if (!resolvedSchoolId) {
-      console.error('❌ Invalid school ID, cannot fetch students');
-      throw new Error('Invalid school ID');
-    }
-
-    let query = supabase
-      .from('school_students')
-      .select(`
-        id,
-        first_name,
-        last_name,
-        school_classes (name)
-      `)
-      .eq('school_id', resolvedSchoolId)
-      .ilike('status', 'active');
-
-    if (classId) {
-      console.log('👥 Filtering by class_id:', classId);
-      query = query.eq('class_id', classId);
-    }
-
-    query = query.order('first_name', { ascending: true });
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error('❌ Error fetching students from Supabase:', error);
-      return [];
-    }
-
-    console.log('✅ Students fetched successfully:', data?.length || 0, 'students');
-    if (data && data.length > 0) {
-      console.log('👥 First student:', data[0]);
-    }
-
-    return (data || []).map((s: any) => ({
-      id: s.id,
-      firstName: s.first_name || '',
-      lastName: s.last_name || '',
-      className: s.school_classes?.name,
-    }));
-  } catch (error) {
-    console.error('❌ Error in fetchStudentsForSchool:', error);
-    return [];
+export async function fetchHomeworkAssignments(
+  schoolIdentifier: string,
+  filters?: HomeworkFilters
+): Promise<HomeworkAssignment[]> {
+  const schoolId = await resolveSchoolId(schoolIdentifier);
+  if (!schoolId) {
+    throw new Error('School not found');
   }
+
+  const [startDate, endDate] = filters?.range && filters?.baseDate
+    ? calculateDateRange(filters.range, filters.baseDate)
+    : [null, null];
+
+  // Build query
+  let query = supabase
+    .from('school_homework_assignments')
+    .select(
+      `
+      *,
+      school_classes(name)
+    `
+    )
+    .eq('school_id', schoolId)
+    .eq('is_active', true);
+
+  if (startDate && endDate) {
+    query = query
+      .gte('due_date', startDate.toISOString().split('T')[0])
+      .lte('due_date', endDate.toISOString().split('T')[0]);
+  }
+
+  if (filters?.classId) {
+    query = query.eq('class_id', filters.classId);
+  }
+
+  if (filters?.subject) {
+    query = query.eq('subject', filters.subject);
+  }
+
+  if (filters?.search) {
+    query = query.or(`title.ilike.%${filters.search}%,subject.ilike.%${filters.search}%`);
+  }
+
+  // Apply status filter via submissions
+  const { data: assignments, error } = await query.order('due_date', { ascending: true });
+
+  if (error) throw error;
+  if (!assignments || assignments.length === 0) return [];
+
+  const assignmentIds = assignments.map((a) => a.id);
+
+  // Get submissions for completion stats
+  let submissionQuery = supabase
+    .from('school_homework_submissions')
+    .select('assignment_id, status, student_id')
+    .in('assignment_id', assignmentIds);
+
+  if (filters?.studentId) {
+    submissionQuery = submissionQuery.eq('student_id', filters.studentId);
+  }
+
+  const { data: submissions, error: subError } = await submissionQuery;
+  if (subError) throw subError;
+
+  // Group submissions by assignment
+  const submissionsByAssignment = new Map<string, typeof submissions>();
+  (submissions || []).forEach((sub) => {
+    const existing = submissionsByAssignment.get(sub.assignment_id) || [];
+    existing.push(sub);
+    submissionsByAssignment.set(sub.assignment_id, existing);
+  });
+
+  // Map assignments with stats
+  const filteredAssignments = assignments
+    .map((a) => {
+      const assignmentSubs = submissionsByAssignment.get(a.id) || [];
+      const totalSubs = assignmentSubs.length;
+      const completedSubs = assignmentSubs.filter(
+        (s) => s.status === 'graded' || s.status === 'submitted'
+      ).length;
+
+      // Apply status filter
+      if (filters?.status && filters.status !== 'all') {
+        if (filters.status === 'pending' && completedSubs >= totalSubs) {
+          return null;
+        }
+        if (filters.status === 'completed' && completedSubs < totalSubs) {
+          return null;
+        }
+      }
+
+      return {
+        ...a,
+        class_name: (a.school_classes as any)?.name,
+        total_submissions: totalSubs,
+        completed_submissions: completedSubs,
+        completion_rate: totalSubs > 0 ? Math.round((completedSubs / totalSubs) * 100) : 0,
+      } as HomeworkAssignment;
+    })
+    .filter((a): a is HomeworkAssignment => a !== null);
+
+  return filteredAssignments;
 }
 
+// ============================================================================
+// Parent Data Fetching
+// ============================================================================
+
 /**
- * Create homework assignment
+ * Fetch homework data for parent view (child-specific)
  */
-export async function createHomeworkAssignment(
-  schoolId: string,
-  classId: string,
-  subject: string,
-  title: string,
-  description: string | null,
-  dueDate: string,
-  totalTasks: number = 1
-): Promise<{ success: boolean; assignmentId?: string; error?: string }> {
-  try {
-    const resolvedSchoolId = await resolveSchoolId(schoolId);
-    if (!resolvedSchoolId) {
-      throw new Error('Invalid school ID');
-    }
+export async function fetchParentHomeworkData(
+  schoolIdentifier: string,
+  studentId: string,
+  filters?: HomeworkFilters
+): Promise<{
+  assignments: HomeworkAssignment[];
+  stats: HomeworkStats;
+}> {
+  const schoolId = await resolveSchoolId(schoolIdentifier);
+  if (!schoolId) {
+    throw new Error('School not found');
+  }
 
-    // Insert assignment
-    const { data: assignment, error: assignmentError } = await supabase
-      .from('school_homework_assignments')
-      .insert({
-        school_id: resolvedSchoolId,
-        class_id: classId,
-        subject,
-        title,
-        description,
-        due_date: dueDate,
-        is_active: true,
-      })
-      .select('id')
-      .single();
+  const [startDate, endDate] = filters?.range && filters?.baseDate
+    ? calculateDateRange(filters.range, filters.baseDate)
+    : [null, null];
 
-    if (assignmentError || !assignment) {
-      console.error('Error creating assignment:', assignmentError);
-      return { success: false, error: assignmentError?.message || 'Failed to create assignment' };
-    }
+  // Get student's class_id first
+  const { data: studentData } = await supabase
+    .from('school_students')
+    .select('class_id')
+    .eq('id', studentId)
+    .eq('school_id', schoolId)
+    .single();
 
-    // Get all students in the class
+  const studentClassId = studentData?.class_id;
+
+  // Get assignments targeted to this student or their class
+  let targetsQuery = supabase
+    .from('school_homework_targets')
+    .select('assignment_id, class_id, student_id')
+    .eq('school_id', schoolId);
+
+  if (studentClassId) {
+    targetsQuery = targetsQuery.or(`student_id.eq.${studentId},class_id.eq.${studentClassId}`);
+  } else {
+    targetsQuery = targetsQuery.eq('student_id', studentId);
+  }
+
+  const { data: targets, error: targetsError } = await targetsQuery;
+
+  if (targetsError) throw targetsError;
+  if (!targets || targets.length === 0) {
+    return { assignments: [], stats: { total: 0, pending: 0, completed: 0, completionRate: 0 } };
+  }
+
+  const assignmentIds = [...new Set(targets.map((t) => t.assignment_id))];
+
+  // Get assignments
+  let query = supabase
+    .from('school_homework_assignments')
+    .select(
+      `
+      *,
+      school_classes(name)
+    `
+    )
+    .in('id', assignmentIds)
+    .eq('school_id', schoolId)
+    .eq('is_active', true);
+
+  if (startDate && endDate) {
+    query = query
+      .gte('due_date', startDate.toISOString().split('T')[0])
+      .lte('due_date', endDate.toISOString().split('T')[0]);
+  }
+
+  if (filters?.search) {
+    query = query.or(`title.ilike.%${filters.search}%,subject.ilike.%${filters.search}%`);
+  }
+
+  const { data: assignments, error: assignError } = await query.order('due_date', { ascending: true });
+  if (assignError) throw assignError;
+  if (!assignments || assignments.length === 0) {
+    return { assignments: [], stats: { total: 0, pending: 0, completed: 0, completionRate: 0 } };
+  }
+
+  // Get submissions for this student
+  const { data: submissions, error: subError } = await supabase
+    .from('school_homework_submissions')
+    .select('*')
+    .in('assignment_id', assignmentIds)
+    .eq('student_id', studentId);
+
+  if (subError) throw subError;
+
+  const submissionsMap = new Map<string, HomeworkSubmission>();
+  (submissions || []).forEach((sub) => {
+    submissionsMap.set(sub.assignment_id, sub as HomeworkSubmission);
+  });
+
+  // Map assignments with submissions
+  let mappedAssignments = assignments.map((a) => ({
+    ...a,
+    class_name: (a.school_classes as any)?.name,
+    submission: submissionsMap.get(a.id),
+  })) as HomeworkAssignment[];
+
+  // Apply status filter
+  if (filters?.status && filters.status !== 'all') {
+    mappedAssignments = mappedAssignments.filter((a) => {
+      const sub = a.submission;
+      if (!sub) return filters.status === 'pending';
+      if (filters.status === 'pending') {
+        return sub.status === 'pending';
+      }
+      if (filters.status === 'completed') {
+        return sub.status === 'graded' || sub.status === 'submitted';
+      }
+      return true;
+    });
+  }
+
+  // Calculate stats
+  const total = mappedAssignments.length;
+  const pending = mappedAssignments.filter((a) => !a.submission || a.submission.status === 'pending').length;
+  const completed = mappedAssignments.filter((a) => a.submission && (a.submission.status === 'graded' || a.submission.status === 'submitted')).length;
+  const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+  return {
+    assignments: mappedAssignments,
+    stats: { total, pending, completed, completionRate },
+  };
+}
+
+// ============================================================================
+// Create Assignment
+// ============================================================================
+
+/**
+ * Create a new homework assignment
+ */
+export async function createHomeworkAssignment(data: {
+  schoolId: string;
+  classId?: string;
+  subject: string;
+  title: string;
+  description?: string;
+  dueDate: string;
+  totalTasks: number;
+  targetClassIds?: string[]; // For school-wide or specific classes
+}): Promise<HomeworkAssignment> {
+  const schoolId = await resolveSchoolId(data.schoolId);
+  if (!schoolId) {
+    throw new Error('School not found');
+  }
+
+  // Insert assignment
+  const { data: assignment, error: assignError } = await supabase
+    .from('school_homework_assignments')
+    .insert({
+      school_id: schoolId,
+      class_id: data.classId || null,
+      subject: data.subject,
+      title: data.title,
+      description: data.description || null,
+      due_date: data.dueDate,
+      total_tasks: data.totalTasks || 1,
+      is_active: true,
+    })
+    .select()
+    .single();
+
+  if (assignError) throw assignError;
+  if (!assignment) throw new Error('Failed to create assignment');
+
+  // Get students to target
+  let studentIds: string[] = [];
+
+  if (data.targetClassIds && data.targetClassIds.length > 0) {
+    // Get students from selected classes
     const { data: students, error: studentsError } = await supabase
       .from('school_students')
       .select('id')
-      .eq('class_id', classId)
-      .eq('status', 'active');
+      .eq('school_id', schoolId)
+      .in('class_id', data.targetClassIds);
 
-    if (studentsError) {
-      console.error('Error fetching students:', studentsError);
-      // Continue anyway - assignment is created
-    }
+    if (studentsError) throw studentsError;
+    studentIds = (students || []).map((s) => s.id);
+  } else if (data.classId) {
+    // Get students from single class
+    const { data: students, error: studentsError } = await supabase
+      .from('school_students')
+      .select('id')
+      .eq('school_id', schoolId)
+      .eq('class_id', data.classId);
 
-    // Create targets for the class
-    if (students && students.length > 0) {
-      const targets = students.map((student: any) => ({
-        assignment_id: assignment.id,
-        class_id: classId,
-        student_id: student.id,
-        school_id: resolvedSchoolId,
-      }));
-
-      const { error: targetsError } = await supabase
-        .from('school_homework_targets')
-        .insert(targets);
-
-      if (targetsError) {
-        console.error('Error creating targets:', targetsError);
-        // Continue anyway - assignment is created
-      }
-    } else {
-      // Create class-level target if no students found
-      const { error: targetError } = await supabase
-        .from('school_homework_targets')
-        .insert({
-          assignment_id: assignment.id,
-          class_id: classId,
-          school_id: resolvedSchoolId,
-        });
-
-      if (targetError) {
-        console.error('Error creating class target:', targetError);
-      }
-    }
-
-    return { success: true, assignmentId: assignment.id };
-  } catch (error: any) {
-    console.error('Error in createHomeworkAssignment:', error);
-    return { success: false, error: error.message || 'Failed to create assignment' };
+    if (studentsError) throw studentsError;
+    studentIds = (students || []).map((s) => s.id);
   }
+
+  // Create targets
+  if (studentIds.length > 0) {
+    const targets = studentIds.map((studentId) => ({
+      assignment_id: assignment.id,
+      school_id: schoolId,
+      student_id: studentId,
+      class_id: data.classId || null,
+    }));
+
+    const { error: targetsError } = await supabase
+      .from('school_homework_targets')
+      .insert(targets);
+
+    if (targetsError) throw targetsError;
+
+    // Create initial submissions
+    const submissions = studentIds.map((studentId) => ({
+      assignment_id: assignment.id,
+      student_id: studentId,
+      school_id: schoolId,
+      status: 'pending',
+      submitted_at: null,
+      score: null,
+      is_locked: false,
+    }));
+
+    const { error: subsError } = await supabase
+      .from('school_homework_submissions')
+      .insert(submissions);
+
+    if (subsError) throw subsError;
+  }
+
+  return assignment as HomeworkAssignment;
 }
 
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Fetch classes for school
+ */
+export async function fetchClassesForSchool(schoolIdentifier: string): Promise<ClassOption[]> {
+  const schoolId = await resolveSchoolId(schoolIdentifier);
+  if (!schoolId) {
+    throw new Error('School not found');
+  }
+
+  const { data, error } = await supabase
+    .from('school_classes')
+    .select('id, name')
+    .eq('school_id', schoolId)
+    .in('status', ['active', 'Active'])
+    .order('name', { ascending: true });
+
+  if (error) throw error;
+  return (data || []).map((c) => ({ id: c.id, name: c.name }));
+}
+
+/**
+ * Fetch subjects (from subjects table or distinct from assignments)
+ */
+export async function fetchSubjectsForSchool(schoolIdentifier: string): Promise<SubjectOption[]> {
+  const schoolId = await resolveSchoolId(schoolIdentifier);
+  if (!schoolId) {
+    throw new Error('School not found');
+  }
+
+  // Get distinct subjects from assignments
+  const { data, error } = await supabase
+    .from('school_homework_assignments')
+    .select('subject')
+    .eq('school_id', schoolId)
+    .eq('is_active', true);
+
+  if (error) throw error;
+
+  const uniqueSubjects = [...new Set((data || []).map((a) => a.subject))].sort();
+  return uniqueSubjects.map((name) => ({ name, label: name }));
+}
+
+/**
+ * Fetch students for school (with optional class filter)
+ */
+export async function fetchStudentsForSchool(
+  schoolIdentifier: string,
+  classId?: string
+): Promise<StudentOption[]> {
+  const schoolId = await resolveSchoolId(schoolIdentifier);
+  if (!schoolId) {
+    throw new Error('School not found');
+  }
+
+  let query = supabase
+    .from('school_students')
+    .select(
+      `
+      id,
+      first_name,
+      last_name,
+      class_id,
+      school_classes(name)
+    `
+    )
+    .eq('school_id', schoolId)
+    .in('status', ['active', 'Active']);
+
+  if (classId) {
+    query = query.eq('class_id', classId);
+  }
+
+  const { data, error } = await query.order('first_name', { ascending: true });
+
+  if (error) throw error;
+  return (data || []).map((s) => ({
+    id: s.id,
+    firstName: s.first_name,
+    lastName: s.last_name,
+    className: (s.school_classes as any)?.name,
+  }));
+}
+
+/**
+ * Check if assignment is overdue
+ */
+export function isAssignmentOverdue(dueDate: string, status: string): boolean {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(dueDate);
+  due.setHours(0, 0, 0, 0);
+  return due < today && status === 'pending';
+}

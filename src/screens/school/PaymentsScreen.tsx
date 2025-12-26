@@ -24,7 +24,41 @@ const StatusPill = ({ text, color }: { text: string; color: string }) => (
   </View>
 );
 
-const PaymentCard = ({ item }: { item: SchoolPaymentItem }) => {
+const PaymentCard = ({ 
+  item, 
+  colors, 
+  spacing, 
+  typography 
+}: { 
+  item: SchoolPaymentItem;
+  colors: any;
+  spacing: any;
+  typography: any;
+}) => {
+  const styles = React.useMemo(
+    () =>
+      StyleSheet.create({
+        card: { 
+          backgroundColor: colors.background.secondary, 
+          borderRadius: 16, 
+          padding: 16, 
+          marginBottom: 12, 
+          borderWidth: 1, 
+          borderColor: colors.border.light 
+        },
+        title: { 
+          fontSize: 16, 
+          fontWeight: '600', 
+          color: colors.text.primary 
+        },
+        meta: { 
+          fontSize: 12, 
+          color: colors.text.secondary 
+        },
+      }),
+    [colors, spacing, typography]
+  );
+
   const color = item.status === 'Paid' ? '#16A34A' : item.status === 'Overdue' ? '#DC2626' : '#0B5FFF';
   return (
     <View style={styles.card}>
@@ -50,17 +84,52 @@ const PaymentCard = ({ item }: { item: SchoolPaymentItem }) => {
 const PaymentsScreen: React.FC = () => {
   const { colors, spacing, typography, borderRadius, shadows } = useTheme();
 
-  const styles = StyleSheet.create({
-    card: { backgroundColor: colors.background.secondary, borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: colors.border.light },
-    title: { fontSize: 16, fontWeight: '600', color: colors.text.primary },
-    meta: { fontSize: 12, color: colors.text.secondary },
-    searchBar: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, marginTop: 12, marginBottom: 8, backgroundColor: colors.background.secondary, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: colors.border.light },
-    searchInput: { flex: 1, paddingHorizontal: 8, paddingVertical: 6, fontSize: 16 },
-    loadingText: { fontSize: 12, color: colors.text.secondary, marginTop: 8 },
-    emptyWrap: { alignItems: 'center', marginTop: 48, paddingHorizontal: 24 },
-    emptyTitle: { fontSize: 16, color: colors.text.primary, marginTop: 12 },
-    emptySubtitle: { fontSize: 12, color: colors.text.secondary, marginTop: 4, textAlign: 'center' },
-  });
+  const styles = React.useMemo(
+    () =>
+      StyleSheet.create({
+        searchBar: { 
+          flexDirection: 'row', 
+          alignItems: 'center', 
+          marginHorizontal: 16, 
+          marginTop: 12, 
+          marginBottom: 8, 
+          backgroundColor: colors.background.secondary, 
+          borderRadius: 16, 
+          paddingHorizontal: 12, 
+          paddingVertical: 8, 
+          borderWidth: 1, 
+          borderColor: colors.border.light 
+        },
+        searchInput: { 
+          flex: 1, 
+          paddingHorizontal: 8, 
+          paddingVertical: 6, 
+          fontSize: 16 
+        },
+        loadingText: { 
+          fontSize: 12, 
+          color: colors.text.secondary, 
+          marginTop: 8 
+        },
+        emptyWrap: { 
+          alignItems: 'center', 
+          marginTop: 48, 
+          paddingHorizontal: 24 
+        },
+        emptyTitle: { 
+          fontSize: 16, 
+          color: colors.text.primary, 
+          marginTop: 12 
+        },
+        emptySubtitle: { 
+          fontSize: 12, 
+          color: colors.text.secondary, 
+          marginTop: 4, 
+          textAlign: 'center' 
+        },
+      }),
+    [colors, spacing, typography, borderRadius, shadows]
+  );
   const { t } = useLanguage();
   const { currentSchool } = useSchool();
   const { fetchRecords, loading } = useAirtable();
@@ -119,7 +188,7 @@ const PaymentsScreen: React.FC = () => {
           contentContainerStyle={{ paddingVertical: 8, paddingHorizontal: 16 }}
           data={filtered}
           keyExtractor={(it) => it.id}
-          renderItem={({ item }) => <PaymentCard item={item} />}
+          renderItem={({ item }) => <PaymentCard item={item} colors={colors} spacing={spacing} typography={typography} />}
           ListEmptyComponent={
             <View style={styles.emptyWrap}>
               <MaterialIcons name="credit-card" size={48} color="#D0D4DA" />

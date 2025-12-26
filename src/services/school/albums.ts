@@ -375,6 +375,14 @@ export async function fetchParentAlbums(
       throw new Error('Invalid school ID');
     }
 
+    // If favorites tab, we don't return albums anymore here, 
+    // we should have a separate handling in the UI, or return empty list
+    // BUT to keep backward compatibility or if UI wants albums with favorites, we can keep logic.
+    // However, the user request says "just want the favourited photo in the favourite album".
+    // This implies the favorites tab should show photos, so this function might return empty
+    // for favorites tab if the UI calls a different function for photos.
+    // Let's keep it working for albums but maybe we won't use it for 'favorites' tab in UI.
+
     let query = supabase
       .from('school_albums')
       .select(`
@@ -397,7 +405,8 @@ export async function fetchParentAlbums(
     } else if (tab === 'class' || tab === 'classEvents') {
       query = query.not('class_id', 'is', null);
     } else if (tab === 'favorites') {
-      // Get albums that have favorited photos
+      // NOTE: The UI should now switch to fetching PHOTOS directly for this tab.
+      // But if this function is called, we return albums containing favorites.
       const { data: favoritePhotos } = await supabase
         .from('school_photo_favorites')
         .select('photo_id, school_album_photos!inner(album_id)')
@@ -472,6 +481,70 @@ export async function fetchParentAlbums(
     return albums;
   } catch (error) {
     console.error('Error fetching parent albums:', error);
+    throw error;
+  }
+}
+
+/**
+ * Fetch favorited photos for a user
+ */
+export async function fetchFavoritePhotos(
+  schoolId: string,
+  userId: string
+): Promise<Photo[]> {
+  try {
+    const resolvedSchoolId = await resolveSchoolId(schoolId);
+    if (!resolvedSchoolId) {
+      throw new Error('Invalid school ID');
+    }
+
+    // Get favorite photos with album info
+    const { data, error } = await supabase
+      .from('school_photo_favorites')
+      .select(`
+        photo:school_album_photos!inner (
+          *,
+          album:school_albums!inner (
+            school_id
+          )
+        )
+      `)
+      .eq('user_id', userId);
+
+    if (error) {
+      throw new Error(`Failed to fetch favorite photos: ${error.message}`);
+    }
+
+    // Filter by school_id and process photos
+    const filteredData = (data || []).filter((item: any) => 
+      item.photo?.album?.school_id === resolvedSchoolId
+    );
+
+    // Process photos to get public URLs
+    const photos: Photo[] = await Promise.all(
+      filteredData
+        .map((item: any) => item.photo)
+        .filter((photo: any) => photo) // Filter out nulls
+        .map(async (photo: any) => {
+          const { data: urlData } = supabase.storage.from(ALBUM_BUCKET).getPublicUrl(photo.storage_path);
+          return {
+            id: photo.id,
+            album_id: photo.album_id,
+            storage_path: photo.storage_path,
+            width: photo.width,
+            height: photo.height,
+            size_bytes: photo.size_bytes,
+            blurhash: photo.blurhash,
+            created_at: photo.created_at,
+            public_url: urlData?.publicUrl,
+            is_favorited: true, // It is favorited by definition
+          };
+        })
+    );
+
+    return photos;
+  } catch (error) {
+    console.error('Error fetching favorite photos:', error);
     throw error;
   }
 }
@@ -698,6 +771,111 @@ export async function createAlbum(
             .update({ cover_photo_path: photoRecords[0].storage_path })
             .eq('id', albumId);
         }
+
+        // Create notifications for parents
+        try {
+          // Get all parents in this school (or in the class if class-specific)
+          let parentQuery = supabase
+            .from('school_students')
+            .select(`
+              student:students!inner(
+                guardians:student_guardians!inner(
+                  guardian:guardians!inner(
+                    user_id
+                  )
+                )
+              )
+            `)
+            .eq('school_id', resolvedSchoolId);
+          
+          // If album is for a specific class, filter by class
+          if (data.class_id) {
+            parentQuery = parentQuery.eq('class_id', data.class_id);
+          }
+
+          const { data: studentsData } = await parentQuery;
+
+          if (studentsData && studentsData.length > 0) {
+            // Extract unique parent user IDs
+            const parentUserIds = new Set<string>();
+            studentsData.forEach((s: any) => {
+              s.student?.guardians?.forEach((g: any) => {
+                if (g.guardian?.user_id) {
+                  parentUserIds.add(g.guardian.user_id);
+                }
+              });
+            });
+
+            if (parentUserIds.size > 0) {
+              const notificationPromises = Array.from(parentUserIds).map(async (parentUserId) => {
+                try {
+                  await supabase.from('notifications').insert({
+                    school_id: resolvedSchoolId,
+                    recipient_user_id: parentUserId,
+                    recipient_role: 'parent',
+                    type: 'photo_album',
+                    priority: 'normal',
+                    title: `New photos: ${data.title}`,
+                    body: `${photos.length} new photo${photos.length > 1 ? 's' : ''} added to "${data.title}"`,
+                    target_type: 'photo_album',
+                    target_id: albumId,
+                    is_read: false,
+                    meta: {
+                      albumId,
+                      photoCount: photos.length,
+                      category: data.category,
+                    },
+                  });
+                } catch (notifError) {
+                  console.error('Failed to create album notification:', notifError);
+                }
+              });
+
+              await Promise.allSettled(notificationPromises);
+              console.log('✅ Album notifications created for', parentUserIds.size, 'parents');
+            }
+          }
+
+          // Also notify admins about the new album
+          const { data: adminUsers } = await supabase
+            .from('school_users')
+            .select('user_id')
+            .eq('school_id', resolvedSchoolId)
+            .in('role', ['admin', 'teacher']);
+
+          if (adminUsers && adminUsers.length > 0) {
+            const adminNotificationPromises = adminUsers.map(async (admin) => {
+              try {
+                await supabase.from('notifications').insert({
+                  school_id: resolvedSchoolId,
+                  recipient_user_id: admin.user_id,
+                  recipient_role: 'admin',
+                  type: 'photo_album',
+                  priority: 'normal',
+                  title: `New Photo Album: ${data.title}`,
+                  body: `${photos.length} photo${photos.length > 1 ? 's' : ''} added to "${data.title}"`,
+                  target_type: 'photo_album',
+                  target_id: albumId,
+                  is_read: false,
+                  meta: {
+                    albumId,
+                    photoCount: photos.length,
+                    category: data.category,
+                    class_id: data.class_id,
+                  },
+                });
+              } catch (notifError) {
+                console.error('Failed to create album notification for admin:', notifError);
+              }
+            });
+
+            await Promise.allSettled(adminNotificationPromises);
+            console.log('✅ Album notifications created for', adminUsers.length, 'admins');
+          }
+        } catch (notifError) {
+          // Don't fail album creation if notifications fail
+          console.error('Error creating album notifications:', notifError);
+        }
       }
     }
 
@@ -784,4 +962,3 @@ export async function toggleAlbumFavorite(albumId: string, parentId: string): Pr
 
   return togglePhotoFavorite(photos[0].id, parentId);
 }
-

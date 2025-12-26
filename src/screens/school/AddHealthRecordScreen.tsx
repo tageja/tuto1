@@ -175,7 +175,7 @@ const AddHealthRecordScreen: React.FC = () => {
     if (!studentIdToUse) {
       Alert.alert(
         t('common.error') || 'Error',
-        t('dashboard.health.errors.selectStudent') || 'Please select a student'
+        t('school.health.errors.selectStudent') || 'Please select a student'
       );
       return;
     }
@@ -262,7 +262,7 @@ const AddHealthRecordScreen: React.FC = () => {
 
       Alert.alert(
         t('common.success') || 'Success',
-        t('dashboard.health.toasts.recordAdded') || 'Health record created successfully',
+        t('school.health.toasts.recordAdded') || 'Health record created successfully',
         [
           {
             text: t('common.ok') || 'OK',
@@ -274,7 +274,7 @@ const AddHealthRecordScreen: React.FC = () => {
       console.error('Error creating health record:', error);
       Alert.alert(
         t('common.error') || 'Error',
-        error.message || t('dashboard.health.errors.createFailed') || 'Failed to create record'
+        error.message || t('school.health.errors.createFailed') || 'Failed to create record'
       );
     } finally {
       setLoading(false);
@@ -287,11 +287,11 @@ const AddHealthRecordScreen: React.FC = () => {
     : availableStudents.find((s) => s.id === selectedStudentId);
 
   const tabs = [
-    { key: 'general', label: t('dashboard.health.addRecord.tabs.general') || 'General' },
-    { key: 'allergies', label: t('dashboard.health.addRecord.tabs.allergies') || 'Allergies/Conditions' },
-    { key: 'medications', label: t('dashboard.health.addRecord.tabs.medications') || 'Medications' },
-    { key: 'vaccination', label: t('dashboard.health.addRecord.tabs.vaccination') || 'Vaccination' },
-    { key: 'vitals', label: t('dashboard.health.addRecord.tabs.vitals') || 'Vitals' },
+    { key: 'general', label: t('school.health.addRecord.tabs.general') || 'General' },
+    { key: 'allergies', label: t('school.health.addRecord.tabs.allergies') || 'Allergies/Conditions' },
+    { key: 'medications', label: t('school.health.addRecord.tabs.medications') || 'Medications' },
+    { key: 'vaccination', label: t('school.health.addRecord.tabs.vaccination') || 'Vaccination' },
+    { key: 'vitals', label: t('school.health.addRecord.tabs.vitals') || 'Vitals' },
   ];
 
 
@@ -638,7 +638,7 @@ const AddHealthRecordScreen: React.FC = () => {
             <MaterialIcons name="arrow-back" size={24} color={colors.text.primary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>
-            {t('dashboard.health.addRecord.title') || 'Add Health Record'}
+            {t('school.health.addRecord.title') || 'Add Health Record'}
           </Text>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <MaterialIcons name="close" size={24} color={colors.text.primary} />
@@ -765,25 +765,25 @@ const AddHealthRecordScreen: React.FC = () => {
           <View style={styles.tabContent}>
             <View style={styles.field}>
               <Text style={styles.label}>
-                {t('dashboard.health.addRecord.fields.title') || 'Title'}
+                {t('school.health.addRecord.fields.title') || 'Title'}
               </Text>
               <TextInput
                 style={styles.input}
                 value={title}
                 onChangeText={setTitle}
-                placeholder={t('dashboard.health.addRecord.fields.titlePlaceholder') || 'Enter title'}
+                placeholder={t('school.health.addRecord.fields.titlePlaceholder') || 'Enter title'}
                 placeholderTextColor={colors.disabled}
               />
             </View>
             <View style={styles.field}>
               <Text style={styles.label}>
-                {t('dashboard.health.addRecord.fields.notes') || 'Notes'}
+                {t('school.health.addRecord.fields.notes') || 'Notes'}
               </Text>
               <TextInput
                 style={[styles.input, styles.textArea]}
                 value={notes}
                 onChangeText={setNotes}
-                placeholder={t('dashboard.health.addRecord.fields.notesPlaceholder') || 'Enter notes'}
+                placeholder={t('school.health.addRecord.fields.notesPlaceholder') || 'Enter notes'}
                 placeholderTextColor={colors.disabled}
                 multiline
                 numberOfLines={4}
@@ -796,7 +796,7 @@ const AddHealthRecordScreen: React.FC = () => {
           <View style={styles.tabContent}>
             <View style={styles.field}>
               <Text style={styles.label}>
-                {t('dashboard.health.addRecord.fields.name') || 'Name'} *
+                {t('school.health.addRecord.fields.name') || 'Name'} *
               </Text>
               <TextInput
                 style={styles.input}
@@ -808,7 +808,7 @@ const AddHealthRecordScreen: React.FC = () => {
             </View>
             <View style={styles.field}>
               <Text style={styles.label}>
-                {t('dashboard.health.addRecord.fields.severity') || 'Severity'}
+                {t('school.health.addRecord.fields.severity') || 'Severity'}
               </Text>
               <View style={styles.severityButtons}>
                 {(['low', 'medium', 'high'] as const).map((severity) => (
@@ -834,13 +834,13 @@ const AddHealthRecordScreen: React.FC = () => {
             </View>
             <View style={styles.field}>
               <Text style={styles.label}>
-                {t('dashboard.health.addRecord.fields.notes') || 'Notes'}
+                {t('school.health.addRecord.fields.notes') || 'Notes'}
               </Text>
               <TextInput
                 style={[styles.input, styles.textArea]}
                 value={allergyNotes}
                 onChangeText={setAllergyNotes}
-                placeholder={t('dashboard.health.addRecord.fields.notesPlaceholder') || 'Enter additional notes'}
+                placeholder={t('school.health.addRecord.fields.notesPlaceholder') || 'Enter additional notes'}
                 placeholderTextColor={colors.disabled}
                 multiline
                 numberOfLines={3}
@@ -853,7 +853,7 @@ const AddHealthRecordScreen: React.FC = () => {
           <View style={styles.tabContent}>
             <View style={styles.field}>
               <Text style={styles.label}>
-                {t('dashboard.health.addRecord.fields.name') || 'Name'} *
+                {t('school.health.addRecord.fields.name') || 'Name'} *
               </Text>
               <TextInput
                 style={styles.input}
@@ -865,7 +865,7 @@ const AddHealthRecordScreen: React.FC = () => {
             </View>
             <View style={styles.field}>
               <Text style={styles.label}>
-                {t('dashboard.health.addRecord.fields.dose') || 'Dose'}
+                {t('school.health.addRecord.fields.dose') || 'Dose'}
               </Text>
               <TextInput
                 style={styles.input}
@@ -877,7 +877,7 @@ const AddHealthRecordScreen: React.FC = () => {
             </View>
             <View style={styles.field}>
               <Text style={styles.label}>
-                {t('dashboard.health.addRecord.fields.schedule') || 'Schedule'}
+                {t('school.health.addRecord.fields.schedule') || 'Schedule'}
               </Text>
               <TextInput
                 style={styles.input}
@@ -894,7 +894,7 @@ const AddHealthRecordScreen: React.FC = () => {
           <View style={styles.tabContent}>
             <View style={styles.vaccineHeader}>
               <Text style={styles.vaccineHeaderText}>
-                {t('dashboard.health.addRecord.vaccineCount', {
+                {t('school.health.addRecord.vaccineCount', {
                   count: vaccineEntries.length,
                   max: MAX_VACCINE_ENTRIES,
                 }) || `Vaccination - ${vaccineEntries.length} of ${MAX_VACCINE_ENTRIES} entries`}
@@ -903,7 +903,7 @@ const AddHealthRecordScreen: React.FC = () => {
                 <TouchableOpacity style={styles.addMoreButton} onPress={addVaccineEntry}>
                   <MaterialIcons name="add" size={20} color={colors.primary} />
                   <Text style={styles.addMoreText}>
-                    {t('dashboard.health.addRecord.addMore') || '+ Add More'}
+                    {t('school.health.addRecord.addMore') || '+ Add More'}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -913,7 +913,7 @@ const AddHealthRecordScreen: React.FC = () => {
               <View key={index} style={styles.vaccineEntry}>
                 <View style={styles.vaccineEntryHeader}>
                   <Text style={styles.vaccineEntryTitle}>
-                    {t('dashboard.health.addRecord.vaccineEntry', { number: index + 1 }) ||
+                    {t('school.health.addRecord.vaccineEntry', { number: index + 1 }) ||
                       `Vaccine #${index + 1}`}
                   </Text>
                   {vaccineEntries.length > 1 && (
@@ -927,7 +927,7 @@ const AddHealthRecordScreen: React.FC = () => {
                 </View>
                 <View style={styles.field}>
                   <Text style={styles.label}>
-                    {t('dashboard.health.addRecord.fields.vaccine') || 'Vaccine'} *
+                    {t('school.health.addRecord.fields.vaccine') || 'Vaccine'} *
                   </Text>
                   <TextInput
                     style={styles.input}
@@ -940,7 +940,7 @@ const AddHealthRecordScreen: React.FC = () => {
                 <View style={styles.fieldRow}>
                   <View style={[styles.field, { flex: 1, marginRight: spacing.sm }]}>
                     <Text style={styles.label}>
-                      {t('dashboard.health.addRecord.fields.status') || 'Status'}
+                      {t('school.health.addRecord.fields.status') || 'Status'}
                     </Text>
                     <TouchableOpacity
                       style={styles.select}
@@ -957,7 +957,7 @@ const AddHealthRecordScreen: React.FC = () => {
                   </View>
                   <View style={[styles.field, { flex: 1 }]}>
                     <Text style={styles.label}>
-                      {t('dashboard.health.addRecord.fields.date') || 'Date'}
+                      {t('school.health.addRecord.fields.date') || 'Date'}
                     </Text>
                     <TouchableOpacity
                       style={styles.input}
@@ -979,7 +979,7 @@ const AddHealthRecordScreen: React.FC = () => {
           <View style={styles.tabContent}>
             <View style={styles.field}>
               <Text style={styles.label}>
-                {t('dashboard.health.addRecord.fields.height') || 'Height (cm)'}
+                {t('school.health.addRecord.fields.height') || 'Height (cm)'}
               </Text>
               <TextInput
                 style={styles.input}
@@ -992,7 +992,7 @@ const AddHealthRecordScreen: React.FC = () => {
             </View>
             <View style={styles.field}>
               <Text style={styles.label}>
-                {t('dashboard.health.addRecord.fields.weight') || 'Weight (kg)'}
+                {t('school.health.addRecord.fields.weight') || 'Weight (kg)'}
               </Text>
               <TextInput
                 style={styles.input}
@@ -1005,7 +1005,7 @@ const AddHealthRecordScreen: React.FC = () => {
             </View>
             <View style={styles.field}>
               <Text style={styles.label}>
-                {t('dashboard.health.addRecord.fields.recordedAt') || 'Recorded At'}
+                {t('school.health.addRecord.fields.recordedAt') || 'Recorded At'}
               </Text>
               <TouchableOpacity
                 style={styles.input}
@@ -1028,7 +1028,7 @@ const AddHealthRecordScreen: React.FC = () => {
             disabled={loading}
           >
             <Text style={styles.cancelButtonText}>
-              {t('dashboard.health.buttons.cancel') || 'Cancel'}
+              {t('school.health.buttons.cancel') || 'Cancel'}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -1040,7 +1040,7 @@ const AddHealthRecordScreen: React.FC = () => {
               <ActivityIndicator color={colors.white} />
             ) : (
               <Text style={styles.saveButtonText}>
-                {t('dashboard.health.buttons.save') || 'Save'}
+                {t('school.health.buttons.save') || 'Save'}
               </Text>
             )}
           </TouchableOpacity>

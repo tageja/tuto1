@@ -5,256 +5,54 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
-  Dimensions,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { useNotifications } from '../hooks/useNotifications';
+import type { Notification } from '../services/notifications';
 
-const { width } = Dimensions.get('window');
+type TabType = 'urgent' | 'normal';
 
-// Notification Types
-export type NotificationType = 'important' | 'regular';
+// Map notification types to icons
+const getNotificationIcon = (type: string): string => {
+  const iconMap: Record<string, string> = {
+    message: 'message',
+    announcement: 'campaign',
+    event: 'event',
+    payment: 'payment',
+    homework: 'assignment',
+    attendance: 'event-available',
+    progress_report: 'assessment',
+    daily_activity: 'today',
+    photo_album: 'photo-album',
+    medicine: 'medication',
+    health_incident: 'favorite',
+    feedback: 'feedback',
+  };
+  return iconMap[type] || 'notifications';
+};
 
-export interface Notification {
-  id: string;
-  type: NotificationType;
-  title: string;
-  message: string;
-  timestamp: Date;
-  isRead: boolean;
-  icon: string;
-  category: string;
-  actionScreen?: string;
-  actionParams?: any;
-}
-
-// Function to generate dummy notifications based on language
-const generateDummyNotifications = (t: (key: string) => string): Notification[] => [
-  // Important Notifications (Red badges)
-  {
-    id: '1',
-    type: 'important',
-    title: t('notifications.dummy.homeworkDeadline'),
-    message: t('notifications.dummy.homeworkDeadlineMessage'),
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    isRead: false,
-    icon: 'assignment',
-    category: 'homework',
-    actionScreen: 'Homework',
-  },
-  {
-    id: '2',
-    type: 'important',
-    title: t('notifications.dummy.overdueHomework'),
-    message: t('notifications.dummy.overdueHomeworkMessage'),
-    timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-    isRead: false,
-    icon: 'warning',
-    category: 'homework',
-    actionScreen: 'Homework',
-  },
-  {
-    id: '3',
-    type: 'important',
-    title: t('notifications.dummy.upcomingClass'),
-    message: t('notifications.dummy.upcomingClassMessage'),
-    timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-    isRead: false,
-    icon: 'schedule',
-    category: 'class',
-    actionScreen: 'Schedule',
-  },
-  {
-    id: '4',
-    type: 'important',
-    title: t('notifications.dummy.feeReminder'),
-    message: t('notifications.dummy.feeReminderMessage'),
-    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
-    isRead: false,
-    icon: 'payment',
-    category: 'payment',
-    actionScreen: 'Payments',
-  },
-  {
-    id: '5',
-    type: 'important',
-    title: t('notifications.dummy.holidayNotice'),
-    message: t('notifications.dummy.holidayNoticeMessage'),
-    timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
-    isRead: false,
-    icon: 'event',
-    category: 'holiday',
-  },
-  {
-    id: '6',
-    type: 'important',
-    title: t('notifications.dummy.teacherFeedback'),
-    message: t('notifications.dummy.teacherFeedbackMessage'),
-    timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
-    isRead: false,
-    icon: 'feedback',
-    category: 'feedback',
-    actionScreen: 'UserProfile',
-  },
-  {
-    id: '7',
-    type: 'important',
-    title: t('notifications.dummy.directMessage'),
-    message: t('notifications.dummy.directMessageMessage'),
-    timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
-    isRead: false,
-    icon: 'message',
-    category: 'message',
-    actionScreen: 'Chats',
-  },
-  {
-    id: '8',
-    type: 'important',
-    title: t('notifications.dummy.classCancellation'),
-    message: t('notifications.dummy.classCancellationMessage'),
-    timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
-    isRead: false,
-    icon: 'cancel',
-    category: 'class',
-    actionScreen: 'Schedule',
-  },
-  {
-    id: '9',
-    type: 'important',
-    title: t('notifications.dummy.examReminder'),
-    message: t('notifications.dummy.examReminderMessage'),
-    timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000), // 8 hours ago
-    isRead: false,
-    icon: 'quiz',
-    category: 'exam',
-    actionScreen: 'Schedule',
-  },
-  {
-    id: '10',
-    type: 'important',
-    title: t('notifications.dummy.parentMeeting'),
-    message: t('notifications.dummy.parentMeetingMessage'),
-    timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
-    isRead: false,
-    icon: 'people',
-    category: 'meeting',
-    actionScreen: 'Schedule',
-  },
-
-  // Regular Notifications (Neutral badges)
-  {
-    id: '11',
-    type: 'regular',
-    title: t('notifications.dummy.newTeacher'),
-    message: t('notifications.dummy.newTeacherMessage'),
-    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    isRead: false,
-    icon: 'person-add',
-    category: 'teacher',
-    actionScreen: 'SubjectResults',
-    actionParams: { subjectKey: 'french' },
-  },
-  {
-    id: '12',
-    type: 'regular',
-    title: t('notifications.dummy.specialPromotion'),
-    message: t('notifications.dummy.specialPromotionMessage'),
-    timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-    isRead: false,
-    icon: 'local-offer',
-    category: 'promotion',
-  },
-  {
-    id: '13',
-    type: 'regular',
-    title: t('notifications.dummy.newStudyMaterial'),
-    message: t('notifications.dummy.newStudyMaterialMessage'),
-    timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-    isRead: false,
-    icon: 'book',
-    category: 'material',
-    actionScreen: 'Dashboard',
-  },
-  {
-    id: '14',
-    type: 'regular',
-    title: t('notifications.dummy.weeklyProgress'),
-    message: t('notifications.dummy.weeklyProgressMessage'),
-    timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), // 4 days ago
-    isRead: false,
-    icon: 'assessment',
-    category: 'report',
-    actionScreen: 'Dashboard',
-  },
-  {
-    id: '15',
-    type: 'regular',
-    title: t('notifications.dummy.newCourse'),
-    message: t('notifications.dummy.newCourseMessage'),
-    timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
-    isRead: false,
-    icon: 'school',
-    category: 'course',
-    actionScreen: 'AllSubjects',
-  },
-  {
-    id: '16',
-    type: 'regular',
-    title: t('notifications.dummy.appUpdate'),
-    message: t('notifications.dummy.appUpdateMessage'),
-    timestamp: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000), // 6 days ago
-    isRead: false,
-    icon: 'system-update',
-    category: 'app',
-  },
-  {
-    id: '17',
-    type: 'regular',
-    title: t('notifications.dummy.studyGroup'),
-    message: t('notifications.dummy.studyGroupMessage'),
-    timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
-    isRead: false,
-    icon: 'group',
-    category: 'group',
-    actionScreen: 'Forum',
-  },
-  {
-    id: '18',
-    type: 'regular',
-    title: t('notifications.dummy.achievement'),
-    message: t('notifications.dummy.achievementMessage'),
-    timestamp: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000), // 8 days ago
-    isRead: false,
-    icon: 'emoji-events',
-    category: 'achievement',
-    actionScreen: 'Dashboard',
-  },
-  {
-    id: '19',
-    type: 'regular',
-    title: t('notifications.dummy.forumPost'),
-    message: t('notifications.dummy.forumPostMessage'),
-    timestamp: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000), // 9 days ago
-    isRead: false,
-    icon: 'forum',
-    category: 'forum',
-    actionScreen: 'Forum',
-  },
-  {
-    id: '20',
-    type: 'regular',
-    title: t('notifications.dummy.birthdayReminder'),
-    message: t('notifications.dummy.birthdayReminderMessage'),
-    timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
-    isRead: false,
-    icon: 'cake',
-    category: 'reminder',
-  },
-];
-
-type FilterType = 'all' | 'regular' | 'important';
+// Map notification types to category labels
+const getNotificationCategory = (type: string): string => {
+  const categoryMap: Record<string, string> = {
+    message: 'message',
+    announcement: 'announcement',
+    event: 'event',
+    payment: 'payment',
+    homework: 'homework',
+    attendance: 'attendance',
+    progress_report: 'report',
+    daily_activity: 'activity',
+    photo_album: 'photos',
+    medicine: 'medicine',
+    health_incident: 'health',
+    feedback: 'feedback',
+  };
+  return categoryMap[type] || 'other';
+};
 
 interface NotificationsScreenProps {
   navigation: any;
@@ -263,10 +61,24 @@ interface NotificationsScreenProps {
 export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ navigation }) => {
   const { colors, spacing, typography, borderRadius, shadows } = useTheme();
   const { t } = useLanguage();
-  const [notifications, setNotifications] = useState<Notification[]>(() => generateDummyNotifications(t));
-  const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+  const [activeTab, setActiveTab] = useState<TabType>('urgent');
+  const {
+    notifications,
+    urgentNotifications,
+    normalNotifications,
+    unreadCount,
+    urgentUnreadCount,
+    normalUnreadCount,
+    isLoading,
+    error,
+    refetch,
+    markRead,
+    markAllRead,
+  } = useNotifications();
 
-  const styles = StyleSheet.create({
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: colors.background.primary,
@@ -442,76 +254,191 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
       marginTop: spacing.md,
       textAlign: 'center',
     },
-  });
+  }),
+  [colors, spacing, typography]
+);
 
-  // Filter notifications based on active filter
-  const filteredNotifications = useMemo(() => {
-    if (activeFilter === 'all') {
-      return notifications;
-    }
-    return notifications.filter(notification => notification.type === activeFilter);
-  }, [notifications, activeFilter]);
-
-  // Mark notification as read
-  const markAsRead = (notificationId: string) => {
-    setNotifications(prev =>
-      prev.map(notification =>
-        notification.id === notificationId
-          ? { ...notification, isRead: true }
-          : notification
-      )
-    );
-  };
+  // Get notifications for active tab
+  const activeNotifications = useMemo(() => {
+    return activeTab === 'urgent' ? urgentNotifications : normalNotifications;
+  }, [activeTab, urgentNotifications, normalNotifications]);
 
   // Handle notification tap
-  const handleNotificationTap = (notification: Notification) => {
-    markAsRead(notification.id);
-    
-    if (notification.actionScreen) {
-      navigation.navigate(notification.actionScreen, notification.actionParams);
+  const handleNotificationTap = async (notification: Notification) => {
+    if (!notification.isRead) {
+      try {
+        await markRead(notification.id);
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+      }
+    }
+
+    // Navigate based on targetType and targetId
+    if (notification.targetType) {
+      // Logic for different target types
+      switch (notification.targetType) {
+        case 'feedback':
+          // If it's a message thread
+          if (notification.meta?.threadId) {
+            navigation.navigate('MessagesConversation', { 
+              threadId: notification.meta.threadId 
+            });
+          } else if (notification.targetId) {
+            // If it's a feedback ticket
+            navigation.navigate('FeedbackDetails', { 
+              feedbackId: notification.targetId 
+            });
+          } else {
+            // Default to feedback list
+            navigation.navigate('SchoolFeedback');
+          }
+          break;
+          
+        case 'message':
+          if (notification.targetId) {
+            navigation.navigate('MessagesConversation', { 
+              threadId: notification.targetId 
+            });
+          } else {
+            navigation.navigate('SchoolMessages');
+          }
+          break;
+
+        case 'attendance':
+          // Navigate to specific student attendance if available
+          if (notification.targetId) { // Usually student ID for attendance
+             // We'd ideally want StudentAttendanceDetail but we might need more params
+             navigation.navigate('SchoolAttendance');
+          } else {
+            navigation.navigate('SchoolAttendance');
+          }
+          break;
+
+        case 'homework':
+          if (notification.targetId) {
+            navigation.navigate('SchoolHomeworkDetail', { 
+              assignmentId: notification.targetId 
+            });
+          } else {
+            navigation.navigate('SchoolHomework');
+          }
+          break;
+
+        case 'event':
+          if (notification.targetId) {
+            // We need to fetch event details, but SchoolEventDetail expects an event object
+            // For now, go to the list which is safer, or try to navigate with just ID if supported
+            // Since SchoolEventDetail requires a full event object in params, we'll go to the list
+            navigation.navigate('SchoolEvents');
+          } else {
+            navigation.navigate('SchoolEvents');
+          }
+          break;
+
+        case 'payment':
+          navigation.navigate('SchoolPayments');
+          break;
+
+        case 'photo_album':
+          if (notification.targetId) {
+             // SchoolAlbumDetail expects 'album' object. Safer to go to list.
+            navigation.navigate('SchoolPhotoAlbums');
+          } else {
+            navigation.navigate('SchoolPhotoAlbums');
+          }
+          break;
+          
+        case 'announcement':
+          if (notification.targetId) {
+             // SchoolAnnouncementDetail expects 'announcement' object.
+            navigation.navigate('SchoolAnnouncements');
+          } else {
+            navigation.navigate('SchoolAnnouncements');
+          }
+          break;
+
+        case 'medicine':
+          navigation.navigate('SchoolMedicine');
+          break;
+          
+        case 'health_incident':
+        case 'health':
+          navigation.navigate('SchoolHealth');
+          break;
+
+        case 'report':
+        case 'progress_report':
+          navigation.navigate('SchoolProgress');
+          break;
+          
+        case 'student':
+          if (notification.targetId) {
+            navigation.navigate('StudentDetail', { studentId: notification.targetId });
+          } else {
+            navigation.navigate('SchoolStudents');
+          }
+          break;
+
+        case 'daily_activity':
+          navigation.navigate('SchoolDailyActivities');
+          break;
+
+        default:
+          // Fallback to Home if unknown
+          console.warn('Unknown notification target type:', notification.targetType);
+          navigation.navigate('HomeTab');
+      }
+    } else {
+      // No target type, just stay here (or maybe expand details if we had a modal)
     }
   };
 
-  // Get unread count for each filter
-  const getUnreadCount = (filter: FilterType) => {
-    const filtered = filter === 'all' 
-      ? notifications 
-      : notifications.filter(n => n.type === filter);
-    return filtered.filter(n => !n.isRead).length;
+  // Handle mark all as read
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllRead();
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
   };
 
   // Format timestamp
-  const formatTimestamp = (timestamp: Date) => {
+  const formatTimestamp = (timestampString: string) => {
+    const timestamp = new Date(timestampString);
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - timestamp.getTime()) / (1000 * 60 * 60));
+    const diffInMs = now.getTime() - timestamp.getTime();
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
     const diffInDays = Math.floor(diffInHours / 24);
 
-    if (diffInHours < 1) {
-      return t('notifications.justNow');
+    if (diffInMinutes < 1) {
+      return t('notifications.justNow') || 'Just now';
+    } else if (diffInMinutes < 60) {
+      return `${diffInMinutes} ${t('notifications.minutesAgo') || 'minutes ago'}`;
     } else if (diffInHours < 24) {
-      return `${diffInHours} ${t('notifications.hoursAgo')}`;
+      return `${diffInHours} ${t('notifications.hoursAgo') || 'hours ago'}`;
     } else if (diffInDays < 7) {
-      return `${diffInDays} ${t('notifications.daysAgo')}`;
+      return `${diffInDays} ${t('notifications.daysAgo') || 'days ago'}`;
     } else {
       return timestamp.toLocaleDateString();
     }
   };
 
-  // Render filter button
-  const renderFilterButton = (filter: FilterType, label: string) => {
-    const isActive = activeFilter === filter;
-    const unreadCount = getUnreadCount(filter);
+  // Render tab button
+  const renderTabButton = (tab: TabType, label: string) => {
+    const isActive = activeTab === tab;
+    const unreadCount = tab === 'urgent' ? urgentUnreadCount : normalUnreadCount;
     
     return (
       <TouchableOpacity
         style={[styles.filterButton, isActive && styles.filterButtonActive]}
-        onPress={() => setActiveFilter(filter)}
+        onPress={() => setActiveTab(tab)}
       >
         <Text style={[styles.filterButtonText, isActive && styles.filterButtonTextActive]}>
           {label}
         </Text>
         {unreadCount > 0 && (
-          <View style={[styles.badge, filter === 'important' ? styles.badgeImportant : styles.badgeRegular]}>
+          <View style={[styles.badge, tab === 'urgent' ? styles.badgeImportant : styles.badgeRegular]}>
             <Text style={styles.badgeText}>{unreadCount}</Text>
           </View>
         )}
@@ -521,7 +448,9 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
 
   // Render notification item
   const renderNotificationItem = (notification: Notification) => {
-    const isImportant = notification.type === 'important';
+    const isUrgent = notification.priority === 'urgent';
+    const iconName = getNotificationIcon(notification.type);
+    const category = getNotificationCategory(notification.type);
     
     return (
       <TouchableOpacity
@@ -533,12 +462,12 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
           <View style={styles.notificationHeader}>
             <View style={styles.iconContainer}>
               <MaterialIcons
-                name={notification.icon as any}
+                name={iconName as any}
                 size={24}
-                color={isImportant ? colors.status.error : colors.primary}
+                color={isUrgent ? colors.status.error : colors.primary}
               />
               {!notification.isRead && (
-                <View style={[styles.unreadIndicator, isImportant ? styles.unreadImportant : styles.unreadRegular]} />
+                <View style={[styles.unreadIndicator, isUrgent ? styles.unreadImportant : styles.unreadRegular]} />
               )}
             </View>
             <View style={styles.notificationInfo}>
@@ -546,22 +475,53 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
                 {notification.title}
               </Text>
               <Text style={styles.notificationMessage} numberOfLines={2}>
-                {notification.message}
+                {notification.body}
               </Text>
               <Text style={styles.notificationTime}>
-                {formatTimestamp(notification.timestamp)}
+                {formatTimestamp(notification.createdAt)}
               </Text>
             </View>
           </View>
-          <View style={[styles.categoryBadge, isImportant ? styles.categoryBadgeImportant : styles.categoryBadgeRegular]}>
-            <Text style={[styles.categoryText, isImportant ? styles.categoryTextImportant : styles.categoryTextRegular]}>
-              {notification.category}
+          <View style={[styles.categoryBadge, isUrgent ? styles.categoryBadgeImportant : styles.categoryBadgeRegular]}>
+            <Text style={[styles.categoryText, isUrgent ? styles.categoryTextImportant : styles.categoryTextRegular]}>
+              {category}
             </Text>
           </View>
         </View>
       </TouchableOpacity>
     );
   };
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <MaterialIcons name="arrow-back" size={24} color={colors.text.primary} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>{t('notifications.title')}</Text>
+          <View style={styles.headerRight} />
+        </View>
+        <View style={styles.emptyState}>
+          <MaterialIcons name="error-outline" size={64} color={colors.status.error} />
+          <Text style={styles.emptyStateText}>
+            {t('notifications.error') || 'Error loading notifications'}
+          </Text>
+          <TouchableOpacity
+            style={[styles.filterButton, { marginTop: spacing.md }]}
+            onPress={() => refetch()}
+          >
+            <Text style={styles.filterButtonText}>
+              {t('common.tryAgain') || 'Try Again'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -573,28 +533,57 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
         >
           <MaterialIcons name="arrow-back" size={24} color={colors.text.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('notifications.title')}</Text>
-        <View style={styles.headerRight} />
+        <Text style={styles.headerTitle}>{t('notifications.title') || 'Notifications'}</Text>
+        {unreadCount > 0 && (
+          <TouchableOpacity
+            style={styles.headerRight}
+            onPress={handleMarkAllRead}
+          >
+            <Text style={[styles.filterButtonText, { fontSize: typography.fontSize.sm }]}>
+              {t('notifications.markAllRead') || 'Mark All Read'}
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
 
-      {/* Filter Buttons */}
+      {/* Tab Buttons */}
       <View style={styles.filterContainer}>
-        {renderFilterButton('all', t('notifications.all'))}
-        {renderFilterButton('regular', t('notifications.regular'))}
-        {renderFilterButton('important', t('notifications.important'))}
+        {renderTabButton('urgent', t('notifications.important') || 'Important')}
+        {renderTabButton('normal', t('notifications.regular') || 'Other')}
       </View>
 
       {/* Notifications List */}
-      <ScrollView style={styles.notificationsList} showsVerticalScrollIndicator={false}>
-        {filteredNotifications.length > 0 ? (
-          filteredNotifications.map(renderNotificationItem)
-        ) : (
-          <View style={styles.emptyState}>
-            <MaterialIcons name="notifications-none" size={64} color={colors.text.light} />
-            <Text style={styles.emptyStateText}>{t('notifications.noNotifications')}</Text>
-          </View>
-        )}
-      </ScrollView>
+      {isLoading && activeNotifications.length === 0 ? (
+        <View style={styles.emptyState}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={styles.emptyStateText}>
+            {t('common.loading') || 'Loading...'}
+          </Text>
+        </View>
+      ) : (
+        <ScrollView
+          style={styles.notificationsList}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={refetch}
+              tintColor={colors.primary}
+            />
+          }
+        >
+          {activeNotifications.length > 0 ? (
+            activeNotifications.map(renderNotificationItem)
+          ) : (
+            <View style={styles.emptyState}>
+              <MaterialIcons name="notifications-none" size={64} color={colors.text.light} />
+              <Text style={styles.emptyStateText}>
+                {t('notifications.noNotifications') || 'No notifications'}
+              </Text>
+            </View>
+          )}
+        </ScrollView>
+      )}
     </View>
   );
 };

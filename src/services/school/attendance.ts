@@ -357,6 +357,7 @@ export async function fetchParentChildren(schoolId: string): Promise<Child[]> {
           id,
           first_name,
           last_name,
+          photo_url,
           school_classes (name)
         )
       `
@@ -374,6 +375,7 @@ export async function fetchParentChildren(schoolId: string): Promise<Child[]> {
       firstName: m.school_students.first_name || '',
       lastName: m.school_students.last_name || '',
       className: m.school_students.school_classes?.[0]?.name,
+      photoUrl: m.school_students.photo_url || null,
     }));
   } catch (error) {
     console.error('Error in fetchParentChildren:', error);
@@ -439,6 +441,7 @@ export async function fetchStudentsForSchool(
         id,
         first_name,
         last_name,
+        photo_url,
         school_classes (name)
       `)
       .eq('school_id', resolvedSchoolId);
@@ -461,6 +464,7 @@ export async function fetchStudentsForSchool(
       firstName: s.first_name || '',
       lastName: s.last_name || '',
       className: s.school_classes?.name,
+      photoUrl: s.photo_url || null,
     }));
   } catch (error) {
     console.error('Error in fetchStudentsForSchool:', error);
@@ -495,7 +499,7 @@ export async function buildStudentAttendanceSummaries(
     // Fetch student details
     const { data: students, error: studentsError } = await supabase
       .from('school_students')
-      .select('id, first_name, last_name')
+      .select('id, first_name, last_name, photo_url')
       .in('id', studentIds);
 
     if (studentsError || !students) {
@@ -525,6 +529,7 @@ export async function buildStudentAttendanceSummaries(
       summaries.push({
         studentId: student.id,
         studentName: `${student.first_name || ''} ${student.last_name || ''}`.trim(),
+        avatar: student.photo_url || undefined,
         attendanceRate,
         weekStatus,
       });

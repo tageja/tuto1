@@ -1,4 +1,5 @@
 import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { HomeScreen } from '../screens/HomeScreen';
@@ -7,7 +8,10 @@ import { UserProfileScreen } from '../screens/UserProfileScreen';
 import ParentAttendanceScreen from '../screens/school/ParentAttendanceScreen';
 import ParentEventsScreen from '../screens/school/ParentEventsScreen';
 import ParentPhotoAlbumsScreen from '../screens/school/ParentPhotoAlbumsScreen';
+import AlbumDetailScreen from '../screens/school/AlbumDetailScreen';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useNotifications } from '../hooks/useNotifications';
+import { useTheme } from '../contexts/ThemeContext';
 
 const Tab = createBottomTabNavigator();
 const AttendanceStack = createStackNavigator();
@@ -34,11 +38,45 @@ const PhotosStackNavigator = () => {
   return (
     <PhotosStack.Navigator screenOptions={{ headerShown: false }}>
       <PhotosStack.Screen name="PhotosMain" component={ParentPhotoAlbumsScreen} />
+      <PhotosStack.Screen name="SchoolAlbumDetail" component={AlbumDetailScreen} />
     </PhotosStack.Navigator>
   );
 };
 
 export const ParentTabs = () => {
+  const { colors, spacing, typography } = useTheme();
+  const { unreadCount, urgentUnreadCount, hasUrgentUnread } = useNotifications();
+
+  // Notification bell component with badge
+  const NotificationBell = ({ color, size }: { color: string; size: number }) => {
+    // Determine icon color: red for urgent, blue for normal, default otherwise
+    const iconColor = hasUrgentUnread
+      ? colors.status.error
+      : unreadCount > 0
+      ? colors.primary
+      : color;
+
+    return (
+      <View style={styles.iconContainer}>
+        <MaterialIcons name="notifications" color={iconColor} size={size} />
+        {unreadCount > 0 && (
+          <View
+            style={[
+              styles.badge,
+              {
+                backgroundColor: hasUrgentUnread ? colors.status.error : colors.primary,
+              },
+            ]}
+          >
+            <Text style={styles.badgeText}>
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </Text>
+          </View>
+        )}
+      </View>
+    );
+  };
+
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
       <Tab.Screen
@@ -49,7 +87,10 @@ export const ParentTabs = () => {
       <Tab.Screen
         name="MessagesTab"
         component={NotificationsScreen}
-        options={{ tabBarIcon: ({ color, size }) => <MaterialIcons name="chat" color={color} size={size} />, title: 'Messages' }}
+        options={{
+          tabBarIcon: ({ color, size }) => <NotificationBell color={color} size={size} />,
+          title: 'Notifications',
+        }}
       />
       <Tab.Screen
         name="AttendanceTab"
@@ -74,3 +115,29 @@ export const ParentTabs = () => {
     </Tab.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  iconContainer: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -8,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+});

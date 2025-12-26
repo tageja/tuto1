@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '../../../../lib/supabase';
 import { createAuthenticatedSupabaseClient } from '../../../../lib/supabase';
+import { createNotification } from '../../../../lib/notifications.server';
 
 /**
  * Health Incidents API Route
@@ -96,30 +97,71 @@ export async function POST(request: NextRequest) {
 
     if (parentMappings && parentMappings.length > 0) {
       // Create notifications for each parent
-      const notifications = parentMappings.map(mapping => ({
-        school_id: student.school_id,
-        type: 'health_incident',
-        ref_id: incident.id,
-        title: `Health Incident: ${category.charAt(0).toUpperCase() + category.slice(1)}`,
-        message: `${student.first_name} ${student.last_name} reported: ${category}`,
-        audience_scope: 'Users',
-        user_id: mapping.parent_user_id,
-        payload: {
-          studentId,
-          studentName: `${student.first_name} ${student.last_name}`,
-          category,
-          meta: meta || {},
-          happened_at: happened_at || incident.happened_at,
-        },
-      }));
+      const notificationPromises = parentMappings.map(async (mapping) => {
+        try {
+          await createNotification({
+            supabase,
+            schoolId: student.school_id,
+            recipientUserId: mapping.parent_user_id,
+            recipientRole: 'parent',
+            type: 'medicine', // Using medicine type as health_incident doesn't exist in enum
+            priority: 'urgent',
+            title: `Health Incident: ${category.charAt(0).toUpperCase() + category.slice(1)}`,
+            body: `${student.first_name} ${student.last_name} reported: ${category}`,
+            targetType: 'other', // Health incidents don't have a specific target type
+            targetId: incident.id,
+            meta: {
+              studentId,
+              studentName: `${student.first_name} ${student.last_name}`,
+              category,
+              meta: meta || {},
+              happened_at: happened_at || incident.happened_at,
+            },
+          });
+        } catch (notifError) {
+          console.error('Failed to create notification for parent:', mapping.parent_user_id, notifError);
+        }
+      });
 
-      const { error: notifError } = await supabase
-        .from('school_notifications')
-        .insert(notifications);
+      await Promise.allSettled(notificationPromises);
+      console.log('✅ Health incident notifications created for', parentMappings.length, 'parents');
 
-      if (notifError) {
-        console.error('Error creating notifications:', notifError);
-        // Don't fail the request if notifications fail
+      // Also notify admins about the health incident
+      const { data: adminUsers } = await supabase
+        .from('school_users')
+        .select('user_id')
+        .eq('school_id', student.school_id)
+        .in('role', ['admin', 'teacher']);
+
+      if (adminUsers && adminUsers.length > 0) {
+        const adminNotificationPromises = adminUsers.map(async (admin) => {
+          try {
+            await createNotification({
+              supabase,
+              schoolId: student.school_id,
+              recipientUserId: admin.user_id,
+              recipientRole: 'admin',
+              type: 'medicine',
+              priority: 'urgent',
+              title: `Health Incident: ${student.first_name} ${student.last_name}`,
+              body: `Category: ${category.charAt(0).toUpperCase() + category.slice(1)}`,
+              targetType: 'other',
+              targetId: incident.id,
+              meta: {
+                studentId,
+                studentName: `${student.first_name} ${student.last_name}`,
+                category,
+                meta: meta || {},
+                happened_at: happened_at || incident.happened_at,
+              },
+            });
+          } catch (notifError) {
+            console.error('Failed to create notification for admin:', admin.user_id, notifError);
+          }
+        });
+
+        await Promise.allSettled(adminNotificationPromises);
+        console.log('✅ Health incident notifications created for', adminUsers.length, 'admins');
       }
     }
 

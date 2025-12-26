@@ -57,6 +57,91 @@ const MessagesConversationScreen: React.FC = () => {
   const [userDbId, setUserDbId] = useState<string | null>(null);
   const flatListRef = useRef<FlatList>(null);
 
+  const styles = React.useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flex: 1,
+          backgroundColor: colors.background.secondary,
+        },
+        flex1: {
+          flex: 1,
+        },
+        header: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: spacing.md,
+          paddingVertical: spacing.sm,
+          backgroundColor: colors.white,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border.light,
+        },
+        backButton: {
+          padding: spacing.xs,
+          marginRight: spacing.sm,
+        },
+        avatarContainer: {
+          marginRight: spacing.sm,
+        },
+        avatar: {
+          width: 40,
+          height: 40,
+          borderRadius: 20,
+          backgroundColor: colors.primary,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        avatarText: {
+          color: colors.white,
+          fontSize: typography.fontSize.sm,
+          fontWeight: '600',
+          fontFamily: typography.fontFamily.semiBold,
+        },
+        headerInfo: {
+          flex: 1,
+          minWidth: 0,
+          marginRight: spacing.sm,
+        },
+        headerName: {
+          fontSize: typography.fontSize.md,
+          fontWeight: '600',
+          color: colors.text.primary,
+          fontFamily: typography.fontFamily.semiBold,
+          marginBottom: 2,
+        },
+        headerRole: {
+          fontSize: typography.fontSize.xs,
+          color: colors.text.secondary,
+          fontFamily: typography.fontFamily.regular,
+        },
+        headerActions: {
+          flexDirection: 'row',
+          marginRight: spacing.xs,
+        },
+        headerIcon: {
+          padding: spacing.xs,
+          marginLeft: spacing.xs,
+        },
+        menuButton: {
+          padding: spacing.xs,
+        },
+        messagesContainer: {
+          paddingHorizontal: spacing.md,
+          paddingVertical: spacing.md,
+        },
+        loadingContainer: {
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        loadMoreContainer: {
+          paddingVertical: spacing.md,
+          alignItems: 'center',
+        },
+      }),
+    [colors, spacing, typography]
+  );
+
   useEffect(() => {
     if (!isSchoolMode || !currentSchool || !threadId) {
       navigation.goBack();
@@ -351,92 +436,6 @@ const MessagesConversationScreen: React.FC = () => {
           ? 'You'
           : message.sender?.name || message.sender?.email || 'Unknown';
         const timestamp = formatTime(message.sent_at);
-
-
-        // Styles with dynamic theme
-
-
-        const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.secondary,
-  },
-  flex1: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  backButton: {
-    padding: spacing.xs,
-    marginRight: spacing.sm,
-  },
-  avatarContainer: {
-    marginRight: spacing.sm,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarText: {
-    color: colors.white,
-    fontSize: typography.fontSize.sm,
-    fontWeight: '600',
-    fontFamily: typography.fontFamily.semiBold,
-  },
-  headerInfo: {
-    flex: 1,
-    minWidth: 0,
-    marginRight: spacing.sm,
-  },
-  headerName: {
-    fontSize: typography.fontSize.md,
-    fontWeight: '600',
-    color: colors.text.primary,
-    fontFamily: typography.fontFamily.semiBold,
-    marginBottom: 2,
-  },
-  headerRole: {
-    fontSize: typography.fontSize.xs,
-    color: colors.text.secondary,
-    fontFamily: typography.fontFamily.regular,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    marginRight: spacing.xs,
-  },
-  headerIcon: {
-    padding: spacing.xs,
-    marginLeft: spacing.xs,
-  },
-  menuButton: {
-    padding: spacing.xs,
-  },
-  messagesContainer: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadMoreContainer: {
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-  },
-});
-
 
         return (
           <ChatBubble

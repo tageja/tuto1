@@ -22,6 +22,27 @@ async function resolveSchoolId(schoolIdentifier: string): Promise<string | null>
       return schoolIdentifier;
     }
 
+    // If it's an Airtable record ID (starts with 'rec'), try to find by name fallback
+    if (schoolIdentifier.startsWith('rec')) {
+      console.log('⚠️ [Events] Detected Airtable record ID, using fallback');
+      // Try common demo school names
+      const fallbackNames = ['Tuto Demo School', 'Demo School'];
+      
+      for (const name of fallbackNames) {
+        const { data, error } = await supabase
+          .from('schools')
+          .select('id')
+          .ilike('name', name)
+          .limit(1)
+          .single();
+        
+        if (data && !error) {
+          console.log('✅ [Events] Found school by fallback name:', name, '→', data.id);
+          return data.id;
+        }
+      }
+    }
+
     // Try to find school by exact name match
     const { data, error } = await supabase
       .from('schools')
@@ -42,14 +63,14 @@ async function resolveSchoolId(schoolIdentifier: string): Promise<string | null>
         return dataIlike.id;
       }
 
-      // Last resort: get first school
-      const { data: firstSchool } = await supabase
-        .from('schools')
-        .select('id')
-        .limit(1)
-        .single();
+      // If no school found by name, and we have a valid UUID, use it directly
+      // This is safer than falling back to "first school" which causes the bug
+      if (uuidRegex.test(schoolIdentifier)) {
+        return schoolIdentifier;
+      }
 
-      return firstSchool?.id || null;
+      console.warn('⚠️ School not found by name or ID:', schoolIdentifier);
+      return null;
     }
 
     return data?.id || null;
@@ -140,6 +161,66 @@ export function getMonthRange(monthString: string): [Date, Date] | null {
   } catch (error) {
     console.error('Error parsing month range:', error);
     return null;
+  }
+}
+
+/**
+ * Fetch distinct months that have events
+ * Returns array of "Month Year" strings (e.g., "December 2025")
+ */
+export async function fetchEventMonths(schoolId: string): Promise<string[]> {
+  try {
+    const resolvedSchoolId = await resolveSchoolId(schoolId);
+    if (!resolvedSchoolId) return [];
+
+    // Fetch all event dates
+    const { data, error } = await supabase
+      .from('school_events')
+      .select('starts_at')
+      .eq('school_id', resolvedSchoolId)
+      .order('starts_at', { ascending: true });
+
+    if (error) throw error;
+
+    const months = new Set<string>();
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    // Always add current month and next 11 months (1 year future)
+    const today = new Date();
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
+      months.add(`${monthNames[d.getMonth()]} ${d.getFullYear()}`);
+    }
+
+    // Add months from actual events (history + future beyond 1 year)
+    (data || []).forEach(event => {
+      const date = new Date(event.starts_at);
+      const monthStr = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+      months.add(monthStr);
+    });
+
+    // Convert to array and sort chronologically
+    return Array.from(months).sort((a, b) => {
+      const [monthA, yearA] = a.split(' ');
+      const [monthB, yearB] = b.split(' ');
+      
+      const dateA = new Date(parseInt(yearA), monthNames.indexOf(monthA));
+      const dateB = new Date(parseInt(yearB), monthNames.indexOf(monthB));
+      
+      return dateA.getTime() - dateB.getTime();
+    });
+  } catch (error) {
+    console.error('Error fetching event months:', error);
+    // Fallback to current month
+    const d = new Date();
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return [`${monthNames[d.getMonth()]} ${d.getFullYear()}`];
   }
 }
 
@@ -310,6 +391,9 @@ export async function createEvent(eventData: {
     if (!resolvedSchoolId) {
       throw new Error('Invalid school ID');
     }
+
+    console.log('📝 Creating event - Input School ID:', eventData.school_id);
+    console.log('📝 Creating event - Resolved School ID:', resolvedSchoolId);
 
     const { data, error } = await supabase
       .from('school_events')
@@ -526,13 +610,21 @@ export async function registerForEvent(
   schoolId: string
 ): Promise<EventRegistration> {
   try {
+    // Resolve school ID to valid UUID
+    const resolvedSchoolId = await resolveSchoolId(schoolId);
+    if (!resolvedSchoolId) {
+      throw new Error('Invalid school ID');
+    }
+
+    console.log('📝 Registering for event - School ID:', schoolId, '→', resolvedSchoolId);
+
     const { data, error } = await supabase
       .from('event_registrations')
       .insert({
         event_id: eventId,
         student_id: studentId,
         parent_user_id: parentUserId,
-        school_id: schoolId,
+        school_id: resolvedSchoolId,
         status: 'registered',
       })
       .select()
@@ -587,7 +679,8 @@ export async function fetchParentChildren(schoolId: string): Promise<Child[]> {
 
     const resolvedSchoolId = await resolveSchoolId(schoolId);
     if (!resolvedSchoolId) {
-      throw new Error('Invalid school ID');
+      console.warn('⚠️ fetchParentChildren: School not found for ID:', schoolId);
+      return [];
     }
 
     // Get user's database ID

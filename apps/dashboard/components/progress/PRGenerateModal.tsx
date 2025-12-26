@@ -50,6 +50,78 @@ export function PRGenerateModal({ isOpen, onClose, classes, schoolId, onSuccess 
       const selectedClass = classes.find(c => c.id === classId);
       setSuccess(`Generated reports for ${selectedClass?.name || 'selected class'} (${from} to ${to})`);
       
+      // Create notifications for parents of students in the class
+      try {
+        // Get all students in the class
+        const { data: studentsInClass } = await supabase
+          .from('school_students')
+          .select('id, first_name, last_name')
+          .eq('school_id', schoolId)
+          .eq('class_id', classId)
+          .ilike('status', 'active');
+
+        if (studentsInClass && studentsInClass.length > 0) {
+          const studentIds = studentsInClass.map(s => s.id);
+          const { data: parentMappings } = await supabase
+            .from('school_parent_students')
+            .select('parent_user_id, student_id')
+            .eq('school_id', schoolId)
+            .in('student_id', studentIds);
+
+          if (parentMappings && parentMappings.length > 0) {
+            // Group by parent to create one notification per parent (they may have multiple children)
+            const parentToStudents = new Map<string, string[]>();
+            parentMappings.forEach((m: any) => {
+              if (m.parent_user_id && m.student_id) {
+                if (!parentToStudents.has(m.parent_user_id)) {
+                  parentToStudents.set(m.parent_user_id, []);
+                }
+                const student = studentsInClass.find(s => s.id === m.student_id);
+                if (student) {
+                  parentToStudents.get(m.parent_user_id)!.push(`${student.first_name} ${student.last_name}`);
+                }
+              }
+            });
+
+            // Create notifications for each parent
+            const notificationPromises = Array.from(parentToStudents.entries()).map(async ([parentUserId, studentNames]) => {
+              try {
+                const studentList = studentNames.length === 1 
+                  ? studentNames[0]
+                  : `${studentNames.length} students`;
+                
+                await supabase.from('notifications').insert({
+                  school_id: schoolId,
+                  recipient_user_id: parentUserId,
+                  recipient_role: 'parent',
+                  type: 'progress_report',
+                  priority: 'urgent',
+                  title: `Progress Report Available: ${selectedClass?.name || 'Class'}`,
+                  body: `Progress reports for ${studentList} are now available (${from} to ${to})`,
+                  target_type: 'progress_report',
+                  target_id: classId,
+                  is_read: false,
+                  meta: {
+                    class_id: classId,
+                    class_name: selectedClass?.name,
+                    date_range: { from, to },
+                    student_count: studentNames.length,
+                  },
+                });
+              } catch (notifError) {
+                console.error('Failed to create progress report notification:', notifError);
+              }
+            });
+
+            await Promise.allSettled(notificationPromises);
+            console.log('✅ Progress report notifications created for', parentToStudents.size, 'parents');
+          }
+        }
+      } catch (notifError) {
+        // Don't fail the request if notifications fail
+        console.error('Error creating progress report notifications:', notifError);
+      }
+      
       // Delay before closing to show success message
       setTimeout(() => {
         onSuccess();

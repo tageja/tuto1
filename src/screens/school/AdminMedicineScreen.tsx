@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   Alert,
+  Modal,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -85,16 +86,15 @@ const AdminMedicineScreen: React.FC = () => {
     kpiGrid: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      marginHorizontal: -spacing.xs,
+      justifyContent: 'space-between',
       marginBottom: spacing.md,
+      gap: spacing.sm,
     },
     kpiCard: {
       width: '48%',
       backgroundColor: colors.background.primary,
       borderRadius: borderRadius.lg,
       padding: spacing.md,
-      marginHorizontal: spacing.xs,
-      marginBottom: spacing.sm,
       ...shadows.sm,
     },
     kpiIconContainer: {
@@ -282,6 +282,47 @@ const AdminMedicineScreen: React.FC = () => {
     dropdownItemText: {
       fontSize: typography.fontSize.sm,
       color: colors.text.primary,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      backgroundColor: colors.background.primary,
+      borderRadius: borderRadius.lg,
+      width: '80%',
+      maxHeight: '60%',
+      ...shadows.lg,
+    },
+    modalTitle: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: '600',
+      color: colors.text.primary,
+      padding: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    modalList: {
+      maxHeight: 300,
+    },
+    modalItem: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    modalItemText: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.primary,
+    },
+    modalItemTextSelected: {
+      color: colors.primary,
+      fontWeight: '600',
     },
   });
 
@@ -481,11 +522,11 @@ const AdminMedicineScreen: React.FC = () => {
           {item.status === 'active' && (
             <TouchableOpacity
               style={[styles.actionButton, styles.logButton]}
-              onPress={() => navigation.navigate('LogMedicineScreen' as never, { reminderId: item.id } as never)}
+              onPress={() => navigation.navigate('LogMedicine' as never, { reminderId: item.id } as never)}
             >
               <MaterialIcons name="check-circle" size={16} color="#FFFFFF" />
               <Text style={[styles.actionButtonText, { color: '#FFFFFF' }]}>
-                {t('school.medicine.log') || 'Log'}
+                {t('school.medicine.logButton') || 'Log'}
               </Text>
             </TouchableOpacity>
           )}
@@ -650,11 +691,113 @@ const AdminMedicineScreen: React.FC = () => {
         <MaterialIcons name="add" size={24} color="#FFFFFF" />
       </TouchableOpacity>
 
-      {/* Class Dropdown - Simple implementation */}
-      {/* In production, use a proper modal/bottom sheet */}
+      {/* Class Dropdown Modal */}
+      <Modal
+        visible={classDropdownVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setClassDropdownVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setClassDropdownVisible(false)}
+        >
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              {t('school.medicine.filters') || 'Select Class'}
+            </Text>
+            <ScrollView style={styles.modalList}>
+              <TouchableOpacity
+                style={styles.modalItem}
+                onPress={() => {
+                  setSelectedClass(null);
+                  setSelectedStudent(null);
+                  setClassDropdownVisible(false);
+                }}
+              >
+                <Text style={[styles.modalItemText, !selectedClass && styles.modalItemTextSelected]}>
+                  {t('school.medicine.allClasses') || 'All Classes'}
+                </Text>
+                {!selectedClass && (
+                  <MaterialIcons name="check" size={20} color={colors.primary} />
+                )}
+              </TouchableOpacity>
+              {classes.map(cls => (
+                <TouchableOpacity
+                  key={cls.id}
+                  style={styles.modalItem}
+                  onPress={() => {
+                    setSelectedClass(cls.id);
+                    setSelectedStudent(null);
+                    setClassDropdownVisible(false);
+                  }}
+                >
+                  <Text style={[styles.modalItemText, selectedClass === cls.id && styles.modalItemTextSelected]}>
+                    {cls.name}
+                  </Text>
+                  {selectedClass === cls.id && (
+                    <MaterialIcons name="check" size={20} color={colors.primary} />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
 
-      {/* Student Dropdown - Simple implementation */}
-      {/* In production, use a proper modal/bottom sheet */}
+      {/* Student Dropdown Modal */}
+      <Modal
+        visible={studentDropdownVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setStudentDropdownVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setStudentDropdownVisible(false)}
+        >
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              {t('school.medicine.allStudents') || 'Select Student'}
+            </Text>
+            <ScrollView style={styles.modalList}>
+              <TouchableOpacity
+                style={styles.modalItem}
+                onPress={() => {
+                  setSelectedStudent(null);
+                  setStudentDropdownVisible(false);
+                }}
+              >
+                <Text style={[styles.modalItemText, !selectedStudent && styles.modalItemTextSelected]}>
+                  {t('school.medicine.allStudents') || 'All Students'}
+                </Text>
+                {!selectedStudent && (
+                  <MaterialIcons name="check" size={20} color={colors.primary} />
+                )}
+              </TouchableOpacity>
+              {filteredStudents.map(student => (
+                <TouchableOpacity
+                  key={student.id}
+                  style={styles.modalItem}
+                  onPress={() => {
+                    setSelectedStudent(student.id);
+                    setStudentDropdownVisible(false);
+                  }}
+                >
+                  <Text style={[styles.modalItemText, selectedStudent === student.id && styles.modalItemTextSelected]}>
+                    {student.first_name} {student.last_name}
+                  </Text>
+                  {selectedStudent === student.id && (
+                    <MaterialIcons name="check" size={20} color={colors.primary} />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 };

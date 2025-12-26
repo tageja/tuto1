@@ -37,8 +37,9 @@ interface SubjectProgress {
 export const ProgressScreen: React.FC<ProgressScreenProps> = ({ navigation }) => {
   const { colors, spacing, typography, borderRadius, shadows } = useTheme();
 
-
-  const styles = StyleSheet.create({
+  const styles = React.useMemo(
+    () =>
+      StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: colors.background.primary,
@@ -262,7 +263,9 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({ navigation }) =>
       fontFamily: typography.fontFamily.medium,
       color: colors.text.secondary,
     },
-  }); 
+  }),
+  [colors, spacing, typography, borderRadius, shadows]
+); 
 
   const { t, language } = useLanguage();
   const [selectedPeriod, setSelectedPeriod] = useState<'1m' | '3m' | '6m' | '12m'>('3m');

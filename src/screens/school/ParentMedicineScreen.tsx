@@ -13,6 +13,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { DashboardHeader } from '../../components/school/DashboardHeader';
+import { ChildSelectorBottomSheet } from '../../components/school/ChildSelectorBottomSheet';
 import { useSchool } from '../../contexts/SchoolContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -199,28 +200,6 @@ const ParentMedicineScreen: React.FC = () => {
       justifyContent: 'center',
       ...shadows.lg,
     },
-    dropdown: {
-      position: 'absolute',
-      top: '100%',
-      left: 0,
-      right: 0,
-      backgroundColor: colors.background.primary,
-      borderRadius: borderRadius.md,
-      marginTop: spacing.xs,
-      maxHeight: 200,
-      ...shadows.md,
-      zIndex: 1000,
-    },
-    dropdownItem: {
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.md,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border.light,
-    },
-    dropdownItemText: {
-      fontSize: typography.fontSize.md,
-      color: colors.text.primary,
-    },
   });
 
   useEffect(() => {
@@ -331,7 +310,7 @@ const ParentMedicineScreen: React.FC = () => {
         </Text>
       )}
       <Text style={styles.medicationDetail}>
-        {t('school.medicine.frequency') || 'Frequency'}: {formatFrequency(item.frequency)}
+        {t('school.medicine.frequencyLabel') || 'Frequency'}: {formatFrequency(item.frequency)}
       </Text>
       {item.time_of_day && item.time_of_day.length > 0 && (
         <Text style={styles.medicationDetail}>
@@ -443,22 +422,6 @@ const ParentMedicineScreen: React.FC = () => {
               </Text>
               <MaterialIcons name="arrow-drop-down" size={24} color={colors.text.secondary} />
             </TouchableOpacity>
-            {childDropdownVisible && (
-              <View style={styles.dropdown}>
-                {children.map(child => (
-                  <TouchableOpacity
-                    key={child.id}
-                    style={styles.dropdownItem}
-                    onPress={() => {
-                      setSelectedChildId(child.id);
-                      setChildDropdownVisible(false);
-                    }}
-                  >
-                    <Text style={styles.dropdownItemText}>{child.fullName}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
           </View>
         )}
 
@@ -521,6 +484,20 @@ const ParentMedicineScreen: React.FC = () => {
       >
         <MaterialIcons name="add" size={24} color="#FFFFFF" />
       </TouchableOpacity>
+
+      {/* Child Selector Bottom Sheet */}
+      <ChildSelectorBottomSheet
+        children={children.map(c => ({
+          id: c.id,
+          firstName: c.firstName,
+          lastName: c.lastName,
+          className: c.className,
+        }))}
+        selectedId={selectedChildId}
+        visible={childDropdownVisible}
+        onSelect={(childId) => setSelectedChildId(childId)}
+        onClose={() => setChildDropdownVisible(false)}
+      />
     </View>
   );
 };

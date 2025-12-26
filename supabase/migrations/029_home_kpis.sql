@@ -24,3 +24,7 @@ CREATE POLICY "Platform stats are publicly readable"
 
 
 
+
+
+
+

@@ -156,163 +156,161 @@ const LogMedicineScreen: React.FC = () => {
     return labels[freq] || freq;
   };
 
+  // Styles with dynamic theme - must be defined BEFORE any conditional returns
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.surface,
+    },
+    content: {
+      flex: 1,
+    },
+    contentContainer: {
+      paddingBottom: Platform.OS === 'ios' ? 40 : 100,
+    },
+    form: {
+      padding: spacing.md,
+    },
+    section: {
+      marginBottom: spacing.lg,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: '600',
+      color: colors.text.primary,
+      marginBottom: spacing.md,
+    },
+    detailCard: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+    },
+    detailRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: spacing.sm,
+    },
+    detailLabel: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+      fontWeight: '600',
+    },
+    detailValue: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.primary,
+      flex: 1,
+      textAlign: 'right',
+    },
+    field: {
+      marginBottom: spacing.md,
+    },
+    label: {
+      fontSize: typography.fontSize.sm,
+      fontWeight: '600',
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    required: {
+      color: colors.error,
+    },
+    input: {
+      backgroundColor: colors.white,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      borderRadius: borderRadius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      fontSize: typography.fontSize.md,
+      color: colors.text.primary,
+    },
+    textArea: {
+      minHeight: 100,
+      textAlignVertical: 'top',
+    },
+    helperText: {
+      fontSize: typography.fontSize.xs,
+      color: colors.text.secondary,
+      marginTop: spacing.xs,
+    },
+    statusContainer: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    statusButton: {
+      flex: 1,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      backgroundColor: colors.white,
+      alignItems: 'center',
+    },
+    statusButtonSelected: {
+      borderWidth: 2,
+    },
+    statusButtonText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.primary,
+    },
+    statusButtonTextSelected: {
+      fontWeight: '600',
+    },
+    submitButton: {
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: spacing.lg,
+      marginBottom: spacing.xl,
+    },
+    submitButtonDisabled: {
+      opacity: 0.5,
+    },
+    submitButtonText: {
+      fontSize: typography.fontSize.md,
+      fontWeight: '600',
+      color: colors.white,
+    },
+    dateTimeRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    dateTimeButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.white,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: borderRadius.md,
+      paddingVertical: 12,
+      paddingHorizontal: spacing.md,
+      gap: spacing.sm,
+      minHeight: 48,
+    },
+    dateTimeText: {
+      fontSize: typography.fontSize.md,
+      color: colors.onSurface,
+      flex: 1,
+    },
+    loadingContainer: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.xl,
+    },
+    loadingText: {
+      marginTop: spacing.md,
+      fontSize: typography.fontSize.md,
+      color: colors.text.secondary,
+    },
+  });
+
   if (!reminder) {
-
-    // Styles with dynamic theme
-
-    const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.surface,
-  },
-  content: {
-    flex: 1,
-  },
-  contentContainer: {
-    paddingBottom: Platform.OS === 'ios' ? 40 : 100,
-  },
-  form: {
-    padding: spacing.md,
-  },
-  section: {
-    marginBottom: spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: '600',
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  },
-  detailCard: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: spacing.sm,
-  },
-  detailLabel: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-    fontWeight: '600',
-  },
-  detailValue: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.primary,
-    flex: 1,
-    textAlign: 'right',
-  },
-  field: {
-    marginBottom: spacing.md,
-  },
-  label: {
-    fontSize: typography.fontSize.sm,
-    fontWeight: '600',
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  required: {
-    color: colors.error,
-  },
-  input: {
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    fontSize: typography.fontSize.md,
-    color: colors.text.primary,
-  },
-  textArea: {
-    minHeight: 100,
-    textAlignVertical: 'top',
-  },
-  helperText: {
-    fontSize: typography.fontSize.xs,
-    color: colors.text.secondary,
-    marginTop: spacing.xs,
-  },
-  statusContainer: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  statusButton: {
-    flex: 1,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: borderRadius.md,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    backgroundColor: colors.white,
-    alignItems: 'center',
-  },
-  statusButtonSelected: {
-    borderWidth: 2,
-  },
-  statusButtonText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.primary,
-  },
-  statusButtonTextSelected: {
-    fontWeight: '600',
-  },
-  submitButton: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: spacing.lg,
-    marginBottom: spacing.xl,
-  },
-  submitButtonDisabled: {
-    opacity: 0.5,
-  },
-  submitButtonText: {
-    fontSize: typography.fontSize.md,
-    fontWeight: '600',
-    color: colors.white,
-  },
-  dateTimeRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  dateTimeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: borderRadius.md,
-    paddingVertical: 12,
-    paddingHorizontal: spacing.md,
-    gap: spacing.sm,
-    minHeight: 48,
-  },
-  dateTimeText: {
-    fontSize: typography.fontSize.md,
-    color: colors.onSurface,
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.xl,
-  },
-  loadingText: {
-    marginTop: spacing.md,
-    fontSize: typography.fontSize.md,
-    color: colors.text.secondary,
-  },
-});
-
     return (
       <View style={styles.container}>
         <DashboardHeader

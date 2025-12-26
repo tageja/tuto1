@@ -15,6 +15,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useUser } from '../contexts/UserContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { LanguageToggle } from '../components/LanguageToggle';
+import { useNotifications } from '../hooks/useNotifications';
 
 // New Home Components
 import { HeroSection } from '../components/home/HeroSection';
@@ -118,6 +119,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { t } = useLanguage();
   const { clearUser } = useUser();
   const { isOffline, retryNow } = useNetwork();
+  const { unreadCount, hasUrgentUnread } = useNotifications();
 
   const handleLogout = async () => {
     await clearUser();
@@ -145,10 +147,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             style={styles.iconButton}
             onPress={() => navigation.navigate('Notifications')}
           >
-            <MaterialIcons name="notifications-none" size={26} color={colors.text.primary} />
-            <View style={styles.notificationBadge}>
-              <Text style={styles.notificationBadgeText}>3</Text>
-            </View>
+            <MaterialIcons 
+              name="notifications-none" 
+              size={26} 
+              color={hasUrgentUnread ? colors.status.error : unreadCount > 0 ? colors.primary : colors.text.primary} 
+            />
+            {unreadCount > 0 && (
+              <View style={[styles.notificationBadge, { backgroundColor: hasUrgentUnread ? colors.status.error : colors.primary }]}>
+                <Text style={styles.notificationBadgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+              </View>
+            )}
           </TouchableOpacity>
           
           <TouchableOpacity 

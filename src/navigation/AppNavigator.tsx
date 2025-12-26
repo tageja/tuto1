@@ -47,6 +47,7 @@ import StudentDetailScreen from '../screens/school/StudentDetailScreen';
 import AttendanceScreen from '../screens/school/AttendanceScreen';
 import ParentAttendanceScreen from '../screens/school/ParentAttendanceScreen';
 import AdminAttendanceScreen from '../screens/school/AdminAttendanceScreen';
+import StudentAttendanceDetailScreen from '../screens/school/StudentAttendanceDetailScreen';
 import AdminTeachersScreen from '../screens/school/AdminTeachersScreen';
 import TeacherDetailScreen from '../screens/school/TeacherDetailScreen';
 import ClassDetailScreen from '../screens/school/ClassDetailScreen';
@@ -54,6 +55,7 @@ import SchoolHomeworkScreen from '../screens/school/HomeworkScreen';
 import ParentHomeworkScreen from '../screens/school/ParentHomeworkScreen';
 import AdminHomeworkScreen from '../screens/school/AdminHomeworkScreen';
 import CreateHomeworkAssignmentScreen from '../screens/school/CreateHomeworkAssignmentScreen';
+import HomeworkDetailScreen from '../screens/school/HomeworkDetailScreen';
 import SchoolProgressScreen from '../screens/school/ProgressScreen';
 import AdminEventsScreen from '../screens/school/AdminEventsScreen';
 import AdminCreateEventScreen from '../screens/school/AdminCreateEventScreen';
@@ -88,6 +90,8 @@ import AdminFeedbackListScreen from '../screens/school/AdminFeedbackListScreen';
 import ParentCreateFeedbackScreen from '../screens/school/ParentCreateFeedbackScreen';
 import FeedbackDetailsScreen from '../screens/school/FeedbackDetailsScreen';
 import { SettingsStackNavigator } from './SettingsStack';
+
+import EventDetailScreen from '../screens/school/EventDetailScreen';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -137,6 +141,12 @@ export type RootStackParamList = {
   SchoolTeachers: undefined;
   SchoolClasses: undefined;
   SchoolAttendance: undefined;
+  StudentAttendanceDetail: { 
+    studentId: string; 
+    studentName: string; 
+    studentAvatar?: string; 
+    className?: string; 
+  };
   SchoolAddActivity: { activity?: any } | undefined;
   SchoolAddAnnouncement: { announcement?: any } | undefined;
   // Teacher & Class Detail Screens
@@ -146,9 +156,17 @@ export type RootStackParamList = {
   StudentsScreen: undefined;
   StudentDetail: { studentId: string };
   SchoolHomework: undefined;
+  SchoolHomeworkDetail: { assignmentId: string };
   SchoolCreateHomework: undefined;
   SchoolProgress: undefined;
   SchoolEvents: undefined;
+  SchoolEventDetail: { 
+    event: any; 
+    childId?: string; 
+    childName?: string; 
+    isRegistered?: boolean; 
+    isParent?: boolean; 
+  };
   AdminEvents: undefined;
   AdminCreateEvent: undefined;
   AdminPhotoAlbums: undefined;
@@ -370,6 +388,7 @@ export const AppNavigator = () => {
             return isAdmin ? <AdminAttendanceScreen /> : <ParentAttendanceScreen />;
           }}
         </Stack.Screen>
+        <Stack.Screen name="StudentAttendanceDetail" component={StudentAttendanceDetailScreen} />
         <Stack.Screen name="SchoolHomework">
           {(props) => {
             const { userType } = useUser();
@@ -382,6 +401,7 @@ export const AppNavigator = () => {
           }}
         </Stack.Screen>
         <Stack.Screen name="SchoolCreateHomework" component={CreateHomeworkAssignmentScreen} />
+        <Stack.Screen name="SchoolHomeworkDetail" component={HomeworkDetailScreen} />
         <Stack.Screen name="SchoolProgress" component={SchoolProgressScreen} />
         <Stack.Screen name="SchoolEvents">
           {(props) => {
@@ -390,6 +410,7 @@ export const AppNavigator = () => {
             return isAdmin ? <AdminEventsScreen /> : <ParentEventsScreen />;
           }}
         </Stack.Screen>
+        <Stack.Screen name="SchoolEventDetail" component={EventDetailScreen} />
         <Stack.Screen name="SchoolPhotoAlbums">
           {(props) => {
             const { userType } = useUser();

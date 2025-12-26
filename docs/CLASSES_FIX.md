@@ -37,3 +37,7 @@ Now global admins (users with `role = 'admin'`) automatically get access to ALL 
 The classes should now load in the Create Event screen. Please refresh the mobile app and test again.
 
 
+
+
+
+

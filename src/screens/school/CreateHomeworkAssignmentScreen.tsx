@@ -1,4 +1,9 @@
-import React, { useState, useEffect } from 'react';
+/**
+ * Create Homework Assignment Screen
+ * Form for creating new homework assignments with validation
+ */
+
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,87 +13,276 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
-  Modal,
 } from 'react-native';
-import { Calendar } from 'react-native-calendars';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useSchool } from '../../contexts/SchoolContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { DashboardHeader } from '../../components/school/DashboardHeader';
+import SchoolHeader from '../../components/common/SchoolHeader';
 import {
-  fetchClassesForSchool,
   createHomeworkAssignment,
+  fetchClassesForSchool,
+  fetchSubjectsForSchool,
 } from '../../services/school/homework';
-import type { ClassOption } from '../../types/school/homework';
+import type { ClassOption, SubjectOption } from '../../services/school/homework';
 
 const CreateHomeworkAssignmentScreen: React.FC = () => {
   const { colors, spacing, typography, borderRadius, shadows } = useTheme();
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const { currentSchool } = useSchool();
   const { t } = useLanguage();
 
   const [loading, setLoading] = useState(false);
   const [classes, setClasses] = useState<ClassOption[]>([]);
-  const [classDropdownVisible, setClassDropdownVisible] = useState(false);
-  const [calendarVisible, setCalendarVisible] = useState(false);
+  const [subjects, setSubjects] = useState<SubjectOption[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
 
-  // Form state
-  const [classId, setClassId] = useState<string>('');
-  const [subject, setSubject] = useState('');
   const [title, setTitle] = useState('');
+  const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
-  const [dueDate, setDueDate] = useState<Date>(() => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow;
-  });
+  const [dueDate, setDueDate] = useState('');
   const [totalTasks, setTotalTasks] = useState('1');
+  const [targetScope, setTargetScope] = useState<'school' | 'classes'>('school');
+  const [selectedClassIds, setSelectedClassIds] = useState<string[]>([]);
+  const [classDropdownVisible, setClassDropdownVisible] = useState(false);
+  const [subjectDropdownVisible, setSubjectDropdownVisible] = useState(false);
 
-  useEffect(() => {
-    if (currentSchool) {
-      loadClasses();
-    }
-  }, [currentSchool]);
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.secondary,
+    },
+    headerBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+      backgroundColor: colors.background.primary,
+    },
+    headerButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: spacing.xs,
+    },
+    headerBackText: {
+      fontSize: typography.fontSize.sm,
+      fontWeight: '500',
+      color: colors.primary,
+      marginLeft: spacing.xs,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: '600',
+      color: colors.text.primary,
+    },
+    content: {
+      flex: 1,
+      padding: spacing.md,
+    },
+    formGroup: {
+      marginBottom: spacing.md,
+    },
+    label: {
+      fontSize: typography.fontSize.sm,
+      fontWeight: '600',
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    required: {
+      color: colors.error,
+    },
+    input: {
+      backgroundColor: colors.background.primary,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      borderRadius: borderRadius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      fontSize: typography.fontSize.md,
+      color: colors.text.primary,
+      minHeight: 44,
+    },
+    textArea: {
+      minHeight: 100,
+      textAlignVertical: 'top',
+      paddingTop: spacing.sm,
+    },
+    dropdown: {
+      backgroundColor: colors.background.primary,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      borderRadius: borderRadius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      minHeight: 44,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    dropdownText: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.primary,
+    },
+    dropdownModal: {
+      position: 'absolute',
+      top: 100,
+      left: spacing.md,
+      right: spacing.md,
+      backgroundColor: colors.background.primary,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      maxHeight: 200,
+      zIndex: 1000,
+      elevation: 5,
+      ...shadows.md,
+    },
+    dropdownItem: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    dropdownItemText: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.primary,
+    },
+    scopeButtons: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    scopeButton: {
+      flex: 1,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      alignItems: 'center',
+      backgroundColor: colors.background.secondary,
+    },
+    scopeButtonActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    scopeButtonText: {
+      fontSize: typography.fontSize.sm,
+      fontWeight: '600',
+      color: colors.text.primary,
+    },
+    scopeButtonTextActive: {
+      color: colors.white,
+    },
+    classChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.primary,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.full,
+      marginRight: spacing.xs,
+      marginBottom: spacing.xs,
+    },
+    classChipText: {
+      color: colors.white,
+      fontSize: typography.fontSize.xs,
+      fontWeight: '600',
+      marginRight: spacing.xs,
+    },
+    selectedClassesContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginTop: spacing.sm,
+    },
+    buttonRow: {
+      flexDirection: 'row',
+      gap: spacing.md,
+      marginTop: spacing.xl,
+      paddingBottom: spacing.xl,
+    },
+    cancelButton: {
+      flex: 1,
+      paddingVertical: spacing.md,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      alignItems: 'center',
+      backgroundColor: colors.background.primary,
+    },
+    cancelButtonText: {
+      fontSize: typography.fontSize.md,
+      fontWeight: '600',
+      color: colors.text.primary,
+    },
+    submitButton: {
+      flex: 1,
+      paddingVertical: spacing.md,
+      borderRadius: borderRadius.md,
+      alignItems: 'center',
+      backgroundColor: colors.primary,
+    },
+    submitButtonText: {
+      fontSize: typography.fontSize.md,
+      fontWeight: '600',
+      color: colors.white,
+    },
+    submitButtonDisabled: {
+      opacity: 0.5,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+  });
 
-  const loadClasses = async () => {
-    if (!currentSchool) return;
+  const loadData = useCallback(async () => {
+    if (!currentSchool?.id) return;
 
     try {
-      const classesData = await fetchClassesForSchool(
-        currentSchool.id || currentSchool.name
-      );
+      setLoadingData(true);
+      const [classesData, subjectsData] = await Promise.all([
+        fetchClassesForSchool(currentSchool.id),
+        fetchSubjectsForSchool(currentSchool.id),
+      ]);
+
       setClasses(classesData);
-      if (classesData.length > 0 && !classId) {
-        setClassId(classesData[0].id);
-      }
+      setSubjects(subjectsData);
     } catch (error) {
-      console.error('Error loading classes:', error);
+      console.error('Error loading data:', error);
+      Alert.alert(t('common.error'), 'Failed to load classes and subjects');
+    } finally {
+      setLoadingData(false);
     }
-  };
+  }, [currentSchool?.id, t]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleSubmit = async () => {
+    if (!currentSchool?.id) {
+      Alert.alert(t('common.error'), 'No school selected');
+      return;
+    }
+
     // Validation
     if (!title.trim()) {
-      Alert.alert(
-        t('school.homework.createModal.required', { defaultValue: 'Required' }),
-        t('school.homework.createModal.fillAllFields', { defaultValue: 'Please fill in all required fields' })
-      );
+      Alert.alert(t('common.error'), t('school.homework.createModal.fillAllFields'));
       return;
     }
-    if (!classId) {
-      Alert.alert(
-        t('school.homework.createModal.required', { defaultValue: 'Required' }),
-        t('school.homework.createModal.selectAtLeastOneClass', { defaultValue: 'Please select at least one class' })
-      );
+
+    if (!subject) {
+      Alert.alert(t('common.error'), t('school.homework.createModal.fillAllFields'));
       return;
     }
-    if (!subject.trim()) {
-      Alert.alert(
-        t('school.homework.createModal.required', { defaultValue: 'Required' }),
-        t('school.homework.createModal.fillAllFields', { defaultValue: 'Please fill in all required fields' })
-      );
+
+    if (!dueDate) {
+      Alert.alert(t('common.error'), t('school.homework.createModal.fillAllFields'));
       return;
     }
 
@@ -97,384 +291,288 @@ const CreateHomeworkAssignmentScreen: React.FC = () => {
     today.setHours(0, 0, 0, 0);
     const due = new Date(dueDate);
     due.setHours(0, 0, 0, 0);
+
     if (due < today) {
-      Alert.alert(
-        t('school.homework.createModal.error', { defaultValue: 'Error' }),
-        'Due date must be today or later'
-      );
+      Alert.alert(t('common.error'), 'Due date must be today or later');
+      return;
+    }
+
+    if (targetScope === 'classes' && selectedClassIds.length === 0) {
+      Alert.alert(t('common.error'), t('school.homework.createModal.selectAtLeastOneClass'));
       return;
     }
 
     setLoading(true);
     try {
-      const result = await createHomeworkAssignment(
-        currentSchool!.id || currentSchool!.name,
-        classId,
-        subject.trim(),
-        title.trim(),
-        description.trim() || null,
-        dueDate.toISOString().split('T')[0],
-        parseInt(totalTasks) || 1
-      );
+      await createHomeworkAssignment({
+        schoolId: currentSchool.id,
+        classId: targetScope === 'classes' && selectedClassIds.length === 1 ? selectedClassIds[0] : undefined,
+        subject,
+        title: title.trim(),
+        description: description.trim() || undefined,
+        dueDate,
+        totalTasks: parseInt(totalTasks, 10) || 1,
+        targetClassIds: targetScope === 'classes' ? selectedClassIds : undefined,
+      });
 
-      if (result.success) {
-        Alert.alert(
-          t('school.common.success', { defaultValue: 'Success' }),
-          t('school.homework.createModal.success', { defaultValue: 'Assignment created successfully!' }),
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                navigation.goBack();
-              },
-            },
-          ]
-        );
-      } else {
-        Alert.alert(
-          t('school.homework.createModal.error', { defaultValue: 'Error' }),
-          result.error || t('school.homework.createModal.error', { defaultValue: 'Failed to create assignment' })
-        );
-      }
+      Alert.alert(
+        t('common.success'),
+        t('school.homework.createModal.success'),
+        [
+          {
+            text: t('common.ok'),
+            onPress: () => navigation.goBack(),
+          },
+        ]
+      );
     } catch (error: any) {
       console.error('Error creating assignment:', error);
       Alert.alert(
-        t('school.homework.createModal.error', { defaultValue: 'Error' }),
-        error.message || t('school.homework.createModal.error', { defaultValue: 'Failed to create assignment' })
+        t('common.error'),
+        error.message || t('school.homework.createModal.error')
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleNotificationPress = () => {
-    navigation.navigate('Notifications' as never);
+  const toggleClassSelection = (classId: string) => {
+    setSelectedClassIds((prev) =>
+      prev.includes(classId)
+        ? prev.filter((id) => id !== classId)
+        : [...prev, classId]
+    );
   };
 
-  const handleMenuPress = () => {
-    navigation.goBack();
+  const removeClass = (classId: string) => {
+    setSelectedClassIds((prev) => prev.filter((id) => id !== classId));
   };
 
-  const formatDate = (date: Date): string => {
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
-
-  const selectedClass = classes.find((c) => c.id === classId);
-
-  if (!currentSchool) {
-
-    // Styles with dynamic theme
-
-    const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.secondary,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  formCard: {
-    backgroundColor: colors.white,
-    padding: spacing.md,
-    margin: spacing.md,
-    borderRadius: borderRadius.lg,
-    ...shadows.sm,
-  },
-  formTitle: {
-    fontSize: typography.fontSize.xl,
-    fontWeight: '600',
-    color: colors.text.primary,
-    fontFamily: typography.fontFamily.semiBold,
-    marginBottom: spacing.lg,
-  },
-  formField: {
-    marginBottom: spacing.md,
-  },
-  label: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-    fontFamily: typography.fontFamily.medium,
-    marginBottom: spacing.xs,
-  },
-  required: {
-    color: colors.error,
-  },
-  input: {
-    padding: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.background.primary,
-    fontSize: typography.fontSize.md,
-    color: colors.text.primary,
-    fontFamily: typography.fontFamily.regular,
-  },
-  textArea: {
-    minHeight: 100,
-    paddingTop: spacing.sm,
-  },
-  dropdown: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.background.primary,
-  },
-  dropdownText: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.primary,
-    fontFamily: typography.fontFamily.regular,
-    flex: 1,
-  },
-  datePicker: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.background.primary,
-  },
-  dateText: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.primary,
-    fontFamily: typography.fontFamily.regular,
-    marginLeft: spacing.sm,
-  },
-  submitButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.primary,
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-    marginTop: spacing.lg,
-    gap: spacing.sm,
-  },
-  submitButtonDisabled: {
-    opacity: 0.6,
-  },
-  submitButtonText: {
-    color: colors.white,
-    fontSize: typography.fontSize.md,
-    fontWeight: '600',
-    fontFamily: typography.fontFamily.semiBold,
-  },
-  errorText: {
-    fontSize: typography.fontSize.md,
-    color: colors.error,
-    textAlign: 'center',
-    margin: spacing.xl,
-  },
-  calendarModal: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  calendarModalContent: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.xl,
-    padding: spacing.md,
-    width: '90%',
-    maxWidth: 400,
-  },
-  calendarModalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  calendarModalTitle: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: '600',
-    color: colors.text.primary,
-    fontFamily: typography.fontFamily.semiBold,
-  },
-  dropdownModal: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  dropdownModalContent: {
-    backgroundColor: colors.white,
-    borderTopLeftRadius: borderRadius.xl,
-    borderTopRightRadius: borderRadius.xl,
-    maxHeight: '70%',
-    paddingBottom: spacing.xl,
-  },
-  dropdownModalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  dropdownModalTitle: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: '600',
-    color: colors.text.primary,
-    fontFamily: typography.fontFamily.semiBold,
-  },
-  dropdownItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  dropdownItemSelected: {
-    backgroundColor: `${colors.primary}10`,
-  },
-  dropdownItemText: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.primary,
-    fontFamily: typography.fontFamily.regular,
-  },
-  dropdownItemTextSelected: {
-    color: colors.primary,
-    fontWeight: '600',
-    fontFamily: typography.fontFamily.semiBold,
-  },
-});
-
+  if (loadingData) {
     return (
       <View style={styles.container}>
-        <Text style={styles.errorText}>
-          {t('school.common.noSchool', { defaultValue: 'No school selected' })}
-        </Text>
+        <SchoolHeader />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <DashboardHeader
-        schoolName={currentSchool.name || 'School'}
-        onMenuPress={handleMenuPress}
-        onNotificationPress={handleNotificationPress}
-      />
+      <SchoolHeader />
+      <View style={styles.headerBar}>
+        <TouchableOpacity
+          style={styles.headerButton}
+          onPress={() => navigation.goBack()}
+        >
+          <MaterialIcons name="arrow-back" size={24} color={colors.primary} />
+          <Text style={styles.headerBackText}>{t('school.homework.title')}</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{t('school.homework.createModal.title')}</Text>
+        <TouchableOpacity
+          style={styles.headerButton}
+          onPress={() => navigation.goBack()}
+        >
+          <MaterialIcons name="close" size={24} color={colors.text.primary} />
+        </TouchableOpacity>
+      </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.formCard}>
-          <Text style={styles.formTitle}>
-            {t('school.homework.createModal.title', { defaultValue: 'Create Assignment' })}
+      <ScrollView style={styles.content}>
+        {/* Title */}
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>
+            {t('school.homework.createModal.titleLabel')} <Text style={styles.required}>*</Text>
           </Text>
+          <TextInput
+            style={styles.input}
+            placeholder={t('school.homework.createModal.titlePlaceholder')}
+            placeholderTextColor={colors.text.secondary}
+            value={title}
+            onChangeText={setTitle}
+          />
+        </View>
 
-          {/* Class */}
-          <View style={styles.formField}>
+        {/* Subject */}
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>
+            {t('school.homework.createModal.subjectLabel')} <Text style={styles.required}>*</Text>
+          </Text>
+          <TouchableOpacity
+            style={styles.dropdown}
+            onPress={() => setSubjectDropdownVisible(!subjectDropdownVisible)}
+          >
+            <Text style={styles.dropdownText}>
+              {subject || t('school.homework.createModal.subjectPlaceholder')}
+            </Text>
+            <MaterialIcons name={subjectDropdownVisible ? 'expand-less' : 'expand-more'} size={24} color={colors.text.primary} />
+          </TouchableOpacity>
+          {subjectDropdownVisible && (
+            <View style={styles.dropdownModal}>
+              {subjects.map((subj) => (
+                <TouchableOpacity
+                  key={subj.name}
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setSubject(subj.name);
+                    setSubjectDropdownVisible(false);
+                  }}
+                >
+                  <Text style={styles.dropdownItemText}>{subj.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
+
+        {/* Description */}
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>{t('school.homework.createModal.descriptionLabel')}</Text>
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            placeholder={t('school.homework.createModal.descriptionPlaceholder')}
+            placeholderTextColor={colors.text.secondary}
+            value={description}
+            onChangeText={setDescription}
+            multiline
+            numberOfLines={4}
+          />
+        </View>
+
+        {/* Due Date */}
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>
+            {t('school.homework.createModal.dueDateLabel')} <Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            style={styles.input}
+            placeholder="YYYY-MM-DD"
+            placeholderTextColor={colors.text.secondary}
+            value={dueDate}
+            onChangeText={setDueDate}
+          />
+        </View>
+
+        {/* Total Tasks */}
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>
+            {t('school.homework.createModal.totalTasksLabel')} <Text style={styles.required}>*</Text>
+          </Text>
+          <TextInput
+            style={styles.input}
+            placeholder="1"
+            placeholderTextColor={colors.text.secondary}
+            value={totalTasks}
+            onChangeText={setTotalTasks}
+            keyboardType="numeric"
+          />
+        </View>
+
+        {/* Target Scope */}
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>
+            {t('school.homework.createModal.targetScopeLabel')} <Text style={styles.required}>*</Text>
+          </Text>
+          <View style={styles.scopeButtons}>
+            <TouchableOpacity
+              style={[styles.scopeButton, targetScope === 'school' && styles.scopeButtonActive]}
+              onPress={() => {
+                setTargetScope('school');
+                setSelectedClassIds([]);
+              }}
+            >
+              <Text
+                style={[
+                  styles.scopeButtonText,
+                  targetScope === 'school' && styles.scopeButtonTextActive,
+                ]}
+              >
+                {t('school.homework.createModal.schoolWide')}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.scopeButton, targetScope === 'classes' && styles.scopeButtonActive]}
+              onPress={() => setTargetScope('classes')}
+            >
+              <Text
+                style={[
+                  styles.scopeButtonText,
+                  targetScope === 'classes' && styles.scopeButtonTextActive,
+                ]}
+              >
+                {t('school.homework.createModal.specificClasses')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Class Selection (if specific classes) */}
+        {targetScope === 'classes' && (
+          <View style={styles.formGroup}>
             <Text style={styles.label}>
-              {t('school.homework.filters.class', { defaultValue: 'Class' })}{' '}
-              <Text style={styles.required}>*</Text>
+              {t('school.homework.createModal.selectClassesLabel')} <Text style={styles.required}>*</Text>
             </Text>
             <TouchableOpacity
               style={styles.dropdown}
-              onPress={() => setClassDropdownVisible(true)}
+              onPress={() => setClassDropdownVisible(!classDropdownVisible)}
             >
               <Text style={styles.dropdownText}>
-                {selectedClass
-                  ? selectedClass.name
-                  : t('school.homework.filters.allClasses', { defaultValue: 'Select Class' })}
+                {selectedClassIds.length > 0
+                  ? `${selectedClassIds.length} ${t('common.selected')}`
+                  : t('school.homework.createModal.selectClassesLabel')}
               </Text>
-              <MaterialIcons
-                name="arrow-drop-down"
-                size={20}
-                color={colors.text.secondary}
-              />
+              <MaterialIcons name={classDropdownVisible ? 'expand-less' : 'expand-more'} size={24} color={colors.text.primary} />
             </TouchableOpacity>
+            {classDropdownVisible && (
+              <View style={styles.dropdownModal}>
+                {classes.map((cls) => (
+                  <TouchableOpacity
+                    key={cls.id}
+                    style={styles.dropdownItem}
+                    onPress={() => {
+                      toggleClassSelection(cls.id);
+                    }}
+                  >
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Text style={styles.dropdownItemText}>{cls.name}</Text>
+                      {selectedClassIds.includes(cls.id) && (
+                        <MaterialIcons name="check" size={20} color={colors.primary} />
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+            {selectedClassIds.length > 0 && (
+              <View style={styles.selectedClassesContainer}>
+                {selectedClassIds.map((classId) => {
+                  const cls = classes.find((c) => c.id === classId);
+                  return (
+                    <TouchableOpacity
+                      key={classId}
+                      style={styles.classChip}
+                      onPress={() => removeClass(classId)}
+                    >
+                      <Text style={styles.classChipText}>{cls?.name}</Text>
+                      <MaterialIcons name="close" size={16} color={colors.white} />
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
           </View>
+        )}
 
-          {/* Subject */}
-          <View style={styles.formField}>
-            <Text style={styles.label}>
-              {t('school.homework.createModal.subjectLabel', { defaultValue: 'Subject' })}{' '}
-              <Text style={styles.required}>*</Text>
-            </Text>
-            <TextInput
-              style={styles.input}
-              placeholder={t('school.homework.createModal.subjectPlaceholder', { defaultValue: 'e.g., Mathematics' })}
-              placeholderTextColor={colors.text.light}
-              value={subject}
-              onChangeText={setSubject}
-            />
-          </View>
-
-          {/* Title */}
-          <View style={styles.formField}>
-            <Text style={styles.label}>
-              {t('school.homework.createModal.titleLabel', { defaultValue: 'Title' })}{' '}
-              <Text style={styles.required}>*</Text>
-            </Text>
-            <TextInput
-              style={styles.input}
-              placeholder={t('school.homework.createModal.titlePlaceholder', { defaultValue: 'e.g., Algebra Problem Set' })}
-              placeholderTextColor={colors.text.light}
-              value={title}
-              onChangeText={setTitle}
-            />
-          </View>
-
-          {/* Description */}
-          <View style={styles.formField}>
-            <Text style={styles.label}>
-              {t('school.homework.createModal.descriptionLabel', { defaultValue: 'Description' })}
-            </Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              placeholder={t('school.homework.createModal.descriptionPlaceholder', { defaultValue: 'Instructions for students...' })}
-              placeholderTextColor={colors.text.light}
-              value={description}
-              onChangeText={setDescription}
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-            />
-          </View>
-
-          {/* Due Date */}
-          <View style={styles.formField}>
-            <Text style={styles.label}>
-              {t('school.homework.createModal.dueDateLabel', { defaultValue: 'Due Date' })}{' '}
-              <Text style={styles.required}>*</Text>
-            </Text>
-            <TouchableOpacity
-              style={styles.datePicker}
-              onPress={() => setCalendarVisible(true)}
-            >
-              <MaterialIcons name="calendar-today" size={20} color={colors.text.secondary} />
-              <Text style={styles.dateText}>{formatDate(dueDate)}</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Total Tasks */}
-          <View style={styles.formField}>
-            <Text style={styles.label}>
-              {t('school.homework.createModal.totalTasks', { defaultValue: 'Total Tasks' })}
-            </Text>
-            <TextInput
-              style={styles.input}
-              placeholder="1"
-              placeholderTextColor={colors.text.light}
-              value={totalTasks}
-              onChangeText={(text) => {
-                // Only allow numbers
-                if (text === '' || /^\d+$/.test(text)) {
-                  setTotalTasks(text);
-                }
-              }}
-              keyboardType="numeric"
-            />
-          </View>
-
-          {/* Submit Button */}
+        {/* Buttons */}
+        <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => navigation.goBack()}
+            disabled={loading}
+          >
+            <Text style={styles.cancelButtonText}>{t('school.homework.createModal.cancel')}</Text>
+          </TouchableOpacity>
           <TouchableOpacity
             style={[styles.submitButton, loading && styles.submitButtonDisabled]}
             onPress={handleSubmit}
@@ -483,114 +581,15 @@ const CreateHomeworkAssignmentScreen: React.FC = () => {
             {loading ? (
               <ActivityIndicator color={colors.white} />
             ) : (
-              <>
-                <MaterialIcons name="check" size={20} color={colors.white} />
-                <Text style={styles.submitButtonText}>
-                  {t('school.homework.createModal.create', { defaultValue: 'Create Assignment' })}
-                </Text>
-              </>
+              <Text style={styles.submitButtonText}>
+                {t('school.homework.createModal.create')}
+              </Text>
             )}
           </TouchableOpacity>
         </View>
       </ScrollView>
-
-      {/* Class Dropdown Modal */}
-      <Modal
-        visible={classDropdownVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setClassDropdownVisible(false)}
-      >
-        <View style={styles.dropdownModal}>
-          <View style={styles.dropdownModalContent}>
-            <View style={styles.dropdownModalHeader}>
-              <Text style={styles.dropdownModalTitle}>
-                {t('school.attendance.selectClass', { defaultValue: 'Select Class' })}
-              </Text>
-              <TouchableOpacity onPress={() => setClassDropdownVisible(false)}>
-                <MaterialIcons name="close" size={24} color={colors.text.primary} />
-              </TouchableOpacity>
-            </View>
-            <ScrollView>
-              {classes.map((item) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={[
-                    styles.dropdownItem,
-                    classId === item.id && styles.dropdownItemSelected,
-                  ]}
-                  onPress={() => {
-                    setClassId(item.id);
-                    setClassDropdownVisible(false);
-                  }}
-                >
-                  <Text
-                    style={[
-                      styles.dropdownItemText,
-                      classId === item.id && styles.dropdownItemTextSelected,
-                    ]}
-                  >
-                    {item.name}
-                  </Text>
-                  {classId === item.id && (
-                    <MaterialIcons
-                      name="check"
-                      size={20}
-                      color={colors.primary}
-                    />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Calendar Modal */}
-      <Modal
-        visible={calendarVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setCalendarVisible(false)}
-      >
-        <View style={styles.calendarModal}>
-          <View style={styles.calendarModalContent}>
-            <View style={styles.calendarModalHeader}>
-              <Text style={styles.calendarModalTitle}>
-                {t('school.homework.createModal.dueDateLabel', { defaultValue: 'Select Due Date' })}
-              </Text>
-              <TouchableOpacity onPress={() => setCalendarVisible(false)}>
-                <MaterialIcons name="close" size={24} color={colors.text.primary} />
-              </TouchableOpacity>
-            </View>
-            <Calendar
-              current={dueDate.toISOString().split('T')[0]}
-              minDate={new Date().toISOString().split('T')[0]}
-              onDayPress={(day) => {
-                setDueDate(new Date(day.dateString));
-                setCalendarVisible(false);
-              }}
-              markedDates={{
-                [dueDate.toISOString().split('T')[0]]: {
-                  selected: true,
-                  selectedColor: colors.primary,
-                },
-              }}
-              theme={{
-                todayTextColor: colors.primary,
-                selectedDayBackgroundColor: colors.primary,
-                selectedDayTextColor: colors.white,
-                textDayFontFamily: typography.fontFamily.regular,
-                textMonthFontFamily: typography.fontFamily.semiBold,
-                textDayHeaderFontFamily: typography.fontFamily.medium,
-              }}
-            />
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };
 
 export default CreateHomeworkAssignmentScreen;
-

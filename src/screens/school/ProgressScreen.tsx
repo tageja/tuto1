@@ -24,93 +24,100 @@ const SubjectCard = ({
   name,
   current,
   previous,
+  colors,
+  spacing,
+  typography,
 }: {
   name: string;
   current?: number;
   previous?: number;
+  colors: any;
+  spacing: any;
+  typography: any;
 }) => {
   const diff = current !== undefined && previous !== undefined ? current - previous : undefined;
   const trend: 'up' | 'down' | 'flat' | undefined = diff !== undefined ? (diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat') : undefined;
   const trendColor = trend === 'up' ? '#16A34A' : trend === 'down' ? '#DC2626' : '#888888';
 
-  // Styles with dynamic theme
-
-  const styles = StyleSheet.create({
-  periodTabs: {
-    flexDirection: 'row',
-    backgroundColor: colors.background.secondary,
-    marginHorizontal: spacing.lg,
-    marginTop: spacing.md,
-    marginBottom: spacing.md,
-    borderRadius: 12,
-    padding: spacing.xs,
-  },
-  periodTab: {
-    flex: 1,
-    paddingVertical: spacing.sm,
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-  activePeriodTab: {
-    backgroundColor: colors.background.primary,
-  },
-  periodTabText: {
-    fontSize: typography.fontSize.sm,
-    fontFamily: typography.fontFamily.medium,
-    color: colors.text.secondary,
-  },
-  activePeriodTabText: {
-    color: colors.primary,
-    fontFamily: typography.fontFamily.semiBold,
-  },
-  cardRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: colors.background.primary,
-    borderRadius: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-  },
-  title: { fontSize: 16, fontWeight: '600', color: colors.text.primary },
-  meta: { fontSize: 12, color: colors.text.secondary, marginTop: 4 },
-  metaRow: { flexDirection: 'row', alignItems: 'center' },
-  gradePill: { backgroundColor: '#F0F4FF', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 },
-  gradeText: { color: '#0B5FFF', fontWeight: '700' },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    marginTop: 12,
-    marginBottom: 8,
-    backgroundColor: colors.background.primary,
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-  },
-  searchInput: { flex: 1, paddingHorizontal: 8, paddingVertical: 6, fontSize: 16 },
-  loadingText: { fontSize: 12, color: colors.text.secondary, marginTop: 8 },
-  emptyWrap: { alignItems: 'center', marginTop: 48, paddingHorizontal: 24 },
-  emptyTitle: { fontSize: 16, color: colors.text.primary, marginTop: 12 },
-  emptySubtitle: { fontSize: 12, color: colors.text.secondary, marginTop: 4, textAlign: 'center' },
-  // keep existing styles; add/override for graph and headers using theme
-  sectionHeader: { fontSize: typography.fontSize.lg, fontFamily: typography.fontFamily.bold, color: colors.text.primary, marginBottom: spacing.md },
-  graphArea: { backgroundColor: colors.background.primary, borderRadius: 12, padding: spacing.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: colors.border.light },
-  graphBarsRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-around', height: 140 },
-  barContainer: { alignItems: 'center', flex: 1 },
-  bar: { width: 20, backgroundColor: colors.primary, borderRadius: 10, marginBottom: spacing.xs },
-  barLabel: { fontSize: typography.fontSize.xs, color: colors.text.secondary },
-  barValue: { fontSize: typography.fontSize.xs, color: colors.text.primary, marginTop: spacing.xs, fontFamily: typography.fontFamily.bold },
-  subjectCard: { backgroundColor: colors.background.secondary, borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: colors.border.light },
-  scoreBadge: { backgroundColor: '#E8F2FF', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 },
-  scoreBadgeText: { color: '#0B5FFF', fontWeight: '700' },
-  progressBarBg: { height: 8, backgroundColor: colors.border.light, borderRadius: 999, marginTop: 10 },
-  progressBarFill: { height: 8, backgroundColor: '#0B5FFF', borderRadius: 999 },
-});
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        periodTabs: {
+          flexDirection: 'row',
+          backgroundColor: colors.background.secondary,
+          marginHorizontal: spacing.lg,
+          marginTop: spacing.md,
+          marginBottom: spacing.md,
+          borderRadius: 12,
+          padding: spacing.xs,
+        },
+        periodTab: {
+          flex: 1,
+          paddingVertical: spacing.sm,
+          alignItems: 'center',
+          borderRadius: 8,
+        },
+        activePeriodTab: {
+          backgroundColor: colors.background.primary,
+        },
+        periodTabText: {
+          fontSize: typography.fontSize.sm,
+          fontFamily: typography.fontFamily.medium,
+          color: colors.text.secondary,
+        },
+        activePeriodTabText: {
+          color: colors.primary,
+          fontFamily: typography.fontFamily.semiBold,
+        },
+        cardRow: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: 16,
+          backgroundColor: colors.background.primary,
+          borderRadius: 16,
+          marginBottom: 12,
+          borderWidth: 1,
+          borderColor: colors.border.light,
+        },
+        title: { fontSize: 16, fontWeight: '600', color: colors.text.primary },
+        meta: { fontSize: 12, color: colors.text.secondary, marginTop: 4 },
+        metaRow: { flexDirection: 'row', alignItems: 'center' },
+        gradePill: { backgroundColor: '#F0F4FF', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 },
+        gradeText: { color: '#0B5FFF', fontWeight: '700' },
+        searchBar: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginHorizontal: 16,
+          marginTop: 12,
+          marginBottom: 8,
+          backgroundColor: colors.background.primary,
+          borderRadius: 16,
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+          borderWidth: 1,
+          borderColor: colors.border.light,
+        },
+        searchInput: { flex: 1, paddingHorizontal: 8, paddingVertical: 6, fontSize: 16 },
+        loadingText: { fontSize: 12, color: colors.text.secondary, marginTop: 8 },
+        emptyWrap: { alignItems: 'center', marginTop: 48, paddingHorizontal: 24 },
+        emptyTitle: { fontSize: 16, color: colors.text.primary, marginTop: 12 },
+        emptySubtitle: { fontSize: 12, color: colors.text.secondary, marginTop: 4, textAlign: 'center' },
+        sectionHeader: { fontSize: typography.fontSize.lg, fontFamily: typography.fontFamily.bold, color: colors.text.primary, marginBottom: spacing.md },
+        graphArea: { backgroundColor: colors.background.primary, borderRadius: 12, padding: spacing.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: colors.border.light },
+        graphBarsRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-around', height: 140 },
+        barContainer: { alignItems: 'center', flex: 1 },
+        bar: { width: 20, backgroundColor: colors.primary, borderRadius: 10, marginBottom: spacing.xs },
+        barLabel: { fontSize: typography.fontSize.xs, color: colors.text.secondary },
+        barValue: { fontSize: typography.fontSize.xs, color: colors.text.primary, marginTop: spacing.xs, fontFamily: typography.fontFamily.bold },
+        subjectCard: { backgroundColor: colors.background.secondary, borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: colors.border.light },
+        scoreBadge: { backgroundColor: '#E8F2FF', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 },
+        scoreBadgeText: { color: '#0B5FFF', fontWeight: '700' },
+        progressBarBg: { height: 8, backgroundColor: colors.border.light, borderRadius: 999, marginTop: 10 },
+        progressBarFill: { height: 8, backgroundColor: '#0B5FFF', borderRadius: 999 },
+      }),
+    [colors, spacing, typography]
+  );
 
   return (
     <View style={styles.subjectCard}>
@@ -306,7 +313,7 @@ const ProgressScreen: React.FC = () => {
                 x.nameVi.toLowerCase() === String(s.subject).toLowerCase()
               ));
               const display = match ? (language === 'vi' ? match.nameVi : match.nameEn) : s.subject;
-              return <SubjectCard key={String(s.subject)} name={String(display)} current={s.current} previous={s.previous} />;
+              return <SubjectCard key={String(s.subject)} name={String(display)} current={s.current} previous={s.previous} colors={colors} spacing={spacing} typography={typography} />;
             })
           )}
         </ScrollView>

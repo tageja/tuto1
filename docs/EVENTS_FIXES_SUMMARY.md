@@ -76,3 +76,7 @@ The `school_classes` table exists and the query works correctly. To test the cla
 7. The newly created class should now appear in the class selector
 
 
+
+
+
+

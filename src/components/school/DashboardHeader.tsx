@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useNotifications } from '../../hooks/useNotifications';
 
 interface DashboardHeaderProps {
   schoolName: string;
@@ -17,6 +18,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 }) => {
   const { colors, spacing, typography, borderRadius, shadows } = useTheme();
   const { language, setLanguage } = useLanguage();
+  const { unreadCount } = useNotifications();
 
   const toggleLanguage = () => {
     setLanguage(language === 'en' ? 'vi' : 'en');
@@ -151,9 +153,11 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           
           <TouchableOpacity onPress={onNotificationPress} style={styles.iconButton}>
             <MaterialIcons name="notifications-none" size={24} color={colors.text.primary} />
-            <View style={styles.notificationBadge}>
-              <Text style={styles.badgeText}>1</Text>
-            </View>
+            {unreadCount > 0 && (
+              <View style={styles.notificationBadge}>
+                <Text style={styles.badgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
       </View>

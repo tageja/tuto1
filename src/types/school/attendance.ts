@@ -35,6 +35,7 @@ export interface Child {
   firstName: string;
   lastName: string;
   className?: string;
+  photoUrl?: string | null;
 }
 
 export interface ClassOption {
@@ -47,6 +48,9 @@ export interface StudentOption {
   firstName: string;
   lastName: string;
   className?: string;
+  photoUrl?: string | null;
 }
+
+
 
 

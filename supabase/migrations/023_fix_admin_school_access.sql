@@ -36,3 +36,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 COMMENT ON FUNCTION public.get_user_school_ids() IS 'Returns array of school IDs accessible to current user. Global admins get all schools.';
 
 
+
+
+
+

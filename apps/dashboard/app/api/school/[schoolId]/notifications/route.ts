@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '../../../../../lib/supabase';
 import { resolveSchoolId } from '../../../../../lib/school/resolveSchoolId';
+import { createNotification } from '../../../../../lib/notifications.server';
 
 /**
  * Notifications API Route
@@ -22,11 +23,17 @@ export async function POST(
       user_ids,
       type,
       payload,
+      title,
+      body,
+      recipient_role,
+      priority,
+      target_type,
+      target_id,
     } = body;
 
-    if (!schoolIdentifier || !user_ids || !Array.isArray(user_ids) || user_ids.length === 0 || !type || !payload) {
+    if (!schoolIdentifier || !user_ids || !Array.isArray(user_ids) || user_ids.length === 0 || !type) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields: user_ids (array), type, payload' },
+        { success: false, error: 'Missing required fields: user_ids (array), type' },
         { status: 400 }
       );
     }
@@ -41,30 +48,65 @@ export async function POST(
       );
     }
 
-    // Insert notifications for each user
-    const notifications = user_ids.map((user_id: string) => ({
-      school_id: schoolId,
-      user_id,
-      type,
-      payload,
-    }));
+    // Create notifications for each user using the createNotification helper
+    const notificationPromises = user_ids.map(async (user_id: string) => {
+      try {
+        // Determine recipient role - default to parent if not specified
+        const role: 'parent' | 'admin' = recipient_role || 'parent';
+        
+        // Get user's role from school_users if not provided
+        if (!recipient_role) {
+          const { data: schoolUser } = await supabase
+            .from('school_users')
+            .select('role')
+            .eq('school_id', schoolId)
+            .eq('user_id', user_id)
+            .single();
+          
+          if (schoolUser?.role) {
+            const userRole = schoolUser.role.toLowerCase();
+            if (userRole === 'admin' || userRole === 'teacher') {
+              role = 'admin';
+            }
+          }
+        }
 
-    const { data, error } = await supabase
-      .from('school_notifications')
-      .insert(notifications)
-      .select();
+        return await createNotification({
+          supabase,
+          schoolId: schoolId,
+          recipientUserId: user_id,
+          recipientRole: role,
+          type: type as any, // notification_type enum
+          priority: priority || 'urgent', // Medicine reminders are urgent
+          title: title || 'Medicine Reminder',
+          body: body || (payload?.message || 'Medicine reminder notification'),
+          targetType: target_type || 'medicine',
+          targetId: target_id || payload?.reminder_id || null,
+          meta: payload || {},
+        });
+      } catch (notifError) {
+        console.error('Failed to create notification for user:', user_id, notifError);
+        return null;
+      }
+    });
 
-    if (error) {
-      console.error('Error creating notifications:', error);
+    const results = await Promise.allSettled(notificationPromises);
+    const createdNotifications = results
+      .filter((r) => r.status === 'fulfilled' && r.value !== null)
+      .map((r) => (r as PromiseFulfilledResult<any>).value);
+
+    if (createdNotifications.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'Failed to create notifications', message: error.message },
+        { success: false, error: 'Failed to create any notifications' },
         { status: 500 }
       );
     }
 
+    console.log('✅ Medicine notifications created:', createdNotifications.length);
+
     return NextResponse.json({
       success: true,
-      data,
+      data: createdNotifications,
     });
   } catch (error: any) {
     console.error('Error creating notifications:', error);

@@ -112,6 +112,70 @@ export function CreateHomeworkModal({
           .insert(submissions);
       }
 
+      // Create notifications for parents of students in target classes
+      try {
+        const targetClassIds = targetScope === 'school' 
+          ? classes.map(c => c.id)
+          : selectedClassIds;
+
+        // Get all parents of students in target classes
+        const { data: studentsInClasses } = await supabase
+          .from('school_students')
+          .select('id')
+          .in('class_id', targetClassIds)
+          .ilike('status', 'active');
+
+        if (studentsInClasses && studentsInClasses.length > 0) {
+          const studentIds = studentsInClasses.map(s => s.id);
+          const { data: parentMappings } = await supabase
+            .from('school_parent_students')
+            .select('parent_user_id')
+            .eq('school_id', schoolId)
+            .in('student_id', studentIds);
+
+          if (parentMappings && parentMappings.length > 0) {
+            const parentUserIds = new Set<string>();
+            parentMappings.forEach((m: any) => {
+              if (m.parent_user_id) {
+                parentUserIds.add(m.parent_user_id);
+              }
+            });
+
+            // Create notifications for each parent
+            const notificationPromises = Array.from(parentUserIds).map(async (parentUserId) => {
+              try {
+                await supabase.from('notifications').insert({
+                  school_id: schoolId,
+                  recipient_user_id: parentUserId,
+                  recipient_role: 'parent',
+                  type: 'homework',
+                  priority: 'normal',
+                  title: `New Homework: ${title}`,
+                  body: (description || `Due: ${new Date(dueDate).toLocaleDateString()}`).substring(0, 150) + ((description || '').length > 150 ? '...' : ''),
+                  target_type: 'homework',
+                  target_id: assignment.id,
+                  is_read: false,
+                  meta: {
+                    assignment_id: assignment.id,
+                    subject,
+                    due_date: dueDate,
+                    class_ids: targetClassIds,
+                  },
+                });
+              } catch (notifError) {
+                console.error('Failed to create homework notification:', notifError);
+              }
+            });
+
+            await Promise.allSettled(notificationPromises);
+            console.log('✅ Homework notifications created for', parentUserIds.size, 'parents');
+          }
+        }
+      } catch (notifError) {
+        // Don't fail the request if notifications fail
+        console.error('Error creating homework notifications:', notifError);
+      }
+
       alert('Assignment created successfully!');
       onSuccess();
       handleClose();

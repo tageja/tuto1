@@ -474,6 +474,67 @@ export async function sendMessage(
 
     const message = data[0];
 
+    // Create notifications for other participants in the thread
+    try {
+      // Get thread details for notification
+      const { data: threadData } = await supabase
+        .from('message_threads')
+        .select('subject, school_id')
+        .eq('id', threadId)
+        .single();
+
+      // Get all participants except the sender
+      const { data: participants } = await supabase
+        .from('message_participants')
+        .select('user_id, role')
+        .eq('thread_id', threadId)
+        .neq('user_id', userData.id);
+
+      if (participants && participants.length > 0 && threadData?.school_id) {
+        // Get sender info for notification
+        const { data: senderInfo } = await supabase
+          .from('users')
+          .select('name, email')
+          .eq('id', userData.id)
+          .single();
+
+        const notificationPromises = participants.map(async (participant) => {
+          // Normalize role to lowercase for comparison
+          const roleLower = participant.role?.toLowerCase() || '';
+          const notifRole: 'parent' | 'admin' = 
+            roleLower === 'parent' || roleLower === 'guardian' ? 'parent' : 'admin';
+          
+          try {
+            await supabase.from('notifications').insert({
+              school_id: threadData.school_id,
+              recipient_user_id: participant.user_id,
+              recipient_role: notifRole,
+              type: 'message',
+              priority: 'urgent',
+              title: `New reply: ${threadData?.subject || 'Message'}`,
+              body: body.substring(0, 150) + (body.length > 150 ? '...' : ''),
+              target_type: 'feedback',
+              target_id: threadId,
+              is_read: false,
+              meta: {
+                threadId,
+                senderId: userData.id,
+                senderName: senderInfo?.name || senderInfo?.email || 'Unknown',
+              },
+            });
+          } catch (notifError) {
+            console.error('Failed to create notification for participant:', participant.user_id, notifError);
+          }
+        });
+
+        await Promise.allSettled(notificationPromises);
+        console.log('✅ Mobile: Notifications created for', participants.length, 'participants');
+      }
+    } catch (notifError) {
+      // Don't fail the message send if notification creation fails
+      console.error('Error creating message notifications:', notifError);
+    }
+
     return {
       id: message.id,
       thread_id: message.thread_id,

@@ -76,7 +76,9 @@ interface PaymentScreenProps {
 
 export const PaymentScreen: React.FC<PaymentScreenProps> = ({ navigation, route }) => {
 
-  const styles = StyleSheet.create({
+  const styles = React.useMemo(
+    () =>
+      StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: colors.background.primary,
@@ -245,7 +247,9 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({ navigation, route 
       color: colors.text.secondary,
       marginBottom: spacing.xs,
     },
-  });
+  }),
+  [colors, typography, spacing]
+);
 
   const { t } = useLanguage();
   const { amount, currency = Currency.VND, description, bookingId } = route.params;
