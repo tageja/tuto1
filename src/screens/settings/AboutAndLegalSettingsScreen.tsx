@@ -20,11 +20,11 @@ import { useNavigation } from '@react-navigation/native';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 
-const PRIVACY_POLICY_URL = 'https://tuto.edu/privacy';
-const TERMS_URL = 'https://tuto.edu/terms';
-const HELP_CENTER_URL = 'https://tuto.edu/help';
-const OPEN_SOURCE_LICENSES_URL = 'https://tuto.edu/licenses';
-const SUPPORT_EMAIL = 'support@tuto.edu';
+const PRIVACY_POLICY_URL = 'https://tutoglobal.com/privacy';
+const TERMS_URL = 'https://tutoglobal.com/terms';
+const HELP_CENTER_URL = 'https://tutoglobal.com/help';
+const OPEN_SOURCE_LICENSES_URL = 'https://tutoglobal.com/licenses';
+const SUPPORT_EMAIL = 'support@tutoglobal.com';
 
 const APP_VERSION = Constants.expoConfig?.version || '1.0.1';
 const BUILD_NUMBER = Constants.expoConfig?.extra?.buildNumber || '20241220';

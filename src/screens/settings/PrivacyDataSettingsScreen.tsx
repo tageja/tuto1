@@ -18,10 +18,10 @@ import { useNavigation } from '@react-navigation/native';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 
-const PRIVACY_POLICY_URL = 'https://tuto.edu/privacy';
-const TERMS_URL = 'https://tuto.edu/terms';
-const DATA_RETENTION_URL = 'https://tuto.edu/data-retention';
-const SUPPORT_EMAIL = 'support@tuto.edu';
+const PRIVACY_POLICY_URL = 'https://tutoglobal.com/privacy';
+const TERMS_URL = 'https://tutoglobal.com/terms';
+const DATA_RETENTION_URL = 'https://tutoglobal.com/data-retention';
+const SUPPORT_EMAIL = 'support@tutoglobal.com';
 
 export default function PrivacyDataSettingsScreen() {
   const { colors, spacing, typography, borderRadius, shadows } = useTheme();
