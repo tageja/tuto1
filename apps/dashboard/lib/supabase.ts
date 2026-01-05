@@ -19,6 +19,16 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
+    // Set storage key to avoid conflicts
+    storageKey: 'tuto-dashboard-auth',
+    // Add debug logging in development
+    debug: process.env.NODE_ENV === 'development',
+  },
+  // Add global headers for better error tracking
+  global: {
+    headers: {
+      'X-Client-Info': 'tuto-dashboard',
+    },
   },
 });
 

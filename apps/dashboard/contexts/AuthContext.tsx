@@ -63,6 +63,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .single();
       
       if (profileError || !profile) {
+        // Check if this is an auth error (expired session)
+        if (profileError && (profileError.message?.includes('JWT') || profileError.message?.includes('token') || profileError.message?.includes('expired'))) {
+          console.error('❌ Session expired or invalid token detected:', profileError.message);
+          // Sign out the user to clear stale session
+          await supabase.auth.signOut();
+          setSupabaseUser(null);
+          setUser(null);
+          setError('Your session has expired. Please sign in again.');
+          return;
+        }
+        
         // User profile doesn't exist, create it
         console.log('📝 User profile not found, creating new profile in database...');
         
@@ -84,6 +95,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             details: createError.details,
             hint: createError.hint,
           });
+          
+          // Check for auth errors
+          if (createError.message?.includes('JWT') || createError.message?.includes('token') || createError.message?.includes('expired')) {
+            console.error('❌ Session expired during profile creation');
+            await supabase.auth.signOut();
+            setSupabaseUser(null);
+            setUser(null);
+            setError('Your session has expired. Please sign in again.');
+            return;
+          }
           
           // If profile creation failed due to duplicate, try fetching it again
           if (createError.code === '23505') {
@@ -140,9 +161,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createdAt: profile.created_at,
         });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to fetch user profile:', err);
-      setError('Failed to load user profile');
+      
+      // Check if this is an auth error
+      if (err?.message?.includes('JWT') || err?.message?.includes('token') || err?.message?.includes('expired') || err?.message?.includes('auth')) {
+        console.error('❌ Session error detected, signing out');
+        await supabase.auth.signOut();
+        setSupabaseUser(null);
+        setUser(null);
+        setError('Your session has expired. Please sign in again.');
+      } else {
+        setError('Failed to load user profile');
+      }
     }
   }, []);
 
@@ -150,20 +181,77 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * Listen to authentication state changes
    */
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSupabaseUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUserProfile(session.user);
+    let mounted = true;
+    
+    // Get initial session and validate it
+    const initSession = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+        
+        if (sessionError) {
+          console.error('❌ Session error:', sessionError.message);
+          // Clear invalid session
+          await supabase.auth.signOut();
+          setSupabaseUser(null);
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+        
+        if (session?.user) {
+          console.log('✅ Valid session found, fetching user profile...');
+          setSupabaseUser(session.user);
+          
+          // Validate session is not expired by trying to fetch profile
+          await fetchUserProfile(session.user);
+        } else {
+          console.log('ℹ️ No active session found');
+          setSupabaseUser(null);
+          setUser(null);
+        }
+      } catch (err) {
+        console.error('❌ Error initializing session:', err);
+        // On error, clear everything
+        await supabase.auth.signOut();
+        setSupabaseUser(null);
+        setUser(null);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
-      setLoading(false);
-    });
+    };
+    
+    initSession();
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+      
+      console.log('🔄 Auth state changed:', event);
+      
       setLoading(true);
+      
+      // Handle different auth events
+      if (event === 'SIGNED_OUT') {
+        setSupabaseUser(null);
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+      
+      if (event === 'TOKEN_REFRESHED') {
+        console.log('🔄 Token refreshed successfully');
+      }
+      
+      if (event === 'USER_UPDATED') {
+        console.log('👤 User updated');
+      }
+      
       setSupabaseUser(session?.user ?? null);
       
       if (session?.user) {
@@ -176,6 +264,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [fetchUserProfile]);
@@ -348,8 +437,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * Refresh user profile from database
    */
   const refreshUser = async () => {
-    if (supabaseUser) {
-      await fetchUserProfile(supabaseUser);
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('❌ Error refreshing session:', error);
+        // Clear invalid session
+        await supabase.auth.signOut();
+        setSupabaseUser(null);
+        setUser(null);
+        setError('Your session has expired. Please sign in again.');
+        return;
+      }
+      
+      if (session?.user) {
+        setSupabaseUser(session.user);
+        await fetchUserProfile(session.user);
+        console.log('✅ User data refreshed successfully');
+      } else {
+        console.log('ℹ️ No active session to refresh');
+        setSupabaseUser(null);
+        setUser(null);
+      }
+    } catch (err) {
+      console.error('❌ Failed to refresh user:', err);
+      // On error, clear session
+      await supabase.auth.signOut();
+      setSupabaseUser(null);
+      setUser(null);
+      setError('Failed to refresh session. Please sign in again.');
     }
   };
 

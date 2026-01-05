@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
+import { supabase } from '../../lib/supabase';
 import {
   Select,
   SelectContent,
@@ -307,10 +308,31 @@ export default function LoginPage() {
     setIsClient(true);
   }, []);
 
+  // Check for valid authenticated session before redirecting
   useEffect(() => {
-    if (firebaseUser) {
-      router.push('/home');
-    }
+    const checkSession = async () => {
+      if (firebaseUser) {
+        try {
+          // Verify the session is actually valid by checking with Supabase
+          const { data: { session }, error } = await supabase.auth.getSession();
+          
+          if (error || !session) {
+            // Session is invalid, don't redirect
+            console.log('⚠️ Invalid session detected on login page, clearing...');
+            return;
+          }
+          
+          // Session is valid, redirect to home
+          console.log('✅ Valid session, redirecting to home...');
+          router.push('/home');
+        } catch (err) {
+          console.error('❌ Error checking session:', err);
+          // Don't redirect on error
+        }
+      }
+    };
+    
+    checkSession();
   }, [firebaseUser, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
