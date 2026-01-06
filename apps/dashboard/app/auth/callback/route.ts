@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Redirect to home after successful auth
-  return NextResponse.redirect(`${origin}/home`);
+  // Redirect to welcome after successful auth
+  return NextResponse.redirect(`${origin}/welcome`);
 }
 

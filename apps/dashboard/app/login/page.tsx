@@ -324,7 +324,7 @@ export default function LoginPage() {
           
           // Session is valid, redirect to home
           console.log('✅ Valid session, redirecting to home...');
-          router.push('/home');
+          router.push('/welcome');
         } catch (err) {
           console.error('❌ Error checking session:', err);
           // Don't redirect on error
