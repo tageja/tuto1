@@ -50,17 +50,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
 
   /**
+   * Helper to add timeout to promises
+   */
+  const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number, timeoutError: string): Promise<T> => {
+    return Promise.race([
+      promise,
+      new Promise<T>((_, reject) => 
+        setTimeout(() => reject(new Error(timeoutError)), timeoutMs)
+      )
+    ]);
+  };
+
+  /**
    * Fetch user profile from Supabase database
    */
   const fetchUserProfile = useCallback(async (supabaseUser: SupabaseUser) => {
     try {
       console.log('📥 Fetching user profile from Supabase for:', supabaseUser.email);
       
-      const { data: profile, error: profileError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('auth_user_id', supabaseUser.id)
-        .single();
+      // Add 10 second timeout to prevent infinite hanging
+      const { data: profile, error: profileError } = await withTimeout(
+        supabase
+          .from('users')
+          .select('*')
+          .eq('auth_user_id', supabaseUser.id)
+          .single(),
+        10000,
+        'Profile fetch timed out after 10 seconds'
+      );
       
       // Log any error for debugging
       if (profileError) {
@@ -195,6 +212,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         name: err?.name,
         stack: err?.stack?.substring(0, 200),
       });
+      
+      // Handle timeout errors
+      if (err?.message?.includes('timed out')) {
+        console.error('❌ Profile fetch timed out, trying to continue with minimal user data');
+        // Set minimal user data so the app doesn't hang
+        setUser({
+          id: supabaseUser.id,
+          firebaseUid: supabaseUser.id,
+          email: supabaseUser.email || '',
+          name: supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0] || '',
+          role: 'parent',
+          avatar: supabaseUser.user_metadata?.avatar_url || undefined,
+          schoolIds: [],
+          createdAt: new Date().toISOString(),
+        });
+        setError('Profile load was slow. Some features may be limited.');
+        return; // Don't sign out, just continue with minimal data
+      }
       
       // Check if this is an auth error
       if (err?.message?.includes('JWT') || err?.message?.includes('token') || err?.message?.includes('expired') || err?.message?.includes('auth') || err?.message?.includes('unauthorized')) {
