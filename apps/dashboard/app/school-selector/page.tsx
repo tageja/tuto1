@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { School, ArrowRight, ArrowLeft, Shield, Users } from 'lucide-react';
 import Image from 'next/image';
@@ -13,7 +13,7 @@ interface SchoolAssociation {
   access_type: 'teacher' | 'parent';
 }
 
-export default function SchoolSelectorPage() {
+function SchoolSelectorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [schools, setSchools] = useState<SchoolAssociation[]>([]);
@@ -33,7 +33,7 @@ export default function SchoolSelectorPage() {
       // No schools provided, redirect back
       router.push('/welcome');
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   const handleSelectSchool = (school: SchoolAssociation) => {
     router.push(`/school/${school.school_id}/${school.role}`);
@@ -140,3 +140,21 @@ export default function SchoolSelectorPage() {
   );
 }
 
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-gray-600">Loading schools...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function SchoolSelectorPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <SchoolSelectorContent />
+    </Suspense>
+  );
+}
