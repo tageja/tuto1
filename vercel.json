@@ -1,7 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
   "installCommand": "npm install --legacy-peer-deps",
-  "buildCommand": "cd apps/dashboard && npm run build",
-  "outputDirectory": "apps/dashboard/.next"
+  "buildCommand": "npm run build -w @tuto/dashboard"
 }
