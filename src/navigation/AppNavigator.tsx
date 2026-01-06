@@ -90,6 +90,9 @@ import AdminFeedbackListScreen from '../screens/school/AdminFeedbackListScreen';
 import ParentCreateFeedbackScreen from '../screens/school/ParentCreateFeedbackScreen';
 import FeedbackDetailsScreen from '../screens/school/FeedbackDetailsScreen';
 import { SettingsStackNavigator } from './SettingsStack';
+import WelcomeScreen from '../screens/WelcomeScreen';
+import AdminOnboardingScreen from '../screens/AdminOnboardingScreen';
+import SchoolSelectorScreen from '../screens/SchoolSelectorScreen';
 
 import EventDetailScreen from '../screens/school/EventDetailScreen';
 
@@ -98,6 +101,9 @@ export type RootStackParamList = {
   Register: undefined;
   ForgotPassword: undefined;
   ResetPassword: undefined;
+  Welcome: undefined;
+  AdminOnboarding: undefined;
+  SchoolSelector: { schools: any[] };
   RoleSelection: undefined;
   Home: undefined;
   Dashboard: undefined;
@@ -287,6 +293,12 @@ export const AppNavigator = () => {
         <Stack.Screen name="Register" component={AuthUnifiedScreen as any} initialParams={{ mode: 'register' }} />
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+        
+        {/* New Welcome Flow */}
+        <Stack.Screen name="Welcome" component={WelcomeScreen} />
+        <Stack.Screen name="AdminOnboarding" component={AdminOnboardingScreen} />
+        <Stack.Screen name="SchoolSelector" component={SchoolSelectorScreen} />
+        
         <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
 
         {/* Shell entry - RoleGate decides which tabs to mount */}

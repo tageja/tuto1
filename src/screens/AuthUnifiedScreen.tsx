@@ -679,25 +679,15 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
       
       await setUserData(userData);
       
-      // Check if user already has a role - skip role selection if they do
-      const hasExistingRole = !!(schoolUserRole?.role || userProfile.data?.role);
-      const navigationTarget = hasExistingRole ? 'Home' : 'RoleSelection';
+      // After successful login, always navigate to Welcome screen
+      // Welcome screen will check school associations and route accordingly
+      const navigationTarget = 'Welcome';
       
-      console.log('🧭 Navigation decision:', {
-        hasExistingRole,
-        role: userData.type,
-        navigatingTo: navigationTarget,
-      });
+      console.log('🧭 Navigation decision: Navigating to Welcome screen');
       
-      // Navigate to Home if user has role, otherwise RoleSelection
-      Alert.alert(
-        t('auth.loginSuccess'),
-        `${t('auth.welcomeBack')} ${userData.name}`,
-        [{ text: t('common.ok'), onPress: () => {
-          console.log(`🧭 Navigating to ${navigationTarget}...`);
-          navigation.navigate(navigationTarget);
-        }}]
-      );
+      // Navigate to Welcome screen (no alert, just navigate)
+      console.log(`🧭 Navigating to ${navigationTarget}...`);
+      navigation.navigate(navigationTarget);
     } catch (error: any) {
       console.error('Sign in error:', error);
       
@@ -780,7 +770,7 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
         t('auth.accountCreated'),
         [{ 
           text: t('common.ok'), 
-          onPress: () => navigation.navigate('RoleSelection')
+          onPress: () => navigation.navigate('Welcome')
         }]
       );
     } catch (error: any) {
