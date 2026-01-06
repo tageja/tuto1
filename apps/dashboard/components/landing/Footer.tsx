@@ -20,7 +20,7 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-12 mb-16">
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
-            <Image src="/images/tuto-logo.png" alt="Tuto" width={100} height={34} className="mb-6" />
+            <Image src="/images/tuto-logo.png" alt="tuto." width={100} height={34} className="mb-6" />
             <p className="text-gray-600 text-sm mb-6 leading-relaxed">
               {t("landing.hero.subtitle")}
             </p>
@@ -83,7 +83,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
-          <p>© {new Date().getFullYear()} Tuto Education. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} tuto. Education. All rights reserved.</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-gray-600 transition-colors">Facebook</a>
             <a href="#" className="hover:text-gray-600 transition-colors">Twitter</a>

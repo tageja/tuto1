@@ -357,7 +357,7 @@ export default function LoginPage() {
            throw new Error(t('schoolCodeRequired') || 'School code is required for admins');
         }
 
-        await signUp(email.trim(), password, name.trim() || 'Tuto User', role);
+        await signUp(email.trim(), password, name.trim() || 'tuto. User', role);
         // If signUp completes without error and we're still here, email confirmation is required
         if (!error) {
           setSuccessMessage(t('confirmEmailSent') || 'Please check your email to confirm your account. Click the link in the email to complete registration.');

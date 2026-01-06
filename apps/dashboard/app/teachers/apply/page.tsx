@@ -7,7 +7,7 @@ import { Button } from '../../../components/ui/Button';
 export default function TeachersApplyPage() {
   return (
     <main id="main" className="mx-auto max-w-6xl px-4 py-12">
-      <PageHeader title="Đăng ký giáo viên" subtitle="Gia nhập mạng lưới giáo viên Tuto." />
+      <PageHeader title="Đăng ký giáo viên" subtitle="Gia nhập mạng lưới giáo viên tuto." />
       <Section>
         <Card>
           <div className="p-6">

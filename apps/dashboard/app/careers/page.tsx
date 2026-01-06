@@ -14,7 +14,7 @@ const jobs = [
 export default function CareersPage() {
   return (
     <main id="main" className="mx-auto max-w-6xl px-4 py-12">
-      <PageHeader title="Cơ hội nghề nghiệp" subtitle="Gia nhập đội ngũ Tuto để xây dựng tương lai giáo dục." />
+      <PageHeader title="Cơ hội nghề nghiệp" subtitle="Gia nhập đội ngũ tuto. để xây dựng tương lai giáo dục." />
 
       <Section>
         <div className="grid gap-6">

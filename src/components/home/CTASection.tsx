@@ -96,7 +96,7 @@ export const CTASection: React.FC<CTASectionProps> = ({ navigation }) => {
           {t('landing.cta.title') || 'Ready to transform your school?'}
         </Text>
         <Text style={styles.subtitle}>
-          {t('landing.cta.subtitle') || 'Join thousands of schools, teachers, and parents using Tuto today.'}
+          {t('landing.cta.subtitle') || 'Join thousands of schools, teachers, and parents using tuto. today.'}
         </Text>
 
         <View style={styles.buttonContainer}>

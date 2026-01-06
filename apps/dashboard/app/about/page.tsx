@@ -36,7 +36,7 @@ export default function AboutPage() {
 
       <Section>
         <FAQ items={[
-          { q: 'Who is Tuto for?', a: 'Parents, students, teachers, and schools.' },
+          { q: 'Who is tuto. for?', a: 'Parents, students, teachers, and schools.' },
           { q: 'Free trial?', a: 'Yes, you can book a free trial session.' },
           { q: 'Safety?', a: 'Teacher verification, data protection, fast reporting.' },
         ]} />

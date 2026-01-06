@@ -122,7 +122,7 @@ export default function WelcomePage() {
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Welcome to Tuto
+              Welcome to tuto.
             </h1>
             <p className="text-lg text-gray-600">
               Choose how you want to continue
@@ -188,7 +188,7 @@ export default function WelcomePage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    Continue to Tuto Home
+                    Continue to tuto. Home
                   </h3>
                   <p className="text-gray-600">
                     Find tutors and connect with educators

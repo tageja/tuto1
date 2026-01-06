@@ -8,7 +8,7 @@ import { Section } from '../../components/ui/Section';
 export default function ContactPage() {
   return (
     <main id="main" className="mx-auto max-w-6xl px-4 py-12">
-      <PageHeader title="Liên hệ" subtitle="Cần hỗ trợ? Hãy liên hệ đội ngũ Tuto." />
+      <PageHeader title="Liên hệ" subtitle="Cần hỗ trợ? Hãy liên hệ đội ngũ tuto." />
 
       <Section>
         <div className="grid gap-6 md:grid-cols-2">

@@ -158,7 +158,7 @@ export default function AdminOnboardingPage() {
               School Admin Onboarding
             </h1>
             <p className="text-gray-600">
-              Enter the executive code provided by Tuto
+              Enter the executive code provided by tuto.
             </p>
           </div>
 
@@ -215,7 +215,7 @@ export default function AdminOnboardingPage() {
           {/* Info */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <p className="text-sm text-gray-600">
-              <span className="font-semibold">Note:</span> This code is provided by a Tuto executive for school administrators. 
+              <span className="font-semibold">Note:</span> This code is provided by a tuto. executive for school administrators. 
               If you don't have a code, please contact support.
             </p>
           </div>
