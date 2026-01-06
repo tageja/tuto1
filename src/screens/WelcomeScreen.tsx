@@ -107,7 +107,15 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
   };
 
   const handleContinueToTuto = () => {
-    navigation.replace('RoleSelection');
+    // If user already has a role, go directly to Home
+    // Otherwise, go to Role Selection for new users
+    if (userData?.type) {
+      console.log('🏠 User has role, navigating to Home:', userData.type);
+      navigation.replace('Home');
+    } else {
+      console.log('🎭 No role set, navigating to RoleSelection');
+      navigation.replace('RoleSelection');
+    }
   };
 
   const handleJoinSchool = () => {
