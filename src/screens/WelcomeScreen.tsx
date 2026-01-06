@@ -29,33 +29,37 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [schools, setSchools] = useState<SchoolAssociation[]>([]);
   const [error, setError] = useState<string | null>(null);
+  
+  // Get the email directly from user object
+  const userEmail = user?.email;
 
   useEffect(() => {
+    console.log('🔄 WelcomeScreen useEffect triggered, userEmail:', userEmail);
+    
+    const loadSchoolAssociations = async () => {
+      if (!userEmail) {
+        console.log('❌ No user email found, waiting for user context...');
+        // Don't set loading to false yet - keep showing loading state
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        console.log('🔍 Checking school associations for:', userEmail);
+        const associations = await getUserSchoolAssociations(userEmail);
+        console.log('📚 School associations found:', associations.length, associations);
+        setSchools(associations);
+      } catch (err) {
+        console.error('❌ Error loading schools:', err);
+        setError('Failed to load schools');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
     loadSchoolAssociations();
-  }, [user?.email]); // Re-run when user email changes
-
-  const loadSchoolAssociations = async () => {
-    if (!user?.email) {
-      console.log('❌ No user email found, waiting for user context...');
-      // Don't set loading to false yet - keep showing loading state
-      // The useEffect will re-run when user.email is populated
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      console.log('🔍 Checking school associations for:', user.email);
-      const associations = await getUserSchoolAssociations(user.email);
-      console.log('📚 School associations found:', associations.length, associations);
-      setSchools(associations);
-    } catch (err) {
-      console.error('❌ Error loading schools:', err);
-      setError('Failed to load schools');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [userEmail]); // Re-run when userEmail changes
 
   const handleGoToSchoolDashboard = () => {
     if (schools.length === 0) {
