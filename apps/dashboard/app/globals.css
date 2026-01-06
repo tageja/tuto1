@@ -85,6 +85,9 @@
   * {
     @apply border-border;
   }
+  html, body {
+    @apply h-full;
+  }
   body {
     @apply bg-bg text-text;
   }

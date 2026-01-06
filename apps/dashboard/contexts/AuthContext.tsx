@@ -62,11 +62,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('auth_user_id', supabaseUser.id)
         .single();
       
+      // Log any error for debugging
+      if (profileError) {
+        console.error('❌ Profile fetch error:', {
+          message: profileError.message,
+          code: profileError.code,
+          details: profileError.details,
+          hint: profileError.hint,
+        });
+      }
+      
       if (profileError || !profile) {
         // Check if this is an auth error (expired session)
-        if (profileError && (profileError.message?.includes('JWT') || profileError.message?.includes('token') || profileError.message?.includes('expired'))) {
+        // Be more aggressive in detecting auth issues
+        if (profileError && (
+          profileError.message?.includes('JWT') || 
+          profileError.message?.includes('token') || 
+          profileError.message?.includes('expired') ||
+          profileError.message?.includes('auth') ||
+          profileError.message?.includes('unauthorized') ||
+          profileError.code === 'PGRST301' ||  // JWT expired
+          profileError.code === 'PGRST302' ||  // JWT invalid
+          profileError.code === '401'
+        )) {
           console.error('❌ Session expired or invalid token detected:', profileError.message);
           // Sign out the user to clear stale session
+          console.log('🔄 Signing out user to clear stale session...');
           await supabase.auth.signOut();
           setSupabaseUser(null);
           setUser(null);
@@ -150,6 +171,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } else {
         // Profile exists
+        console.log('✅ User profile loaded successfully:', {
+          id: profile.id,
+          email: profile.email,
+          role: profile.role,
+        });
         setUser({
           id: profile.id,
           firebaseUid: supabaseUser.id, // Keep for compatibility
@@ -162,16 +188,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       }
     } catch (err: any) {
-      console.error('Failed to fetch user profile:', err);
+      console.error('❌ Failed to fetch user profile (catch block):', err);
+      console.error('❌ Error details:', {
+        message: err?.message,
+        code: err?.code,
+        name: err?.name,
+        stack: err?.stack?.substring(0, 200),
+      });
       
       // Check if this is an auth error
-      if (err?.message?.includes('JWT') || err?.message?.includes('token') || err?.message?.includes('expired') || err?.message?.includes('auth')) {
-        console.error('❌ Session error detected, signing out');
+      if (err?.message?.includes('JWT') || err?.message?.includes('token') || err?.message?.includes('expired') || err?.message?.includes('auth') || err?.message?.includes('unauthorized')) {
+        console.error('❌ Session error detected in catch block, signing out');
         await supabase.auth.signOut();
         setSupabaseUser(null);
         setUser(null);
         setError('Your session has expired. Please sign in again.');
       } else {
+        console.error('❌ Non-auth error, setting generic error');
         setError('Failed to load user profile');
       }
     }
@@ -232,12 +265,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
       
-      console.log('🔄 Auth state changed:', event);
+      console.log('🔄 Auth state changed:', event, session ? `(user: ${session.user?.email})` : '(no session)');
       
       setLoading(true);
       
       // Handle different auth events
       if (event === 'SIGNED_OUT') {
+        console.log('🚪 User signed out, clearing state');
         setSupabaseUser(null);
         setUser(null);
         setLoading(false);
@@ -255,8 +289,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSupabaseUser(session?.user ?? null);
       
       if (session?.user) {
+        console.log('📥 Session user found, fetching profile...');
         await fetchUserProfile(session.user);
+        console.log('✅ Profile fetch completed, auth loading finished');
       } else {
+        console.log('❌ No session user found');
         setUser(null);
       }
       

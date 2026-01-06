@@ -310,29 +310,56 @@ export default function LoginPage() {
 
   // Check for valid authenticated session before redirecting
   useEffect(() => {
+    let redirectTimeout: NodeJS.Timeout;
+    
     const checkSession = async () => {
       if (firebaseUser) {
         try {
+          console.log('🔍 Checking session validity for user:', firebaseUser.email);
+          
           // Verify the session is actually valid by checking with Supabase
           const { data: { session }, error } = await supabase.auth.getSession();
           
-          if (error || !session) {
-            // Session is invalid, don't redirect
-            console.log('⚠️ Invalid session detected on login page, clearing...');
+          if (error) {
+            console.error('❌ Session check error:', error);
+            // Clear stale session
+            await supabase.auth.signOut();
+            console.log('🔄 Cleared invalid session');
             return;
           }
           
-          // Session is valid, redirect to home
-          console.log('✅ Valid session, redirecting to home...');
-          router.push('/welcome');
+          if (!session) {
+            console.log('⚠️ No valid session found, clearing stale user state...');
+            // Force clear localStorage if session is invalid
+            await supabase.auth.signOut();
+            return;
+          }
+          
+          console.log('✅ Valid session found, user should be redirected by AuthContext');
+          
+          // Set a timeout - if we're still on login page after 3 seconds with valid session, force redirect
+          redirectTimeout = setTimeout(() => {
+            console.log('⏰ Redirect timeout reached, forcing navigation to /home');
+            router.push('/home');
+          }, 3000);
+          
         } catch (err) {
           console.error('❌ Error checking session:', err);
-          // Don't redirect on error
+          // Don't redirect on error, sign out to be safe
+          await supabase.auth.signOut();
         }
+      } else {
+        console.log('ℹ️ No firebaseUser, user not authenticated');
       }
     };
     
     checkSession();
+    
+    return () => {
+      if (redirectTimeout) {
+        clearTimeout(redirectTimeout);
+      }
+    };
   }, [firebaseUser, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {

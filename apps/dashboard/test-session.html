@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Session Diagnostics</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background: #1e1e1e;
+      color: #00ff00;
+    }
+    .section {
+      margin: 20px 0;
+      padding: 10px;
+      border: 1px solid #00ff00;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      background: #00ff00;
+      color: #000;
+      border: none;
+      font-weight: bold;
+    }
+    pre {
+      background: #000;
+      padding: 10px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Supabase Session Diagnostics</h1>
+  
+  <div class="section">
+    <h2>1. Check LocalStorage</h2>
+    <button onclick="checkLocalStorage()">Check Storage</button>
+    <button onclick="clearAllStorage()">Clear All Storage</button>
+    <pre id="storage-output"></pre>
+  </div>
+
+  <div class="section">
+    <h2>2. Current Cookies</h2>
+    <button onclick="checkCookies()">Check Cookies</button>
+    <pre id="cookies-output"></pre>
+  </div>
+
+  <div class="section">
+    <h2>3. Supabase Session</h2>
+    <button onclick="checkSupabaseSession()">Check Supabase Session</button>
+    <pre id="supabase-output"></pre>
+  </div>
+
+  <script>
+    function checkLocalStorage() {
+      const output = document.getElementById('storage-output');
+      const storage = {};
+      
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.includes('supabase') || key.includes('auth') || key.includes('tuto')) {
+          try {
+            storage[key] = JSON.parse(localStorage.getItem(key));
+          } catch {
+            storage[key] = localStorage.getItem(key);
+          }
+        }
+      }
+      
+      output.textContent = JSON.stringify(storage, null, 2);
+      
+      if (Object.keys(storage).length === 0) {
+        output.textContent = '✅ No Supabase session in localStorage (clean state)';
+      }
+    }
+
+    function clearAllStorage() {
+      localStorage.clear();
+      sessionStorage.clear();
+      document.getElementById('storage-output').textContent = '✅ Cleared all storage!';
+      
+      // Also clear cookies
+      document.cookie.split(";").forEach(c => {
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+      
+      alert('✅ Cleared all storage and cookies! Reload the page.');
+    }
+
+    function checkCookies() {
+      const output = document.getElementById('cookies-output');
+      const cookies = document.cookie.split(';').filter(c => 
+        c.includes('sb-') || c.includes('auth') || c.includes('tuto')
+      );
+      
+      if (cookies.length === 0) {
+        output.textContent = '✅ No auth cookies found (clean state)';
+      } else {
+        output.textContent = cookies.join('\n');
+      }
+    }
+
+    async function checkSupabaseSession() {
+      const output = document.getElementById('supabase-output');
+      output.textContent = 'Checking Supabase session...\n\n';
+      
+      try {
+        // Check if Supabase is available
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+        
+        output.textContent += '✅ Supabase SDK loaded\n';
+        output.textContent += '❌ Cannot check session from here - need actual app context\n';
+        output.textContent += '\n📝 To check Supabase session:\n';
+        output.textContent += '1. Go to /login page\n';
+        output.textContent += '2. Open DevTools Console (F12)\n';
+        output.textContent += '3. Run: supabase.auth.getSession()\n';
+        
+      } catch (err) {
+        output.textContent += '❌ Error: ' + err.message + '\n';
+        output.textContent += '\n📝 Manual check in Console:\n';
+        output.textContent += 'localStorage.getItem("tuto-dashboard-auth")\n';
+      }
+    }
+
+    // Auto-run on load
+    window.onload = () => {
+      checkLocalStorage();
+      checkCookies();
+    };
+  </script>
+</body>
+</html>
+

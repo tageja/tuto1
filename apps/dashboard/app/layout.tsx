@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <head>
         {/* Pre-hydration theme setter to prevent FOUC */}
         <script
@@ -38,7 +38,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} h-full`}>
         <Providers>
           {children}
         </Providers>

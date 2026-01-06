@@ -16,19 +16,27 @@ interface SchoolAssociation {
 
 export default function WelcomePage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [schools, setSchools] = useState<SchoolAssociation[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Wait for auth to finish loading before checking user
+    if (authLoading) {
+      console.log('⏳ Auth still loading, waiting...');
+      return;
+    }
+
     if (user?.email) {
+      console.log('✅ User found:', user.email);
       loadSchoolAssociations();
     } else {
-      // No user, redirect to login
+      // No user after auth loaded, redirect to login
+      console.log('❌ No user found after auth loaded, redirecting to login');
       router.push('/login');
     }
-  }, [user]);
+  }, [user, authLoading, router]);
 
   const loadSchoolAssociations = async () => {
     if (!user?.email) return;
