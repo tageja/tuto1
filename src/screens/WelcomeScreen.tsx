@@ -32,20 +32,22 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
 
   useEffect(() => {
     loadSchoolAssociations();
-  }, []);
+  }, [user?.email]); // Re-run when user email changes
 
   const loadSchoolAssociations = async () => {
     if (!user?.email) {
-      console.log('❌ No user email found');
-      setLoading(false);
+      console.log('❌ No user email found, waiting for user context...');
+      // Don't set loading to false yet - keep showing loading state
+      // The useEffect will re-run when user.email is populated
       return;
     }
 
     try {
       setLoading(true);
       setError(null);
+      console.log('🔍 Checking school associations for:', user.email);
       const associations = await getUserSchoolAssociations(user.email);
-      console.log('📚 School associations:', associations);
+      console.log('📚 School associations found:', associations.length, associations);
       setSchools(associations);
     } catch (err) {
       console.error('❌ Error loading schools:', err);
