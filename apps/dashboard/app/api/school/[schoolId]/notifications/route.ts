@@ -52,7 +52,7 @@ export async function POST(
     const notificationPromises = user_ids.map(async (user_id: string) => {
       try {
         // Determine recipient role - default to parent if not specified
-        const role: 'parent' | 'admin' = recipient_role || 'parent';
+        let role: 'parent' | 'admin' = recipient_role || 'parent';
         
         // Get user's role from school_users if not provided
         if (!recipient_role) {
