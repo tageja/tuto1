@@ -23,15 +23,15 @@ interface WelcomeScreenProps {
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
   const { colors, spacing, typography } = useTheme();
   const { t } = useLanguage();
-  const { user } = useUser();
+  const { userData, setUserData } = useUser();
   const { setCurrentSchool, setIsSchoolMode } = useSchool();
   
   const [loading, setLoading] = useState(true);
   const [schools, setSchools] = useState<SchoolAssociation[]>([]);
   const [error, setError] = useState<string | null>(null);
   
-  // Get the email directly from user object
-  const userEmail = user?.email;
+  // Get the email directly from userData object
+  const userEmail = userData?.email;
 
   useEffect(() => {
     console.log('🔄 WelcomeScreen useEffect triggered, userEmail:', userEmail);
@@ -92,10 +92,9 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
       setIsSchoolMode(true);
       
       // Set user role based on school association
-      const { setUserData } = require('../contexts/UserContext');
-      if (user) {
+      if (userData) {
         setUserData({
-          ...user,
+          ...userData,
           type: school.role === 'admin' ? 'admin' : 'parent',
         });
       }
