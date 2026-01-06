@@ -17,19 +17,19 @@ export async function POST(
   try {
     const { schoolId: schoolIdParam } = await params;
     const schoolIdentifier = decodeURIComponent(schoolIdParam);
-    const body = await request.json();
+    const requestBody = await request.json();
 
     const {
       user_ids,
       type,
       payload,
       title,
-      body,
+      body: notificationBody,
       recipient_role,
       priority,
       target_type,
       target_id,
-    } = body;
+    } = requestBody;
 
     if (!schoolIdentifier || !user_ids || !Array.isArray(user_ids) || user_ids.length === 0 || !type) {
       return NextResponse.json(
@@ -79,7 +79,7 @@ export async function POST(
           type: type as any, // notification_type enum
           priority: priority || 'urgent', // Medicine reminders are urgent
           title: title || 'Medicine Reminder',
-          body: body || (payload?.message || 'Medicine reminder notification'),
+          body: notificationBody || (payload?.message || 'Medicine reminder notification'),
           targetType: target_type || 'medicine',
           targetId: target_id || payload?.reminder_id || null,
           meta: payload || {},
