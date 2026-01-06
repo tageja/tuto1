@@ -24,9 +24,20 @@ export default function TutoAdminLayout({ children }: { children: React.ReactNod
 
   // Check authorization directly from Supabase session (more reliable)
   useEffect(() => {
+    let mounted = true;
+
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        console.log('[TutoAdmin] Starting auth check...');
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+        
+        console.log('[TutoAdmin] Session result:', { 
+          hasSession: !!session, 
+          email: session?.user?.email,
+          error: error?.message 
+        });
         
         if (!session?.user?.email) {
           console.log('[TutoAdmin] No session, redirecting to login');
@@ -47,13 +58,40 @@ export default function TutoAdminLayout({ children }: { children: React.ReactNod
         setIsAuthorized(true);
       } catch (error) {
         console.error('[TutoAdmin] Auth check error:', error);
-        router.push('/login?redirect=/tutoadmin');
+        if (mounted) {
+          router.push('/login?redirect=/tutoadmin');
+        }
       } finally {
-        setAuthChecked(true);
+        if (mounted) {
+          setAuthChecked(true);
+        }
       }
     };
 
+    // Wait for auth to initialize before checking
+    // Listen for auth state changes and check when ready
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('[TutoAdmin] Auth state change:', event, session?.user?.email);
+      
+      if (event === 'INITIAL_SESSION') {
+        // Auth has initialized, now check
+        checkAuth();
+      } else if (event === 'SIGNED_IN') {
+        checkAuth();
+      } else if (event === 'SIGNED_OUT') {
+        if (mounted) {
+          router.push('/login?redirect=/tutoadmin');
+        }
+      }
+    });
+
+    // Also check immediately in case auth is already ready
     checkAuth();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [router]);
 
   // Show loading while checking auth
