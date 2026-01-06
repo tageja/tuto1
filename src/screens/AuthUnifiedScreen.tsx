@@ -442,26 +442,17 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
         console.log('👤 Setting user data:', userData);
         await setUserData(userData);
         
-        console.log('🎉 Showing success alert and navigating...');
+        console.log('🎉 Google auth successful, navigating to Welcome screen...');
         
-        // Check if user already has a role - skip role selection if they do
-        const hasExistingRole = !!(schoolUserRole?.role || existingProfile?.role);
-        const navigationTarget = hasExistingRole ? 'Home' : 'RoleSelection';
+        // After successful Google login, navigate to Welcome screen
+        // Welcome screen will check school associations and route accordingly
+        const navigationTarget = 'Welcome';
         
-        console.log('🧭 Navigation decision:', {
-          hasExistingRole,
-          role: userData.type,
-          navigatingTo: navigationTarget,
-        });
+        console.log('🧭 Navigation: Navigating to Welcome screen');
         
-        Alert.alert(
-          t('auth.loginSuccess'),
-          `${t('auth.welcomeBack')} ${userData.name}`,
-          [{ text: t('common.ok'), onPress: () => {
-            console.log(`🧭 Navigating to ${navigationTarget}...`);
-            navigation.navigate(navigationTarget);
-          }}]
-        );
+        // Navigate directly without alert (clean UX)
+        console.log(`🧭 Navigating to ${navigationTarget}...`);
+        navigation.navigate(navigationTarget);
       } else {
         console.warn('⚠️ No session found after OAuth callback');
         Alert.alert(
