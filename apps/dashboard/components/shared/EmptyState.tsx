@@ -33,7 +33,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       {action && (
         <Button
           onClick={action.onClick}
-          variant="primary"
+          variant="default"
           className="mt-6"
         >
           {action.label}

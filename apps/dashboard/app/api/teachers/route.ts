@@ -13,9 +13,21 @@ export async function GET(request: NextRequest) {
 
     const supabase = createServerSupabaseClient();
 
+    // Fetch teachers with their subjects
     const { data: teachers, error } = await supabase
       .from('teachers')
-      .select('*')
+      .select(`
+        *,
+        teacher_subjects (
+          subject_id,
+          subjects (
+            id,
+            name,
+            name_vi,
+            icon
+          )
+        )
+      `)
       .eq('status', status.toLowerCase())
       .order('rating', { ascending: false })
       .limit(maxRecords);
@@ -25,9 +37,15 @@ export async function GET(request: NextRequest) {
       throw error;
     }
 
+    // Transform the data to flatten teacher_subjects structure
+    const transformedTeachers = (teachers || []).map((teacher: any) => ({
+      ...teacher,
+      teacher_subjects: teacher.teacher_subjects || [],
+    }));
+
     return NextResponse.json({
       success: true,
-      teachers: teachers || [],
+      teachers: transformedTeachers,
     });
   } catch (error: any) {
     console.error('Teachers API error:', error);

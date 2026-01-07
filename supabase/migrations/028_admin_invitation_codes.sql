@@ -71,3 +71,4 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 COMMENT ON FUNCTION public.get_user_school_associations IS 'Returns all schools a user has access to based on their email address, with their role (admin for teachers, parent for parents)';
 
+

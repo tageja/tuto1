@@ -71,7 +71,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         ))}
       </div>
       <div className="flex gap-2 mt-4">
-        <Button onClick={handleApply} variant="primary">
+        <Button onClick={handleApply} variant="default">
           Áp dụng
         </Button>
         <Button onClick={handleReset} variant="outline">

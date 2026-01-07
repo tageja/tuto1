@@ -231,3 +231,4 @@ UPDATE public.schools
 SET partnership_start_date = created_at 
 WHERE partnership_start_date IS NULL;
 
+
