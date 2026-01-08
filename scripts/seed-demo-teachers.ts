@@ -190,3 +190,4 @@ const DEMO_TEACHERS = [
 // Note: This script is for reference. Actual seeding will be done via Supabase MCP tools.
 console.log('Demo teachers data prepared. Use Supabase MCP to insert.');
 
+

@@ -9,7 +9,8 @@ import { TeacherCardSkeleton } from '../../components/teacher/TeacherCardSkeleto
 import EmptyState from '../../components/shared/EmptyState';
 import ErrorState from '../../components/shared/ErrorState';
 import { Teacher } from '../../types/teacher';
-import { Search, Filter, X, GraduationCap, Star, Users, CheckCircle, Menu, MapPin, ArrowRight } from 'lucide-react';
+import { Search, Filter, X, GraduationCap, Star, Users, CheckCircle, MapPin, ArrowRight } from 'lucide-react';
+import Header from '../../components/layout/Header';
 import { useI18n } from '../../contexts/I18nContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { formatVND } from '../../lib/format';
@@ -38,7 +39,6 @@ export default function FindTeacherPage() {
   const [maxPrice, setMaxPrice] = useState<number>(0);
   const [location, setLocation] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Get subject labels based on language
   const getSubjectLabel = (value: string) => {
@@ -151,91 +151,7 @@ export default function FindTeacherPage() {
       <JoinAsTeacherBanner />
 
       {/* Header - Consistent with Homepage */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex-shrink-0">
-            <Image src="/images/tuto-logo.png" alt="tuto." width={100} height={32} priority />
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-8">
-            <Link href="/" className="text-sm font-semibold text-gray-600 hover:text-primary transition-colors">
-              {t('landing.nav.home')}
-            </Link>
-            <Link href="/find-teacher" className="text-sm font-semibold text-primary">
-              {t('landing.nav.findTeacher')}
-            </Link>
-            <Link href="/feed" className="text-sm font-semibold text-gray-600 hover:text-primary transition-colors">
-              {t('landing.nav.communityFeed')}
-            </Link>
-            <Link href="/school" className="text-sm font-semibold text-gray-600 hover:text-primary transition-colors">
-              {t('landing.nav.schoolDashboard')}
-            </Link>
-          </nav>
-
-          <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-2 text-sm font-semibold text-gray-500">
-              <button 
-                onClick={() => setLang('vi')}
-                className={`hover:text-gray-900 transition-colors ${lang === 'vi' ? 'text-gray-900 font-bold' : ''}`}
-              >
-                VI
-              </button>
-              <span>/</span>
-              <button 
-                onClick={() => setLang('en')}
-                className={`hover:text-gray-900 transition-colors ${lang === 'en' ? 'text-gray-900 font-bold' : ''}`}
-              >
-                EN
-              </button>
-            </div>
-            
-            {user ? (
-              <Link href="/dashboard" className="px-5 py-2.5 bg-primary text-white rounded-full text-sm font-bold hover:bg-primary/90 transition-colors shadow-md">
-                {t('landing.nav.dashboard')}
-              </Link>
-            ) : (
-              <Link href="/login" className="px-5 py-2.5 bg-gray-900 text-white rounded-full text-sm font-bold hover:bg-gray-800 transition-colors shadow-md">
-                {t('landing.nav.login')}
-              </Link>
-            )}
-          </div>
-
-          <button 
-            className="md:hidden p-2 text-gray-600"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-100 bg-white absolute w-full shadow-lg">
-            <div className="px-6 py-4 space-y-4">
-              <Link href="/" className="block text-base font-bold text-gray-600">
-                {t('landing.nav.home')}
-              </Link>
-              <Link href="/find-teacher" className="block text-base font-bold text-primary">
-                {t('landing.nav.findTeacher')}
-              </Link>
-              <Link href="/feed" className="block text-base font-semibold text-gray-600">
-                {t('landing.nav.communityFeed')}
-              </Link>
-              <Link href="/school" className="block text-base font-semibold text-gray-600">
-                {t('landing.nav.schoolDashboard')}
-              </Link>
-              <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
-                <div className="flex gap-4">
-                  <button onClick={() => setLang('vi')} className={`font-semibold ${lang === 'vi' ? 'text-gray-900 font-bold' : 'text-gray-500'}`}>VI</button>
-                  <button onClick={() => setLang('en')} className={`font-semibold ${lang === 'en' ? 'text-gray-900 font-bold' : 'text-gray-500'}`}>EN</button>
-                </div>
-                <Link href="/login" className="text-primary font-bold">
-                  {t('landing.nav.login')}
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
-      </header>
+      <Header />
 
       {/* Hero Section - Matching Homepage Style */}
       <section className="relative overflow-hidden bg-gradient-to-br from-surface to-blue-50/50 pt-16 pb-12 px-6">

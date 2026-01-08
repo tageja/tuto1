@@ -464,33 +464,7 @@
     "investors": {"title": "Nhà đầu tư", "lead": "Tầm nhìn, số liệu chính và thông tin liên hệ."},
     "contact": {"title": "Liên hệ", "lead": "Cần hỗ trợ? Hãy liên hệ đội ngũ Tuto."},
 
-    "findTeacher": {
-      "title": "Tìm giáo viên gần bạn",
-      "lead": "Tìm giáo viên theo môn học, vị trí và đánh giá.",
-      "searchPlaceholder": "Tìm kiếm theo tên, môn học hoặc khu vực...",
-      "advancedFilters": "Bộ lọc nâng cao",
-      "hideFilters": "Ẩn bộ lọc",
-      "minimumRating": "Đánh giá tối thiểu",
-      "maxHourlyRate": "Học phí tối đa (k/giờ)",
-      "maxHourlyRatePlaceholder": "VD: 500",
-      "location": "Khu vực",
-      "locationPlaceholder": "VD: Hà Nội, Quận 1",
-      "all": "Tất cả",
-      "stars": "sao",
-      "resetFilters": "Đặt lại bộ lọc",
-      "foundTeachers": "Tìm thấy {count} giáo viên",
-      "noTeachersFound": "Không tìm thấy giáo viên",
-      "noTeachersDescription": "Hiện tại chưa có giáo viên nào trong hệ thống. Vui lòng quay lại sau.",
-      "adjustFilters": "Thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm của bạn",
-      "howItWorks": {
-        "step1": "1. Tìm Kiếm",
-        "step1Desc": "Tìm giáo viên phù hợp theo môn học, vị trí và đánh giá",
-        "step2": "2. Xem Hồ Sơ",
-        "step2Desc": "Xem chi tiết kinh nghiệm, đánh giá và phương pháp dạy học",
-        "step3": "3. Liên Hệ",
-        "step3Desc": "Đặt lịch học và bắt đầu hành trình học tập của bạn"
-      }
-    },
+    "findTeacher": {"title": "Tìm giáo viên", "lead": "Tìm giáo viên theo môn học, vị trí và đánh giá."},
     "trial": {"title": "Buổi học thử", "lead": "Trải nghiệm miễn phí trước khi cam kết."},
     "pricing": {"title": "Bảng giá", "lead": "Minh bạch học phí và gói linh hoạt."},
     "ratingsPolicy": {"title": "Chính sách đánh giá", "lead": "Hướng dẫn đánh giá công bằng và hữu ích."},
@@ -1656,6 +1630,15 @@
     }
   },
   "landing": {
+    "nav": {
+      "home": "Trang Chủ",
+      "findSchool": "Tìm Trường/Trung Tâm",
+      "findTeacher": "Tìm Giáo Viên",
+      "communityFeed": "Bảng Tin",
+      "schoolDashboard": "Trường Học",
+      "dashboard": "Bảng Điều Khiển",
+      "login": "Đăng Nhập"
+    },
     "hero": {
       "title": "Kết nối gia đình, giáo viên và nhà trường.",
       "subtitle": "Quản lý lớp học, theo dõi tiến độ và xây dựng cộng đồng học tập - tất cả trong một nền tảng.",

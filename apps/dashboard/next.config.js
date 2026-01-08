@@ -24,6 +24,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'fkjeggdxqifqqwhuqpgm.supabase.co',
       },
+      {
+        protocol: 'https',
+        hostname: 'ui-avatars.com',
+      },
     ],
   },
   // Ensure local workspace packages are transpiled for Next.js

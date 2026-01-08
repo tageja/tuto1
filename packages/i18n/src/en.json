@@ -464,33 +464,7 @@
     "investors": {"title": "Investors", "lead": "Vision, key metrics, and contact information."},
     "contact": {"title": "Contact", "lead": "Need help? Get in touch with the Tuto team."},
 
-    "findTeacher": {
-      "title": "Find a Teacher Nearby",
-      "lead": "Search teachers by subject, location, and rating.",
-      "searchPlaceholder": "Search by name, subject, or location...",
-      "advancedFilters": "Advanced filters",
-      "hideFilters": "Hide filters",
-      "minimumRating": "Minimum rating",
-      "maxHourlyRate": "Max hourly rate (k/hour)",
-      "maxHourlyRatePlaceholder": "e.g.: 500",
-      "location": "Location",
-      "locationPlaceholder": "e.g.: Hanoi, District 1",
-      "all": "All",
-      "stars": "stars",
-      "resetFilters": "Reset filters",
-      "foundTeachers": "Found {count} teachers",
-      "noTeachersFound": "No teachers found",
-      "noTeachersDescription": "No teachers are currently available in the system. Please check back later.",
-      "adjustFilters": "Try adjusting your filters or search keywords",
-      "howItWorks": {
-        "step1": "1. Search",
-        "step1Desc": "Find the right teacher by subject, location, and rating",
-        "step2": "2. View Profile",
-        "step2Desc": "View detailed experience, ratings, and teaching methods",
-        "step3": "3. Contact",
-        "step3Desc": "Book a session and start your learning journey"
-      }
-    },
+    "findTeacher": {"title": "Find Teacher", "lead": "Search teachers by subject, location, and rating."},
     "trial": {"title": "Trial Lesson", "lead": "Experience for free before committing."},
     "pricing": {"title": "Pricing", "lead": "Transparent fees and flexible plans."},
     "ratingsPolicy": {"title": "Ratings Policy", "lead": "Guidelines for fair and useful reviews."},
@@ -1658,6 +1632,15 @@
     }
   },
   "landing": {
+    "nav": {
+      "home": "Home",
+      "findSchool": "Find a School/Center",
+      "findTeacher": "Find Teacher",
+      "communityFeed": "Community Feed",
+      "schoolDashboard": "School Dashboard",
+      "dashboard": "Dashboard",
+      "login": "Login"
+    },
     "hero": {
       "title": "Empowering families, teachers, and schools.",
       "subtitle": "Manage classes, track progress, and build your learning community - all in one place.",
@@ -1756,7 +1739,7 @@
     },
     "nav": {
       "home": "Home",
-      "findTeacher": "Find a Teacher",
+      "findTeacher": "Find Teacher",
       "communityFeed": "Community Feed",
       "schoolDashboard": "School Dashboard",
       "dashboard": "Dashboard",

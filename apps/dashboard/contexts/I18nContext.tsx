@@ -10,6 +10,7 @@ type Dict = Record<string, any>;
 
 // Legacy flat dictionary for backward compatibility
 const viFlat: Dict = {
+  findSchool: 'Tìm Trường/Trung Tâm',
   features: 'Tính năng',
   subjects: 'Môn học',
   community: 'Cộng đồng',
@@ -508,6 +509,7 @@ const viFlat: Dict = {
 };
 
 const enFlat: Dict = {
+  findSchool: 'Find a School/Center',
   features: 'Features',
   subjects: 'Subjects',
   community: 'Community',
@@ -1068,7 +1070,9 @@ export const I18nProvider: React.FC<{ children: React.ReactNode; defaultLang?: L
     if (nested) return nested;
     
     // Fallback to flat dictionary for backward compatibility
-    const flat = (lang === 'vi' ? viFlat : enFlat)[key];
+    // Handle nested keys by taking the last part if not found in nested structure
+    const lastPart = key.split('.').pop() || key;
+    const flat = (lang === 'vi' ? viFlat : enFlat)[lastPart] || (lang === 'vi' ? viFlat : enFlat)[key];
     if (flat) return flat;
     
     // Return key as fallback

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { useI18n } from '../../contexts/I18nContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -11,6 +12,17 @@ export default function Header() {
   const { t, lang, setLang } = useI18n();
   const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  const isActive = (path: string) => {
+    if (path === '/') return pathname === '/';
+    return pathname.startsWith(path);
+  };
+  
+  const linkClass = (path: string) => 
+    `text-sm font-semibold transition-colors ${
+      isActive(path) ? 'text-[#0B5FFF]' : 'text-gray-600 hover:text-[#0B5FFF]'
+    }`;
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
@@ -20,16 +32,19 @@ export default function Header() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
-          <Link href="/" className="text-sm font-semibold text-gray-600 hover:text-[#0B5FFF] transition-colors">
+          <Link href="/" className={linkClass('/')}>
             {t('landing.nav.home')}
           </Link>
-          <Link href="/find-teacher" className="text-sm font-semibold text-gray-600 hover:text-[#0B5FFF] transition-colors">
+          <Link href="/find-school" className={linkClass('/find-school')}>
+            {t('landing.nav.findSchool')}
+          </Link>
+          <Link href="/find-teacher" className={linkClass('/find-teacher')}>
             {t('landing.nav.findTeacher')}
           </Link>
-          <Link href="/feed" className="text-sm font-semibold text-gray-600 hover:text-[#0B5FFF] transition-colors">
+          <Link href="/feed" className={linkClass('/feed')}>
             {t('landing.nav.communityFeed')}
           </Link>
-          <Link href="/school" className="text-sm font-semibold text-gray-600 hover:text-[#0B5FFF] transition-colors">
+          <Link href="/school" className={linkClass('/school')}>
             {t('landing.nav.schoolDashboard')}
           </Link>
         </nav>
@@ -74,16 +89,19 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-t border-gray-100 py-4 px-6">
           <nav className="flex flex-col gap-4">
-            <Link href="/" className="text-sm font-semibold text-gray-600 hover:text-[#0B5FFF] transition-colors">
+            <Link href="/" className={linkClass('/')}>
               {t('landing.nav.home')}
             </Link>
-            <Link href="/find-teacher" className="text-sm font-semibold text-gray-600 hover:text-[#0B5FFF] transition-colors">
+            <Link href="/find-school" className={linkClass('/find-school')}>
+              {t('landing.nav.findSchool')}
+            </Link>
+            <Link href="/find-teacher" className={linkClass('/find-teacher')}>
               {t('landing.nav.findTeacher')}
             </Link>
-            <Link href="/feed" className="text-sm font-semibold text-gray-600 hover:text-[#0B5FFF] transition-colors">
+            <Link href="/feed" className={linkClass('/feed')}>
               {t('landing.nav.communityFeed')}
             </Link>
-            <Link href="/school" className="text-sm font-semibold text-gray-600 hover:text-[#0B5FFF] transition-colors">
+            <Link href="/school" className={linkClass('/school')}>
               {t('landing.nav.schoolDashboard')}
             </Link>
             <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
@@ -118,4 +136,3 @@ export default function Header() {
     </header>
   );
 }
-
