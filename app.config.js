@@ -17,6 +17,7 @@ module.exports = {
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.tutoapp.mobile',
+      buildNumber: '1',
       infoPlist: {
         NSPhotoLibraryUsageDescription: 'We need access to your photo library to let you attach images to posts.',
         NSCameraUsageDescription: 'We need access to your camera to let you capture photos and videos for posts.',
@@ -43,8 +44,13 @@ module.exports = {
     web: {
       favicon: './assets/favicon.png',
     },
-    plugins: ['expo-image-picker'],
+    plugins: ['expo-image-picker', 'expo-web-browser'],
     extra: {
+      // EAS Project ID
+      eas: {
+        projectId: '733e177d-32fa-4332-8f08-c29d11955816',
+      },
+      
       // Firebase Config
       firebaseApiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
       firebaseAuthDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
