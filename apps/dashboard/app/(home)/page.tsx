@@ -35,6 +35,9 @@ export default function WebHomePage() {
             <Link href="/" className="text-sm font-semibold text-primary">
               {t('landing.nav.home')}
             </Link>
+            <Link href="/find-school" className="text-sm font-semibold text-gray-600 hover:text-primary transition-colors">
+              {t('landing.nav.findSchool')}
+            </Link>
             <Link href="/find-teacher" className="text-sm font-semibold text-gray-600 hover:text-primary transition-colors">
               {t('landing.nav.findTeacher')}
             </Link>
