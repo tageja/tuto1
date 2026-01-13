@@ -68,10 +68,11 @@ export default function Hero() {
                 <Search className="w-4 h-4" />
               </Link>
               <Link 
-                href="/feed" 
+                href="/find-school" 
                 className="flex items-center gap-2 px-5 py-3 bg-gray-50 text-gray-700 border border-gray-200 rounded-xl font-semibold hover:bg-gray-100 transition-colors"
               >
-                {t("landing.cta.exploreFeed")}
+                {t("landing.nav.findSchool")}
+                <School className="w-4 h-4" />
               </Link>
             </div>
           </motion.div>

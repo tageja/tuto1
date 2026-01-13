@@ -35,6 +35,9 @@ export default function WebHomePage() {
             <Link href="/" className="text-sm font-semibold text-primary">
               {t('landing.nav.home')}
             </Link>
+            <Link href="/find-school" className="text-sm font-semibold text-gray-600 hover:text-primary transition-colors">
+              {t('landing.nav.findSchool')}
+            </Link>
             <Link href="/find-teacher" className="text-sm font-semibold text-gray-600 hover:text-primary transition-colors">
               {t('landing.nav.findTeacher')}
             </Link>
@@ -90,6 +93,9 @@ export default function WebHomePage() {
             <div className="px-6 py-4 space-y-4">
               <Link href="/" className="block text-base font-bold text-primary">
                 {t('landing.nav.home')}
+              </Link>
+              <Link href="/find-school" className="block text-base font-semibold text-gray-600">
+                {t('landing.nav.findSchool')}
               </Link>
               <Link href="/find-teacher" className="block text-base font-semibold text-gray-600">
                 {t('landing.nav.findTeacher')}
