@@ -24,6 +24,7 @@ import {
   Pill,
   Activity,
   MessageSquare,
+  Crown,
 } from 'lucide-react';
 
 export function AdminSidebar() {
@@ -56,6 +57,7 @@ export function AdminSidebar() {
     { icon: Pill, label: t('medicine'), href: `/school/${encodedSchoolId}/admin/medicine` },
     { icon: Activity, label: t('extracurricular'), href: `/school/${encodedSchoolId}/admin/extracurricular` },
     { icon: CreditCard, label: t('payments'), href: `/school/${encodedSchoolId}/admin/payments` },
+    { icon: Crown, label: t('pricing') || 'Pricing', href: `/pricing` },
     { icon: Settings, label: t('settings'), href: `/school/${encodedSchoolId}/admin/settings` },
   ];
 

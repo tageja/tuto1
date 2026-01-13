@@ -94,6 +94,9 @@ export default function WebHomePage() {
               <Link href="/" className="block text-base font-bold text-primary">
                 {t('landing.nav.home')}
               </Link>
+              <Link href="/find-school" className="block text-base font-semibold text-gray-600">
+                {t('landing.nav.findSchool')}
+              </Link>
               <Link href="/find-teacher" className="block text-base font-semibold text-gray-600">
                 {t('landing.nav.findTeacher')}
               </Link>
