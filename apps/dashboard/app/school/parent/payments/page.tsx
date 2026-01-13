@@ -3,8 +3,8 @@ import { StatusBadge } from '../../../../components/school/shared/StatusBadge';
 import { Button } from '../../../../components/ui/Button';
 
 export default function ParentPaymentsPage() {
-  const studentName = 'Emily Chen';
-  const className = 'Grade 5A';
+  const studentName = 'Mai Nguyen';
+  const className = 'Class 5A';
   
   const totalPaid = 12500;
   const pending = 1200;

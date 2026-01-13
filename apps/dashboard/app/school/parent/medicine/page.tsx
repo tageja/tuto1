@@ -2,7 +2,7 @@ import { Card } from '../../../../components/ui/Card';
 import { StatusBadge } from '../../../../components/school/shared/StatusBadge';
 
 export default function ParentMedicinePage() {
-  const studentName = 'Emily Chen';
+  const studentName = 'Mai Nguyen';
 
   return (
     <div className="p-6">

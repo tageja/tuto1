@@ -92,7 +92,7 @@ export default function ParentSettingsPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Child Name</label>
               <input
                 type="text"
-                value="Emily Chen"
+                value="Mai Nguyen"
                 disabled
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
               />
@@ -102,7 +102,7 @@ export default function ParentSettingsPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Child's Class</label>
               <input
                 type="text"
-                value="Grade 5A"
+                value="Class 5A"
                 disabled
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
               />

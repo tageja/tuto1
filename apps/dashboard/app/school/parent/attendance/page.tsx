@@ -2,8 +2,8 @@ import { Card } from '../../../../components/ui/Card';
 import { StatusBadge } from '../../../../components/school/shared/StatusBadge';
 
 export default function ParentAttendancePage() {
-  const studentName = 'Emily Chen';
-  const className = 'Grade 5A';
+  const studentName = 'Mai Nguyen';
+  const className = 'Class 5A';
   
   const present = 19;
   const absent = 1;

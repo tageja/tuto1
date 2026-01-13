@@ -2,8 +2,8 @@ import { Card } from '../../../../components/ui/Card';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
 export default function ProgressPage() {
-  const studentName = 'Emily Chen';
-  const className = 'Grade 5A';
+  const studentName = 'Mai Nguyen';
+  const className = 'Class 5A';
   const academicYear = '2025-2026';
 
   return (

@@ -1,7 +1,7 @@
 import { Card } from '../../../../components/ui/Card';
 
 export default function ParentHealthPage() {
-  const studentName = 'Emily Chen';
+  const studentName = 'Mai Nguyen';
 
   return (
     <div className="p-6">

@@ -2,8 +2,8 @@ import { Card } from '../../../../components/ui/Card';
 import { StatusBadge } from '../../../../components/school/shared/StatusBadge';
 
 export default function HomeworkPage() {
-  const studentName = 'Emily Chen';
-  const className = 'Grade 5A';
+  const studentName = 'Mai Nguyen';
+  const className = 'Class 5A';
 
   const totalAssignments = 24;
   const pending = 6;
