@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -39,7 +39,8 @@ const PAGE_TITLES: Record<string, { en: string; vi: string }> = {
   'default': { en: 'This Page', vi: 'Trang này' },
 };
 
-export default function ComingSoonPage() {
+// Content component that uses useSearchParams
+function ComingSoonContent() {
   const { t, lang, setLang } = useI18n();
   const searchParams = useSearchParams();
   const page = searchParams.get('page') || 'default';
@@ -48,7 +49,7 @@ export default function ComingSoonPage() {
   const title = lang === 'vi' ? pageTitle.vi : pageTitle.en;
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col">
+    <>
       {/* Header */}
       <Header />
       
@@ -136,6 +137,26 @@ export default function ComingSoonPage() {
           </div>
         </div>
       </footer>
+    </>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function ComingSoonPage() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col">
+      <Suspense fallback={
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-[#0B5FFF]/10 flex items-center justify-center">
+              <Clock className="w-10 h-10 text-[#0B5FFF] animate-pulse" />
+            </div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      }>
+        <ComingSoonContent />
+      </Suspense>
     </div>
   );
 }
