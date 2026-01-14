@@ -17,7 +17,7 @@ module.exports = {
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.tutoapp.mobile',
-      buildNumber: '1',
+      buildNumber: '3',
       infoPlist: {
         NSPhotoLibraryUsageDescription: 'We need access to your photo library to let you attach images to posts.',
         NSCameraUsageDescription: 'We need access to your camera to let you capture photos and videos for posts.',
