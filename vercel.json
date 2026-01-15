@@ -1,5 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "npm install --legacy-peer-deps",
-  "buildCommand": "npm run build -w @tuto/dashboard"
+  "buildCommand": "npm run build -w @tuto/dashboard",
+  "cleanUrls": true,
+  "trailingSlash": false
 }
