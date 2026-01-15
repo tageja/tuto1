@@ -1,3 +1,4 @@
+// Force Vercel redeploy - Jan 15, 2026
 export default function SupportSimplePage() {
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
