@@ -73,6 +73,18 @@ export default function Footer() {
           {/* Links 3: Legal & Help */}
           <div>
             <h4 className="font-bold text-gray-900 mb-6">{t("landing.footer.support")}</h4>
+            
+            {/* Support Contact Info */}
+            <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+              <p className="text-xs font-semibold text-gray-700 mb-2">📧 Contact Support</p>
+              <a href="mailto:support@tutoglobal.com" className="text-sm font-medium text-primary hover:underline block mb-1">
+                support@tutoglobal.com
+              </a>
+              <a href="tel:+84349640253" className="text-sm text-gray-600 hover:text-primary block">
+                +84 349 640 253
+              </a>
+            </div>
+
             <ul className="space-y-4 text-sm text-gray-600">
               <li><Link href="/help" className="hover:text-primary transition-colors">{t("landing.footer.helpCenter")}</Link></li>
               <li><Link href="/legal/privacy" className="hover:text-primary transition-colors">{t("landing.footer.privacyPolicy")}</Link></li>
