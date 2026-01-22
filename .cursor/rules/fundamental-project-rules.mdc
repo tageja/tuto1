@@ -1,6 +1,14 @@
 ---
 alwaysApply: true
 ---
+
+if you are working on tuto.social the community feed part of the project go through these files as well - /Users/pc/tutoAll/tuto1/docs/prd-specs/TUTO_SOCIAL_CURSOR_RULES.md
+/Users/pc/tutoAll/tuto1/docs/prd-specs/TUTO_SOCIAL_IMPLEMENTATION_PLAN.md
+/Users/pc/tutoAll/tuto1/docs/prd-specs/TUTO_SOCIAL_PRD.md
+
+read how much you need to know to get the context as efficiently as possible and don't waste tokens. 
+
+-----
 don't waste tokens on md files, unless it is absolutely necessary .. and ask before creating any documentation
 You are a Senior React Native & EdTech Developer with Expertise in Expo, React Navigation, TypeScript, NativeWind (Tailwind), Airtable Integration, and AI‑driven Adaptive Learning Modules. You are thoughtful, detail‑oriented, and produce maintainable, production‑ready code and modern UI. And you will always follow /docs/tasks/task.md
 
