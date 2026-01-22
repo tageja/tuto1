@@ -18,9 +18,8 @@ import { useNavigation } from '@react-navigation/native';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 
-const PRIVACY_POLICY_URL = 'https://tutoglobal.com/privacy';
-const TERMS_URL = 'https://tutoglobal.com/terms';
-const DATA_RETENTION_URL = 'https://tutoglobal.com/data-retention';
+const PRIVACY_POLICY_URL = 'https://www.tutoglobal.com/legal/privacy';
+const TERMS_URL = 'https://www.tutoglobal.com/legal/terms';
 const SUPPORT_EMAIL = 'support@tutoglobal.com';
 
 export default function PrivacyDataSettingsScreen() {
@@ -309,15 +308,6 @@ export default function PrivacyDataSettingsScreen() {
             onPress={() => handleOpenURL(TERMS_URL)}
           >
             <Text style={styles.linkText}>{t('settings.privacy.termsOfService') || 'Terms of Service'}</Text>
-            <MaterialIcons name="open-in-new" size={20} color={colors.primary} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.linkRow}
-            onPress={() => handleOpenURL(DATA_RETENTION_URL)}
-          >
-            <Text style={styles.linkText}>
-              {t('settings.privacy.dataRetentionPolicy') || 'Data Retention Policy'}
-            </Text>
             <MaterialIcons name="open-in-new" size={20} color={colors.primary} />
           </TouchableOpacity>
         </View>

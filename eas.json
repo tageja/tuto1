@@ -14,6 +14,15 @@
     },
     "production": {
       "autoIncrement": false
+    },
+    "production-simulator": {
+      "ios": {
+        "simulator": true,
+        "buildConfiguration": "Release"
+      },
+      "env": {
+        "EXPO_PUBLIC_APP_ENVIRONMENT": "production"
+      }
     }
   },
   "submit": {

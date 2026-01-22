@@ -20,10 +20,9 @@ import { useNavigation } from '@react-navigation/native';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 
-const PRIVACY_POLICY_URL = 'https://tutoglobal.com/privacy';
-const TERMS_URL = 'https://tutoglobal.com/terms';
-const HELP_CENTER_URL = 'https://tutoglobal.com/help';
-const OPEN_SOURCE_LICENSES_URL = 'https://tutoglobal.com/licenses';
+const PRIVACY_POLICY_URL = 'https://www.tutoglobal.com/legal/privacy';
+const TERMS_URL = 'https://www.tutoglobal.com/legal/terms';
+const HELP_CENTER_URL = 'https://www.tutoglobal.com/support';
 const SUPPORT_EMAIL = 'support@tutoglobal.com';
 
 const APP_VERSION = Constants.expoConfig?.version || '1.0.1';
@@ -291,16 +290,6 @@ export default function AboutAndLegalSettingsScreen() {
             <MaterialIcons name="email" size={24} color={colors.primary} />
             <Text style={styles.linkText}>
               {t('settings.about.contactSupport') || 'Contact Support'}
-            </Text>
-            <MaterialIcons name="chevron-right" size={24} color={colors.disabled} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.linkRow}
-            onPress={() => handleOpenURL(OPEN_SOURCE_LICENSES_URL)}
-          >
-            <MaterialIcons name="code" size={24} color={colors.primary} />
-            <Text style={styles.linkText}>
-              {t('settings.about.openSource') || 'Open Source Licenses'}
             </Text>
             <MaterialIcons name="chevron-right" size={24} color={colors.disabled} />
           </TouchableOpacity>

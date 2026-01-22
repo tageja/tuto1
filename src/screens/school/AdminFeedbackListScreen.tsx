@@ -23,10 +23,9 @@ import {
 } from "../../types/school/feedback";
 
 export default function AdminFeedbackListScreen() {
-  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
-
   const navigation = useNavigation<any>();
   const { currentSchool } = useSchool();
+  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
 
   const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,83 +52,83 @@ export default function AdminFeedbackListScreen() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  const loadData = useCallback(async () => {
-    const styles = StyleSheet.create({
-      container: {
-        flex: 1,
-        backgroundColor: colors.background.primary,
-      },
-      subHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: spacing.md,
-        backgroundColor: colors.background.primary,
-      },
-      headerTitle: {
-        fontSize: typography.fontSize.xl,
-        fontWeight: "700",
-        color: colors.text.primary,
-        marginBottom: 2,
-      },
-      headerSubtitle: {
-        fontSize: typography.fontSize.sm,
-        color: colors.text.secondary,
-      },
-      content: {
-        flex: 1,
-      },
-      searchContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: colors.background.tertiary,
-        marginHorizontal: spacing.md,
-        paddingHorizontal: spacing.md,
-        paddingVertical: 8,
-        borderRadius: borderRadius.lg,
-        marginBottom: spacing.md,
-      },
-      searchInput: {
-        flex: 1,
-        marginLeft: spacing.sm,
-        fontSize: typography.fontSize.md,
-        color: colors.text.primary,
-      },
-      resultsHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingHorizontal: spacing.md,
-        marginTop: spacing.sm,
-        marginBottom: spacing.sm,
-      },
-      resultsCount: {
-        fontSize: typography.fontSize.sm,
-        color: colors.text.secondary,
-      },
-      listContainer: {
-        paddingHorizontal: spacing.md,
-        paddingBottom: 20,
-      },
-      emptyState: {
-        alignItems: "center",
-        justifyContent: "center",
-        paddingVertical: 40,
-      },
-      emptyText: {
-        marginTop: spacing.md,
-        fontSize: typography.fontSize.md,
-        color: colors.text.secondary,
-        fontWeight: "600",
-      },
-      emptySubtext: {
-        marginTop: spacing.xs,
-        fontSize: typography.fontSize.sm,
-        color: colors.text.light,
-        textAlign: "center",
-      },
-    });
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    subHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: spacing.md,
+      backgroundColor: colors.background.primary,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.xl,
+      fontWeight: "700",
+      color: colors.text.primary,
+      marginBottom: 2,
+    },
+    headerSubtitle: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+    },
+    content: {
+      flex: 1,
+    },
+    searchContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: colors.background.tertiary,
+      marginHorizontal: spacing.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 8,
+      borderRadius: borderRadius.lg,
+      marginBottom: spacing.md,
+    },
+    searchInput: {
+      flex: 1,
+      marginLeft: spacing.sm,
+      fontSize: typography.fontSize.md,
+      color: colors.text.primary,
+    },
+    resultsHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingHorizontal: spacing.md,
+      marginTop: spacing.sm,
+      marginBottom: spacing.sm,
+    },
+    resultsCount: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+    },
+    listContainer: {
+      paddingHorizontal: spacing.md,
+      paddingBottom: 20,
+    },
+    emptyState: {
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 40,
+    },
+    emptyText: {
+      marginTop: spacing.md,
+      fontSize: typography.fontSize.md,
+      color: colors.text.secondary,
+      fontWeight: "600",
+    },
+    emptySubtext: {
+      marginTop: spacing.xs,
+      fontSize: typography.fontSize.sm,
+      color: colors.text.light,
+      textAlign: "center",
+    },
+  });
 
+  const loadData = useCallback(async () => {
     if (!currentSchool) return;
 
     try {

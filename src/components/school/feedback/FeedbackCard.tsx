@@ -4,6 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 import { FeedbackItem } from '../../../types/school/feedback';
 import { FeedbackBadge } from './FeedbackBadge';
+import { useTheme } from '../../../contexts/ThemeContext';
 
 interface FeedbackCardProps {
   feedback: FeedbackItem;

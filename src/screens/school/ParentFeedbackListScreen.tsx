@@ -39,84 +39,84 @@ export default function ParentFeedbackListScreen() {
     "open" | "overdue" | "closed" | "all"
   >("all");
 
-  const loadData = useCallback(async () => {
-    const styles = StyleSheet.create({
-      container: {
-        flex: 1,
-        backgroundColor: colors.background.primary,
-      },
-      subHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: spacing.md,
-        backgroundColor: colors.background.primary,
-      },
-      headerLeft: {
-        flex: 1,
-      },
-      headerTitle: {
-        fontSize: typography.fontSize.xl,
-        fontWeight: "700",
-        color: colors.text.primary,
-        marginBottom: 2,
-      },
-      headerSubtitle: {
-        fontSize: typography.fontSize.sm,
-        color: colors.text.secondary,
-      },
-      createButton: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: colors.primary,
-        paddingHorizontal: spacing.md,
-        paddingVertical: spacing.xs,
-        borderRadius: borderRadius.md,
-      },
-      createButtonText: {
-        color: colors.white,
-        fontSize: typography.fontSize.sm,
-        fontWeight: "600",
-        marginLeft: 4,
-      },
-      content: {
-        flex: 1,
-      },
-      resultsHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingHorizontal: spacing.md,
-        marginTop: spacing.sm,
-        marginBottom: spacing.sm,
-      },
-      resultsCount: {
-        fontSize: typography.fontSize.sm,
-        color: colors.text.secondary,
-      },
-      listContainer: {
-        paddingHorizontal: spacing.md,
-        paddingBottom: 20,
-      },
-      emptyState: {
-        alignItems: "center",
-        justifyContent: "center",
-        paddingVertical: 40,
-      },
-      emptyText: {
-        marginTop: spacing.md,
-        fontSize: typography.fontSize.md,
-        color: colors.text.secondary,
-        fontWeight: "600",
-      },
-      emptySubtext: {
-        marginTop: spacing.xs,
-        fontSize: typography.fontSize.sm,
-        color: colors.text.light,
-        textAlign: "center",
-      },
-    });
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    subHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: spacing.md,
+      backgroundColor: colors.background.primary,
+    },
+    headerLeft: {
+      flex: 1,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.xl,
+      fontWeight: "700",
+      color: colors.text.primary,
+      marginBottom: 2,
+    },
+    headerSubtitle: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+    },
+    createButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: colors.primary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.md,
+    },
+    createButtonText: {
+      color: colors.white,
+      fontSize: typography.fontSize.sm,
+      fontWeight: "600",
+      marginLeft: 4,
+    },
+    content: {
+      flex: 1,
+    },
+    resultsHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingHorizontal: spacing.md,
+      marginTop: spacing.sm,
+      marginBottom: spacing.sm,
+    },
+    resultsCount: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+    },
+    listContainer: {
+      paddingHorizontal: spacing.md,
+      paddingBottom: 20,
+    },
+    emptyState: {
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 40,
+    },
+    emptyText: {
+      marginTop: spacing.md,
+      fontSize: typography.fontSize.md,
+      color: colors.text.secondary,
+      fontWeight: "600",
+    },
+    emptySubtext: {
+      marginTop: spacing.xs,
+      fontSize: typography.fontSize.sm,
+      color: colors.text.light,
+      textAlign: "center",
+    },
+  });
 
+  const loadData = useCallback(async () => {
     if (!currentSchool) return;
 
     try {

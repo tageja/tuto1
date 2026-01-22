@@ -57,6 +57,167 @@ export default function SchoolSettingsScreen() {
     }
   }, [branding]);
 
+  // Styles moved to component level to access dynamic theme colors
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    backButton: {
+      padding: spacing.xs,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: '700',
+      color: colors.text.primary,
+    },
+    saveButton: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+    },
+    saveButtonText: {
+      fontSize: typography.fontSize.md,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+    content: {
+      flex: 1,
+    },
+    section: {
+      padding: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSize.md,
+      fontWeight: '700',
+      color: colors.text.primary,
+      marginBottom: spacing.md,
+    },
+    sectionDescription: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+      marginBottom: spacing.md,
+    },
+    label: {
+      fontSize: typography.fontSize.sm,
+      fontWeight: '600',
+      color: colors.text.secondary,
+      marginBottom: spacing.xs,
+      marginTop: spacing.sm,
+    },
+    readOnlyValue: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.primary,
+      marginBottom: spacing.sm,
+    },
+    imagePlaceholder: {
+      width: 150,
+      height: 150,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.background.secondary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 2,
+      borderStyle: 'dashed',
+      borderColor: colors.border.light,
+    },
+    logo: {
+      width: 150,
+      height: 150,
+      borderRadius: borderRadius.md,
+      resizeMode: 'contain',
+    },
+    placeholderText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.disabled,
+      marginTop: spacing.xs,
+      textAlign: 'center',
+    },
+    headerPlaceholder: {
+      width: '100%',
+      height: 200,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.background.secondary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 2,
+      borderStyle: 'dashed',
+      borderColor: colors.border.light,
+    },
+    headerImage: {
+      width: '100%',
+      height: 200,
+      borderRadius: borderRadius.md,
+      resizeMode: 'cover',
+    },
+    colorRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    colorPreview: {
+      width: 40,
+      height: 40,
+      borderRadius: borderRadius.md,
+      marginRight: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+    },
+    colorInput: {
+      flex: 1,
+      backgroundColor: colors.background.secondary,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      fontSize: typography.fontSize.md,
+      color: colors.text.primary,
+    },
+    integrationRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    integrationLabel: {
+      fontSize: typography.fontSize.md,
+      fontWeight: '500',
+      color: colors.text.primary,
+    },
+    statusBadge: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 4,
+      borderRadius: borderRadius.sm,
+      backgroundColor: colors.disabled,
+    },
+    statusConnected: {
+      backgroundColor: colors.status.success,
+    },
+    statusText: {
+      fontSize: typography.fontSize.xs,
+      fontWeight: '600',
+      color: colors.white,
+      textTransform: 'uppercase',
+    },
+  });
+
   const handleUploadLogo = async () => {
     try {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -137,169 +298,6 @@ export default function SchoolSettingsScreen() {
   };
 
   if (loading) {
-
-    // Styles moved inside component to access dynamic theme colors
-
-    const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  backButton: {
-    padding: spacing.xs,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: '700',
-    color: colors.text.primary,
-  },
-  saveButton: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-  },
-  saveButtonText: {
-    fontSize: typography.fontSize.md,
-    fontWeight: '600',
-    color: colors.primary,
-  },
-  content: {
-    flex: 1,
-  },
-  section: {
-    padding: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSize.md,
-    fontWeight: '700',
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  },
-  sectionDescription: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-    marginBottom: spacing.md,
-  },
-  label: {
-    fontSize: typography.fontSize.sm,
-    fontWeight: '600',
-    color: colors.text.secondary,
-    marginBottom: spacing.xs,
-    marginTop: spacing.sm,
-  },
-  readOnlyValue: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.primary,
-    marginBottom: spacing.sm,
-  },
-  imagePlaceholder: {
-    width: 150,
-    height: 150,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.background.secondary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderColor: colors.border.light,
-  },
-  logo: {
-    width: 150,
-    height: 150,
-    borderRadius: borderRadius.md,
-    resizeMode: 'contain',
-  },
-  placeholderText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.disabled,
-    marginTop: spacing.xs,
-    textAlign: 'center',
-  },
-  headerPlaceholder: {
-    width: '100%',
-    height: 200,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.background.secondary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderColor: colors.border.light,
-  },
-  headerImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: borderRadius.md,
-    resizeMode: 'cover',
-  },
-  colorRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  colorPreview: {
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.md,
-    marginRight: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-  },
-  colorInput: {
-    flex: 1,
-    backgroundColor: colors.background.secondary,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    fontSize: typography.fontSize.md,
-    color: colors.text.primary,
-  },
-  integrationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  integrationLabel: {
-    fontSize: typography.fontSize.md,
-    fontWeight: '500',
-    color: colors.text.primary,
-  },
-  statusBadge: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: borderRadius.sm,
-    backgroundColor: colors.disabled,
-  },
-  statusConnected: {
-    backgroundColor: colors.status.success,
-  },
-  statusText: {
-    fontSize: typography.fontSize.xs,
-    fontWeight: '600',
-    color: colors.white,
-    textTransform: 'uppercase',
-  },
-});
-
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>

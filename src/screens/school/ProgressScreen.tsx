@@ -42,75 +42,10 @@ const SubjectCard = ({
   const styles = useMemo(
     () =>
       StyleSheet.create({
-        periodTabs: {
-          flexDirection: 'row',
-          backgroundColor: colors.background.secondary,
-          marginHorizontal: spacing.lg,
-          marginTop: spacing.md,
-          marginBottom: spacing.md,
-          borderRadius: 12,
-          padding: spacing.xs,
-        },
-        periodTab: {
-          flex: 1,
-          paddingVertical: spacing.sm,
-          alignItems: 'center',
-          borderRadius: 8,
-        },
-        activePeriodTab: {
-          backgroundColor: colors.background.primary,
-        },
-        periodTabText: {
-          fontSize: typography.fontSize.sm,
-          fontFamily: typography.fontFamily.medium,
-          color: colors.text.secondary,
-        },
-        activePeriodTabText: {
-          color: colors.primary,
-          fontFamily: typography.fontFamily.semiBold,
-        },
-        cardRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: 16,
-          backgroundColor: colors.background.primary,
-          borderRadius: 16,
-          marginBottom: 12,
-          borderWidth: 1,
-          borderColor: colors.border.light,
-        },
+        subjectCard: { backgroundColor: colors.background.secondary, borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: colors.border.light },
         title: { fontSize: 16, fontWeight: '600', color: colors.text.primary },
         meta: { fontSize: 12, color: colors.text.secondary, marginTop: 4 },
         metaRow: { flexDirection: 'row', alignItems: 'center' },
-        gradePill: { backgroundColor: '#F0F4FF', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 },
-        gradeText: { color: '#0B5FFF', fontWeight: '700' },
-        searchBar: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginHorizontal: 16,
-          marginTop: 12,
-          marginBottom: 8,
-          backgroundColor: colors.background.primary,
-          borderRadius: 16,
-          paddingHorizontal: 12,
-          paddingVertical: 8,
-          borderWidth: 1,
-          borderColor: colors.border.light,
-        },
-        searchInput: { flex: 1, paddingHorizontal: 8, paddingVertical: 6, fontSize: 16 },
-        loadingText: { fontSize: 12, color: colors.text.secondary, marginTop: 8 },
-        emptyWrap: { alignItems: 'center', marginTop: 48, paddingHorizontal: 24 },
-        emptyTitle: { fontSize: 16, color: colors.text.primary, marginTop: 12 },
-        emptySubtitle: { fontSize: 12, color: colors.text.secondary, marginTop: 4, textAlign: 'center' },
-        sectionHeader: { fontSize: typography.fontSize.lg, fontFamily: typography.fontFamily.bold, color: colors.text.primary, marginBottom: spacing.md },
-        graphArea: { backgroundColor: colors.background.primary, borderRadius: 12, padding: spacing.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: colors.border.light },
-        graphBarsRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-around', height: 140 },
-        barContainer: { alignItems: 'center', flex: 1 },
-        bar: { width: 20, backgroundColor: colors.primary, borderRadius: 10, marginBottom: spacing.xs },
-        barLabel: { fontSize: typography.fontSize.xs, color: colors.text.secondary },
-        barValue: { fontSize: typography.fontSize.xs, color: colors.text.primary, marginTop: spacing.xs, fontFamily: typography.fontFamily.bold },
-        subjectCard: { backgroundColor: colors.background.secondary, borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: colors.border.light },
         scoreBadge: { backgroundColor: '#E8F2FF', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 },
         scoreBadgeText: { color: '#0B5FFF', fontWeight: '700' },
         progressBarBg: { height: 8, backgroundColor: colors.border.light, borderRadius: 999, marginTop: 10 },
@@ -155,7 +90,67 @@ const ProgressScreen: React.FC = () => {
   const [period, setPeriod] = useState<'3m' | '6m' | '12m'>('3m');
   const [enabledSubjects, setEnabledSubjects] = useState<string[] | null>(null);
 
-  const load = useCallback(async () => {
+  // Define styles here in the main component
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        periodTabs: {
+          flexDirection: 'row',
+          backgroundColor: colors.background.secondary,
+          marginHorizontal: spacing.lg,
+          marginTop: spacing.md,
+          marginBottom: spacing.md,
+          borderRadius: 12,
+          padding: spacing.xs,
+        },
+        periodTab: {
+          flex: 1,
+          paddingVertical: spacing.sm,
+          alignItems: 'center',
+          borderRadius: 8,
+        },
+        activePeriodTab: {
+          backgroundColor: colors.background.primary,
+        },
+        periodTabText: {
+          fontSize: typography.fontSize.sm,
+          fontFamily: typography.fontFamily.medium,
+          color: colors.text.secondary,
+        },
+        activePeriodTabText: {
+          color: colors.primary,
+          fontFamily: typography.fontFamily.semiBold,
+        },
+        searchBar: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginHorizontal: 16,
+          marginTop: 12,
+          marginBottom: 8,
+          backgroundColor: colors.background.primary,
+          borderRadius: 16,
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+          borderWidth: 1,
+          borderColor: colors.border.light,
+        },
+        searchInput: { flex: 1, paddingHorizontal: 8, paddingVertical: 6, fontSize: 16 },
+        loadingText: { fontSize: 12, color: colors.text.secondary, marginTop: 8 },
+        emptyWrap: { alignItems: 'center', marginTop: 48, paddingHorizontal: 24 },
+        emptyTitle: { fontSize: 16, color: colors.text.primary, marginTop: 12 },
+        emptySubtitle: { fontSize: 12, color: colors.text.secondary, marginTop: 4, textAlign: 'center' },
+        sectionHeader: { fontSize: typography.fontSize.lg, fontFamily: typography.fontFamily.bold, color: colors.text.primary, marginBottom: spacing.md },
+        graphArea: { backgroundColor: colors.background.primary, borderRadius: 12, padding: spacing.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: colors.border.light },
+        graphBarsRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-around', height: 140 },
+        barContainer: { alignItems: 'center', flex: 1 },
+        bar: { width: 20, backgroundColor: colors.primary, borderRadius: 10, marginBottom: spacing.xs },
+        barLabel: { fontSize: typography.fontSize.xs, color: colors.text.secondary },
+        barValue: { fontSize: typography.fontSize.xs, color: colors.text.primary, marginTop: spacing.xs, fontFamily: typography.fontFamily.bold },
+      }),
+    [colors, spacing, typography]
+  );
+
+  const load = async () => {
     if (!currentSchool) return;
     const className = (schoolUser as any)?.className || undefined;
     const studentName = (schoolUser as any)?.studentName || undefined;
@@ -199,11 +194,14 @@ const ProgressScreen: React.FC = () => {
       } as ProgressRecord;
     });
     setRecords(mapped);
-  }, [currentSchool, fetchRecords, schoolUser]);
+  };
 
   useEffect(() => {
-    load();
-  }, [load]);
+    if (currentSchool) {
+      load();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSchool?.id]); // Only depend on school ID, not the load function
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();

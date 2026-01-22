@@ -49,15 +49,15 @@ export const SchoolProvider: React.FC<SchoolProviderProps> = ({ children }) => {
       }
       if (storedCurrentSchool) {
         const school = JSON.parse(storedCurrentSchool);
-        // Ensure school ID is resolved to Supabase UUID
-        if (school.id) {
+        // Only process if school is not null
+        if (school && school.id) {
           const originalId = school.id;
           school.id = resolveSchoolId(school.id);
           console.log('🏫 SchoolContext: School ID resolved:', { originalId, resolvedId: school.id });
+          setCurrentSchool(school);
+          // Save back to storage with resolved ID
+          await AsyncStorage.setItem('currentSchool', JSON.stringify(school));
         }
-        setCurrentSchool(school);
-        // Save back to storage with resolved ID
-        await AsyncStorage.setItem('currentSchool', JSON.stringify(school));
       }
       if (storedSchoolUser) {
         setSchoolUser(JSON.parse(storedSchoolUser));

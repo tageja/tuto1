@@ -55,7 +55,7 @@ export const DashboardMenu: React.FC<DashboardMenuProps> = ({
   // Menu items with role-based navigation
   const getMenuItems = () => {
     const baseItems: MenuItem[] = [
-      { icon: 'dashboard', label: 'Dashboard', labelVi: 'Tổng quan', screen: 'SchoolDashboard', roles: ['admin', 'parent', 'teacher'] },
+      { icon: 'home', label: 'School Home', labelVi: 'Trang chủ', screen: 'SchoolDashboard', roles: ['admin', 'parent', 'teacher'] },
       { icon: 'class', label: 'Classes', labelVi: 'Lớp học', screen: 'SchoolClasses', roles: ['admin'] },
       { icon: 'people', label: 'Students', labelVi: 'Học sinh', screen: 'SchoolStudents', roles: ['admin'] },
       { icon: 'event-note', label: 'Daily Activities', labelVi: 'Hoạt động hàng ngày', screen: 'SchoolDailyActivities', roles: ['admin', 'parent', 'teacher'] },

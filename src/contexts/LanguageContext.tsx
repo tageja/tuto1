@@ -20,6 +20,7 @@ export const useLanguage = () => {
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>('vi'); // Default to Vietnamese
+  const [isReady, setIsReady] = useState(false);
 
   console.log('🌐 LanguageProvider: Component mounted');
 
@@ -41,6 +42,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
     } catch (error) {
       console.error('🌐 LanguageProvider: Error loading language:', error);
+    } finally {
+      // CRITICAL: Mark as ready even if load fails, don't block app
+      setIsReady(true);
     }
   };
 
@@ -86,8 +90,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  console.log('🌐 LanguageProvider: Rendering with language:', language);
+  console.log('🌐 LanguageProvider: Rendering with language:', language, 'isReady:', isReady);
 
+  // Render children immediately, don't wait for AsyncStorage
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
       {children}

@@ -10,14 +10,14 @@ module.exports = {
     userInterfaceStyle: 'light',
     newArchEnabled: true,
     splash: {
-      image: './assets/splash-icon.png',
+      image: './assets/splash-logo.png',
       resizeMode: 'contain',
-      backgroundColor: '#ffffff',
+      backgroundColor: '#000000',
     },
     ios: {
       supportsTablet: false,
       bundleIdentifier: 'com.tutoapp.mobile',
-      buildNumber: '5',
+      buildNumber: '18',
       infoPlist: {
         NSPhotoLibraryUsageDescription: 'We need access to your photo library to let you attach images to posts.',
         NSCameraUsageDescription: 'We need access to your camera to let you capture photos and videos for posts.',

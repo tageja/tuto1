@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   RefreshControl,
   Alert,
   Image,
+  BackHandler,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -255,6 +256,19 @@ const SchoolDashboardScreen: React.FC = () => {
   useEffect(() => {
     loadDashboardData();
   }, [currentSchool]);
+
+  // Handle hardware back button - go to Home instead of Login
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' as never }],
+      });
+      return true; // Prevent default back behavior
+    });
+
+    return () => backHandler.remove();
+  }, [navigation]);
 
   const loadDashboardData = async () => {
     if (!currentSchool) {

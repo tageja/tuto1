@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform, StatusBar } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useNotifications } from '../../hooks/useNotifications';
@@ -19,6 +20,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const { colors, spacing, typography, borderRadius, shadows } = useTheme();
   const { language, setLanguage } = useLanguage();
   const { unreadCount } = useNotifications();
+  const insets = useSafeAreaInsets();
 
   const toggleLanguage = () => {
     setLanguage(language === 'en' ? 'vi' : 'en');
@@ -26,12 +28,13 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
 
   // Styles with dynamic theme colors
+  // Add safe area top inset for Dynamic Island / notch support
 
 
   const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.white,
-    paddingTop: spacing.xl,
+    paddingTop: insets.top + spacing.sm, // Account for status bar and Dynamic Island
     paddingBottom: spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: colors.border.light,

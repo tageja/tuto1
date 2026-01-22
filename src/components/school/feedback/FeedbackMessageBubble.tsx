@@ -12,7 +12,7 @@ export const FeedbackMessageBubble: React.FC<FeedbackMessageBubbleProps> = ({
   message,
   isCurrentUser,
 }) => {
-  const { colors, spacing, typography } = useTheme();
+  const { colors, spacing, typography, borderRadius } = useTheme();
 
   const styles = StyleSheet.create({
     container: {

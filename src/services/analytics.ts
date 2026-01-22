@@ -11,19 +11,13 @@ export const initMonitoring = () => {
   }
 };
 
-let analyticsModule: any | null = null;
-let analyticsTried = false;
+// Firebase Analytics has been removed - it was causing production build hangs
+// because GoogleService-Info.plist was not configured.
+// All analytics now uses Sentry breadcrumbs only.
 
 async function ensureAnalyticsLoaded() {
-  if (analyticsModule || analyticsTried) return analyticsModule;
-  analyticsTried = true;
-  try {
-    // Lazy-load to avoid hard dependency during dev or CI
-    analyticsModule = await import('expo-firebase-analytics');
-  } catch (err) {
-    analyticsModule = null;
-  }
-  return analyticsModule;
+  // Firebase Analytics removed - using Sentry only
+  return null;
 }
 
 export const logEvent = async (name: string, params?: AnalyticsParams) => {

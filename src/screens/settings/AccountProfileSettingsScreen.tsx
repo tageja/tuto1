@@ -37,6 +37,195 @@ export default function AccountProfileSettingsScreen() {
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
+  // Styles moved to component level to access dynamic theme colors
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    backButton: {
+      padding: spacing.xs,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: '700',
+      color: colors.text.primary,
+    },
+    saveButton: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+    },
+    saveButtonText: {
+      fontSize: typography.fontSize.md,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+    content: {
+      flex: 1,
+    },
+    avatarSection: {
+      alignItems: 'center',
+      paddingVertical: spacing.lg,
+      paddingHorizontal: spacing.md,
+    },
+    avatarContainer: {
+      width: 100,
+      height: 100,
+      borderRadius: 50,
+      backgroundColor: colors.background.secondary,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    avatar: {
+      width: 100,
+      height: 100,
+      borderRadius: 50,
+    },
+    avatarPlaceholder: {
+      width: 100,
+      height: 100,
+      borderRadius: 50,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    avatarText: {
+      fontSize: typography.fontSize.xxl,
+      fontWeight: '700',
+      color: colors.white,
+    },
+    avatarEditBadge: {
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 3,
+      borderColor: colors.white,
+    },
+    avatarHint: {
+      marginTop: spacing.sm,
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+    },
+    fieldSection: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    label: {
+      fontSize: typography.fontSize.md,
+      fontWeight: '600',
+      color: colors.text.primary,
+      marginBottom: spacing.xs,
+    },
+    input: {
+      backgroundColor: colors.background.secondary,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      fontSize: typography.fontSize.md,
+      color: colors.text.primary,
+    },
+    textArea: {
+      minHeight: 100,
+      textAlignVertical: 'top',
+    },
+    charCount: {
+      fontSize: typography.fontSize.xs,
+      color: colors.text.secondary,
+      marginTop: spacing.xs,
+      textAlign: 'right',
+    },
+    readOnlyContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: colors.background.secondary,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+    },
+    readOnlyText: {
+      fontSize: typography.fontSize.md,
+      color: colors.text.secondary,
+      flex: 1,
+    },
+    helperText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+      marginTop: spacing.xs,
+    },
+    resetPasswordButton: {
+      marginTop: spacing.sm,
+      paddingVertical: spacing.sm,
+    },
+    resetPasswordText: {
+      fontSize: typography.fontSize.md,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+    twoFactorRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+    },
+    twoFactorLeft: {
+      flex: 1,
+      marginRight: spacing.md,
+    },
+    twoFactorRight: {
+      alignItems: 'flex-end',
+    },
+    statusBadge: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 4,
+      borderRadius: borderRadius.sm,
+      marginBottom: spacing.xs,
+    },
+    statusEnabled: {
+      backgroundColor: colors.status.success,
+    },
+    statusDisabled: {
+      backgroundColor: colors.disabled,
+    },
+    statusText: {
+      fontSize: typography.fontSize.xs,
+      fontWeight: '600',
+      color: colors.white,
+      textTransform: 'uppercase',
+    },
+    setupButton: {
+      paddingVertical: spacing.xs,
+    },
+    setupButtonText: {
+      fontSize: typography.fontSize.sm,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+  });
+
   React.useEffect(() => {
     if (profile) {
       setFullName(profile.full_name || '');
@@ -108,197 +297,6 @@ export default function AccountProfileSettingsScreen() {
     if (!name) return '?';
     const parts = name.trim().split(' ');
     if (parts.length >= 2) {
-
-      // Styles moved inside component to access dynamic theme colors
-
-      const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  backButton: {
-    padding: spacing.xs,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: '700',
-    color: colors.text.primary,
-  },
-  saveButton: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-  },
-  saveButtonText: {
-    fontSize: typography.fontSize.md,
-    fontWeight: '600',
-    color: colors.primary,
-  },
-  content: {
-    flex: 1,
-  },
-  avatarSection: {
-    alignItems: 'center',
-    paddingVertical: spacing.lg,
-    paddingHorizontal: spacing.md,
-  },
-  avatarContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: colors.background.secondary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-  },
-  avatarPlaceholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarText: {
-    fontSize: typography.fontSize.xxl,
-    fontWeight: '700',
-    color: colors.white,
-  },
-  avatarEditBadge: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: colors.white,
-  },
-  avatarHint: {
-    marginTop: spacing.sm,
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-  },
-  fieldSection: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  label: {
-    fontSize: typography.fontSize.md,
-    fontWeight: '600',
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  input: {
-    backgroundColor: colors.background.secondary,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    fontSize: typography.fontSize.md,
-    color: colors.text.primary,
-  },
-  textArea: {
-    minHeight: 100,
-    textAlignVertical: 'top',
-  },
-  charCount: {
-    fontSize: typography.fontSize.xs,
-    color: colors.text.secondary,
-    marginTop: spacing.xs,
-    textAlign: 'right',
-  },
-  readOnlyContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.background.secondary,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-  },
-  readOnlyText: {
-    fontSize: typography.fontSize.md,
-    color: colors.text.secondary,
-    flex: 1,
-  },
-  helperText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-    marginTop: spacing.xs,
-  },
-  resetPasswordButton: {
-    marginTop: spacing.sm,
-    paddingVertical: spacing.sm,
-  },
-  resetPasswordText: {
-    fontSize: typography.fontSize.md,
-    fontWeight: '600',
-    color: colors.primary,
-  },
-  twoFactorRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  twoFactorLeft: {
-    flex: 1,
-    marginRight: spacing.md,
-  },
-  twoFactorRight: {
-    alignItems: 'flex-end',
-  },
-  statusBadge: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: borderRadius.sm,
-    marginBottom: spacing.xs,
-  },
-  statusEnabled: {
-    backgroundColor: colors.status.success,
-  },
-  statusDisabled: {
-    backgroundColor: colors.disabled,
-  },
-  statusText: {
-    fontSize: typography.fontSize.xs,
-    fontWeight: '600',
-    color: colors.white,
-    textTransform: 'uppercase',
-  },
-  setupButton: {
-    paddingVertical: spacing.xs,
-  },
-  setupButtonText: {
-    fontSize: typography.fontSize.sm,
-    fontWeight: '600',
-    color: colors.primary,
-  },
-});
-
       return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     }
     return name[0].toUpperCase();

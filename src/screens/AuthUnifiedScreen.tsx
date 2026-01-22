@@ -1075,26 +1075,28 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
               : 'Bằng cách tiếp tục, bạn đồng ý với Điều khoản Dịch vụ và Chính sách Bảo mật của chúng tôi'}
           </Text>
 
-          {/* Temporary Debug: Clear Session Button */}
-          <TouchableOpacity
-            style={styles.debugButton}
-            onPress={async () => {
-              try {
-                console.log('🧹 Clearing all sessions...');
-                await supabase.auth.signOut();
-                await setUserData(null);
-                Alert.alert('✅ Success', 'Session cleared! You can now try Google sign-in.');
-                console.log('✅ All sessions cleared');
-              } catch (error) {
-                console.error('Error clearing session:', error);
-                Alert.alert('Error', 'Failed to clear session');
-              }
-            }}
-          >
-            <Text style={styles.debugButtonText}>
-              🧹 Clear Session (Debug)
-            </Text>
-          </TouchableOpacity>
+          {/* Debug: Clear Session Button - only shown in development */}
+          {__DEV__ && (
+            <TouchableOpacity
+              style={styles.debugButton}
+              onPress={async () => {
+                try {
+                  console.log('🧹 Clearing all sessions...');
+                  await supabase.auth.signOut();
+                  await setUserData(null);
+                  Alert.alert('✅ Success', 'Session cleared! You can now try Google sign-in.');
+                  console.log('✅ All sessions cleared');
+                } catch (error) {
+                  console.error('Error clearing session:', error);
+                  Alert.alert('Error', 'Failed to clear session');
+                }
+              }}
+            >
+              <Text style={styles.debugButtonText}>
+                🧹 Clear Session (Debug)
+              </Text>
+            </TouchableOpacity>
+          )}
         </ScrollView>
       </View>
     </KeyboardAvoidingView>

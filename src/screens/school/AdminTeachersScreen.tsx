@@ -208,7 +208,7 @@ const AdminTeachersScreen: React.FC = () => {
       teacher={item}
       onPress={() =>
         navigation.navigate(
-          "AdminTeacherDetail" as never,
+          "TeacherDetail" as never,
           { teacherId: item.id } as never,
         )
       }

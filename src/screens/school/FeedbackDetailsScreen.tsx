@@ -173,215 +173,213 @@ const FeedbackDetailsScreen: React.FC = () => {
     return name.substring(0, 2).toUpperCase();
   };
 
+  // Styles with dynamic theme
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background.primary,
+    },
+    keyboardView: {
+      flex: 1,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    errorText: {
+      fontSize: typography.fontSize.md,
+      color: colors.status.error,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: spacing.md,
+      backgroundColor: colors.white,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border.light,
+    },
+    backButton: {
+      marginRight: spacing.sm,
+    },
+    headerContent: {
+      flex: 1,
+    },
+    feedbackCode: {
+      fontSize: typography.fontSize.md,
+      fontWeight: '600',
+      color: colors.primary,
+      fontFamily: 'monospace',
+      marginBottom: 2,
+    },
+    headerSubtitle: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+    },
+    content: {
+      flex: 1,
+    },
+    scrollContent: {
+      padding: spacing.md,
+      paddingBottom: 100,
+    },
+    card: {
+      backgroundColor: colors.white,
+      padding: spacing.md,
+      borderRadius: borderRadius.lg,
+      marginBottom: spacing.md,
+      ...shadows.sm,
+    },
+    badges: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    badgeSpacer: {
+      width: 6,
+    },
+    title: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: '700',
+      color: colors.text.primary,
+      marginBottom: spacing.md,
+    },
+    infoRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    avatar: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: spacing.sm,
+    },
+    avatarText: {
+      color: colors.white,
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    infoContent: {
+      flex: 1,
+    },
+    infoLabel: {
+      fontSize: typography.fontSize.xs,
+      color: colors.text.light,
+      marginBottom: 2,
+    },
+    infoValue: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.primary,
+      fontWeight: '500',
+    },
+    dueBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: `${colors.primary}15`,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.md,
+      alignSelf: 'flex-start',
+      marginTop: spacing.xs,
+    },
+    dueText: {
+      fontSize: typography.fontSize.xs,
+      color: colors.primary,
+      fontWeight: '600',
+      marginLeft: 4,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSize.md,
+      fontWeight: '600',
+      color: colors.text.primary,
+      marginBottom: spacing.sm,
+    },
+    description: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.secondary,
+      lineHeight: 20,
+    },
+    messagesContainer: {
+      marginTop: spacing.sm,
+    },
+    noMessagesText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.light,
+      fontStyle: 'italic',
+      textAlign: 'center',
+      paddingVertical: spacing.md,
+    },
+    closeButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.primary,
+      padding: spacing.md,
+      borderRadius: borderRadius.md,
+      marginBottom: spacing.md,
+      gap: spacing.xs,
+    },
+    closeButtonDisabled: {
+      opacity: 0.6,
+    },
+    closeButtonText: {
+      fontSize: typography.fontSize.md,
+      fontWeight: '600',
+      color: colors.white,
+    },
+    replyContainer: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      backgroundColor: colors.white,
+      padding: spacing.sm,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.border.light,
+      gap: spacing.xs,
+    },
+    replyInput: {
+      flex: 1,
+      backgroundColor: colors.background.tertiary,
+      padding: spacing.sm,
+      borderRadius: borderRadius.md,
+      fontSize: typography.fontSize.sm,
+      color: colors.text.primary,
+      maxHeight: 100,
+    },
+    sendButton: {
+      backgroundColor: colors.primary,
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    sendButtonDisabled: {
+      opacity: 0.5,
+    },
+    closedMessage: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background.tertiary,
+      padding: spacing.md,
+      marginHorizontal: spacing.md,
+      marginBottom: spacing.md,
+      borderRadius: borderRadius.md,
+      gap: spacing.xs,
+    },
+    closedMessageText: {
+      fontSize: typography.fontSize.sm,
+      color: colors.text.light,
+      fontStyle: 'italic',
+    },
+  });
+
   if (loading) {
-
-    // Styles with dynamic theme
-
-    const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorText: {
-    fontSize: typography.fontSize.md,
-    color: colors.status.error,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: spacing.md,
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-  },
-  backButton: {
-    marginRight: spacing.sm,
-  },
-  headerContent: {
-    flex: 1,
-  },
-  feedbackCode: {
-    fontSize: typography.fontSize.md,
-    fontWeight: '600',
-    color: colors.primary,
-    fontFamily: 'monospace',
-    marginBottom: 2,
-  },
-  headerSubtitle: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-  },
-  content: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: spacing.md,
-    paddingBottom: 100,
-  },
-  card: {
-    backgroundColor: colors.white,
-    padding: spacing.md,
-    borderRadius: borderRadius.lg,
-    marginBottom: spacing.md,
-    ...shadows.sm,
-  },
-  badges: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  badgeSpacer: {
-    width: 6,
-  },
-  title: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: '700',
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing.sm,
-  },
-  avatarText: {
-    color: colors.white,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  infoContent: {
-    flex: 1,
-  },
-  infoLabel: {
-    fontSize: typography.fontSize.xs,
-    color: colors.text.light,
-    marginBottom: 2,
-  },
-  infoValue: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.primary,
-    fontWeight: '500',
-  },
-  dueBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: `${colors.primary}15`,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.md,
-    alignSelf: 'flex-start',
-    marginTop: spacing.xs,
-  },
-  dueText: {
-    fontSize: typography.fontSize.xs,
-    color: colors.primary,
-    fontWeight: '600',
-    marginLeft: 4,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSize.md,
-    fontWeight: '600',
-    color: colors.text.primary,
-    marginBottom: spacing.sm,
-  },
-  description: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.secondary,
-    lineHeight: 20,
-  },
-  messagesContainer: {
-    marginTop: spacing.sm,
-  },
-  noMessagesText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.light,
-    fontStyle: 'italic',
-    textAlign: 'center',
-    paddingVertical: spacing.md,
-  },
-  closeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.primary,
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-    marginBottom: spacing.md,
-    gap: spacing.xs,
-  },
-  closeButtonDisabled: {
-    opacity: 0.6,
-  },
-  closeButtonText: {
-    fontSize: typography.fontSize.md,
-    fontWeight: '600',
-    color: colors.white,
-  },
-  replyContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    backgroundColor: colors.white,
-    padding: spacing.sm,
-    borderRadius: borderRadius.md,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    gap: spacing.xs,
-  },
-  replyInput: {
-    flex: 1,
-    backgroundColor: colors.background.tertiary,
-    padding: spacing.sm,
-    borderRadius: borderRadius.md,
-    fontSize: typography.fontSize.sm,
-    color: colors.text.primary,
-    maxHeight: 100,
-  },
-  sendButton: {
-    backgroundColor: colors.primary,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  sendButtonDisabled: {
-    opacity: 0.5,
-  },
-  closedMessage: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.background.tertiary,
-    padding: spacing.md,
-    marginHorizontal: spacing.md,
-    marginBottom: spacing.md,
-    borderRadius: borderRadius.md,
-    gap: spacing.xs,
-  },
-  closedMessageText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.light,
-    fontStyle: 'italic',
-  },
-});
-
     return (
       <View style={styles.container}>
         <SchoolHeader />
