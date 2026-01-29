@@ -15,6 +15,7 @@ import {
   BrandingForm,
   IntegrationsForm,
 } from '../../../../../components/settings';
+import { ParentPinDisplay } from '../../../../../components/school/ParentPinDisplay';
 
 interface ProfileData {
   id: string;
@@ -84,6 +85,8 @@ export default function AdminSettingsPage({ params }: { params: Promise<{ school
   const [pushEnabled, setPushEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [parentPin, setParentPin] = useState<string | null>(null);
+  const [pinLoading, setPinLoading] = useState(false);
 
   // Fetch profile data
   const fetchProfile = useCallback(async () => {
@@ -167,6 +170,41 @@ export default function AdminSettingsPage({ params }: { params: Promise<{ school
     }
   }, [user?.id]);
 
+  // Fetch parent PIN
+  const fetchParentPin = useCallback(async () => {
+    try {
+      setPinLoading(true);
+      
+      // Get auth token from Supabase client
+      const { supabase } = await import('../../../../../lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const res = await fetch(`/api/school/parent-pin?schoolId=${encodeURIComponent(decodedSchoolId)}`, {
+        headers,
+      });
+      const data = await res.json();
+      console.log('🔑 PIN API Response (Settings):', { success: data.success, pin: data.pin, error: data.error });
+      if (data.success && data.pin) {
+        setParentPin(data.pin);
+      } else {
+        console.warn('⚠️ PIN not loaded in settings:', data.error || 'Unknown error');
+      }
+    } catch (error) {
+      console.error('❌ Error fetching parent PIN:', error);
+    } finally {
+      setPinLoading(false);
+    }
+  }, [decodedSchoolId]);
+
   // Load data on mount and tab change
   useEffect(() => {
     const loadData = async () => {
@@ -175,7 +213,7 @@ export default function AdminSettingsPage({ params }: { params: Promise<{ school
       await fetchProfile();
       
       if (activeTab === 'integrations') {
-        await Promise.all([fetchBranding(), fetchIntegrations()]);
+        await Promise.all([fetchBranding(), fetchIntegrations(), fetchParentPin()]);
       } else if (activeTab === 'notifications') {
         await Promise.all([fetchNotifications(), fetchDevices(), fetchPushStatus()]);
       }
@@ -357,6 +395,22 @@ export default function AdminSettingsPage({ params }: { params: Promise<{ school
       case 'integrations':
         return (
           <div className="space-y-6">
+            {/* Parent PIN Display */}
+            {pinLoading && (
+              <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-600">Loading PIN code...</p>
+              </div>
+            )}
+            {!pinLoading && parentPin && (
+              <ParentPinDisplay pin={parentPin} schoolName={school?.name || decodedSchoolId} />
+            )}
+            {!pinLoading && !parentPin && (
+              <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                <p className="text-sm text-yellow-800">
+                  ⚠️ PIN code not available. Check browser console. Migration may need to be applied.
+                </p>
+              </div>
+            )}
             <BrandingForm
               initialData={branding}
               onSave={handleBrandingSave}

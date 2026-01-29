@@ -29,15 +29,40 @@ export async function getUserRole(uid: string): Promise<UserRole> {
         return 'admin';
       }
       
-      // Check if user is a parent (has students)
-      const { data: students } = await supabase
-        .from('school_students')
-        .select('id')
-        .eq('parent_email', (await getCurrentUserEmail()))
-        .limit(1);
+      // Check if user is a parent (has students OR PIN access)
+      const userEmail = await getCurrentUserEmail();
       
-      if (students && students.length > 0) {
-        return 'parent';
+      if (userEmail) {
+        // Check via school_students (existing students)
+        const { data: students } = await supabase
+          .from('school_students')
+          .select('id')
+          .eq('parent_email', userEmail)
+          .limit(1);
+        
+        if (students && students.length > 0) {
+          return 'parent';
+        }
+        
+        // Check via school_parents (PIN-linked parents)
+        const { data: userRecord } = await supabase
+          .from('users')
+          .select('id')
+          .eq('email', userEmail)
+          .limit(1)
+          .single();
+        
+        if (userRecord) {
+          const { data: parentAccess } = await supabase
+            .from('school_parents')
+            .select('id')
+            .eq('parent_user_id', userRecord.id)
+            .limit(1);
+          
+          if (parentAccess && parentAccess.length > 0) {
+            return 'parent';
+          }
+        }
       }
       
       return null;

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { School, Home, Users, Key, Loader2, AlertCircle } from 'lucide-react';
+import { ParentPinModal } from '../../components/school/ParentPinModal';
 
 interface SchoolAssociation {
   school_id: string;
@@ -20,6 +21,8 @@ export default function WelcomePage() {
   const [loading, setLoading] = useState(true);
   const [schools, setSchools] = useState<SchoolAssociation[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [checkingAccess, setCheckingAccess] = useState(true);
 
   useEffect(() => {
     // Wait for auth to finish loading before checking user
@@ -38,6 +41,18 @@ export default function WelcomePage() {
     }
   }, [user, authLoading, router]);
 
+  // Check URL params for showPin query parameter
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('showPin') === 'true') {
+        setShowPinModal(true);
+        // Clean up URL
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+    }
+  }, []);
+
   const loadSchoolAssociations = async () => {
     if (!user?.email) return;
 
@@ -55,21 +70,57 @@ export default function WelcomePage() {
       }
 
       console.log('School associations:', data);
-      setSchools(data || []);
+      const schoolList = data || [];
+      setSchools(schoolList);
+
+      // Only check for PIN modal if user has NO school associations
+      // If they have schools, they already have access (via PIN or student relationship)
+      if (schoolList.length === 0 && user?.email) {
+        try {
+          const accessResponse = await fetch(`/api/school/check-parent-access`);
+          const accessData = await accessResponse.json();
+          
+          // Show PIN modal ONLY if:
+          // - User is a parent
+          // - AND has no school access (no schools in list)
+          // - AND the API confirms no access
+          if (accessData.success && accessData.isParent && !accessData.hasAccess) {
+            setShowPinModal(true);
+          }
+        } catch (err) {
+          console.error('Error checking parent access:', err);
+        }
+      }
     } catch (err) {
       console.error('Exception loading schools:', err);
       setError('An error occurred');
     } finally {
       setLoading(false);
+      setCheckingAccess(false);
     }
   };
 
-  const handleGoToSchoolDashboard = () => {
+  const handleGoToSchoolDashboard = async () => {
     if (schools.length === 0) {
+      // Check if user is parent without access
+      try {
+        const accessResponse = await fetch(`/api/school/check-parent-access`);
+        const accessData = await accessResponse.json();
+        
+        if (accessData.isParent && !accessData.hasAccess) {
+          // Show PIN modal instead of alert
+          setShowPinModal(true);
+          return;
+        }
+      } catch (err) {
+        console.error('Error checking parent access:', err);
+      }
+      
       alert('You are not associated with any schools yet.');
       return;
     }
 
+    // User has schools - navigate directly (no need to check access again)
     if (schools.length === 1) {
       // Single school - navigate directly
       const school = schools[0];
@@ -85,11 +136,20 @@ export default function WelcomePage() {
   };
 
   const handleJoinSchool = () => {
-    router.push('/join-school');
+    setShowPinModal(true);
   };
 
   const handleAdminOnboarding = () => {
     router.push('/admin-onboarding');
+  };
+
+  const handlePinSuccess = async (schoolId: string, schoolName: string) => {
+    // Reload school associations
+    await loadSchoolAssociations();
+    setShowPinModal(false);
+    
+    // Redirect to the school dashboard
+    router.push(`/school/${schoolId}/parent`);
   };
 
   if (loading) {
@@ -124,8 +184,16 @@ export default function WelcomePage() {
   const multipleSchools = schools.length > 1;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="container mx-auto px-4 py-16">
+    <>
+      {/* PIN Modal */}
+      <ParentPinModal
+        isOpen={showPinModal}
+        onClose={() => setShowPinModal(false)}
+        onSuccess={handlePinSuccess}
+      />
+
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
@@ -221,6 +289,7 @@ export default function WelcomePage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 

@@ -65,6 +65,61 @@ export default function SchoolLayout({ children }: { children: React.ReactNode }
                                      pathname?.startsWith('/school/parent') ||
                                      pathname?.match(/^\/school\/[^\/]+\/(admin|parent)/);
         
+        // Check parent access if user is a parent navigating to base route
+        // Also check if role is null but user might be a parent (PIN-linked)
+        if (isBaseRoute && (role === 'parent' || role === null)) {
+          try {
+            // Check cached access first
+            const cachedAccess = typeof window !== 'undefined' 
+              ? sessionStorage.getItem('parent_has_access')
+              : null;
+            
+            if (cachedAccess === 'true') {
+              // Has cached access - allow navigation
+              console.log('✅ Parent has cached access, allowing navigation');
+            } else {
+              // Check via API (with cache-busting to ensure fresh data)
+              const accessResponse = await fetch('/api/school/check-parent-access', {
+                cache: 'no-store',
+                headers: {
+                  'Cache-Control': 'no-cache',
+                },
+              });
+              const accessData = await accessResponse.json();
+              
+              console.log('🔍 Parent access check result:', {
+                success: accessData.success,
+                hasAccess: accessData.hasAccess,
+                isParent: accessData.isParent,
+                schools: accessData.schools?.length || 0,
+              });
+              
+              // If user has access (either as parent or any role), allow navigation
+              if (accessData.success && accessData.hasAccess) {
+                // Has access - cache it and allow navigation
+                if (typeof window !== 'undefined') {
+                  sessionStorage.setItem('parent_has_access', 'true');
+                }
+                console.log('✅ User has school access, allowing navigation');
+              } else if (accessData.success && accessData.isParent && !accessData.hasAccess) {
+                // User is a parent but has no access - redirect to welcome page with PIN modal
+                console.log('⚠️ Parent has no school access, redirecting to welcome page');
+                if (typeof window !== 'undefined') {
+                  sessionStorage.setItem('parent_has_access', 'false');
+                }
+                router.push('/welcome?showPin=true');
+                return;
+              } else {
+                // Not a parent or has access via other means - allow navigation
+                console.log('✅ User is not a parent or has access, allowing navigation');
+              }
+            }
+          } catch (err) {
+            console.error('Error checking parent access:', err);
+            // On error, still allow navigation but log the issue
+          }
+        }
+        
         if (selectedSchool && !schoolLoading && isBaseRoute && !isAlreadyOnDashboard) {
           const finalRole = role || 'admin';
           router.push(`/school/${finalRole}`);

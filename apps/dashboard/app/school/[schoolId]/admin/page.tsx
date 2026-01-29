@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { EnrollmentTrendChart } from '../../../../components/school/shared/EnrollmentTrendChart';
 import { AttendanceTrendChart } from '../../../../components/school/shared/AttendanceTrendChart';
+import { ParentPinDisplay } from '../../../../components/school/ParentPinDisplay';
 
 export default function AdminDashboard() {
   const params = useParams();
@@ -36,6 +37,52 @@ export default function AdminDashboard() {
     upcomingHomework: [],
     loading: true,
   });
+  const [parentPin, setParentPin] = useState<string | null>(null);
+  const [pinLoading, setPinLoading] = useState(false);
+
+  // Load parent PIN
+  useEffect(() => {
+    async function loadParentPin() {
+      if (!schoolId) return;
+
+      try {
+        setPinLoading(true);
+        const encodedSchoolId = encodeURIComponent(schoolId);
+        
+        // Get auth token from Supabase client
+        const { supabase } = await import('../../../../lib/supabase');
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json',
+        };
+
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch(`/api/school/parent-pin?schoolId=${encodedSchoolId}`, {
+          headers,
+        });
+        const data = await response.json();
+
+        console.log('🔑 PIN API Response:', { success: data.success, pin: data.pin, error: data.error });
+
+        if (data.success && data.pin) {
+          setParentPin(data.pin);
+        } else {
+          console.warn('⚠️ PIN not loaded:', data.error || 'Unknown error');
+        }
+      } catch (error) {
+        console.error('❌ Error loading parent PIN:', error);
+      } finally {
+        setPinLoading(false);
+      }
+    }
+
+    loadParentPin();
+  }, [schoolId]);
 
   useEffect(() => {
     async function loadData() {
@@ -201,6 +248,27 @@ export default function AdminDashboard() {
         <h1 className="text-3xl font-bold text-gray-900 mb-2">{schoolName}</h1>
         <p className="text-gray-600">{currentDate}</p>
       </div>
+
+      {/* Parent PIN Display */}
+      {pinLoading && (
+        <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <p className="text-sm text-gray-600">Loading PIN code...</p>
+        </div>
+      )}
+      {!pinLoading && parentPin && (
+        <div className="mb-6">
+          <ParentPinDisplay pin={parentPin} schoolName={schoolName} />
+        </div>
+      )}
+      {!pinLoading && !parentPin && (
+        <div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+          <p className="text-sm text-yellow-800">
+            ⚠️ PIN code not available. Please check browser console for details. 
+            If this is a new school, the PIN should be auto-generated. 
+            You may need to run the database migration.
+          </p>
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
