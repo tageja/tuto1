@@ -8,7 +8,7 @@ Emails are not being sent. Error: `534 5.7.9 Please log in with your web browser
 ### Step 1: Verify App Password Was Generated Correctly
 
 1. **Go to:** https://myaccount.google.com/apppasswords
-2. **Sign in with:** `support@tutoglobal.com`
+2. **Sign in with:** Your Google account email
 3. **Check:**
    - Is 2-Step Verification enabled? (Required for App Passwords)
    - Do you see any App Passwords listed?
@@ -26,8 +26,9 @@ Emails are not being sent. Error: `534 5.7.9 Please log in with your web browser
 
 1. **Go to Supabase Dashboard:**
    ```
-   https://app.supabase.com/project/fkjeggdxqifqqwhuqpgm/settings/auth
+   https://app.supabase.com/project/YOUR_PROJECT_ID/settings/auth
    ```
+   (Replace YOUR_PROJECT_ID with your actual Supabase project ID)
 
 2. **Scroll to "SMTP Settings"**
 
@@ -37,10 +38,10 @@ Emails are not being sent. Error: `534 5.7.9 Please log in with your web browser
    
    SMTP Host: smtp.gmail.com
    SMTP Port: 587
-   SMTP Username: support@tutoglobal.com
+   SMTP Username: your-email@example.com
    SMTP Password: [Paste App Password - NO SPACES]
    
-   Sender Email: support@tutoglobal.com
+   Sender Email: your-email@example.com
    Sender Name: Tuto Support Team
    
    ✅ Enable TLS: Yes
@@ -189,7 +190,7 @@ This means:
 3. Approve any blocked login attempts
 
 ### Fix 3: Verify Account Access
-1. Try logging into Gmail with `support@tutoglobal.com`
+1. Try logging into Gmail with your configured email address
 2. Make sure account is active and accessible
 3. Check if account is suspended or restricted
 
