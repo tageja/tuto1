@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase, getCurrentUser } from '../config/supabase';
+import { clearParentAccessCache } from '../services/school/parentPin';
 
 type UserType = 'parent' | 'student' | 'teacher' | 'admin' | null;
 
@@ -66,7 +67,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('👤 UserProvider: Saved user type:', savedUserType);
       console.log('👤 UserProvider: Saved user data:', savedUserData);
       
-      if (savedUserType && ['parent', 'student', 'teacher'].includes(savedUserType)) {
+      if (savedUserType && ['parent', 'student', 'teacher', 'admin'].includes(savedUserType)) {
         setUserTypeState(savedUserType as UserType);
         console.log('👤 UserProvider: User type set to:', savedUserType);
       }
@@ -100,15 +101,25 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const setUserData = async (data: UserData) => {
+    // Update in-memory state first so the current session has correct role even if persistence fails
+    const safeData: UserData = {
+      id: String(data?.id ?? ''),
+      name: String(data?.name ?? ''),
+      email: String(data?.email ?? ''),
+      type: data?.type ?? null,
+    };
+    setUserDataState(safeData);
+    setUserTypeState(safeData.type);
     try {
-      console.log('👤 UserProvider: Setting user data to:', data);
-      await AsyncStorage.setItem('userData', JSON.stringify(data));
-      await AsyncStorage.setItem('userType', data.type);
-      setUserDataState(data);
-      setUserTypeState(data.type);
+      console.log('👤 UserProvider: Setting user data to:', safeData);
+      await AsyncStorage.setItem('userData', JSON.stringify(safeData));
+      if (safeData.type != null) {
+        await AsyncStorage.setItem('userType', String(safeData.type));
+      }
       console.log('👤 UserProvider: User data saved successfully');
     } catch (error) {
       console.error('👤 UserProvider: Error saving user data:', error);
+      // State already updated above; user will have correct role for this session
     }
   };
 
@@ -162,6 +173,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const clearUser = async () => {
     try {
       console.log('👤 UserProvider: Clearing user data');
+      const userEmail = userDataState?.email;
+      if (userEmail) {
+        await clearParentAccessCache(userEmail);
+      }
       await AsyncStorage.removeItem('userType');
       await AsyncStorage.removeItem('userData');
       setUserTypeState(null);

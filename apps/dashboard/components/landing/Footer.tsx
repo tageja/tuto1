@@ -5,14 +5,25 @@ import { useAuth } from "../../contexts/AuthContext";
 import { schoolLink } from "../../lib/routeBuilder";
 import Link from "next/link";
 import Image from "next/image";
-import { Globe } from "lucide-react";
+import { Globe, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Footer() {
   const { t, lang, setLang } = useI18n();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const router = useRouter();
 
   const isSchoolUser = user?.role === 'admin' || user?.role === 'teacher' || user?.role === 'parent';
   const schoolId = user?.schoolIds?.[0];
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      router.push('/login');
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
 
   return (
     <footer className="bg-white border-t border-gray-200 pt-16 pb-8">
@@ -90,6 +101,17 @@ export default function Footer() {
               <li><Link href="/legal/privacy" className="hover:text-primary transition-colors">{t("landing.footer.privacyPolicy")}</Link></li>
               <li><Link href="/legal/terms" className="hover:text-primary transition-colors">{t("landing.footer.termsOfService")}</Link></li>
               <li><Link href="/contact" className="hover:text-primary transition-colors">{t("landing.footer.contactUs")}</Link></li>
+              {user && (
+                <li>
+                  <button
+                    onClick={handleSignOut}
+                    className="flex items-center gap-2 hover:text-primary transition-colors text-left"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    {lang === 'vi' ? 'Đăng xuất' : 'Sign out'}
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
         </div>

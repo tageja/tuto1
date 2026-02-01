@@ -15,6 +15,7 @@ import { useUser } from '../contexts/UserContext';
 import { useSchool } from '../contexts/SchoolContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { getUserSchoolAssociations, SchoolAssociation } from '../services/school.service';
+import { ParentPinModal } from '../components/school/ParentPinModal';
 
 interface WelcomeScreenProps {
   navigation: any;
@@ -24,11 +25,12 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
   const { colors, spacing, typography } = useTheme();
   const { t } = useLanguage();
   const { userData, setUserData } = useUser();
-  const { setCurrentSchool, setIsSchoolMode } = useSchool();
+  const { setCurrentSchool, setIsSchoolMode, joinSchoolByPin } = useSchool();
   
   const [loading, setLoading] = useState(true);
   const [schools, setSchools] = useState<SchoolAssociation[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [showPinModal, setShowPinModal] = useState(false);
   
   // Get the email directly from userData object
   const userEmail = userData?.email;
@@ -91,11 +93,13 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
       });
       setIsSchoolMode(true);
       
-      // Set user role based on school association
+      // Never elevate a user who signed up as parent to admin; respect their chosen role
       if (userData) {
+        const roleForDashboard =
+          userData.type === 'parent' ? 'parent' : (school.role === 'admin' ? 'admin' : 'parent');
         setUserData({
           ...userData,
-          type: school.role === 'admin' ? 'admin' : 'parent',
+          type: roleForDashboard,
         });
       }
       
@@ -119,7 +123,17 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
   };
 
   const handleJoinSchool = () => {
-    navigation.navigate('SchoolInvitation');
+    setShowPinModal(true);
+  };
+
+  const handlePinSuccess = async (schoolId: string, schoolName?: string) => {
+    setShowPinModal(false);
+    if (!schoolId) return;
+    await joinSchoolByPin(schoolId, schoolName || 'School');
+    if (userData) {
+      setUserData({ ...userData, type: 'parent' });
+    }
+    navigation.replace('SchoolDashboard');
   };
 
   const handleAdminOnboarding = () => {
@@ -268,6 +282,10 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
   }
 
   const hasSchools = schools.length > 0;
+  // Parents only see "School Dashboard" when they have at least one parent-type association (not just teacher/admin)
+  const showSchoolDashboard =
+    hasSchools &&
+    (userData?.type !== 'parent' || schools.some((s) => s.role === 'parent'));
   const multipleSchools = schools.length > 1;
 
   return (
@@ -281,8 +299,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
 
         {/* Options */}
         <View style={styles.optionsContainer}>
-          {/* School Dashboard Option - Only show if user has schools */}
-          {hasSchools && (
+          {/* School Dashboard Option - show when user has schools; parents only when they have parent-type access */}
+          {showSchoolDashboard && (
             <TouchableOpacity
               style={styles.optionCard}
               onPress={handleGoToSchoolDashboard}
@@ -307,7 +325,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
             </TouchableOpacity>
           )}
 
-          {/* Join School Option - Only show if user has no schools */}
+          {/* Join School Option - Only show if user has no schools; opens PIN modal */}
           {!hasSchools && (
             <TouchableOpacity
               style={styles.optionCard}
@@ -350,13 +368,22 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Admin Onboarding Link - Only show if user has no schools */}
-        {!hasSchools && (
+        {/* Admin Onboarding Link - Only show if user has no schools and did not register as parent */}
+        {!hasSchools && userData?.type !== 'parent' && (
           <TouchableOpacity style={styles.adminLink} onPress={handleAdminOnboarding}>
             <Text style={styles.adminLinkText}>{t('welcome.adminOnboarding')}</Text>
           </TouchableOpacity>
         )}
       </ScrollView>
+
+      {userEmail && (
+        <ParentPinModal
+          visible={showPinModal}
+          onClose={() => setShowPinModal(false)}
+          onSuccess={handlePinSuccess}
+          userEmail={userEmail}
+        />
+      )}
     </SafeAreaView>
   );
 };

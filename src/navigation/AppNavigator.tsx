@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { useTheme } from '../contexts/ThemeContext';
 import { StatusBar } from 'expo-status-bar';
@@ -93,6 +94,7 @@ import { SettingsStackNavigator } from './SettingsStack';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import AdminOnboardingScreen from '../screens/AdminOnboardingScreen';
 import SchoolSelectorScreen from '../screens/SchoolSelectorScreen';
+import { checkParentSchoolAccess } from '../services/school/parentPin';
 
 import EventDetailScreen from '../screens/school/EventDetailScreen';
 
@@ -244,6 +246,53 @@ const RoleGate: React.FC = () => {
   return <ParentTabs />;
 };
 
+/** Access gate: redirect to Welcome if parent has no access to current school */
+const SchoolDashboardAccessGate: React.FC = () => {
+  const navigation = useNavigation<any>();
+  const { currentSchool, leaveSchool } = useSchool();
+  const { userData } = useUser();
+  const [accessResolved, setAccessResolved] = useState(false);
+  const { colors } = useTheme();
+
+  useEffect(() => {
+    if (!currentSchool) {
+      navigation.replace('Welcome');
+      return;
+    }
+    const userEmail = userData?.email;
+    const isParent = userData?.type === 'parent';
+    if (!isParent) {
+      setAccessResolved(true);
+      return;
+    }
+    if (!userEmail) {
+      navigation.replace('Welcome');
+      return;
+    }
+    let cancelled = false;
+    checkParentSchoolAccess(userEmail, currentSchool.id).then((hasAccess) => {
+      if (cancelled) return;
+      if (!hasAccess) {
+        leaveSchool();
+        navigation.replace('Welcome');
+      } else {
+        setAccessResolved(true);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [currentSchool?.id, userData?.email, userData?.type]);
+
+  if (!accessResolved) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background.secondary }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={{ marginTop: 16, fontSize: 16, color: colors.text.secondary }}>Checking access...</Text>
+      </View>
+    );
+  }
+  return <SchoolDashboardScreen />;
+};
+
 const linking = {
   prefixes: ['tuto://'],
   config: {
@@ -324,7 +373,7 @@ export const AppNavigator = () => {
         
         {/* School screens */}
         <Stack.Screen name="SchoolInvitation" component={SchoolInvitationScreen} />
-        <Stack.Screen name="SchoolDashboard" component={SchoolDashboardScreen} />
+        <Stack.Screen name="SchoolDashboard" component={SchoolDashboardAccessGate} />
         <Stack.Screen name="SchoolSelection" component={SchoolSelectionScreen} />
         <Stack.Screen name="SchoolDailyActivities">
           {(props) => {

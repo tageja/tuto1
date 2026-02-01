@@ -11,9 +11,13 @@ import {
   BackHandler,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation } from '@react-navigation/native';
 import { useSchool } from '../contexts/SchoolContext';
+import { useUser } from '../contexts/UserContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { checkParentSchoolAccess } from '../services/school/parentPin';
+import { getUserSchoolAssociations } from '../services/school.service';
 import { DashboardHeader } from '../components/school/DashboardHeader';
 import { DashboardMenu } from '../components/school/DashboardMenu';
 import { WeeklyAttendanceChart } from '../components/school/WeeklyAttendanceChart';
@@ -49,9 +53,50 @@ const SchoolDashboardScreen: React.FC = () => {
   const [homework, setHomework] = useState<Homework[]>([]);
   const [schoolDetails, setSchoolDetails] = useState<any>(null);
   
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const { currentSchool, refreshSchoolData, leaveSchool } = useSchool();
+  const { userData } = useUser();
   const { language, t } = useLanguage();
+  const [copiedPin, setCopiedPin] = useState(false);
+  const [isAdminForSchool, setIsAdminForSchool] = useState<boolean | null>(null);
+
+  // Resolve admin status for current school (in case userData.type is not set)
+  useEffect(() => {
+    if (!currentSchool?.id || !userData?.email) {
+      setIsAdminForSchool(null);
+      return;
+    }
+    let cancelled = false;
+    getUserSchoolAssociations(userData.email).then((associations) => {
+      if (cancelled) return;
+      const forThisSchool = associations.find(
+        (a) => a.school_id === currentSchool.id
+      );
+      setIsAdminForSchool(forThisSchool?.role === 'admin');
+    });
+    return () => { cancelled = true; };
+  }, [currentSchool?.id, userData?.email]);
+
+  // Validate parent access on mount (cache or RPC)
+  useEffect(() => {
+    if (!currentSchool) {
+      navigation.replace('Welcome');
+      return;
+    }
+    const userEmail = userData?.email;
+    const isParent = userData?.type === 'parent';
+    if (!isParent || !userEmail) return;
+
+    let cancelled = false;
+    checkParentSchoolAccess(userEmail, currentSchool.id).then((hasAccess) => {
+      if (cancelled) return;
+      if (!hasAccess) {
+        leaveSchool();
+        navigation.replace('Welcome');
+      }
+    });
+    return () => { cancelled = true; };
+  }, [currentSchool?.id, userData?.email, userData?.type]);
 
   const styles = StyleSheet.create({
     container: {
@@ -250,6 +295,21 @@ const SchoolDashboardScreen: React.FC = () => {
       fontSize: typography.fontSize.md,
       color: colors.text.secondary,
     },
+    pinCode: {
+      fontSize: typography.fontSize.xxl,
+      fontWeight: '700',
+      color: colors.text.primary,
+      letterSpacing: 4,
+    },
+    pinHint: {
+      fontSize: typography.fontSize.xs,
+      color: colors.text.secondary,
+    },
+    copyButton: {
+      padding: spacing.sm,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.surface,
+    },
   });
 
 
@@ -353,6 +413,36 @@ const SchoolDashboardScreen: React.FC = () => {
     );
   };
 
+  const handleCopyPin = () => {
+    if (schoolDetails?.parent_pin) {
+      try {
+        Clipboard.setString(schoolDetails.parent_pin);
+        setCopiedPin(true);
+        setTimeout(() => setCopiedPin(false), 2000);
+        Alert.alert(
+          language === 'vi' ? 'Đã sao chép' : 'Copied',
+          language === 'vi' 
+            ? `Mã PIN ${schoolDetails.parent_pin} đã được sao chép` 
+            : `PIN code ${schoolDetails.parent_pin} copied to clipboard`
+        );
+      } catch (error) {
+        Alert.alert(
+          language === 'vi' ? 'Lỗi' : 'Error',
+          language === 'vi' 
+            ? 'Không thể sao chép mã PIN' 
+            : 'Could not copy PIN code'
+        );
+      }
+    }
+  };
+
+  // Show admin PIN card only when user is explicitly admin/teacher; never for parent or when role unknown
+  const isAdmin =
+    (userData?.type === 'admin' ||
+      userData?.type === 'teacher' ||
+      (userData as any)?.type === 'school_admin') ||
+    (userData?.type != null && userData?.type !== 'parent' && isAdminForSchool === true);
+
   if (!currentSchool) {
     return (
       <View style={styles.container}>
@@ -428,6 +518,44 @@ const SchoolDashboardScreen: React.FC = () => {
             </View>
           </View>
         </View>
+
+        {/* Parent PIN Card - admin/teacher only, at top for visibility */}
+        {isAdmin && (
+        <View style={[styles.card, { marginHorizontal: spacing.md, marginBottom: spacing.md, backgroundColor: '#E3F2FF', borderLeftWidth: 4, borderLeftColor: colors.primary }]}>
+          <View style={styles.cardHeader}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+              <MaterialIcons name="vpn-key" size={24} color={colors.primary} style={{ marginRight: spacing.sm }} />
+              <Text style={[styles.cardTitle, { fontSize: typography.fontSize.lg }]}>
+                {language === 'vi' ? 'Mã PIN Phụ huynh' : 'Parent PIN Code'}
+              </Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.md }}>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.pinCode, { fontFamily: 'monospace', letterSpacing: 6, fontSize: 28 }]}>
+                {schoolDetails?.parent_pin ?? (language === 'vi' ? 'Chưa có mã' : 'Not set')}
+              </Text>
+              <Text style={[styles.pinHint, { fontSize: typography.fontSize.sm, color: colors.text.secondary, marginTop: spacing.sm }]}>
+                {language === 'vi'
+                  ? 'Mã này cho phép phụ huynh tham gia trường học'
+                  : 'Share this code with parents to join the school'}
+              </Text>
+            </View>
+            {schoolDetails?.parent_pin ? (
+              <TouchableOpacity
+                onPress={handleCopyPin}
+                style={[styles.copyButton, { padding: spacing.md, borderRadius: borderRadius.md, backgroundColor: colors.surface }]}
+              >
+                <MaterialIcons
+                  name={copiedPin ? 'check' : 'content-copy'}
+                  size={24}
+                  color={copiedPin ? colors.status.success : colors.primary}
+                />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        </View>
+        )}
 
         {/* KPI Cards */}
         <View style={styles.kpiSection}>

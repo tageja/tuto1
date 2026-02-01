@@ -23,7 +23,7 @@ const SchoolSelectorScreen: React.FC = () => {
   const { t } = useLanguage();
   const navigation = useNavigation();
   const route = useRoute<SchoolSelectorRouteProp>();
-  const { user, setUserData } = useUser();
+  const { userData, setUserData } = useUser();
   const { setCurrentSchool, setIsSchoolMode } = useSchool();
 
   const schools = route.params?.schools || [];
@@ -53,11 +53,13 @@ const SchoolSelectorScreen: React.FC = () => {
     // Set school mode
     setIsSchoolMode(true);
 
-    // Update user role based on school association
-    if (user) {
+    // Never elevate a user who signed up as parent to admin; respect their chosen role
+    if (userData) {
+      const roleForDashboard =
+        userData.type === 'parent' ? 'parent' : (school.role === 'admin' ? 'admin' : 'parent');
       await setUserData({
-        ...user,
-        type: school.role === 'admin' ? 'admin' : 'parent',
+        ...userData,
+        type: roleForDashboard,
       });
     }
 

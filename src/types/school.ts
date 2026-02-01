@@ -521,6 +521,7 @@ export interface SchoolContextType {
   setSchoolUser: (user: SchoolUser | null) => void;
   setIsSchoolMode: (mode: boolean) => void;
   joinSchool: (code: string) => Promise<boolean>;
+  joinSchoolByPin: (schoolId: string, schoolName: string) => Promise<void>;
   leaveSchool: () => void;
   switchToSchool: (school: School) => void;
   removeSchool: (schoolId: string) => void;

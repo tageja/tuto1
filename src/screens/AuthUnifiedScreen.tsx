@@ -617,6 +617,19 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
         throw new Error('No user returned');
       }
       
+      // Block access until email is confirmed (Supabase may allow sign-in depending on project settings)
+      const emailConfirmed = (user as { email_confirmed_at?: string | null }).email_confirmed_at != null;
+      if (!emailConfirmed) {
+        await supabase.auth.signOut();
+        setLoading(false);
+        Alert.alert(
+          t('auth.loginError'),
+          t('auth.checkEmailToConfirm'),
+          [{ text: t('common.ok') }]
+        );
+        return;
+      }
+      
       console.log('✅ Supabase sign-in successful:', user.email);
       
       // Fetch or create user profile
@@ -729,41 +742,23 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
       
       console.log('✅ Supabase account created:', user.email);
       
-      // Create user profile in database
-      const { data: userProfile, error: profileError } = await supabase
-        .from('users')
-        .insert({
-          auth_user_id: user.id,
-          email: normalizedEmail,
-          name: registerName,
-          role: selectedRole,
-        })
-        .select()
-        .single();
-      
-      if (profileError) {
-        console.warn('Profile creation warning:', profileError.message);
-      }
-      
-      // Set user data with selected role
-      // Don't set userData.type yet - let RoleSelectionScreen handle it
-      const userData = {
-        id: userProfile?.id || user.id,
-        name: registerName,
+      // When "Confirm email" is enabled, Supabase sends the email but may still return a session
+      // or set email_confirmed_at in the client response. To guarantee the confirm step is shown,
+      // we always treat new sign-ups as "confirm required": create profile, sign out, show message.
+      // User will sign in after clicking the confirmation link.
+      await supabase.from('users').insert({
+        auth_user_id: user.id,
         email: normalizedEmail,
-        type: null as any, // Will be set in RoleSelectionScreen
-      };
-      
-      await setUserData(userData);
-      
+        name: registerName,
+        role: selectedRole,
+      }).then(() => {}).catch(() => {}); // ignore duplicate/errors
+      await supabase.auth.signOut();
       Alert.alert(
         t('auth.registerSuccess'),
-        t('auth.accountCreated'),
-        [{ 
-          text: t('common.ok'), 
-          onPress: () => navigation.navigate('Welcome')
-        }]
+        t('auth.checkEmailToConfirm'),
+        [{ text: t('common.ok') }]
       );
+      return;
     } catch (error: any) {
       console.error('Register error:', error);
       

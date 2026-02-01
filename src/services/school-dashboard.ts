@@ -311,7 +311,7 @@ export async function fetchSchoolDetails(schoolId: string) {
 
     const { data, error } = await supabase
       .from('schools')
-      .select('*')
+      .select('id, name, address, phone, email, logo_url, status, school_code, parent_pin, created_at, updated_at')
       .eq('id', resolvedId)
       .single();
 

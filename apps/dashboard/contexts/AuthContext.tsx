@@ -63,21 +63,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   /**
    * Fetch user profile from Supabase database
+   * Uses 20s timeout and retries once on timeout (helps with cold start / slow Supabase)
    */
   const fetchUserProfile = useCallback(async (supabaseUser: SupabaseUser) => {
     try {
       console.log('📥 Fetching user profile from Supabase for:', supabaseUser.email);
       
-      // Add 10 second timeout to prevent infinite hanging
-      const { data: profile, error: profileError } = await withTimeout(
+      const profileQuery = () =>
         supabase
           .from('users')
           .select('*')
           .eq('auth_user_id', supabaseUser.id)
-          .single(),
-        10000,
-        'Profile fetch timed out after 10 seconds'
-      );
+          .single();
+
+      let result: Awaited<ReturnType<ReturnType<typeof supabase.from>['single']>>;
+      try {
+        result = await withTimeout(
+          profileQuery(),
+          20000,
+          'Profile fetch timed out after 20 seconds'
+        );
+      } catch (timeoutErr: any) {
+        if (timeoutErr?.message?.includes('timed out')) {
+          console.warn('⏱️ Profile fetch timed out, retrying once...');
+          result = await profileQuery();
+        } else {
+          throw timeoutErr;
+        }
+      }
+
+      const { data: profile, error: profileError } = result;
       
       // Log any error for debugging
       if (profileError) {
@@ -213,8 +228,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         stack: err?.stack?.substring(0, 200),
       });
       
-      // Handle timeout errors
-      if (err?.message?.includes('timed out')) {
+      // Handle timeout errors (after retry failed or retry not applicable)
+      if (err?.message?.includes('timed out') || err?.message?.includes('20 seconds')) {
         console.error('❌ Profile fetch timed out, trying to continue with minimal user data');
         // Set minimal user data so the app doesn't hang
         setUser({
@@ -259,11 +274,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!mounted) return;
         
         if (sessionError) {
-          console.error('❌ Session error:', sessionError.message);
-          // Clear invalid session
+          console.warn('⚠️ Session error (clearing):', sessionError.message);
+          // Invalid/expired refresh token or similar - clear and show login
           await supabase.auth.signOut();
           setSupabaseUser(null);
           setUser(null);
+          setError(sessionError.message?.includes('Refresh Token') ? null : sessionError.message);
           setLoading(false);
           return;
         }
@@ -279,12 +295,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setSupabaseUser(null);
           setUser(null);
         }
-      } catch (err) {
-        console.error('❌ Error initializing session:', err);
-        // On error, clear everything
+      } catch (err: any) {
+        const msg = err?.message ?? '';
+        const isRefreshTokenError = msg.includes('Refresh Token') || msg.includes('AuthApiError') || err?.name === 'AuthApiError';
+        if (isRefreshTokenError) {
+          console.warn('⚠️ Invalid or missing refresh token, clearing session');
+        } else {
+          console.error('❌ Error initializing session:', err);
+        }
+        // Clear invalid session so user can sign in again
         await supabase.auth.signOut();
         setSupabaseUser(null);
         setUser(null);
+        setError(isRefreshTokenError ? null : (msg || 'Session expired'));
       } finally {
         if (mounted) {
           setLoading(false);
@@ -299,40 +322,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
-      
-      console.log('🔄 Auth state changed:', event, session ? `(user: ${session.user?.email})` : '(no session)');
-      
-      setLoading(true);
-      
-      // Handle different auth events
-      if (event === 'SIGNED_OUT') {
-        console.log('🚪 User signed out, clearing state');
+      try {
+        console.log('🔄 Auth state changed:', event, session ? `(user: ${session.user?.email})` : '(no session)');
+        setLoading(true);
+
+        if (event === 'SIGNED_OUT') {
+          console.log('🚪 User signed out, clearing state');
+          setSupabaseUser(null);
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+
+        if (event === 'TOKEN_REFRESHED') {
+          console.log('🔄 Token refreshed successfully');
+        }
+
+        if (event === 'USER_UPDATED') {
+          console.log('👤 User updated');
+        }
+
+        setSupabaseUser(session?.user ?? null);
+
+        if (session?.user) {
+          console.log('📥 Session user found, fetching profile...');
+          await fetchUserProfile(session.user);
+          console.log('✅ Profile fetch completed, auth loading finished');
+        } else {
+          setUser(null);
+        }
+      } catch (err: any) {
+        const msg = err?.message ?? '';
+        const isRefreshTokenError = msg.includes('Refresh Token') || msg.includes('AuthApiError') || err?.name === 'AuthApiError';
+        if (isRefreshTokenError) {
+          console.warn('⚠️ Invalid refresh token in auth callback, clearing session');
+        } else {
+          console.error('❌ Auth state change error:', err);
+        }
         setSupabaseUser(null);
         setUser(null);
-        setLoading(false);
-        return;
+      } finally {
+        if (mounted) setLoading(false);
       }
-      
-      if (event === 'TOKEN_REFRESHED') {
-        console.log('🔄 Token refreshed successfully');
-      }
-      
-      if (event === 'USER_UPDATED') {
-        console.log('👤 User updated');
-      }
-      
-      setSupabaseUser(session?.user ?? null);
-      
-      if (session?.user) {
-        console.log('📥 Session user found, fetching profile...');
-        await fetchUserProfile(session.user);
-        console.log('✅ Profile fetch completed, auth loading finished');
-      } else {
-        console.log('❌ No session user found');
-        setUser(null);
-      }
-      
-      setLoading(false);
     });
 
     return () => {
@@ -340,6 +371,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       subscription.unsubscribe();
     };
   }, [fetchUserProfile]);
+
+  // When Supabase's internal auto-refresh throws "Invalid Refresh Token", clear session
+  // so the error doesn't leave the app stuck and user can sign in again
+  useEffect(() => {
+    const onUnhandledRejection = (e: PromiseRejectionEvent) => {
+      const err = e?.reason;
+      const msg = typeof err?.message === 'string' ? err.message : '';
+      const isRefreshTokenError =
+        msg.includes('Refresh Token') || msg.includes('AuthApiError') || (err && (err as any).name === 'AuthApiError');
+      if (isRefreshTokenError) {
+        e.preventDefault();
+        console.warn('⚠️ Invalid refresh token (from background refresh), clearing session');
+        supabase.auth.signOut();
+        setSupabaseUser(null);
+        setUser(null);
+      }
+    };
+    window.addEventListener('unhandledrejection', onUnhandledRejection);
+    return () => window.removeEventListener('unhandledrejection', onUnhandledRejection);
+  }, []);
 
   /**
    * Sign in with email and password
@@ -513,12 +564,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: { session }, error } = await supabase.auth.getSession();
       
       if (error) {
-        console.error('❌ Error refreshing session:', error);
-        // Clear invalid session
+        const isRefreshTokenError = error.message?.includes('Refresh Token') || (error as any).name === 'AuthApiError';
+        console.warn(isRefreshTokenError ? '⚠️ Invalid refresh token, clearing session' : '❌ Error refreshing session:', error.message);
         await supabase.auth.signOut();
         setSupabaseUser(null);
         setUser(null);
-        setError('Your session has expired. Please sign in again.');
+        setError(isRefreshTokenError ? null : 'Your session has expired. Please sign in again.');
         return;
       }
       
@@ -531,13 +582,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSupabaseUser(null);
         setUser(null);
       }
-    } catch (err) {
-      console.error('❌ Failed to refresh user:', err);
-      // On error, clear session
+    } catch (err: any) {
+      const msg = err?.message ?? '';
+      const isRefreshTokenError = msg.includes('Refresh Token') || msg.includes('AuthApiError') || err?.name === 'AuthApiError';
+      console.warn(isRefreshTokenError ? '⚠️ Invalid refresh token, clearing session' : '❌ Failed to refresh user:', err);
       await supabase.auth.signOut();
       setSupabaseUser(null);
       setUser(null);
-      setError('Failed to refresh session. Please sign in again.');
+      setError(isRefreshTokenError ? null : 'Failed to refresh session. Please sign in again.');
     }
   };
 

@@ -153,16 +153,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (!school.parent_pin) {
-      return NextResponse.json(
-        { success: false, error: 'PIN not generated for this school' },
-        { status: 500 }
-      );
-    }
-
+    // Return success with pin (or null if not set) so UI can show "Not set"
     return NextResponse.json({
       success: true,
-      pin: school.parent_pin,
+      pin: school.parent_pin ?? null,
     });
   } catch (error: any) {
     console.error('Error in parent-pin API:', error);

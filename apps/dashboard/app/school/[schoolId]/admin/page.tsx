@@ -69,8 +69,8 @@ export default function AdminDashboard() {
 
         console.log('🔑 PIN API Response:', { success: data.success, pin: data.pin, error: data.error });
 
-        if (data.success && data.pin) {
-          setParentPin(data.pin);
+        if (data.success) {
+          setParentPin(data.pin ?? null);
         } else {
           console.warn('⚠️ PIN not loaded:', data.error || 'Unknown error');
         }
@@ -255,18 +255,9 @@ export default function AdminDashboard() {
           <p className="text-sm text-gray-600">Loading PIN code...</p>
         </div>
       )}
-      {!pinLoading && parentPin && (
+      {!pinLoading && (
         <div className="mb-6">
           <ParentPinDisplay pin={parentPin} schoolName={schoolName} />
-        </div>
-      )}
-      {!pinLoading && !parentPin && (
-        <div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-          <p className="text-sm text-yellow-800">
-            ⚠️ PIN code not available. Please check browser console for details. 
-            If this is a new school, the PIN should be auto-generated. 
-            You may need to run the database migration.
-          </p>
         </div>
       )}
 

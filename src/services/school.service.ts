@@ -220,7 +220,7 @@ export async function autoDetectUserRole(
       return 'admin';
     }
 
-    // Check if user is a parent
+    // Check if user is a parent (via school_students)
     const { data: student } = await supabase
       .from('school_students')
       .select('id')
@@ -232,6 +232,27 @@ export async function autoDetectUserRole(
     if (student) {
       console.log('✅ User is parent');
       return 'parent';
+    }
+
+    // Check if user is a parent (via school_parents - PIN-linked)
+    const { data: userRecord } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', userEmail.toLowerCase().trim())
+      .maybeSingle();
+
+    if (userRecord) {
+      const { data: parentAccess } = await supabase
+        .from('school_parents')
+        .select('id')
+        .eq('school_id', schoolId)
+        .eq('parent_user_id', userRecord.id)
+        .maybeSingle();
+
+      if (parentAccess) {
+        console.log('✅ User is parent (PIN-linked)');
+        return 'parent';
+      }
     }
 
     console.log('❌ User has no role in this school');

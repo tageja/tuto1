@@ -178,6 +178,42 @@ export const SchoolProvider: React.FC<SchoolProviderProps> = ({ children }) => {
     }
   };
 
+  const joinSchoolByPin = async (schoolId: string, schoolName: string): Promise<void> => {
+    const schoolData: School = {
+      id: schoolId,
+      name: schoolName,
+      code: '',
+      address: '',
+      phone: '',
+      email: '',
+      principalName: '',
+      principalEmail: '',
+      principalPhone: '',
+      schoolType: 'Public',
+      gradeLevels: [],
+      studentCount: 0,
+      teacherCount: 0,
+      foundedYear: new Date().getFullYear(),
+      status: 'Active',
+      createdDate: new Date().toISOString(),
+      updatedDate: new Date().toISOString(),
+    };
+
+    const existingSchool = joinedSchools.find(js => js.school.id === schoolId);
+    if (!existingSchool) {
+      const newJoinedSchool: JoinedSchool = {
+        school: schoolData,
+        joinedDate: new Date().toISOString(),
+        invitationCode: '',
+        role: 'parent',
+      };
+      setJoinedSchools(prev => [...prev, newJoinedSchool]);
+    }
+
+    setCurrentSchool(schoolData);
+    setIsSchoolMode(true);
+  };
+
   const leaveSchool = () => {
     setCurrentSchool(null);
     setSchoolUser(null);
@@ -252,6 +288,7 @@ export const SchoolProvider: React.FC<SchoolProviderProps> = ({ children }) => {
     setSchoolUser,
     setIsSchoolMode,
     joinSchool,
+    joinSchoolByPin,
     leaveSchool,
     switchToSchool,
     removeSchool,

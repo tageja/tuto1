@@ -5,7 +5,7 @@ import { Copy, Check, Key } from 'lucide-react';
 import { Card } from '../ui/Card';
 
 interface ParentPinDisplayProps {
-  pin: string;
+  pin: string | null;
   schoolName?: string;
   className?: string;
 }
@@ -14,6 +14,7 @@ export function ParentPinDisplay({ pin, schoolName, className = '' }: ParentPinD
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
+    if (!pin) return;
     try {
       await navigator.clipboard.writeText(pin);
       setCopied(true);
@@ -38,25 +39,27 @@ export function ParentPinDisplay({ pin, schoolName, className = '' }: ParentPinD
           )}
           <div className="flex items-center gap-3">
             <code className="text-3xl font-mono font-bold text-blue-700 tracking-wider">
-              {pin}
+              {pin ?? 'Not set'}
             </code>
-            <button
-              onClick={handleCopy}
-              className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 border border-gray-300 rounded-lg transition-colors text-sm font-medium text-gray-700"
-              title="Copy to clipboard"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-4 h-4 text-green-600" />
-                  <span className="text-green-600">Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4" />
-                  <span>Copy</span>
-                </>
-              )}
-            </button>
+            {pin && (
+              <button
+                onClick={handleCopy}
+                className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 border border-gray-300 rounded-lg transition-colors text-sm font-medium text-gray-700"
+                title="Copy to clipboard"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-4 h-4 text-green-600" />
+                    <span className="text-green-600">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    <span>Copy</span>
+                  </>
+                )}
+              </button>
+            )}
           </div>
           <p className="text-xs text-gray-500 mt-3">
             Share this code with parents so they can join your school
