@@ -1640,21 +1640,21 @@
       "login": "Đăng Nhập"
     },
     "hero": {
-      "title": "Kết nối gia đình, giáo viên và nhà trường.",
-      "subtitle": "Quản lý lớp học, theo dõi tiến độ và xây dựng cộng đồng học tập - tất cả trong một nền tảng.",
+      "title": "Nền tảng học tập cho Nhà trường, Giáo viên & Gia đình",
+      "subtitle": "Kết nối với giáo viên giỏi, quản lý hoạt động nhà trường và theo dõi tiến độ học sinh — tất cả trong một nơi.",
       "familiesTitle": "Dành cho Gia đình & Học sinh",
       "familiesDesc": "Tìm gia sư gần bạn, tham gia nhóm học và theo dõi hành trình học tập của con.",
       "schoolsTitle": "Dành cho Trường học & Trung tâm",
       "schoolsDesc": "Vận hành toàn bộ nhà trường với nền tảng quản lý tất cả trong một."
     },
     "cta": {
-      "findTeachers": "Tìm Giáo Viên",
-      "exploreFeed": "Khám Phá",
+      "findTeachers": "Tìm giáo viên",
+      "exploreFeed": "Khám phá Bảng tin",
       "openDashboard": "Đăng Nhập Trường",
       "enterSchoolCode": "Nhập Mã",
       "imTeacher": "Tôi là Giáo Viên",
       "exploreNow": "Khám Phá Ngay",
-      "talkToSales": "Liên Hệ Tư Vấn"
+      "talkToSales": "Liên hệ kinh doanh"
     },
     "openApp": {
       "highlightsTitle": "Hoạt Động Cộng Đồng",
@@ -1665,41 +1665,41 @@
       "viewMore": "Xem thêm 120+ giáo viên gần bạn"
     },
     "roles": {
-      "title": "Chọn Vai Trò Của Bạn",
-      "subtitle": "Truy cập bảng điều khiển phù hợp với vai trò của bạn tại trường.",
+      "title": "Chọn vai trò của bạn",
+      "subtitle": "Cổng thông tin dành riêng cho từng đối tượng",
       "admin": {
-        "title": "Quản Trị Viên",
-        "desc": "Quản lý giáo viên, lớp học, điểm danh và giao tiếp - tất cả trong một bảng điều khiển."
+        "title": "Quản trị trường",
+        "desc": "Quản lý vận hành trường học"
       },
       "teacher": {
-        "title": "Giáo Viên",
-        "desc": "Quản lý lớp học, điểm danh, chấm điểm và giao tiếp với phụ huynh."
+        "title": "Giáo viên",
+        "desc": "Quản lý lớp học & lịch trình"
       },
       "parent": {
-        "title": "Phụ Huynh",
-        "desc": "Giữ liên lạc với giáo viên và theo dõi hành trình học tập của con."
+        "title": "Phụ huynh",
+        "desc": "Theo dõi tiến độ của con"
       },
-      "accessPortal": "Truy Cập",
+      "accessPortal": "Truy cập",
       "getAccess": "Yêu Cầu Truy Cập"
     },
     "features": {
-      "title": "Mọi Thứ Bạn Cần",
-      "subtitle": "Công cụ thiết yếu cho trường học, giáo viên và gia đình.",
-      "attendance": "Điểm Danh",
-      "homework": "Bài Tập",
-      "events": "Sự Kiện",
-      "progress": "Tiến Độ",
-      "health": "Sức Khỏe",
+      "title": "Tính năng nền tảng",
+      "subtitle": "Mọi thứ bạn cần ở một nơi",
+      "attendance": "Điểm danh",
+      "homework": "Bài tập",
+      "events": "Sự kiện",
+      "progress": "Tiến độ",
+      "health": "Sức khỏe",
       "medicine": "Thuốc",
-      "photos": "Album Ảnh",
-      "payments": "Thanh Toán"
+      "photos": "Ảnh",
+      "payments": "Thanh toán"
     },
     "kpis": {
-      "schoolsTrusted": "Trường Tin Dùng",
-      "homeworkCompletion": "Hoàn Thành Bài Tập",
-      "parentEngagement": "Tương Tác Phụ Huynh",
-      "attendanceRate": "Tỷ Lệ Điểm Danh",
-      "liveUpdate": "Cập nhật 2 phút trước"
+      "schoolsTrusted": "Trường tin dùng",
+      "homeworkCompletion": "Hoàn thành bài tập",
+      "parentEngagement": "Tương tác phụ huynh",
+      "attendanceRate": "Tỷ lệ đi học",
+      "liveUpdate": "Cập nhật trực tiếp"
     },
     "ctaSection": {
       "openApp": "Tham Gia Cộng Đồng Học Tập",

@@ -473,6 +473,31 @@ eas build --platform ios --clear-cache
 - **Network Issues**: Implement proper error handling
 - **Image Loading**: Optimize image sizes
 
+## 🌐 **Vercel Web Dashboard (tuto.asia / tutoglobal)**
+
+The web dashboard (`apps/dashboard`) is a Next.js app. For it to deploy and run correctly on Vercel (including the Parent PIN and all school admin features), use this setup.
+
+### **Vercel project settings**
+
+1. **Root Directory** (required): Set to **`apps/dashboard`**.
+   - In Vercel: Project → Settings → General → Root Directory → **apps/dashboard**.
+   - If Root Directory is the repo root (`.`), the build runs from root but Next.js output goes to `apps/dashboard/.next`, so Vercel may serve the wrong or incomplete app and features like the PIN card can be missing.
+
+2. **Environment variables** (in Vercel → Settings → Environment Variables):
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY` (for API routes that need server-side Supabase)
+   - `SUPABASE_URL` or same as `NEXT_PUBLIC_SUPABASE_URL` if required by server code
+
+3. **Build**: With Root Directory = `apps/dashboard`, the repo’s `apps/dashboard/vercel.json` is used (install from monorepo root, then `npm run build` in the dashboard).
+
+### **If the PIN or other dashboard features don’t show on Vercel**
+
+- Confirm **Root Directory** is **`apps/dashboard`** and redeploy.
+- In the browser on the deployed site: DevTools → Network → reload the admin page and check the request to **`/api/school/parent-pin`**. If it returns 401, auth/session isn’t reaching the API (cookies/domain). If it returns 500, check env vars and Vercel function logs.
+
+---
+
 ## 📚 **Resources**
 
 ### **Documentation**

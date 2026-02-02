@@ -134,9 +134,9 @@ export async function fetchDashboardKPIs(schoolId: string): Promise<DashboardKPI
 
     if (eventsError) throw eventsError;
 
-    // Fetch payments (for fee collection)
+    // Fetch payments (for fee collection) - table is payment_items
     const { data: payments, error: paymentsError } = await supabase
-      .from('school_payment_items')
+      .from('payment_items')
       .select('amount_cents')
       .eq('school_id', resolvedId)
       .neq('status', 'void');

@@ -394,7 +394,7 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
           .select('role, school_id')
           .eq('user_id', existingProfile?.id || data.session.user.id)
           .eq('role', 'admin')
-          .single();
+          .maybeSingle();
         
         console.log('📋 School user role:', schoolUserRole ? {
           role: schoolUserRole.role,
@@ -662,7 +662,7 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
         .select('role, school_id')
         .eq('user_id', userProfile.data?.id || user.id)
         .eq('role', 'admin')
-        .single();
+        .maybeSingle();
       
       console.log('📋 School user role:', schoolUserRole ? {
         role: schoolUserRole.role,

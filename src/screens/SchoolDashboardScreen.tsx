@@ -11,7 +11,7 @@ import {
   BackHandler,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import Clipboard from '@react-native-clipboard/clipboard';
+import * as Clipboard from 'expo-clipboard';
 import { useNavigation } from '@react-navigation/native';
 import { useSchool } from '../contexts/SchoolContext';
 import { useUser } from '../contexts/UserContext';
@@ -413,23 +413,23 @@ const SchoolDashboardScreen: React.FC = () => {
     );
   };
 
-  const handleCopyPin = () => {
+  const handleCopyPin = async () => {
     if (schoolDetails?.parent_pin) {
       try {
-        Clipboard.setString(schoolDetails.parent_pin);
+        await Clipboard.setStringAsync(schoolDetails.parent_pin);
         setCopiedPin(true);
         setTimeout(() => setCopiedPin(false), 2000);
         Alert.alert(
           language === 'vi' ? 'Đã sao chép' : 'Copied',
-          language === 'vi' 
-            ? `Mã PIN ${schoolDetails.parent_pin} đã được sao chép` 
+          language === 'vi'
+            ? `Mã PIN ${schoolDetails.parent_pin} đã được sao chép`
             : `PIN code ${schoolDetails.parent_pin} copied to clipboard`
         );
       } catch (error) {
         Alert.alert(
           language === 'vi' ? 'Lỗi' : 'Error',
-          language === 'vi' 
-            ? 'Không thể sao chép mã PIN' 
+          language === 'vi'
+            ? 'Không thể sao chép mã PIN'
             : 'Could not copy PIN code'
         );
       }
