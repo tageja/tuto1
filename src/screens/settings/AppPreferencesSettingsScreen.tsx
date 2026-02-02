@@ -24,7 +24,7 @@ export default function AppPreferencesSettingsScreen() {
   const navigation = useNavigation<any>();
   const { t, language, setLanguage } = useLanguage();
   const { userData } = useUser();
-  const { colors, spacing, typography, borderRadius, setThemeMode } = useTheme();
+  const { colors, spacing, typography, borderRadius } = useTheme();
   const { preferences, loading, updatePreferences } = useUserPreferences(userData?.id || null);
 
   const styles = StyleSheet.create({
@@ -139,19 +139,6 @@ export default function AppPreferencesSettingsScreen() {
     }
   };
 
-  const handleThemeChange = async (theme: 'system' | 'light' | 'dark') => {
-    if (!userData?.id) return;
-    try {
-      // Apply theme immediately to UI
-      await setThemeMode(theme);
-      // Save to backend
-      await updatePreferences({ theme });
-      Alert.alert(t('common.success'), t('settings.preferences.themeUpdated') || 'Theme updated successfully');
-    } catch (error: any) {
-      Alert.alert(t('common.error'), error.message || 'Failed to update theme');
-    }
-  };
-
   const handleTimezoneChange = async (timezone: string) => {
     if (!userData?.id) return;
     try {
@@ -171,26 +158,28 @@ export default function AppPreferencesSettingsScreen() {
         >
           <MaterialIcons name="arrow-back" size={24} color={colors.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('settings.preferences.title')}</Text>
+        <View>
+          <Text style={styles.headerTitle}>{t('settings.preferences.title')}</Text>
+        </View>
         <View style={styles.headerRight} />
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Language */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('settings.preferences.language')}</Text>
           <View style={styles.optionsRow}>
             <TouchableOpacity
               style={[
                 styles.optionButton,
-                preferences?.locale === 'en' && styles.optionButtonActive,
+                (preferences?.locale ?? language) === 'en' && styles.optionButtonActive,
               ]}
               onPress={() => handleLanguageChange('en')}
+              disabled={loading}
             >
               <Text
                 style={[
                   styles.optionText,
-                  preferences?.locale === 'en' && styles.optionTextActive,
+                  (preferences?.locale ?? language) === 'en' && styles.optionTextActive,
                 ]}
               >
                 English
@@ -199,14 +188,15 @@ export default function AppPreferencesSettingsScreen() {
             <TouchableOpacity
               style={[
                 styles.optionButton,
-                preferences?.locale === 'vi' && styles.optionButtonActive,
+                (preferences?.locale ?? language) === 'vi' && styles.optionButtonActive,
               ]}
               onPress={() => handleLanguageChange('vi')}
+              disabled={loading}
             >
               <Text
                 style={[
                   styles.optionText,
-                  preferences?.locale === 'vi' && styles.optionTextActive,
+                  (preferences?.locale ?? language) === 'vi' && styles.optionTextActive,
                 ]}
               >
                 Tiếng Việt
@@ -215,63 +205,6 @@ export default function AppPreferencesSettingsScreen() {
           </View>
         </View>
 
-        {/* Theme */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('settings.preferences.theme')}</Text>
-          <Text style={styles.sectionHint}>{t('settings.preferences.themeHint')}</Text>
-          <View style={styles.optionsRow}>
-            <TouchableOpacity
-              style={[
-                styles.optionButton,
-                preferences?.theme === 'system' && styles.optionButtonActive,
-              ]}
-              onPress={() => handleThemeChange('system')}
-            >
-              <Text
-                style={[
-                  styles.optionText,
-                  preferences?.theme === 'system' && styles.optionTextActive,
-                ]}
-              >
-                {t('settings.preferences.system')}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.optionButton,
-                preferences?.theme === 'light' && styles.optionButtonActive,
-              ]}
-              onPress={() => handleThemeChange('light')}
-            >
-              <Text
-                style={[
-                  styles.optionText,
-                  preferences?.theme === 'light' && styles.optionTextActive,
-                ]}
-              >
-                {t('settings.preferences.light')}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.optionButton,
-                preferences?.theme === 'dark' && styles.optionButtonActive,
-              ]}
-              onPress={() => handleThemeChange('dark')}
-            >
-              <Text
-                style={[
-                  styles.optionText,
-                  preferences?.theme === 'dark' && styles.optionTextActive,
-                ]}
-              >
-                {t('settings.preferences.dark')}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Timezone */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('settings.preferences.timezone')}</Text>
           <View style={styles.timezoneContainer}>
@@ -283,6 +216,7 @@ export default function AppPreferencesSettingsScreen() {
                   preferences?.timezone === tz && styles.timezoneOptionActive,
                 ]}
                 onPress={() => handleTimezoneChange(tz)}
+                disabled={loading}
               >
                 <Text
                   style={[
@@ -290,10 +224,10 @@ export default function AppPreferencesSettingsScreen() {
                     preferences?.timezone === tz && styles.timezoneTextActive,
                   ]}
                 >
-                  {tz.replace('_', ' ')}
+                  {tz}
                 </Text>
                 {preferences?.timezone === tz && (
-                  <MaterialIcons name="check" size={20} color={colors.primary} />
+                  <MaterialIcons name="check" size={24} color={colors.primary} />
                 )}
               </TouchableOpacity>
             ))}

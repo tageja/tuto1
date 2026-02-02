@@ -1,13 +1,11 @@
 /**
  * ThemeContext
- * Manages app theme (light/dark/system) with AsyncStorage persistence
- * and system appearance detection
+ * App is light-only; dark/system removed. API kept for compatibility.
  */
 
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { Appearance, ColorSchemeName } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { lightColors, darkColors, spacing, borderRadius, typography, shadows } from '../theme';
+import { lightColors, spacing, borderRadius, typography, shadows } from '../theme';
 
 export type ThemeMode = 'system' | 'light' | 'dark';
 export type ColorScheme = 'light' | 'dark';
@@ -75,52 +73,24 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
-  const [systemColorScheme, setSystemColorScheme] = useState<ColorSchemeName>(
-    Appearance.getColorScheme()
-  );
+  const [themeMode, setThemeModeState] = useState<ThemeMode>('light');
 
-  // Determine the actual color scheme based on themeMode
-  const colorScheme: ColorScheme = 
-    themeMode === 'system' 
-      ? (systemColorScheme === 'dark' ? 'dark' : 'light')
-      : themeMode;
+  const colorScheme: ColorScheme = 'light';
+  const isDark = false;
+  const colors = lightColors;
 
-  const isDark = colorScheme === 'dark';
-  const colors = isDark ? darkColors : lightColors;
-
-  // Load theme from AsyncStorage on mount
   useEffect(() => {
-    loadThemeFromStorage();
+    (async () => {
+      try {
+        await AsyncStorage.setItem(THEME_STORAGE_KEY, 'light');
+      } catch (e) {}
+    })();
   }, []);
 
-  // Listen to system appearance changes
-  useEffect(() => {
-    const subscription = Appearance.addChangeListener(({ colorScheme: newColorScheme }) => {
-      console.log('📱 System appearance changed:', newColorScheme);
-      setSystemColorScheme(newColorScheme);
-    });
-
-    return () => subscription.remove();
-  }, []);
-
-  const loadThemeFromStorage = async () => {
+  const setThemeMode = async (_mode: ThemeMode) => {
     try {
-      const storedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-      if (storedTheme && ['system', 'light', 'dark'].includes(storedTheme)) {
-        console.log('🎨 Theme loaded from storage:', storedTheme);
-        setThemeModeState(storedTheme as ThemeMode);
-      }
-    } catch (error) {
-      console.error('Error loading theme from storage:', error);
-    }
-  };
-
-  const setThemeMode = async (mode: ThemeMode) => {
-    try {
-      console.log('🎨 Setting theme mode:', mode);
-      setThemeModeState(mode);
-      await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
+      setThemeModeState('light');
+      await AsyncStorage.setItem(THEME_STORAGE_KEY, 'light');
     } catch (error) {
       console.error('Error saving theme to storage:', error);
       throw error;
@@ -149,4 +119,3 @@ export const useTheme = (): ThemeContextType => {
   }
   return context;
 };
-

@@ -30,7 +30,7 @@ export function useUserPreferences(userId: string | null) {
       const profile = await getUserProfile(userId);
       setPreferences({
         locale: profile.locale,
-        theme: profile.theme,
+        theme: 'light',
         timezone: profile.timezone,
       });
     } catch (err: any) {

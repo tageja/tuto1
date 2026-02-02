@@ -41,7 +41,7 @@ export async function getUserProfile(userId: string): Promise<ProfileData> {
     avatar_url: profile?.avatar_url || userData.avatar || null,
     bio: profile?.bio || null,
     locale: profile?.locale || 'vi',
-    theme: profile?.theme || 'system',
+    theme: 'light',
     timezone: profile?.timezone || 'Asia/Ho_Chi_Minh',
     twofa_enabled: profile?.twofa_enabled || false,
     updated_at: profile?.updated_at || null,
@@ -54,23 +54,26 @@ export async function getUserProfile(userId: string): Promise<ProfileData> {
  * Update user profile
  */
 export async function updateUserProfile(userId: string, data: ProfileInput): Promise<ProfileData> {
-  // Verify user exists
-  const { data: userData, error: userError } = await supabase
-    .from('users')
-    .select('id')
-    .eq('id', userId)
-    .single();
+    // Verify user exists
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('id', userId)
+      .single();
 
   if (userError || !userData) {
     throw new Error('User not found');
   }
+
+  const payload = { ...data };
+  if (payload.theme !== undefined) payload.theme = 'light';
 
   // Upsert profile
   const { data: profile, error: profileError } = await supabase
     .from('user_profiles')
     .upsert({
       user_id: userData.id,
-      ...data,
+      ...payload,
       updated_at: new Date().toISOString(),
     }, {
       onConflict: 'user_id',
