@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useI18n } from '../../contexts/I18nContext';
 import { Card } from '../ui/Card';
 import { TIMEZONES } from '../../lib/validation/settings';
-import { setTheme, initializeTheme, setupSystemPreferenceListener } from '../../lib/theme';
+import { initializeTheme } from '../../lib/theme';
 
 interface PreferencesData {
   locale: 'en' | 'vi';
@@ -23,7 +23,7 @@ export function PreferencesForm({ initialData, onSave, isLoading }: PreferencesF
   
   const defaultValues: PreferencesData = {
     locale: (lang as 'en' | 'vi') || 'vi',
-    theme: 'system',
+    theme: 'light',
     timezone: 'Asia/Ho_Chi_Minh',
   };
 
@@ -34,35 +34,25 @@ export function PreferencesForm({ initialData, onSave, isLoading }: PreferencesF
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  // Initialize theme on mount
   useEffect(() => {
     initializeTheme();
-    const cleanup = setupSystemPreferenceListener();
-    return cleanup;
   }, []);
 
-  // Update form when initial data loads
   useEffect(() => {
     if (initialData) {
       const values: PreferencesData = {
         locale: initialData.locale || (lang as 'en' | 'vi') || 'vi',
-        theme: initialData.theme || 'system',
+        theme: 'light',
         timezone: initialData.timezone || 'Asia/Ho_Chi_Minh',
       };
       setFormData(values);
       setInitialValues(values);
-      // Apply theme from initial data
-      if (values.theme) {
-        setTheme(values.theme);
-      }
     }
   }, [initialData, lang]);
 
-  // Track form changes
   useEffect(() => {
-    const hasChanges = 
+    const hasChanges =
       formData.locale !== initialValues.locale ||
-      formData.theme !== initialValues.theme ||
       formData.timezone !== initialValues.timezone;
     setIsDirty(hasChanges);
   }, [formData, initialValues]);
@@ -71,14 +61,6 @@ export function PreferencesForm({ initialData, onSave, isLoading }: PreferencesF
     setFormData(prev => ({ ...prev, locale }));
     // Live apply language
     setLang(locale);
-    setError(null);
-    setSuccess(false);
-  };
-
-  const handleThemeChange = (theme: 'system' | 'light' | 'dark') => {
-    setFormData(prev => ({ ...prev, theme }));
-    // Live apply theme
-    setTheme(theme);
     setError(null);
     setSuccess(false);
   };
@@ -98,7 +80,7 @@ export function PreferencesForm({ initialData, onSave, isLoading }: PreferencesF
     setSuccess(false);
 
     try {
-      await onSave(formData);
+      await onSave({ ...formData, theme: 'light' });
       setSuccess(true);
       setIsDirty(false);
     } catch (err: any) {
@@ -167,37 +149,6 @@ export function PreferencesForm({ initialData, onSave, isLoading }: PreferencesF
               )}
             </button>
           </div>
-        </div>
-
-        {/* Theme Selection */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-text mb-3">
-            {t('settings.preferences.theme')}
-          </label>
-          <div className="grid grid-cols-3 gap-3">
-            {(['system', 'light', 'dark'] as const).map((theme) => (
-              <button
-                key={theme}
-                type="button"
-                onClick={() => handleThemeChange(theme)}
-                className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
-                  formData.theme === theme
-                    ? 'border-primary bg-primary/10'
-                    : 'border-border hover:border-border/80'
-                }`}
-              >
-                <div className={`w-12 h-8 rounded-md border ${
-                  theme === 'light' ? 'bg-card border-border' :
-                  theme === 'dark' ? 'bg-surface border-border' :
-                  'bg-gradient-to-r from-card to-surface border-border'
-                }`} />
-                <span className="text-sm font-medium capitalize text-text">
-                  {t(`settings.preferences.${theme}`)}
-                </span>
-              </button>
-            ))}
-          </div>
-          <p className="mt-2 text-xs text-text-muted">{t('settings.preferences.themeHint')}</p>
         </div>
 
         {/* Timezone Selection */}

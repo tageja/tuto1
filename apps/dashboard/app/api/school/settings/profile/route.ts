@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
       avatar_url: profile?.avatar_url || userData.avatar,
       bio: profile?.bio || null,
       locale: profile?.locale || 'vi',
-      theme: profile?.theme || 'system',
+      theme: 'light',
       timezone: profile?.timezone || 'Asia/Ho_Chi_Minh',
       twofa_enabled: profile?.twofa_enabled || false,
       updated_at: profile?.updated_at || null,
@@ -113,7 +113,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const profileData = validationResult.data;
+    const profileData = { ...validationResult.data, theme: 'light' as const };
 
     // Upsert profile
     const { data: profile, error: profileError } = await supabase
