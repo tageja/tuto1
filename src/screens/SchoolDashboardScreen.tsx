@@ -557,7 +557,8 @@ const SchoolDashboardScreen: React.FC = () => {
         </View>
         )}
 
-        {/* KPI Cards */}
+        {/* KPI Cards - Admin/teacher only; parents should not see school-wide metrics */}
+        {isAdmin && (
         <View style={styles.kpiSection}>
           <View style={styles.kpiRow}>
             <View style={styles.kpiCard}>
@@ -610,6 +611,7 @@ const SchoolDashboardScreen: React.FC = () => {
             </View>
           </View>
         </View>
+        )}
 
         {/* Recent Announcements */}
         <View style={styles.card}>
@@ -655,8 +657,8 @@ const SchoolDashboardScreen: React.FC = () => {
           )}
         </View>
 
-        {/* Attendance Trend */}
-        <WeeklyAttendanceChart data={weeklyAttendance} />
+        {/* Attendance Trend - Admin/teacher only; shows school-wide attendance */}
+        {isAdmin && <WeeklyAttendanceChart data={weeklyAttendance} />}
 
         {/* Secondary Grid: Upcoming Homework */}
         <View style={styles.card}>
