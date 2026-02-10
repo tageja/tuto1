@@ -1,22 +1,182 @@
 'use client';
 
 import { TrendingUp, BookOpen, CalendarCheck, PartyPopper, MessageCircle, FileText, CreditCard, Image as ImageIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { KPICard } from '../../../components/school/shared/KPICard';
 import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { StatusBadge } from '../../../components/school/shared/StatusBadge';
 import { useI18n } from '../../../contexts/I18nContext';
+import { useSchool } from '../../../contexts/SchoolContext';
+import supabase from '../../../lib/supabase';
+
+interface ChildInfo {
+  id: string;
+  first_name: string;
+  last_name: string;
+  class_name: string;
+}
+
+interface ParentKPIs {
+  attendanceRate: number;
+  homeworkCompletion: number;
+  averageGrade: number;
+  upcomingEvents: number;
+}
+
+const EMPTY_KPIS: ParentKPIs = {
+  attendanceRate: 0,
+  homeworkCompletion: 0,
+  averageGrade: 0,
+  upcomingEvents: 0,
+};
 
 export default function ParentDashboard() {
   const { t } = useI18n();
-  
-  // Mock data for demo
-  const studentName = 'Student';
-  const className = 'Grade 5A';
-  const attendanceRate = 95;
-  const homeworkCompletionRate = 88;
-  const averageGrade = '4.2';
-  const upcomingEvents = 3;
+  const { selectedSchool } = useSchool();
+  const [children, setChildren] = useState<ChildInfo[]>([]);
+  const [childrenLoading, setChildrenLoading] = useState(true);
+  const [parentKpis, setParentKpis] = useState<ParentKPIs>(EMPTY_KPIS);
+
+  const schoolId = selectedSchool?.id || selectedSchool?.name;
+
+  useEffect(() => {
+    if (!schoolId) {
+      setChildrenLoading(false);
+      return;
+    }
+
+    async function fetchChildren() {
+      setChildrenLoading(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user?.email) {
+          setChildren([]);
+          setChildrenLoading(false);
+          return;
+        }
+
+        // Resolve school identifier to UUID (school_parent_students.school_id is UUID)
+        let schoolUuid: string | null = schoolId;
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(schoolId)) {
+          const { data: schoolRow } = await supabase
+            .from('schools')
+            .select('id')
+            .eq('name', schoolId)
+            .maybeSingle();
+          schoolUuid = schoolRow?.id ?? null;
+        }
+        if (!schoolUuid) {
+          setChildren([]);
+          setChildrenLoading(false);
+          return;
+        }
+
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('id')
+          .eq('auth_user_id', user.id)
+          .single();
+
+        let list: ChildInfo[] = [];
+
+        // 1) Try school_parent_students (explicit link)
+        if (!userError && userData) {
+          const { data: mappings } = await supabase
+            .from('school_parent_students')
+            .select(
+              `
+              student_id,
+              school_students!inner (
+                id,
+                first_name,
+                last_name,
+                school_classes (name)
+              )
+            `
+            )
+            .eq('school_id', schoolUuid)
+            .eq('parent_user_id', userData.id);
+
+          if (mappings && mappings.length > 0) {
+            list = mappings.map((m: any) => ({
+              id: m.school_students.id,
+              first_name: m.school_students.first_name || '',
+              last_name: m.school_students.last_name || '',
+              class_name: m.school_students.school_classes?.name || '—',
+            }));
+          }
+        }
+
+        // 2) Fallback: school_students where parent_email matches (admin-enrolled link)
+        if (list.length === 0) {
+          const { data: studentsByEmail } = await supabase
+            .from('school_students')
+            .select('id, first_name, last_name, school_classes(name)')
+            .eq('school_id', schoolUuid)
+            .ilike('parent_email', user.email!)
+            .in('status', ['active', 'Active']);
+
+          if (studentsByEmail && studentsByEmail.length > 0) {
+            list = studentsByEmail.map((s: any) => ({
+              id: s.id,
+              first_name: s.first_name || '',
+              last_name: s.last_name || '',
+              class_name: s.school_classes?.name || '—',
+            }));
+          }
+        }
+
+        setChildren(list);
+      } catch (err) {
+        console.error('Error fetching parent children:', err);
+        setChildren([]);
+      } finally {
+        setChildrenLoading(false);
+      }
+    }
+
+    fetchChildren();
+  }, [schoolId]);
+
+  useEffect(() => {
+    if (!schoolId?.trim()) {
+      setParentKpis(EMPTY_KPIS);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(
+          `/api/school/parent/kpis?schoolId=${encodeURIComponent(schoolId)}`,
+          { credentials: 'include' }
+        );
+        const json = await res.json();
+        if (cancelled) return;
+        if (json?.success && json?.data) {
+          setParentKpis({
+            attendanceRate: Number(json.data.attendanceRate) || 0,
+            homeworkCompletion: Number(json.data.homeworkCompletion) || 0,
+            averageGrade: Number(json.data.averageGrade) || 0,
+            upcomingEvents: Number(json.data.upcomingEvents) || 0,
+          });
+        } else {
+          setParentKpis(EMPTY_KPIS);
+        }
+      } catch {
+        if (!cancelled) setParentKpis(EMPTY_KPIS);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [schoolId]);
+
+  const studentName = children.length === 0
+    ? (childrenLoading ? '…' : '—')
+    : children.map((c) => `${c.first_name} ${c.last_name}`.trim() || '—').join(', ');
+  const className = children.length === 0
+    ? '—'
+    : children.map((c) => c.class_name).join(', ');
 
   // Mock announcements
   const announcements: any[] = [];
@@ -48,6 +208,11 @@ export default function ParentDashboard() {
               {t('parentDashboard.studentInfo')
                 .replace('{student}', studentName)
                 .replace('{class}', className)}
+              {!childrenLoading && children.length === 0 && schoolId && (
+                <span className="block mt-1 text-blue-200/90 text-sm">
+                  {t('parentDashboard.noStudentsLinked') || 'No students linked for this school. Sign in as the parent or link your account.'}
+                </span>
+              )}
             </p>
           </div>
           <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-3xl">
@@ -56,33 +221,30 @@ export default function ParentDashboard() {
         </div>
       </Card>
 
-      {/* KPI Cards */}
+      {/* KPI Cards (from database; 0 when no data) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <KPICard
           icon={CalendarCheck}
           title={t('parentDashboard.attendanceRate')}
-          value={`${attendanceRate}%`}
-          trend={{ value: '2.1%', isPositive: true }}
+          value={`${parentKpis.attendanceRate}%`}
           color="green"
         />
         <KPICard
           icon={BookOpen}
           title={t('parentDashboard.homeworkCompletion')}
-          value={`${homeworkCompletionRate}%`}
-          trend={{ value: '5.3%', isPositive: true }}
+          value={`${parentKpis.homeworkCompletion}%`}
           color="blue"
         />
         <KPICard
           icon={TrendingUp}
           title={t('parentDashboard.averageGrade')}
-          value={averageGrade}
-          trend={{ value: '0.3', isPositive: true }}
+          value={parentKpis.averageGrade}
           color="purple"
         />
         <KPICard
           icon={PartyPopper}
           title={t('parentDashboard.upcomingEvents')}
-          value={upcomingEvents}
+          value={parentKpis.upcomingEvents}
           color="orange"
         />
       </div>

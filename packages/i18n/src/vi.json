@@ -39,7 +39,7 @@
   "healthRecords": "Hồ Sơ Sức Khỏe",
   "medicine": "Thuốc",
   "extracurricular": "Ngoại Khóa",
-  "payments": "Thanh Toán",
+  "payments": "Phí",
   "feedback": "Phản Hồi",
   "settings": {
     "title": "Cài Đặt",
@@ -103,7 +103,7 @@
         "announcements": "Thông Báo",
         "homework": "Bài Tập",
         "events": "Sự Kiện",
-        "payments": "Thanh Toán",
+        "payments": "Phí",
         "messages": "Tin Nhắn",
         "health": "Sức Khỏe"
       },
@@ -159,7 +159,7 @@
       "connectedOn": "Kết nối ngày",
       "testMode": "Chế Độ Thử Nghiệm",
       "fromNumber": "Số Gửi",
-      "payments": "Thanh Toán",
+      "payments": "Phí",
       "pushNotifications": "Thông Báo Đẩy",
       "sms": "SMS",
       "connected": "Đã Kết Nối",
@@ -1411,11 +1411,11 @@
       }
     },
     "payments": {
-      "title": "Thanh Toán",
-      "subtitle": "Quản lý thanh toán và thu phí học sinh",
-      "adminSubtitle": "Theo dõi thanh toán, tạo phí và quản lý thu tiền",
+      "title": "Phí",
+      "subtitle": "Quản lý phí và thu phí học sinh",
+      "adminSubtitle": "Theo dõi phí, tạo phí và quản lý thu tiền",
       "parentSubtitle": "Xem và thanh toán phí cho con bạn",
-      "loading": "Đang tải thanh toán...",
+      "loading": "Đang tải phí...",
       "filters": {
         "dateRange": "Khoảng thời gian",
         "week": "Tuần",
@@ -1692,7 +1692,7 @@
       "health": "Sức khỏe",
       "medicine": "Thuốc",
       "photos": "Ảnh",
-      "payments": "Thanh toán"
+      "payments": "Phí"
     },
     "kpis": {
       "schoolsTrusted": "Trường tin dùng",

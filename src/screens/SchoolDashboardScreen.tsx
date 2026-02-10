@@ -27,10 +27,14 @@ import {
   fetchAnnouncements,
   fetchUpcomingHomework,
   fetchSchoolDetails,
+  fetchParentChildren,
+  fetchParentDashboardKPIs,
   type DashboardKPIs,
   type WeeklyAttendanceData,
   type Announcement,
   type Homework,
+  type ParentChildInfo,
+  type ParentDashboardKPIs,
 } from '../services/school-dashboard';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -52,7 +56,14 @@ const SchoolDashboardScreen: React.FC = () => {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [homework, setHomework] = useState<Homework[]>([]);
   const [schoolDetails, setSchoolDetails] = useState<any>(null);
-  
+  const [parentChildren, setParentChildren] = useState<ParentChildInfo[]>([]);
+  const [parentKpis, setParentKpis] = useState<ParentDashboardKPIs>({
+    attendanceRate: 0,
+    homeworkCompletion: 0,
+    averageGrade: 0,
+    upcomingEvents: 0,
+  });
+
   const navigation = useNavigation<any>();
   const { currentSchool, refreshSchoolData, leaveSchool } = useSchool();
   const { userData } = useUser();
@@ -346,13 +357,16 @@ const SchoolDashboardScreen: React.FC = () => {
     try {
       setLoading(true);
 
-      // Fetch all data in parallel
-      const [kpis, weeklyData, announcementsData, homeworkData, details] = await Promise.all([
+      // Fetch all data in parallel; parents also get their children and parent KPIs
+      const isParent = userData?.type === 'parent';
+      const [kpis, weeklyData, announcementsData, homeworkData, details, childrenData, parentKpisData] = await Promise.all([
         fetchDashboardKPIs(currentSchool.id),
         fetchWeeklyAttendance(currentSchool.id, language),
         fetchAnnouncements(currentSchool.id, 3),
         fetchUpcomingHomework(currentSchool.id, 3),
         fetchSchoolDetails(currentSchool.id),
+        isParent ? fetchParentChildren(currentSchool.id) : Promise.resolve([]),
+        isParent ? fetchParentDashboardKPIs(currentSchool.id) : Promise.resolve({ attendanceRate: 0, homeworkCompletion: 0, averageGrade: 0, upcomingEvents: 0 }),
       ]);
 
       console.log('✅ Dashboard data loaded:', {
@@ -360,6 +374,8 @@ const SchoolDashboardScreen: React.FC = () => {
         announcements: announcementsData.length,
         homework: homeworkData.length,
         schoolDetails: details?.name,
+        parentChildren: childrenData?.length ?? 0,
+        parentKpis: parentKpisData,
       });
 
       setKpiData(kpis);
@@ -367,6 +383,8 @@ const SchoolDashboardScreen: React.FC = () => {
       setAnnouncements(announcementsData);
       setHomework(homeworkData);
       setSchoolDetails(details);
+      setParentChildren(childrenData ?? []);
+      setParentKpis(parentKpisData ?? { attendanceRate: 0, homeworkCompletion: 0, averageGrade: 0, upcomingEvents: 0 });
       setLoading(false);
     } catch (error) {
       console.error('❌ Error loading dashboard data:', error);
@@ -518,6 +536,66 @@ const SchoolDashboardScreen: React.FC = () => {
             </View>
           </View>
         </View>
+
+        {/* Parent: Welcome banner with student name(s) and class(es) */}
+        {!isAdmin && (
+        <View style={[styles.card, { marginHorizontal: spacing.md, marginBottom: spacing.md, backgroundColor: colors.primary, paddingVertical: spacing.lg }]}>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.schoolName, { color: '#fff', marginBottom: spacing.sm }]}>
+                {language === 'vi' ? 'Chào mừng trở lại, Phụ huynh!' : 'Welcome back, Parent!'}
+              </Text>
+              <Text style={[styles.currentDate, { color: 'rgba(255,255,255,0.9)', fontSize: typography.fontSize.sm }]}>
+                {parentChildren.length === 0
+                  ? (language === 'vi' ? 'Chưa có học sinh nào được liên kết' : 'No students linked')
+                  : (language === 'vi' ? 'Học sinh: ' : 'Student: ') +
+                    parentChildren.map((c) => `${c.first_name} ${c.last_name}`.trim() || '—').join(', ') +
+                    (language === 'vi' ? ' • Lớp: ' : ' • Class: ') +
+                    parentChildren.map((c) => c.class_name).join(', ')}
+              </Text>
+            </View>
+            <Text style={{ fontSize: 28 }}>👋</Text>
+          </View>
+        </View>
+        )}
+
+        {/* Parent: Student-linked KPIs from database (0 when no data) */}
+        {!isAdmin && (
+        <View style={styles.kpiSection}>
+          <View style={styles.kpiRow}>
+            <View style={styles.kpiCard}>
+              <View style={[styles.kpiIconContainer, { backgroundColor: '#E8F5E9' }]}>
+                <MaterialIcons name="check-circle" size={24} color="#4CAF50" />
+              </View>
+              <Text style={styles.kpiValue}>{parentKpis.attendanceRate}%</Text>
+              <Text style={styles.kpiLabel}>{language === 'vi' ? 'Tỷ lệ điểm danh' : 'Attendance Rate'}</Text>
+            </View>
+            <View style={styles.kpiCard}>
+              <View style={[styles.kpiIconContainer, { backgroundColor: '#E3F2FF' }]}>
+                <MaterialIcons name="book" size={24} color="#0B5FFF" />
+              </View>
+              <Text style={styles.kpiValue}>{parentKpis.homeworkCompletion}%</Text>
+              <Text style={styles.kpiLabel}>{language === 'vi' ? 'Hoàn thành bài tập' : 'Homework Completion'}</Text>
+            </View>
+          </View>
+          <View style={styles.kpiRow}>
+            <View style={styles.kpiCard}>
+              <View style={[styles.kpiIconContainer, { backgroundColor: '#F3E5F5' }]}>
+                <MaterialIcons name="trending-up" size={24} color="#9C27B0" />
+              </View>
+              <Text style={styles.kpiValue}>{parentKpis.averageGrade}</Text>
+              <Text style={styles.kpiLabel}>{language === 'vi' ? 'Điểm trung bình' : 'Average Grade'}</Text>
+            </View>
+            <View style={styles.kpiCard}>
+              <View style={[styles.kpiIconContainer, { backgroundColor: '#FFF3E0' }]}>
+                <MaterialIcons name="event" size={24} color="#FF9800" />
+              </View>
+              <Text style={styles.kpiValue}>{parentKpis.upcomingEvents}</Text>
+              <Text style={styles.kpiLabel}>{language === 'vi' ? 'Sự kiện sắp tới' : 'Upcoming Events'}</Text>
+            </View>
+          </View>
+        </View>
+        )}
 
         {/* Parent PIN Card - admin/teacher only, at top for visibility */}
         {isAdmin && (

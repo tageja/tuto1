@@ -301,6 +301,191 @@ export async function fetchUpcomingHomework(schoolId: string, limit: number = 3)
   }
 }
 
+export interface ParentChildInfo {
+  id: string;
+  first_name: string;
+  last_name: string;
+  class_name: string;
+}
+
+/** Fetch current user's children for a school (parent view). Uses school_parent_students then fallback to school_students.parent_email. */
+export async function fetchParentChildren(schoolId: string): Promise<ParentChildInfo[]> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user?.email) return [];
+
+    const resolvedId = await resolveSchoolId(schoolId);
+    if (!resolvedId) return [];
+
+    const { data: userData } = await supabase
+      .from('users')
+      .select('id')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    let list: ParentChildInfo[] = [];
+
+    if (userData) {
+      const { data: mappings } = await supabase
+        .from('school_parent_students')
+        .select(
+          `student_id, school_students!inner(id, first_name, last_name, school_classes(name))`
+        )
+        .eq('school_id', resolvedId)
+        .eq('parent_user_id', userData.id);
+
+      if (mappings?.length) {
+        list = mappings.map((m: any) => ({
+          id: m.school_students.id,
+          first_name: m.school_students.first_name || '',
+          last_name: m.school_students.last_name || '',
+          class_name: m.school_students.school_classes?.name || '—',
+        }));
+      }
+    }
+
+    if (list.length === 0) {
+      const { data: byEmail } = await supabase
+        .from('school_students')
+        .select('id, first_name, last_name, school_classes(name)')
+        .eq('school_id', resolvedId)
+        .ilike('parent_email', user.email)
+        .in('status', ['active', 'Active']);
+
+      if (byEmail?.length) {
+        list = byEmail.map((s: any) => ({
+          id: s.id,
+          first_name: s.first_name || '',
+          last_name: s.last_name || '',
+          class_name: s.school_classes?.name || '—',
+        }));
+      }
+    }
+
+    return list;
+  } catch (error) {
+    console.error('Error fetching parent children:', error);
+    return [];
+  }
+}
+
+export interface ParentDashboardKPIs {
+  attendanceRate: number;
+  homeworkCompletion: number;
+  averageGrade: number;
+  upcomingEvents: number;
+}
+
+/** Fetch parent-specific KPIs from DB (attendance, homework completion, avg grade, upcoming events). Returns 0 for each when no data. */
+export async function fetchParentDashboardKPIs(schoolId: string): Promise<ParentDashboardKPIs> {
+  const empty: ParentDashboardKPIs = {
+    attendanceRate: 0,
+    homeworkCompletion: 0,
+    averageGrade: 0,
+    upcomingEvents: 0,
+  };
+
+  try {
+    const resolvedId = await resolveSchoolId(schoolId);
+    if (!resolvedId) return empty;
+
+    const children = await fetchParentChildren(schoolId);
+    const today = new Date().toISOString().split('T')[0];
+
+    if (children.length === 0) {
+      const { data: events } = await supabase
+        .from('school_events')
+        .select('id')
+        .eq('school_id', resolvedId)
+        .gte('starts_at', today)
+        .in('status', ['scheduled', 'in progress']);
+      return { ...empty, upcomingEvents: events?.length ?? 0 };
+    }
+
+    const studentIds = children.map((c) => c.id);
+
+    // 1) Attendance rate (last 30 days): present / total * 100
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const fromDate = thirtyDaysAgo.toISOString().split('T')[0];
+    const { data: attendanceRows } = await supabase
+      .from('school_attendance')
+      .select('id, status')
+      .eq('school_id', resolvedId)
+      .in('student_id', studentIds)
+      .gte('date', fromDate);
+
+    const totalAttendance = attendanceRows?.length ?? 0;
+    const presentCount = attendanceRows?.filter((a) => (a.status || '').toLowerCase() === 'present').length ?? 0;
+    const attendanceRate = totalAttendance > 0 ? Math.round((presentCount / totalAttendance) * 100) : 0;
+
+    // 2) Homework completion: submitted|graded submissions / assignments targeting these students (due and active)
+    const { data: targets } = await supabase
+      .from('school_homework_targets')
+      .select('assignment_id')
+      .in('student_id', studentIds);
+
+    const assignmentIdsFromTargets = [...new Set((targets ?? []).map((t) => t.assignment_id))];
+    const totalAssignments =
+      assignmentIdsFromTargets.length === 0
+        ? 0
+        : (
+            await supabase
+              .from('school_homework_assignments')
+              .select('id')
+              .in('id', assignmentIdsFromTargets)
+              .eq('school_id', resolvedId)
+              .eq('is_active', true)
+              .lte('due_date', today)
+          ).data?.length ?? 0;
+
+    const { data: submissions } = await supabase
+      .from('school_homework_submissions')
+      .select('assignment_id, status')
+      .in('student_id', studentIds);
+
+    const completedSubmissions =
+      submissions?.filter((s) =>
+        ['submitted', 'graded'].includes((s.status || '').toLowerCase())
+      ).length ?? 0;
+
+    const homeworkCompletion =
+      totalAssignments > 0
+        ? Math.round((completedSubmissions / totalAssignments) * 100)
+        : 0;
+
+    // 3) Average grade from school_assessment_scores (score 0–100 or similar)
+    const { data: scores } = await supabase
+      .from('school_assessment_scores')
+      .select('score')
+      .in('student_id', studentIds);
+
+    const numericScores = (scores ?? []).map((s) => Number(s.score)).filter((n) => !Number.isNaN(n));
+    const averageGrade =
+      numericScores.length > 0
+        ? Math.round((numericScores.reduce((a, b) => a + b, 0) / numericScores.length) * 10) / 10
+        : 0;
+
+    // 4) Upcoming events (school-level, from today)
+    const { data: events } = await supabase
+      .from('school_events')
+      .select('id')
+      .eq('school_id', resolvedId)
+      .gte('starts_at', today)
+      .in('status', ['scheduled', 'in progress']);
+
+    return {
+      attendanceRate,
+      homeworkCompletion,
+      averageGrade,
+      upcomingEvents: events?.length ?? 0,
+    };
+  } catch (error) {
+    console.error('Error fetching parent dashboard KPIs:', error);
+    return empty;
+  }
+}
+
 export async function fetchSchoolDetails(schoolId: string) {
   try {
     // Resolve school ID

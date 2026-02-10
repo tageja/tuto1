@@ -39,7 +39,7 @@
   "healthRecords": "Health Records",
   "medicine": "Medicine",
   "extracurricular": "Extracurricular",
-  "payments": "Payments",
+  "payments": "Fees",
   "feedback": "Feedback",
   "settings": {
     "title": "Settings",
@@ -103,7 +103,7 @@
         "announcements": "Announcements",
         "homework": "Homework",
         "events": "Events",
-        "payments": "Payments",
+        "payments": "Fees",
         "messages": "Messages",
         "health": "Health"
       },
@@ -159,7 +159,7 @@
       "connectedOn": "Connected on",
       "testMode": "Test Mode",
       "fromNumber": "From Number",
-      "payments": "Payments",
+      "payments": "Fees",
       "pushNotifications": "Push Notifications",
       "sms": "SMS",
       "connected": "Connected",
@@ -1411,11 +1411,11 @@
       }
     },
     "payments": {
-      "title": "Payments",
-      "subtitle": "Manage student payments and fee collection",
-      "adminSubtitle": "Track payments, create charges, and manage collections",
+      "title": "Fees",
+      "subtitle": "Manage student fees and fee collection",
+      "adminSubtitle": "Track fees, create charges, and manage collections",
       "parentSubtitle": "View and pay fees for your child",
-      "loading": "Loading payments...",
+      "loading": "Loading fees...",
       "filters": {
         "dateRange": "Date Range",
         "week": "Week",
@@ -1694,7 +1694,7 @@
       "health": "Health",
       "medicine": "Medicine",
       "photos": "Photos",
-      "payments": "Payments"
+      "payments": "Fees"
     },
     "kpis": {
       "schoolsTrusted": "Schools Trusted",

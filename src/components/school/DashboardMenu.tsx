@@ -70,7 +70,7 @@ export const DashboardMenu: React.FC<DashboardMenuProps> = ({
       { icon: 'favorite', label: 'Health Records', labelVi: 'Hồ sơ sức khỏe', screen: 'SchoolHealth', roles: ['admin', 'parent'] },
       { icon: 'medication', label: 'Medicine', labelVi: 'Thuốc men', screen: 'SchoolMedicine', roles: ['admin', 'parent'] },
       { icon: 'emoji-events', label: 'Extracurricular', labelVi: 'Ngoại khóa', screen: 'SchoolActivities', roles: ['admin'] },
-      { icon: 'payments', label: 'Payments', labelVi: 'Thanh toán', screen: 'SchoolPayments', roles: ['admin', 'parent'] },
+      { icon: 'payments', label: 'Fees', labelVi: 'Phí', screen: 'SchoolPayments', roles: ['admin', 'parent'] },
       { icon: 'settings', label: 'Settings', labelVi: 'Cài đặt', screen: 'SettingsStack', roles: ['admin', 'parent'] },
     ];
 
