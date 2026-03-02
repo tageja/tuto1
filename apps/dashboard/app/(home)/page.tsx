@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useI18n } from '../../contexts/I18nContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Menu, X } from 'lucide-react';
@@ -19,7 +21,17 @@ import SchoolAccessModals from "../../components/landing/SchoolAccessModals";
 export default function WebHomePage() {
   const { t, lang, setLang } = useI18n();
   const { user } = useAuth();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Teachers should go to teacher dashboard, not landing page
+  useEffect(() => {
+    if (!user) return;
+    const role = user.role?.toLowerCase?.() ?? user.role;
+    if (role === 'teacher') {
+      router.replace('/school/teacher');
+    }
+  }, [user, router]);
 
   return (
     <div className="min-h-screen bg-white">

@@ -24,6 +24,10 @@ export default function AdminTeacherProfilePage() {
   const [attendance, setAttendance] = useState<any[]>([]);
   const [feedback, setFeedback] = useState<any[]>([]);
   const [teachingHours, setTeachingHours] = useState<any[]>([]);
+  const [assignedClasses, setAssignedClasses] = useState<any[]>([]);
+  const [allClasses, setAllClasses] = useState<any[]>([]);
+  const [assignClassId, setAssignClassId] = useState('');
+  const [classesLoading, setClassesLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,8 +40,58 @@ export default function AdminTeacherProfilePage() {
       fetchAttendance();
     } else if (activeTab === 'feedback' && feedback.length === 0) {
       fetchFeedback();
+    } else if (activeTab === 'classes') {
+      fetchClassesForTeacher();
     }
   }, [activeTab]);
+
+  async function fetchClassesForTeacher() {
+    if (!schoolId) return;
+    setClassesLoading(true);
+    try {
+      const res = await fetch(`/api/school/classes?schoolId=${encodeURIComponent(schoolId)}&limit=200`);
+      const data = await res.json();
+      const all = data?.data?.records ?? data?.records ?? [];
+      const list = Array.isArray(all) ? all : [];
+      setAllClasses(list);
+      setAssignedClasses(list.filter((c: any) => c.teacher_id === teacherId));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setClassesLoading(false);
+    }
+  }
+
+  async function assignClass(classId: string) {
+    if (!classId) return;
+    try {
+      const res = await fetch(`/api/school/classes/${classId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teacher_id: teacherId }),
+      });
+      if (!res.ok) throw new Error('Failed to assign');
+      await fetchClassesForTeacher();
+      setAssignClassId('');
+    } catch (e) {
+      console.error(e);
+      alert(t('dashboard.teachers.profile.noClasses') || 'Failed to assign class');
+    }
+  }
+
+  async function unassignClass(classId: string) {
+    try {
+      const res = await fetch(`/api/school/classes/${classId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teacher_id: null }),
+      });
+      if (!res.ok) throw new Error('Failed to unassign');
+      await fetchClassesForTeacher();
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
   async function fetchTeacher() {
     try {
@@ -109,21 +163,23 @@ export default function AdminTeacherProfilePage() {
     );
   }
 
-  const fields = teacher.fields || {};
+  // API returns flat Supabase columns (not Airtable-style fields)
   const stats = teacher.stats || {};
-  const name = fields['Teacher Name'] || 'Unnamed Teacher';
-  const status = fields.Status || 'Active';
-  const email = fields.Email || '';
-  const phone = fields.Phone || '';
-  const position = fields.Position || 'Teacher';
-  const bio = fields.Bio || '';
-  const education = fields.Education || '';
-  const subjects = fields.Subjects || '';
-  const hireDate = fields['Hire Date'];
-  const experienceYears = fields['Experience Years'] || 0;
-  const rating = fields.Rating || 0;
-  const nationality = fields.Nationality || '';
-  const hobbies = fields.Hobbies || '';
+  const name = teacher.name || 'Unnamed Teacher';
+  const status = teacher.status || 'Active';
+  const email = teacher.email || '';
+  const phone = teacher.phone || '';
+  const position = teacher.qualifications || 'Teacher';
+  const bio = '';
+  const education = teacher.qualifications || '';
+  const subjects = Array.isArray(teacher.subjects)
+    ? teacher.subjects.join(', ')
+    : (teacher.subjects || '');
+  const hireDate = teacher.hire_date;
+  const experienceYears = 0;
+  const rating = 0;
+  const nationality = '';
+  const hobbies = '';
 
   // Calculate tenure
   const tenure = stats.tenure || 0;
@@ -308,10 +364,43 @@ export default function AdminTeacherProfilePage() {
           {activeTab === 'classes' && (
             <div>
               <h3 className="text-lg font-semibold mb-4">{t('dashboard.teachers.profile.tabs.classes')}</h3>
-              <p className="text-gray-600">{t('dashboard.teachers.profile.noClasses')}</p>
-              <p className="text-sm text-gray-500 mt-2">
-                Class assignments feature coming in Phase 2
-              </p>
+              <div className="flex flex-wrap gap-4 mb-4">
+                <select
+                  value={assignClassId}
+                  onChange={(e) => setAssignClassId(e.target.value)}
+                  className="border border-gray-300 rounded-lg px-4 py-2 bg-white min-w-[200px]"
+                >
+                  <option value="">— {lang === 'vi' ? 'Chọn lớp để giao' : 'Select class to assign'} —</option>
+                  {(allClasses.filter((c: any) => c.teacher_id !== teacherId)).map((c: any) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} {c.teacher_id ? `(${lang === 'vi' ? 'đang giao' : 'assigned'})` : ''}
+                    </option>
+                  ))}
+                </select>
+                <Button
+                  size="sm"
+                  disabled={!assignClassId || classesLoading}
+                  onClick={() => assignClass(assignClassId)}
+                >
+                  {lang === 'vi' ? 'Giao lớp' : 'Assign class'}
+                </Button>
+              </div>
+              {classesLoading ? (
+                <p className="text-gray-500">{lang === 'vi' ? 'Đang tải...' : 'Loading...'}</p>
+              ) : assignedClasses.length === 0 ? (
+                <p className="text-gray-600">{t('dashboard.teachers.profile.noClasses')}</p>
+              ) : (
+                <ul className="space-y-2">
+                  {assignedClasses.map((c: any) => (
+                    <li key={c.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="font-medium">{c.name}</span>
+                      <Button variant="outline" size="sm" onClick={() => unassignClass(c.id)}>
+                        {lang === 'vi' ? 'Bỏ giao' : 'Unassign'}
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           )}
 

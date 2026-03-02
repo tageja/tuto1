@@ -290,9 +290,10 @@ const styles = {
 };
 
 export default function LoginPage() {
-  const { signIn, signUp, loading, error, clearError, signInWithGoogle, firebaseUser } = useAuth();
+  const { signIn, signUp, signOut, loading, error, clearError, signInWithGoogle, firebaseUser, user } = useAuth();
   const router = useRouter();
   const { t, lang, setLang } = useI18n();
+  const [recoveryStuck, setRecoveryStuck] = useState(false);
 
   const [activeTab, setActiveTab] = useState<"signin" | "register">("signin");
   const [email, setEmail] = useState('');
@@ -308,59 +309,48 @@ export default function LoginPage() {
     setIsClient(true);
   }, []);
 
-  // Check for valid authenticated session before redirecting
+  // Redirect by role as soon as profile is loaded (session recovered or fresh sign-in)
   useEffect(() => {
-    let redirectTimeout: NodeJS.Timeout;
-    
-    const checkSession = async () => {
-      if (firebaseUser) {
-        try {
-          console.log('🔍 Checking session validity for user:', firebaseUser.email);
-          
-          // Verify the session is actually valid by checking with Supabase
-          const { data: { session }, error } = await supabase.auth.getSession();
-          
-          if (error) {
-            console.error('❌ Session check error:', error);
-            // Clear stale session
-            await supabase.auth.signOut();
-            console.log('🔄 Cleared invalid session');
-            return;
-          }
-          
-          if (!session) {
-            console.log('⚠️ No valid session found, clearing stale user state...');
-            // Force clear localStorage if session is invalid
-            await supabase.auth.signOut();
-            return;
-          }
-          
-          console.log('✅ Valid session found, user should be redirected by AuthContext');
-          
-          // Set a timeout - if we're still on login page after 3 seconds with valid session, force redirect
-          redirectTimeout = setTimeout(() => {
-            console.log('⏰ Redirect timeout reached, forcing navigation to /home');
-            router.push('/home');
-          }, 3000);
-          
-        } catch (err) {
-          console.error('❌ Error checking session:', err);
-          // Don't redirect on error, sign out to be safe
+    if (!user) return;
+    const role = user.role?.toLowerCase?.() ?? user.role;
+    if (role === 'teacher') {
+      router.replace('/school/teacher');
+    } else if (role === 'admin' || role === 'school_admin') {
+      router.replace('/school/admin');
+    } else {
+      router.replace('/home');
+    }
+  }, [user, router]);
+
+  // If we have a session but profile not yet loaded, validate session and clear if invalid
+  useEffect(() => {
+    if (!firebaseUser) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (cancelled) return;
+        if (error) {
           await supabase.auth.signOut();
+          return;
         }
-      } else {
-        console.log('ℹ️ No firebaseUser, user not authenticated');
+        if (!session) await supabase.auth.signOut();
+      } catch {
+        if (!cancelled) await supabase.auth.signOut();
       }
-    };
-    
-    checkSession();
-    
-    return () => {
-      if (redirectTimeout) {
-        clearTimeout(redirectTimeout);
-      }
-    };
-  }, [firebaseUser, router]);
+    })();
+    return () => { cancelled = true; };
+  }, [firebaseUser]);
+
+  // Escape hatch: if stuck on "Signing you in..." for 12s, show option to sign out and try again
+  useEffect(() => {
+    if (!firebaseUser || user) {
+      setRecoveryStuck(false);
+      return;
+    }
+    const timer = setTimeout(() => setRecoveryStuck(true), 12000);
+    return () => clearTimeout(timer);
+  }, [firebaseUser, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -391,6 +381,9 @@ export default function LoginPage() {
         }
       } else {
         await signIn(email.trim(), password);
+        if (role === 'teacher') {
+          router.push('/school/teacher');
+        }
       }
     } catch (err) {
       // Error is already handled by AuthContext
@@ -474,6 +467,33 @@ export default function LoginPage() {
 
           {/* White card with shadow */}
           <div style={styles.card}>
+            {/* Session recovered, profile loading — show message instead of greyed-out form */}
+            {firebaseUser && !user && (
+              <div style={{ padding: '32px', textAlign: 'center' as const, color: '#4B5563' }}>
+                <p style={{ marginBottom: 8 }}>{t('pleaseWait') || 'Please wait...'}</p>
+                <p style={{ fontSize: 14, marginBottom: recoveryStuck ? 16 : 0 }}>{t('redirecting')}</p>
+                {recoveryStuck && (
+                  <button
+                    type="button"
+                    onClick={() => signOut()}
+                    style={{
+                      marginTop: 8,
+                      padding: '10px 16px',
+                      fontSize: 14,
+                      color: '#0B5FFF',
+                      background: 'transparent',
+                      border: '1px solid #0B5FFF',
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {t('signOutAndTryAgain') || 'Sign out and try again'}
+                  </button>
+                )}
+              </div>
+            )}
+            {(!firebaseUser || user) && (
+            <>
             {/* Tab switcher */}
             <div style={styles.tabContainer}>
               <button
@@ -737,6 +757,8 @@ export default function LoginPage() {
                   </button>
                 )}
               </form>
+            )}
+            </>
             )}
           </div>
 

@@ -8,7 +8,7 @@ import { getUserSchools } from '../../lib/school/schools';
 import { SchoolSelector } from '../../components/school/SchoolSelector';
 
 export default function SchoolLayout({ children }: { children: React.ReactNode }) {
-  const [userRole, setUserRole] = useState<'admin' | 'parent' | null>(null);
+  const [userRole, setUserRole] = useState<'admin' | 'parent' | 'teacher' | null>(null);
   const [loading, setLoading] = useState(true);
   const { selectedSchool, setAvailableSchools, isLoading: schoolLoading } = useSchool();
   const router = useRouter();
@@ -25,7 +25,7 @@ export default function SchoolLayout({ children }: { children: React.ReactNode }
         
         // Detect role (will use API fallback)
         const role = await getUserRole(demoUid);
-        
+
         if (!role) {
           // Default to admin for demo purposes
           setUserRole('admin');
@@ -58,12 +58,20 @@ export default function SchoolLayout({ children }: { children: React.ReactNode }
           setAvailableSchools(schools.length > 0 ? schools : []);
         }
 
+        // If user is a teacher but landed on admin URL (e.g. bookmark or stale), send them to teacher view
+        const urlSchoolAdminMatch = pathname?.match(/^\/school\/([^/]+)\/admin(\/|$)/);
+        if (role === 'teacher' && urlSchoolAdminMatch) {
+          router.replace(`/school/${encodeURIComponent(urlSchoolAdminMatch[1])}/teacher`);
+          return;
+        }
+
         // Only redirect if we're on the base /school route and a school is selected
         // Don't redirect if we're already on /school/admin, /school/parent, or URL-based routes
         const isBaseRoute = pathname === '/school' || pathname === '/school/';
         const isAlreadyOnDashboard = pathname?.startsWith('/school/admin') || 
                                      pathname?.startsWith('/school/parent') ||
-                                     pathname?.match(/^\/school\/[^\/]+\/(admin|parent)/);
+                                     pathname?.startsWith('/school/teacher') ||
+                                     pathname?.match(/^\/school\/[^\/]+\/(admin|parent|teacher)/);
         
         // Check parent access if user is a parent navigating to base route
         // Also check if role is null but user might be a parent (PIN-linked)
@@ -121,8 +129,12 @@ export default function SchoolLayout({ children }: { children: React.ReactNode }
         }
         
         if (selectedSchool && !schoolLoading && isBaseRoute && !isAlreadyOnDashboard) {
-          const finalRole = role || 'admin';
-          router.push(`/school/${finalRole}`);
+          if (role === 'teacher') {
+            router.push(`/school/${encodeURIComponent(selectedSchool.id)}/teacher`);
+          } else {
+            const finalRole = role || 'admin';
+            router.push(`/school/${finalRole}`);
+          }
         }
       } catch (error) {
         console.error('Error in school layout:', error);
@@ -156,7 +168,8 @@ export default function SchoolLayout({ children }: { children: React.ReactNode }
   // If we're on a dashboard route, don't wait for schoolLoading
   const isDashboardRoute = pathname?.startsWith('/school/admin') || 
                           pathname?.startsWith('/school/parent') ||
-                          pathname?.match(/^\/school\/[^\/]+\/(admin|parent)/);
+                          pathname?.startsWith('/school/teacher') ||
+                          pathname?.match(/^\/school\/[^\/]+\/(admin|parent|teacher)/);
   
   // If we're on a dashboard route, render children immediately
   // This prevents infinite loading when visiting /school/admin directly

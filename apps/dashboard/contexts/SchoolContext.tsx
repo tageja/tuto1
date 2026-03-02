@@ -35,8 +35,8 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     async function loadSchool() {
       try {
         // Priority 1: Extract schoolId from URL pattern (new URL-based routes)
-        // Pattern: /school/:schoolId/(admin|parent)/...
-        const urlMatch = pathname?.match(/^\/school\/([^\/]+)\/(admin|parent)/);
+        // Pattern: /school/:schoolId/(admin|parent|teacher)/...
+        const urlMatch = pathname?.match(/^\/school\/([^\/]+)\/(admin|parent|teacher)/);
         
         if (urlMatch) {
           const schoolIdFromUrl = decodeURIComponent(urlMatch[1]);

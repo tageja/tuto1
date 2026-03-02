@@ -186,61 +186,9 @@ export default function AdminDailyActivitiesPage() {
         }
       }
       
-      // Fallback: Direct Supabase query - first resolve schoolId to UUID
-      // Check if schoolId is UUID or name
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      let resolvedSchoolId = schoolId;
-      
-      if (!uuidRegex.test(schoolId)) {
-        // It's a school name, need to resolve to UUID
-        const { data: schoolData } = await supabase
-          .from('schools')
-          .select('id')
-          .eq('name', schoolId)
-          .maybeSingle();
-        
-        if (schoolData?.id) {
-          resolvedSchoolId = schoolData.id;
-        } else {
-          // Try case-insensitive
-          const { data: schoolData2 } = await supabase
-            .from('schools')
-            .select('id, name')
-            .ilike('name', schoolId)
-            .limit(1)
-            .maybeSingle();
-          
-          if (schoolData2?.id) {
-            resolvedSchoolId = schoolData2.id;
-          } else {
-            console.error('Could not resolve school name to UUID:', schoolId);
-            return;
-          }
-        }
-      }
-
-      // Now query classes with resolved UUID
-      const { data: classesData, error } = await supabase
-        .from('school_classes')
-        .select('id, name, grade_level')
-        .eq('school_id', resolvedSchoolId)
-        .in('status', ['active', 'Active'])
-        .order('grade_level', { ascending: true, nullsLast: true })
-        .order('name', { ascending: true })
-        .limit(100);
-
-      if (error) {
-        console.error('Failed to fetch classes from Supabase:', error);
-        setError(`Failed to load classes: ${error.message}`);
-        return;
-      }
-
-      if (classesData && classesData.length > 0) {
-        setClasses(classesData);
-      } else {
-        console.warn('No classes found for school:', schoolId);
-        setClasses([]);
-      }
+      // API call failed — log and set empty classes
+      console.warn('Classes API did not return expected data, setting empty classes');
+      setClasses([]);
     } catch (err: any) {
       console.error('Failed to fetch classes:', err);
       setError(`Failed to load classes: ${err.message || 'Unknown error'}`);
@@ -409,7 +357,7 @@ export default function AdminDailyActivitiesPage() {
     setIsDayModalOpen(false);
     setIsWeekModalOpen(false);
     setToast({
-      message: t('dashboard.activities.toast.bulkCreated') || 'Activities created successfully',
+      message: lang === 'vi' ? 'Đã tạo nhiều hoạt động thành công' : 'Activities created successfully',
       type: 'success',
     });
   };
@@ -539,7 +487,7 @@ export default function AdminDailyActivitiesPage() {
                   className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 border-b border-gray-100 flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
-                  {t('dashboard.activities.dayModal.title') || "Add Day's Activities"}
+                  {lang === 'vi' ? 'Thêm Lịch Hoạt Động Ngày' : "Add Day's Activities"}
                 </button>
                 <button
                   onClick={() => {
@@ -549,7 +497,7 @@ export default function AdminDailyActivitiesPage() {
                   className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
-                  {t('dashboard.activities.weekModal.title') || 'Add Week (Timetable)'}
+                  {lang === 'vi' ? 'Thêm Lịch Tuần' : 'Add Week (Timetable)'}
                 </button>
               </div>
             </>

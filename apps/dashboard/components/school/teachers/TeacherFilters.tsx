@@ -37,9 +37,12 @@ export function TeacherFilters({
     { value: 'Inactive', label: t('dashboard.teachers.status.inactive') },
   ];
 
+  // Exclude "all" from teacher subjects so the filter option "All" is unique (avoids duplicate React key)
   const subjectOptions = [
     { value: 'all', label: t('dashboard.teachers.filters.all') },
-    ...subjects.map(s => ({ value: s, label: s })),
+    ...subjects
+      .filter((s) => s.trim().toLowerCase() !== 'all')
+      .map((s) => ({ value: s, label: s })),
   ];
 
   const hasActiveFilters = searchQuery || selectedStatus !== 'all' || selectedSubject !== 'all';

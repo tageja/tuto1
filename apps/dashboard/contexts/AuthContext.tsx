@@ -22,6 +22,10 @@ interface AuthContextType {
   // State
   user: User | null;
   supabaseUser: SupabaseUser | null;
+  /** Alias for supabaseUser (used by login page / legacy) */
+  firebaseUser: SupabaseUser | null;
+  /** Current session access token — use for API Authorization headers */
+  accessToken: string | null;
   loading: boolean;
   error: string | null;
   
@@ -46,6 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const router = useRouter();
   const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,16 +82,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .single();
 
       let result: Awaited<ReturnType<ReturnType<typeof supabase.from>['single']>>;
+      const t0 = Date.now();
       try {
         result = await withTimeout(
           profileQuery(),
-          20000,
-          'Profile fetch timed out after 20 seconds'
+          10000,
+          'Profile fetch timed out'
         );
       } catch (timeoutErr: any) {
         if (timeoutErr?.message?.includes('timed out')) {
           console.warn('⏱️ Profile fetch timed out, retrying once...');
-          result = await profileQuery();
+          try {
+            result = await withTimeout(profileQuery(), 8000, 'Profile fetch retry timed out');
+          } catch (retryErr: any) {
+            // Both attempts timed out — sign out and let user retry (DB is cold-starting)
+            console.error('❌ Profile fetch timed out twice. Database may be cold-starting. Signing out.');
+            await supabase.auth.signOut();
+            setSupabaseUser(null);
+            setUser(null);
+            setAccessToken(null);
+            setError('Connection to database timed out. Please sign in again — it should work now.');
+            return;
+          }
         } else {
           throw timeoutErr;
         }
@@ -228,22 +245,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         stack: err?.stack?.substring(0, 200),
       });
       
-      // Handle timeout errors (after retry failed or retry not applicable)
-      if (err?.message?.includes('timed out') || err?.message?.includes('20 seconds')) {
-        console.error('❌ Profile fetch timed out, trying to continue with minimal user data');
-        // Set minimal user data so the app doesn't hang
-        setUser({
-          id: supabaseUser.id,
-          firebaseUid: supabaseUser.id,
-          email: supabaseUser.email || '',
-          name: supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0] || '',
-          role: 'parent',
-          avatar: supabaseUser.user_metadata?.avatar_url || undefined,
-          schoolIds: [],
-          createdAt: new Date().toISOString(),
-        });
-        setError('Profile load was slow. Some features may be limited.');
-        return; // Don't sign out, just continue with minimal data
+      // Timeout errors are now handled inside the inner try/catch above (sign out + error message).
+      // If we reach here with a timeout-like error, it means the inner handler didn't fire — sign out cleanly.
+      if (err?.message?.includes('timed out')) {
+        console.error('❌ Profile fetch timed out (outer catch). Signing out for clean retry.');
+        await supabase.auth.signOut();
+        setSupabaseUser(null);
+        setUser(null);
+        setAccessToken(null);
+        setError('Connection to database timed out. Please sign in again — it should work now.');
+        return;
       }
       
       // Check if this is an auth error
@@ -254,8 +265,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(null);
         setError('Your session has expired. Please sign in again.');
       } else {
-        console.error('❌ Non-auth error, setting generic error');
-        setError('Failed to load user profile');
+        console.error('❌ Non-auth error, continuing with minimal user so app is not stuck');
+        setError('Failed to load full profile. Some features may be limited.');
+        setUser({
+          id: supabaseUser.id,
+          firebaseUid: supabaseUser.id,
+          email: supabaseUser.email || '',
+          name: supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0] || '',
+          role: 'parent',
+          avatar: supabaseUser.user_metadata?.avatar_url || undefined,
+          schoolIds: [],
+          createdAt: new Date().toISOString(),
+        });
       }
     }
   }, []);
@@ -287,12 +308,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (session?.user) {
           console.log('✅ Valid session found, fetching user profile...');
           setSupabaseUser(session.user);
+          setAccessToken(session.access_token ?? null);
           
           // Validate session is not expired by trying to fetch profile
           await fetchUserProfile(session.user);
         } else {
           console.log('ℹ️ No active session found');
           setSupabaseUser(null);
+          setAccessToken(null);
           setUser(null);
         }
       } catch (err: any) {
@@ -324,11 +347,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!mounted) return;
       try {
         console.log('🔄 Auth state changed:', event, session ? `(user: ${session.user?.email})` : '(no session)');
-        setLoading(true);
+        // Do not set loading=true here: session recovery would grey out the login form
+        // while profile is fetched. signIn/signUp set loading themselves when needed.
 
         if (event === 'SIGNED_OUT') {
           console.log('🚪 User signed out, clearing state');
           setSupabaseUser(null);
+          setAccessToken(null);
           setUser(null);
           setLoading(false);
           return;
@@ -343,6 +368,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         setSupabaseUser(session?.user ?? null);
+        setAccessToken(session?.access_token ?? null);
 
         if (session?.user) {
           console.log('📥 Session user found, fetching profile...');
@@ -647,6 +673,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value: AuthContextType = {
     user,
     supabaseUser,
+    firebaseUser: supabaseUser,
+    accessToken,
     loading,
     error,
     signIn,

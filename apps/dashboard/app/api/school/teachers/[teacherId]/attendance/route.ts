@@ -10,10 +10,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { teacherId: string } }
+  { params }: { params: Promise<{ teacherId: string }> }
 ) {
   try {
-    const teacherId = params.teacherId;
+    const { teacherId } = await params;
     const searchParams = request.nextUrl.searchParams;
     const schoolId = searchParams.get('schoolId');
 

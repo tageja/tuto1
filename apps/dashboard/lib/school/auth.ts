@@ -1,85 +1,102 @@
 import { supabase } from '../supabase';
 
-export type UserRole = 'admin' | 'parent' | null;
+export type UserRole = 'admin' | 'parent' | 'teacher' | null;
 
 /**
- * Get user role from Supabase user profile
+ * Get user role from Supabase user profile.
+ * Teacher is determined by: users.role = 'teacher' OR user linked in school_teachers (takes precedence for dashboard).
  */
 export async function getUserRole(uid: string): Promise<UserRole> {
   try {
-    // Get user profile from Supabase database
     const { data: profile, error } = await supabase
       .from('users')
-      .select('role')
+      .select('id, role')
       .eq('auth_user_id', uid)
       .single();
 
-    if (error || !profile) {
-      console.warn('User profile not found, checking school associations...');
-      
-      // Fallback: Check if user is a school teacher (admin role)
-      const { data: teacher } = await supabase
+    const userRow = error || !profile ? null : profile;
+
+    // Admin/school_admin role ALWAYS takes precedence — check before school_teachers.
+    // A user can be linked in school_teachers (e.g. as a demo teacher) while still being an admin.
+    if (userRow?.role === 'admin' || userRow?.role === 'school_admin') {
+      return 'admin';
+    }
+
+    // For non-admin users: a school_teachers link means they get the teacher view.
+    if (userRow?.id) {
+      const { data: teacherRow } = await supabase
         .from('school_teachers')
         .select('id')
-        .eq('user_id', uid)
+        .eq('user_id', userRow.id)
         .limit(1)
-        .single();
-      
-      if (teacher) {
-        return 'admin';
+        .maybeSingle();
+
+      if (teacherRow) {
+        return 'teacher';
       }
-      
-      // Check if user is a parent (has students OR PIN access)
+    }
+
+    // No teacher link; use profile role
+    if (userRow?.role === 'teacher') {
+      return 'teacher';
+    }
+    if (userRow?.role === 'parent') {
+      return 'parent';
+    }
+
+    // Profile missing or role unknown: fallbacks
+    if (error || !profile) {
+      console.warn('User profile not found, checking school associations...');
+
+      const { data: fallbackUser } = await supabase
+        .from('users')
+        .select('id, role')
+        .eq('auth_user_id', uid)
+        .limit(1)
+        .maybeSingle();
+
+      if (fallbackUser?.role === 'teacher') return 'teacher';
+      if (fallbackUser?.id) {
+        const { data: teacherRow } = await supabase
+          .from('school_teachers')
+          .select('id')
+          .eq('user_id', fallbackUser.id)
+          .limit(1)
+          .maybeSingle();
+        if (teacherRow) return 'teacher';
+      }
+
       const userEmail = await getCurrentUserEmail();
-      
       if (userEmail) {
-        // Check via school_students (existing students)
         const { data: students } = await supabase
           .from('school_students')
           .select('id')
           .eq('parent_email', userEmail)
           .limit(1);
-        
-        if (students && students.length > 0) {
-          return 'parent';
-        }
-        
-        // Check via school_parents (PIN-linked parents)
+        if (students && students.length > 0) return 'parent';
+
         const { data: userRecord } = await supabase
           .from('users')
           .select('id')
           .eq('email', userEmail)
           .limit(1)
-          .single();
-        
-        if (userRecord) {
+          .maybeSingle();
+        if (userRecord?.id) {
           const { data: parentAccess } = await supabase
             .from('school_parents')
             .select('id')
             .eq('parent_user_id', userRecord.id)
             .limit(1);
-          
-          if (parentAccess && parentAccess.length > 0) {
-            return 'parent';
-          }
+          if (parentAccess && parentAccess.length > 0) return 'parent';
         }
       }
-      
+
       return null;
     }
 
-    const role = profile.role;
-    
-    // Map roles
-    if (role === 'admin' || role === 'school_admin' || role === 'teacher') {
-      return 'admin';
-    } else if (role === 'parent') {
-      return 'parent';
-    }
-
     return null;
-  } catch (error) {
-    console.error('Error getting user role:', error);
+  } catch (err) {
+    console.error('Error getting user role:', err);
     return null;
   }
 }

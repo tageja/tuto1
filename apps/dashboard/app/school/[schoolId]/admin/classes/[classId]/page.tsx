@@ -165,10 +165,19 @@ export default function ClassDetailPage() {
             </div>
           </div>
 
-          <Button variant="outline" className="gap-2" disabled title={lang === 'vi' ? 'Sắp ra mắt trong Giai đoạn 2' : 'Coming in Phase 2'}>
-            <Download className="w-4 h-4" />
-            {lang === 'vi' ? 'Xuất CSV' : 'Export CSV'}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => router.push(`/school/${encodeURIComponent(schoolId)}/admin/classes/${classId}/timetable`)}
+            >
+              {lang === 'vi' ? 'Thời khóa biểu' : 'Timetable'}
+            </Button>
+            <Button variant="outline" className="gap-2" disabled title={lang === 'vi' ? 'Sắp ra mắt trong Giai đoạn 2' : 'Coming in Phase 2'}>
+              <Download className="w-4 h-4" />
+              {lang === 'vi' ? 'Xuất CSV' : 'Export CSV'}
+            </Button>
+          </div>
         </div>
       </div>
 

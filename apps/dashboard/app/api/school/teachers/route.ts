@@ -102,6 +102,19 @@ export async function GET(request: NextRequest) {
 }
 
 /**
+ * Convert subjects input to TEXT[] for school_teachers.subjects
+ */
+function normalizeSubjects(value: unknown): string[] | null {
+  if (value == null) return null;
+  if (Array.isArray(value)) return value.filter((s) => typeof s === 'string' && s.trim()).map((s) => s.trim());
+  if (typeof value === 'string') {
+    const arr = value.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean);
+    return arr.length ? arr : null;
+  }
+  return null;
+}
+
+/**
  * Create a new teacher (admin only)
  */
 export async function POST(request: NextRequest) {
@@ -115,28 +128,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create Supabase client
     const supabase = createServerSupabaseClient();
 
-    // Insert teacher
+    // Resolve school_id (UUID or school name/code) to UUID
+    const schoolId = await resolveSchoolId(supabase, body.school_id);
+    if (!schoolId) {
+      return NextResponse.json(
+        { success: false, error: 'School not found' },
+        { status: 404 }
+      );
+    }
+
+    const subjects = normalizeSubjects(body.subjects);
+    const hireDate = body.hire_date || new Date().toISOString().split('T')[0];
+
     const { data: teacher, error } = await supabase
       .from('school_teachers')
       .insert({
-        school_id: body.school_id,
-        name: body.name,
-        email: body.email || null,
-        phone: body.phone || null,
-        subjects: body.subjects || null,
-        qualifications: body.qualifications || body.education || null,
-        hire_date: body.hire_date || new Date().toISOString().split('T')[0],
-        status: body.status || 'active',
+        school_id: schoolId,
+        name: String(body.name).trim(),
+        email: body.email ? String(body.email).trim() : null,
+        phone: body.phone ? String(body.phone).trim() : null,
+        subjects,
+        qualifications: body.qualifications || body.education ? String(body.qualifications || body.education).trim() : null,
+        hire_date: hireDate,
+        status: body.status ? String(body.status).toLowerCase() : 'active',
       })
       .select()
       .single();
 
     if (error) {
       console.error('Error creating teacher:', error);
-      throw error;
+      return NextResponse.json(
+        { success: false, error: error.message || 'Failed to create teacher' },
+        { status: 400 }
+      );
     }
 
     return NextResponse.json({

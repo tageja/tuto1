@@ -36,10 +36,21 @@ export function TeacherQuickAddModal({ isOpen, onClose, onSuccess, schoolId }: T
     setError(null);
 
     try {
+      // API expects name, school_id (school comes from page context — admin is already in a school)
+      const payload = {
+        name: formData['Teacher Name'].trim(),
+        school_id: schoolId,
+        email: formData.Email?.trim() || null,
+        phone: formData.Phone?.trim() || null,
+        subjects: formData.Subjects?.trim() || null,
+        qualifications: formData.Education?.trim() || null,
+        hire_date: formData['Hire Date'] || new Date().toISOString().split('T')[0],
+        status: formData.Status || 'active',
+      };
       const response = await fetch('/api/school/teachers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {

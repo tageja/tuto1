@@ -24,7 +24,7 @@ import {
 
 export function ParentSidebar() {
   const pathname = usePathname();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { selectedSchool, schoolIdFromUrl } = useSchool();
 
   // Use URL-based schoolId if available, otherwise use selectedSchool
@@ -35,7 +35,8 @@ export function ParentSidebar() {
   const isUrlBasedRoute = pathname?.includes('/school/') && pathname?.match(/\/school\/[^\/]+\/(admin|parent)/);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: t('dashboard'), href: `/school/parent` },
+    { icon: LayoutDashboard, label: t('dashboard'), href: `/school/${encodedSchoolId}/parent` },
+    { icon: Calendar, label: lang === 'vi' ? 'Thời khóa biểu' : 'Timetable', href: `/school/${encodedSchoolId}/parent/timetable` },
     { icon: GraduationCap, label: t('teachers'), href: `/school/${encodedSchoolId}/parent/teachers` },
     { icon: Calendar, label: t('dailyActivities'), href: `/school/${encodedSchoolId}/parent/daily-activities` },
     { icon: Megaphone, label: t('announcements'), href: `/school/${encodedSchoolId}/parent/announcements` },
