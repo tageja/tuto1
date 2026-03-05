@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tuto",
     "slug": "tuto",
-    "version": "1.0.1",
+    "version": "2.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -22,7 +22,7 @@
         "NSLocationWhenInUseUsageDescription": "We use your location to show nearby teachers and map distance.",
         "PHPhotoLibraryPreventAutomaticLimitedAccessAlert": false
       },
-      "buildNumber": "19"
+      "buildNumber": "20"
     },
     "android": {
       "adaptiveIcon": {
