@@ -668,10 +668,33 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
         role: schoolUserRole.role,
         school_id: schoolUserRole.school_id,
       } : 'None found');
+
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/a822f593-e642-4290-8168-6f61447cf8e7',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a8c1a9'},body:JSON.stringify({sessionId:'a8c1a9',location:'AuthUnifiedScreen.tsx:role-resolution',message:'Role resolution inputs',data:{email:normalizedEmail,usersTableRole:userProfile.data?.role,schoolUserAdminRow:schoolUserRole ? {role:schoolUserRole.role,school_id:schoolUserRole.school_id} : null},hypothesisId:'A-B-C-D',timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       
-      // Priority: school_users.role (if admin) > users.role > 'parent'
-      const finalRole = schoolUserRole?.role || userProfile.data?.role || 'parent';
+      // Also check school_teachers to handle teacher accounts
+      const userId = userProfile.data?.id || user.id;
+      const { data: teacherRows } = await supabase
+        .from('school_teachers')
+        .select('id, email, status')
+        .ilike('email', normalizedEmail)
+        .limit(1);
+
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/a822f593-e642-4290-8168-6f61447cf8e7',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a8c1a9'},body:JSON.stringify({sessionId:'a8c1a9',location:'AuthUnifiedScreen.tsx:teacher-lookup',message:'school_teachers lookup result',data:{email:normalizedEmail,teacherRows:teacherRows||[],hasTeacherRow:!!(teacherRows && teacherRows.length>0)},hypothesisId:'E',timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+
+      const isTeacherInSchool = !!(teacherRows && teacherRows.length > 0);
+
+      // Priority: school_teachers (teacher) > school_users.role (if admin) > users.role > 'parent'
+      // If user is found in school_teachers, they should always get teacher role
+      const finalRole = isTeacherInSchool ? 'teacher' : (schoolUserRole?.role || userProfile.data?.role || 'parent');
       console.log('👤 Final role determined:', finalRole);
+
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/a822f593-e642-4290-8168-6f61447cf8e7',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a8c1a9'},body:JSON.stringify({sessionId:'a8c1a9',location:'AuthUnifiedScreen.tsx:final-role',message:'Final role assigned',data:{email:normalizedEmail,finalRole,isTeacherInSchool,usersTableRole:userProfile.data?.role,schoolUserAdminRow:!!schoolUserRole},hypothesisId:'A-B-E',timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       
       // Set user data for app
       const userData = {

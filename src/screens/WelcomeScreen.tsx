@@ -93,17 +93,29 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
       });
       setIsSchoolMode(true);
       
-      // Never elevate a user who signed up as parent to admin; respect their chosen role
+      // Role priority: teacher > admin > parent
+      // access_type='teacher' means they are a teacher even if they also have admin role
+      const roleForDashboard =
+        userData?.type === 'parent'
+          ? 'parent'
+          : school.access_type === 'teacher' || userData?.type === 'teacher'
+          ? 'teacher'
+          : school.role === 'admin'
+          ? 'admin'
+          : 'parent';
       if (userData) {
-        const roleForDashboard =
-          userData.type === 'parent' ? 'parent' : (school.role === 'admin' ? 'admin' : 'parent');
         setUserData({
           ...userData,
           type: roleForDashboard,
         });
       }
-      
-      navigation.replace('SchoolDashboard');
+
+      // Teachers get their own tab navigator via RoleGate; others go to school dashboard
+      if (roleForDashboard === 'teacher') {
+        navigation.replace('Home');
+      } else {
+        navigation.replace('SchoolDashboard');
+      }
     } else {
       // Multiple schools - show selector
       navigation.navigate('SchoolSelector', { schools });

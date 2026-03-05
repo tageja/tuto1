@@ -97,6 +97,8 @@ import SchoolSelectorScreen from '../screens/SchoolSelectorScreen';
 import { checkParentSchoolAccess } from '../services/school/parentPin';
 
 import EventDetailScreen from '../screens/school/EventDetailScreen';
+import TeacherHomeworkScreen from '../screens/school/teacher/TeacherHomeworkScreen';
+import TeacherProgressReportsScreen from '../screens/school/teacher/TeacherProgressReportsScreen';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -211,6 +213,11 @@ export type RootStackParamList = {
   SchoolFeedback: undefined;
   FeedbackCreate: undefined;
   FeedbackDetails: { feedbackId: string };
+  // Teacher dashboard (root screens for quick actions)
+  TeacherProgressReports: { schoolId: string };
+  TeacherHomework: { schoolId: string };
+  TeacherStudentDetail: { studentId: string; schoolId: string };
+  TeacherClassDetail: { classId: string; schoolId: string };
   // Settings stack
   SettingsStack: undefined;
 };
@@ -538,6 +545,8 @@ export const AppNavigator = () => {
           component={ClassDetailScreen} 
           options={{ title: 'Class Details' }}
         />
+        <Stack.Screen name="TeacherHomework" component={TeacherHomeworkScreen} />
+        <Stack.Screen name="TeacherProgressReports" component={TeacherProgressReportsScreen} />
         
         {/* Settings Stack */}
         <Stack.Screen name="SettingsStack" component={SettingsStackNavigator} />

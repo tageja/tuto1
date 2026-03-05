@@ -53,17 +53,28 @@ const SchoolSelectorScreen: React.FC = () => {
     // Set school mode
     setIsSchoolMode(true);
 
-    // Never elevate a user who signed up as parent to admin; respect their chosen role
+    // Role priority: teacher > admin > parent
+    // access_type='teacher' means they are a teacher even if they also have admin role
     if (userData) {
       const roleForDashboard =
-        userData.type === 'parent' ? 'parent' : (school.role === 'admin' ? 'admin' : 'parent');
+        userData.type === 'parent'
+          ? 'parent'
+          : school.access_type === 'teacher' || userData.type === 'teacher'
+          ? 'teacher'
+          : school.role === 'admin'
+          ? 'admin'
+          : 'parent';
       await setUserData({
         ...userData,
         type: roleForDashboard,
       });
+      // Teachers go to Home (TeacherTabs via RoleGate); others go to school dashboard
+      if (roleForDashboard === 'teacher') {
+        navigation.replace('Home' as never);
+        return;
+      }
     }
 
-    // Navigate to school dashboard
     navigation.replace('SchoolDashboard' as never);
   };
 

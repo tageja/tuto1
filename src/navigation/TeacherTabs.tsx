@@ -1,44 +1,45 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { View, Text } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useLanguage } from '../contexts/LanguageContext';
 import { UserProfileScreen } from '../screens/UserProfileScreen';
 import AdminPhotoAlbumsScreen from '../screens/school/AdminPhotoAlbumsScreen';
 import AdminCreateAlbumScreen from '../screens/school/AdminCreateAlbumScreen';
 import AlbumDetailScreen from '../screens/school/AlbumDetailScreen';
-import AdminAttendanceScreen from '../screens/school/AdminAttendanceScreen';
-import StudentAttendanceDetailScreen from '../screens/school/StudentAttendanceDetailScreen';
-import { MaterialIcons } from '@expo/vector-icons';
-import { useLanguage } from '../contexts/LanguageContext';
+import TeacherDashboardScreen from '../screens/school/teacher/TeacherDashboardScreen';
+import TeacherClassesScreen from '../screens/school/teacher/TeacherClassesScreen';
+import TeacherClassDetailScreen from '../screens/school/teacher/TeacherClassDetailScreen';
+import TeacherAttendanceScreen from '../screens/school/teacher/TeacherAttendanceScreen';
+import TeacherStudentsScreen from '../screens/school/teacher/TeacherStudentsScreen';
+import TeacherStudentDetailScreen from '../screens/school/teacher/TeacherStudentDetailScreen';
 
 const Tab = createBottomTabNavigator();
 const PhotosStack = createStackNavigator();
-const AttendanceStack = createStackNavigator();
+const ClassesStack = createStackNavigator();
+const StudentsStack = createStackNavigator();
 
-const Stub = ({ title }: { title: string }) => (
-  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-    <Text>{title}</Text>
-  </View>
+const PhotosStackNavigator = () => (
+  <PhotosStack.Navigator screenOptions={{ headerShown: false }}>
+    <PhotosStack.Screen name="PhotosMain" component={AdminPhotoAlbumsScreen} />
+    <PhotosStack.Screen name="AdminCreateAlbum" component={AdminCreateAlbumScreen} />
+    <PhotosStack.Screen name="SchoolAlbumDetail" component={AlbumDetailScreen} />
+  </PhotosStack.Navigator>
 );
 
-const PhotosStackNavigator = () => {
-  return (
-    <PhotosStack.Navigator screenOptions={{ headerShown: false }}>
-      <PhotosStack.Screen name="PhotosMain" component={AdminPhotoAlbumsScreen} />
-      <PhotosStack.Screen name="AdminCreateAlbum" component={AdminCreateAlbumScreen} />
-      <PhotosStack.Screen name="SchoolAlbumDetail" component={AlbumDetailScreen} />
-    </PhotosStack.Navigator>
-  );
-};
+const TeacherClassesStackNavigator = () => (
+  <ClassesStack.Navigator screenOptions={{ headerShown: false }}>
+    <ClassesStack.Screen name="TeacherClassesList" component={TeacherClassesScreen} />
+    <ClassesStack.Screen name="TeacherClassDetail" component={TeacherClassDetailScreen} />
+  </ClassesStack.Navigator>
+);
 
-const AttendanceStackNavigator = () => {
-  return (
-    <AttendanceStack.Navigator screenOptions={{ headerShown: false }}>
-      <AttendanceStack.Screen name="AttendanceMain" component={AdminAttendanceScreen} />
-      <AttendanceStack.Screen name="StudentAttendanceDetail" component={StudentAttendanceDetailScreen} />
-    </AttendanceStack.Navigator>
-  );
-};
+const TeacherStudentsStackNavigator = () => (
+  <StudentsStack.Navigator screenOptions={{ headerShown: false }}>
+    <StudentsStack.Screen name="TeacherStudentsList" component={TeacherStudentsScreen} />
+    <StudentsStack.Screen name="TeacherStudentDetail" component={TeacherStudentDetailScreen} />
+  </StudentsStack.Navigator>
+);
 
 export const TeacherTabs = () => {
   const { t } = useLanguage();
@@ -46,34 +47,52 @@ export const TeacherTabs = () => {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
       <Tab.Screen
-        name="ClassesTab"
-        children={() => <Stub title="Classes" />}
-        options={{ tabBarIcon: ({ color, size }) => <MaterialIcons name="class" color={color} size={size} />, title: 'Classes' }}
+        name="DashboardTab"
+        component={TeacherDashboardScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => <MaterialIcons name="dashboard" color={color} size={size} />,
+          title: t('school.teacher.dashboard'),
+        }}
       />
       <Tab.Screen
-        name="StudentsTab"
-        children={() => <Stub title="Students" />}
-        options={{ tabBarIcon: ({ color, size }) => <MaterialIcons name="people" color={color} size={size} />, title: 'Students' }}
+        name="ClassesTab"
+        component={TeacherClassesStackNavigator}
+        options={{
+          tabBarIcon: ({ color, size }) => <MaterialIcons name="class" color={color} size={size} />,
+          title: t('school.teacher.classes'),
+        }}
       />
       <Tab.Screen
         name="AttendanceTab"
-        component={AttendanceStackNavigator}
-        options={{ tabBarIcon: ({ color, size }) => <MaterialIcons name="event-available" color={color} size={size} />, title: t('school.attendance.title') }}
+        component={TeacherAttendanceScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => <MaterialIcons name="event-available" color={color} size={size} />,
+          title: t('school.teacher.attendance'),
+        }}
       />
       <Tab.Screen
-        name="InboxTab"
-        children={() => <Stub title="Inbox" />}
-        options={{ tabBarIcon: ({ color, size }) => <MaterialIcons name="inbox" color={color} size={size} />, title: 'Inbox' }}
+        name="StudentsTab"
+        component={TeacherStudentsStackNavigator}
+        options={{
+          tabBarIcon: ({ color, size }) => <MaterialIcons name="people" color={color} size={size} />,
+          title: t('school.teacher.students'),
+        }}
       />
       <Tab.Screen
         name="PhotosTab"
         component={PhotosStackNavigator}
-        options={{ tabBarIcon: ({ color, size }) => <MaterialIcons name="photo-album" color={color} size={size} />, title: 'Photos' }}
+        options={{
+          tabBarIcon: ({ color, size }) => <MaterialIcons name="photo-album" color={color} size={size} />,
+          title: 'Photos',
+        }}
       />
       <Tab.Screen
         name="ProfileTab"
         component={UserProfileScreen}
-        options={{ tabBarIcon: ({ color, size }) => <MaterialIcons name="person" color={color} size={size} />, title: 'Profile' }}
+        options={{
+          tabBarIcon: ({ color, size }) => <MaterialIcons name="person" color={color} size={size} />,
+          title: 'Profile',
+        }}
       />
     </Tab.Navigator>
   );
