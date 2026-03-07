@@ -23,9 +23,9 @@ interface WelcomeScreenProps {
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
   const { colors, spacing, typography } = useTheme();
-  const { t } = useLanguage();
-  const { userData, setUserData } = useUser();
-  const { setCurrentSchool, setIsSchoolMode, joinSchoolByPin } = useSchool();
+  const { t, language } = useLanguage();
+  const { userData, setUserData, userType } = useUser();
+  const { setCurrentSchool, setIsSchoolMode, joinSchoolByPin, currentSchool } = useSchool();
   
   const [loading, setLoading] = useState(true);
   const [schools, setSchools] = useState<SchoolAssociation[]>([]);
@@ -93,15 +93,13 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
       });
       setIsSchoolMode(true);
       
-      // Role priority: teacher > admin > parent
-      // access_type='teacher' means they are a teacher even if they also have admin role
+      // Role priority: admin > teacher > parent
+      // school.role === 'admin' always wins, even if access_type is 'teacher'
       const roleForDashboard =
-        userData?.type === 'parent'
-          ? 'parent'
+        school.role === 'admin'
+          ? 'admin'
           : school.access_type === 'teacher' || userData?.type === 'teacher'
           ? 'teacher'
-          : school.role === 'admin'
-          ? 'admin'
           : 'parent';
       if (userData) {
         setUserData({
@@ -303,6 +301,35 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
+        {/* Back to School Dashboard — shown when user navigated here from within a school */}
+        {currentSchool && (
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: colors.primary,
+              borderRadius: 12,
+              padding: spacing.md,
+              marginBottom: spacing.lg,
+            }}
+            onPress={() => {
+              // Teachers use Home (TeacherTabs); admin/parent use SchoolDashboard
+              if (userType === 'teacher') {
+                navigation.navigate('Home');
+              } else {
+                navigation.navigate('SchoolDashboard');
+              }
+            }}
+            activeOpacity={0.85}
+          >
+            <MaterialIcons name="arrow-back" size={20} color="#fff" />
+            <Text style={{ color: '#fff', fontWeight: '600', fontSize: 15, marginLeft: 8, flex: 1 }}>
+              {language === 'vi' ? `Quay lại: ${currentSchool.name}` : `Back to: ${currentSchool.name}`}
+            </Text>
+            <MaterialIcons name="chevron-right" size={20} color="#fff" />
+          </TouchableOpacity>
+        )}
+
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>{t('welcome.title')}</Text>

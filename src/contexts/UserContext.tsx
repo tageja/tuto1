@@ -150,9 +150,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const role = profile.role as UserType;
         if (['parent', 'student', 'teacher', 'admin'].includes(role)) {
           console.log('👤 UserProvider: Server role resolved to:', role);
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/a822f593-e642-4290-8168-6f61447cf8e7',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a8c1a9'},body:JSON.stringify({sessionId:'a8c1a9',location:'UserContext.tsx:refreshProfile',message:'refreshProfile overwriting role from users table',data:{profileEmail:profile?.email,profileRole:profile?.role,roleBeingSet:role},hypothesisId:'C',timestamp:Date.now()})}).catch(()=>{});
-          // #endregion
           await AsyncStorage.setItem('userType', role);
           setUserTypeState(role);
           
