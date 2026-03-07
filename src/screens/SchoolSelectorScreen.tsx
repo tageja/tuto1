@@ -57,10 +57,10 @@ const SchoolSelectorScreen: React.FC = () => {
     // access_type='teacher' means they are a teacher even if they also have admin role
     if (userData) {
       const roleForDashboard =
-        school.role === 'admin'
-          ? 'admin'
-          : school.access_type === 'teacher' || userData.type === 'teacher'
+        userData.type === 'teacher' || (school.access_type === 'teacher' && userData.type !== 'admin')
           ? 'teacher'
+          : school.role === 'admin' || userData.type === 'admin'
+          ? 'admin'
           : 'parent';
       await setUserData({
         ...userData,

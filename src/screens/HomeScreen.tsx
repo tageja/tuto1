@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useUser } from '../contexts/UserContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { useSchool } from '../contexts/SchoolContext';
 import { LanguageToggle } from '../components/LanguageToggle';
 import { useNotifications } from '../hooks/useNotifications';
 
@@ -31,6 +32,7 @@ interface HomeScreenProps {
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { colors, spacing, typography, isDark } = useTheme();
+  const { currentSchool } = useSchool();
 
   const styles = StyleSheet.create({
     container: {
@@ -116,7 +118,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     },
   });
 
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { clearUser } = useUser();
   const { isOffline, retryNow } = useNetwork();
   const { unreadCount, hasUrgentUnread } = useNotifications();
@@ -193,6 +195,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        {/* Back to School Dashboard banner — shown when user is associated with a school */}
+        {currentSchool && (
+          <TouchableOpacity
+            style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.primary, borderRadius: 12, padding: spacing.md, margin: spacing.md, marginBottom: 0 }}
+            onPress={() => navigation.navigate('SchoolDashboard')}
+            activeOpacity={0.85}
+          >
+            <MaterialIcons name="arrow-back" size={20} color="#fff" />
+            <Text style={{ color: '#fff', fontWeight: '600', fontSize: 15, marginLeft: 8, flex: 1 }}>
+              {language === 'vi' ? `Quay lại: ${currentSchool.name}` : `Back to: ${currentSchool.name}`}
+            </Text>
+            <MaterialIcons name="chevron-right" size={20} color="#fff" />
+          </TouchableOpacity>
+        )}
         <HeroSection navigation={navigation} />
         <RoleGatewaySection navigation={navigation} />
         <FeatureGridSection />

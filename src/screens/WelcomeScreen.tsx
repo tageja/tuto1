@@ -93,14 +93,23 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
       });
       setIsSchoolMode(true);
       
-      // Role priority: admin > teacher > parent
-      // school.role === 'admin' always wins, even if access_type is 'teacher'
+      // Role priority (using global users table type as primary discriminator):
+      // 1. userData.type==='teacher' → always teacher (global role wins)
+      // 2. school.role==='admin' AND not teacher → admin
+      // 3. school.access_type==='teacher' → teacher
+      // 4. fallback → parent
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/a822f593-e642-4290-8168-6f61447cf8e7',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a8c1a9'},body:JSON.stringify({sessionId:'a8c1a9',location:'WelcomeScreen.tsx:roleDecision',message:'role inputs',data:{userDataType:userData?.type,schoolRole:school.role,schoolAccessType:school.access_type,schoolName:school.school_name},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       const roleForDashboard =
-        school.role === 'admin'
-          ? 'admin'
-          : school.access_type === 'teacher' || userData?.type === 'teacher'
+        userData?.type === 'teacher' || (school.access_type === 'teacher' && userData?.type !== 'admin')
           ? 'teacher'
+          : school.role === 'admin' || userData?.type === 'admin'
+          ? 'admin'
           : 'parent';
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/a822f593-e642-4290-8168-6f61447cf8e7',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a8c1a9'},body:JSON.stringify({sessionId:'a8c1a9',location:'WelcomeScreen.tsx:roleDecision',message:'role output',data:{roleForDashboard},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       if (userData) {
         setUserData({
           ...userData,
