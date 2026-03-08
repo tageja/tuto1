@@ -42,8 +42,8 @@ These are items only you can provide. Without them, certain features cannot be c
 
 | # | Item | For Which Feature | Status | Notes |
 |---|------|-------------------|--------|-------|
-| T1 | Supabase migration run confirmation | All DB | ⏳ Pending | Run `supabase/migrations/041_nursed_schema.sql` against production |
-| T2 | Supabase Storage bucket created: `nursed-assets` (public) | Audio/video upload | ⏳ Pending | Create via Supabase dashboard: Storage → New bucket → `nursed-assets` → Public |
+| T1 | Supabase migration run confirmation | All DB | ✅ Done | 16 nursed_* tables + RLS + indexes + rewards seed live in production |
+| T2 | Supabase Storage bucket created: `nursed-assets` (public) | Audio/video upload | ✅ Done | Bucket created: public, 50MB limit, audio/video/image/pdf MIME types allowed |
 | T3 | OpenAI API key (for Whisper STT in Phase 2) | Voice scoring | 🔵 Phase 2 | Only needed when activating keyword scoring |
 | T4 | Domain setup: med.tuto.asia → Vercel deployment | Production | ⏳ Pending | DNS CNAME to Vercel + add custom domain in Vercel project |
 | T5 | Vercel project for apps/med/ (separate from dashboard) | Production | ⏳ Pending | New Vercel project pointing to `/apps/med/` in the monorepo |
