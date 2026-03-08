@@ -22,11 +22,10 @@ export default function LearnerSidebar() {
     <aside className="fixed left-0 top-0 h-screen w-64 bg-bg border-r border-border flex flex-col z-40">
       {/* Logo */}
       <div className="px-4 py-5 border-b border-border">
-        <Link href="/learn" className="flex items-center gap-2">
-          <span className="text-2xl">🏥</span>
-          <span className="text-lg font-bold text-text">NurseEd</span>
+        <Link href="/learn" className="block">
+          <img src="/images/tuto-logo.png" alt="tuto." className="h-9 w-auto" />
+          <span className="text-xs font-semibold text-text-muted tracking-wide mt-1 block">NurseEd</span>
         </Link>
-        <p className="text-xs text-text-muted mt-0.5">med.tuto.asia</p>
       </div>
 
       {/* User greeting */}

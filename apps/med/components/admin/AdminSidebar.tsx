@@ -23,11 +23,10 @@ export function AdminSidebar() {
   return (
     <aside className="fixed top-0 left-0 h-screen w-64 bg-bg border-r border-border flex flex-col z-40">
       <div className="px-5 py-5 border-b border-border">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🏥</span>
-          <span className="text-lg font-bold text-primary">NurseEd</span>
-        </div>
-        <p className="text-xs text-text-muted mt-0.5">med.tuto.asia</p>
+        <Link href="/admin" className="block">
+          <img src="/images/tuto-logo.png" alt="tuto." className="h-9 w-auto" />
+          <span className="text-xs font-semibold text-text-muted tracking-wide mt-1 block">NurseEd</span>
+        </Link>
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">

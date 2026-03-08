@@ -5,10 +5,9 @@ export default function Home() {
     <main className="min-h-screen bg-gradient-to-br from-primary-light via-bg to-surface flex flex-col">
       {/* Nav */}
       <nav className="flex items-center justify-between px-8 py-4 border-b border-border bg-bg/80 backdrop-blur">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🏥</span>
-          <span className="text-lg font-bold text-primary">NurseEd</span>
-          <span className="text-xs text-text-muted ml-1">by Tuto</span>
+        <div className="flex flex-col">
+          <img src="/images/tuto-logo.png" alt="tuto." className="h-8 w-auto" />
+          <span className="text-xs font-semibold text-text-muted tracking-wide -mt-0.5">NurseEd</span>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/admin" className="btn-ghost">
