@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Plus, Trash2, Search, X } from 'lucide-react'
 import { useToast } from '@/components/ui/Toast'
 import type { NursedCourse, NursedHospital } from '@/lib/supabase'
+import { useLang } from '@/contexts/LanguageContext'
 
 const LEVEL_CLASS: Record<string, string> = {
   A1: 'badge-green',
@@ -30,6 +31,7 @@ const EMPTY_FORM: CreateCourseForm = {
 }
 
 export default function CoursesPage() {
+  const { t } = useLang()
   const { toast } = useToast()
   const [courses, setCourses] = useState<NursedCourse[]>([])
   const [hospitals, setHospitals] = useState<NursedHospital[]>([])
@@ -76,20 +78,20 @@ export default function CoursesPage() {
       setCourses((prev) =>
         prev.map((c) => (c.id === course.id ? { ...c, published: !c.published } : c)),
       )
-      toast(course.published ? 'Đã đặt thành nháp' : 'Đã xuất bản', 'success')
+      toast(course.published ? t.statusDraft : t.statusPublished, 'success')
     } else {
-      toast('Lỗi cập nhật', 'error')
+      toast(t.toastUpdateError, 'error')
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Bạn có chắc muốn xóa khóa học này?')) return
+    if (!confirm(t.confirmDeleteCourse)) return
     const res = await fetch(`/api/courses/${id}`, { method: 'DELETE' })
     if (res.ok) {
       setCourses((prev) => prev.filter((c) => c.id !== id))
-      toast('Đã xóa khóa học', 'success')
+      toast(t.toastCourseDeleted, 'success')
     } else {
-      toast('Lỗi xóa', 'error')
+      toast(t.toastDeleteError, 'error')
     }
   }
 
@@ -107,12 +109,12 @@ export default function CoursesPage() {
         body: JSON.stringify(body),
       })
       if (res.ok) {
-        toast('Tạo khóa học thành công', 'success')
+        toast(t.toastCourseCreated, 'success')
         setShowModal(false)
         setForm(EMPTY_FORM)
         await loadData()
       } else {
-        toast('Lỗi tạo khóa học', 'error')
+        toast(t.toastCreateError, 'error')
       }
     } finally {
       setSaving(false)
@@ -123,12 +125,12 @@ export default function CoursesPage() {
     <div>
       <div className="page-header">
         <div>
-          <h1>Quản lý Khóa học</h1>
-          <p className="text-sm text-text-muted mt-1">{courses.length} khóa học</p>
+          <h1>{t.adminCoursesTitle}</h1>
+          <p className="text-sm text-text-muted mt-1">{courses.length}</p>
         </div>
         <button className="btn-primary" onClick={() => setShowModal(true)}>
           <Plus size={16} />
-          Tạo khóa học
+          {t.btnCreateCourse}
         </button>
       </div>
 
@@ -137,7 +139,7 @@ export default function CoursesPage() {
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
           <input
             className="input pl-9"
-            placeholder="Tìm kiếm khóa học..."
+            placeholder={t.searchPlaceholderCourses}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -152,15 +154,15 @@ export default function CoursesPage() {
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <p className="text-center text-text-muted py-12">Không tìm thấy khóa học nào</p>
+          <p className="text-center text-text-muted py-12">{t.emptySearchCourses}</p>
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-surface border-b border-border">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-text-muted">Tên khóa học</th>
-                <th className="text-left px-4 py-3 font-medium text-text-muted w-20">Cấp độ</th>
-                <th className="text-left px-4 py-3 font-medium text-text-muted w-28">Trạng thái</th>
-                <th className="text-right px-4 py-3 font-medium text-text-muted w-32">Hành động</th>
+                <th className="text-left px-4 py-3 font-medium text-text-muted">{t.tableColName}</th>
+                <th className="text-left px-4 py-3 font-medium text-text-muted w-20">{t.tableColLevel}</th>
+                <th className="text-left px-4 py-3 font-medium text-text-muted w-28">{t.tableColStatus}</th>
+                <th className="text-right px-4 py-3 font-medium text-text-muted w-32">{t.tableColActions}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -184,7 +186,7 @@ export default function CoursesPage() {
                           : 'badge-gray hover:bg-green-100 hover:text-green-700'
                       }`}
                     >
-                      {course.published ? 'Đã xuất bản' : 'Nháp'}
+                      {course.published ? t.statusPublished : t.statusDraft}
                     </button>
                   </td>
                   <td className="px-4 py-3">
@@ -193,7 +195,7 @@ export default function CoursesPage() {
                         href={`/admin/courses/${course.id}`}
                         className="btn-secondary !py-1 !px-3 text-xs"
                       >
-                        Xem chi tiết
+                        {t.btnViewDetail}
                       </Link>
                       <button
                         onClick={() => handleDelete(course.id)}
@@ -214,7 +216,7 @@ export default function CoursesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-fade-in">
           <div className="card p-6 w-full max-w-md mx-4 animate-slide-up">
             <div className="flex items-center justify-between mb-5">
-              <h2>Tạo khóa học mới</h2>
+              <h2>{t.modalCreateCourseTitle}</h2>
               <button onClick={() => setShowModal(false)} className="btn-ghost !p-1.5">
                 <X size={18} />
               </button>
@@ -222,37 +224,37 @@ export default function CoursesPage() {
 
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="label">Tên (Tiếng Anh) *</label>
+                <label className="label">{t.labelTitleEn}</label>
                 <input
                   className="input"
                   required
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  placeholder="Nursing English A1"
+                  placeholder={t.placeholderTitleEn}
                 />
               </div>
               <div>
-                <label className="label">Tên (Tiếng Việt)</label>
+                <label className="label">{t.labelTitleVi}</label>
                 <input
                   className="input"
                   value={form.title_vi}
                   onChange={(e) => setForm({ ...form, title_vi: e.target.value })}
-                  placeholder="Tiếng Anh Điều dưỡng A1"
+                  placeholder={t.placeholderTitleVi}
                 />
               </div>
               <div>
-                <label className="label">Mô tả</label>
+                <label className="label">{t.labelDescription}</label>
                 <textarea
                   className="input resize-none"
                   rows={3}
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  placeholder="Mô tả khóa học..."
+                  placeholder={t.placeholderDescription}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="label">Cấp độ *</label>
+                  <label className="label">{t.labelLevel}</label>
                   <select
                     className="input"
                     value={form.level}
@@ -268,13 +270,13 @@ export default function CoursesPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="label">Bệnh viện</label>
+                  <label className="label">{t.labelHospital}</label>
                   <select
                     className="input"
                     value={form.hospital_id}
                     onChange={(e) => setForm({ ...form, hospital_id: e.target.value })}
                   >
-                    <option value="">Tất cả</option>
+                    <option value="">{t.selectAllHospitals}</option>
                     {hospitals.map((h) => (
                       <option key={h.id} value={h.id}>
                         {h.name}
@@ -285,10 +287,10 @@ export default function CoursesPage() {
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)} className="btn-secondary flex-1">
-                  Hủy
+                  {t.btnCancel}
                 </button>
                 <button type="submit" disabled={saving} className="btn-primary flex-1">
-                  {saving ? 'Đang tạo...' : 'Tạo khóa học'}
+                  {saving ? t.btnCreating : t.btnCreateCourse}
                 </button>
               </div>
             </form>

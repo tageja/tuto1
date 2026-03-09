@@ -2,26 +2,26 @@
 
 import { useState } from 'react'
 import type { NursedLessonStep } from '@/lib/supabase'
+import { useLang } from '@/contexts/LanguageContext'
 
 interface Props {
   step: NursedLessonStep
   onComplete: () => void
 }
 
-const EXAMPLE_MISSION =
-  "Hôm nay, hãy thử nói 'Good morning, how can I help you?' với 1 đồng nghiệp hoặc bệnh nhân của bạn."
-
-const RESPONSES = [
-  { icon: '✅', label: 'Đã làm rồi', color: 'border-success bg-green-50 text-success' },
-  { icon: '📅', label: 'Sẽ làm sau', color: 'border-warning bg-yellow-50 text-yellow-700' },
-  { icon: '❌', label: 'Chưa thể làm', color: 'border-border bg-surface text-text-muted' },
-]
-
 export default function MissionStep({ step, onComplete }: Props) {
+  const { t } = useLang()
+
+  const RESPONSES = [
+    { icon: '✅', label: t.responseDone, color: 'border-success bg-green-50 text-success' },
+    { icon: '📅', label: t.responseLater, color: 'border-warning bg-yellow-50 text-yellow-700' },
+    { icon: '❌', label: t.responseCannot, color: 'border-border bg-surface text-text-muted' },
+  ]
+
   const mission =
     (step.config?.missionVi as string) ??
     (step.config?.missionEn as string) ??
-    EXAMPLE_MISSION
+    t.exampleMission
 
   const [notes, setNotes] = useState('')
   const [selected, setSelected] = useState<string | null>(null)
@@ -34,19 +34,19 @@ export default function MissionStep({ step, onComplete }: Props) {
   return (
     <div className="space-y-5">
       <div>
-        <h3 className="text-base font-semibold text-text">🎯 {step.title ?? 'Nhiệm vụ thực tế'}</h3>
-        <p className="text-sm text-text-muted mt-1">Áp dụng những gì bạn học vào thực tế</p>
+        <h3 className="text-base font-semibold text-text">🎯 {step.title ?? t.missionTitleFallback}</h3>
+        <p className="text-sm text-text-muted mt-1">{t.missionSubtitle}</p>
       </div>
 
       {/* Mission card */}
       <div className="card p-6 bg-gradient-to-br from-primary-light to-white border-primary/20">
-        <p className="text-sm font-medium text-text-muted uppercase tracking-wider mb-3">Nhiệm vụ</p>
+        <p className="text-sm font-medium text-text-muted uppercase tracking-wider mb-3">{t.missionCardLabel}</p>
         <p className="text-text leading-relaxed">{mission}</p>
       </div>
 
       {/* Response buttons */}
       <div className="space-y-3">
-        <p className="text-sm font-medium text-text">Bạn đã thực hiện chưa?</p>
+        <p className="text-sm font-medium text-text">{t.questionDone}</p>
         <div className="grid grid-cols-1 gap-2">
           {RESPONSES.map((res) => (
             <button
@@ -65,11 +65,11 @@ export default function MissionStep({ step, onComplete }: Props) {
 
       {/* Notes */}
       <div>
-        <label className="label">Ghi chú nhanh (không bắt buộc)</label>
+        <label className="label">{t.labelNotes}</label>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Chia sẻ trải nghiệm của bạn..."
+          placeholder={t.notesPlaceholder}
           rows={3}
           className="input resize-none"
         />
@@ -77,7 +77,7 @@ export default function MissionStep({ step, onComplete }: Props) {
 
       {selected && (
         <div className="badge badge-green text-sm px-3 py-1.5 w-full justify-center">
-          ✅ Đã ghi nhận phản hồi của bạn!
+          {t.feedbackRecorded}
         </div>
       )}
     </div>

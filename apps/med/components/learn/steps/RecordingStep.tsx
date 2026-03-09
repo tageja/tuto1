@@ -4,21 +4,14 @@ import { useState, useRef, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { Mic, MicOff, RotateCcw, CheckCircle, ChevronRight } from 'lucide-react'
 import type { NursedLessonStep } from '@/lib/supabase'
+import { useLang } from '@/contexts/LanguageContext'
 
 type RecordState = 'idle' | 'recording' | 'recorded' | 'submitted'
 
 interface RubricItem {
   key: string
-  label: string
   checked: boolean
 }
-
-const DEFAULT_RUBRIC: Omit<RubricItem, 'checked'>[] = [
-  { key: 'balanced', label: 'Cân bằng? (giọng đều, không quá nhanh/chậm)' },
-  { key: 'clear', label: 'Rõ ràng? (phát âm dễ nghe)' },
-  { key: 'polite', label: 'Lịch sự? (dùng từ ngữ phù hợp)' },
-  { key: 'keywords', label: 'Đúng từ khóa? (dùng đúng thuật ngữ y tế)' },
-]
 
 interface Props {
   step: NursedLessonStep
@@ -28,6 +21,21 @@ interface Props {
 export default function RecordingStep({ step, onComplete }: Props) {
   const params = useParams<{ lessonId?: string }>()
   const lessonId = params?.lessonId ?? ''
+  const { t } = useLang()
+
+  const rubricKeys: RubricItem[] = [
+    { key: 'balanced', checked: false },
+    { key: 'clear', checked: false },
+    { key: 'polite', checked: false },
+    { key: 'keywords', checked: false },
+  ]
+
+  const rubricLabels: Record<string, string> = {
+    balanced: t.rubricBalanced,
+    clear: t.rubricClearStep,
+    polite: t.rubricPoliteStep,
+    keywords: t.rubricKeywordsStep,
+  }
 
   const [state, setState] = useState<RecordState>('idle')
   const [elapsed, setElapsed] = useState(0)
@@ -35,9 +43,7 @@ export default function RecordingStep({ step, onComplete }: Props) {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [rubric, setRubric] = useState<RubricItem[]>(
-    DEFAULT_RUBRIC.map((r) => ({ ...r, checked: false }))
-  )
+  const [rubric, setRubric] = useState<RubricItem[]>(rubricKeys)
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
@@ -84,7 +90,7 @@ export default function RecordingStep({ step, onComplete }: Props) {
         })
       }, 1000)
     } catch {
-      setError('Không thể truy cập microphone. Vui lòng cấp quyền và thử lại.')
+      setError(t.errorMicAccess)
     }
   }
 
@@ -108,7 +114,6 @@ export default function RecordingStep({ step, onComplete }: Props) {
     try {
       let storagePath: string | null = null
 
-      // Upload audio
       const formData = new FormData()
       formData.append('file', audioBlob, 'recording.webm')
       formData.append('type', 'audio')
@@ -122,7 +127,6 @@ export default function RecordingStep({ step, onComplete }: Props) {
         // upload failed, proceed anyway
       }
 
-      // Save submission
       const rubricMap = Object.fromEntries(rubric.map((r) => [r.key, r.checked]))
       await fetch('/api/submissions', {
         method: 'POST',
@@ -139,7 +143,7 @@ export default function RecordingStep({ step, onComplete }: Props) {
 
       setState('submitted')
     } catch {
-      setError('Không thể nộp bài. Vui lòng thử lại.')
+      setError(t.errorSubmit)
     } finally {
       setSubmitting(false)
     }
@@ -155,8 +159,8 @@ export default function RecordingStep({ step, onComplete }: Props) {
   return (
     <div className="space-y-5">
       <div>
-        <h3 className="text-base font-semibold text-text">🎤 {step.title ?? 'Ghi âm bài nói'}</h3>
-        <p className="text-sm text-text-muted mt-1">Ghi âm và nộp bài thực hành của bạn</p>
+        <h3 className="text-base font-semibold text-text">🎤 {step.title ?? t.recordingTitleFallback}</h3>
+        <p className="text-sm text-text-muted mt-1">{t.recordingSubtitle}</p>
       </div>
 
       {error && (
@@ -169,10 +173,10 @@ export default function RecordingStep({ step, onComplete }: Props) {
           <div className="w-20 h-20 rounded-full bg-primary-light flex items-center justify-center">
             <Mic size={36} className="text-primary" />
           </div>
-          <p className="text-text font-medium">Sẵn sàng ghi âm</p>
+          <p className="text-text font-medium">{t.idleLabel}</p>
           <button onClick={startRecording} className="btn-primary">
             <Mic size={16} />
-            Bắt đầu ghi âm
+            {t.btnStartRecording}
           </button>
         </div>
       )}
@@ -187,10 +191,10 @@ export default function RecordingStep({ step, onComplete }: Props) {
             <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-error animate-ping" />
           </div>
           <p className="text-error font-semibold text-xl tabular-nums">{formatTime(elapsed)}</p>
-          <p className="text-xs text-text-muted">Tối đa 30 giây</p>
+          <p className="text-xs text-text-muted">{t.recordingMaxTime}</p>
           <button onClick={stopRecording} className="btn-secondary">
             <MicOff size={16} />
-            Dừng ghi âm
+            {t.btnStopRecording}
           </button>
         </div>
       )}
@@ -199,13 +203,13 @@ export default function RecordingStep({ step, onComplete }: Props) {
       {state === 'recorded' && audioUrl && (
         <div className="space-y-4">
           <div className="card p-4 space-y-3">
-            <p className="text-sm font-medium text-text">Nghe lại bản ghi âm</p>
+            <p className="text-sm font-medium text-text">{t.playbackLabel}</p>
             <audio controls src={audioUrl} className="w-full" />
           </div>
 
           {/* Rubric self-evaluation */}
           <div className="card p-4 space-y-3">
-            <p className="text-sm font-semibold text-text">Tự đánh giá</p>
+            <p className="text-sm font-semibold text-text">{t.selfEvalTitle}</p>
             {rubric.map((r) => (
               <label key={r.key} className="flex items-center gap-3 cursor-pointer">
                 <input
@@ -214,7 +218,7 @@ export default function RecordingStep({ step, onComplete }: Props) {
                   onChange={() => toggleRubric(r.key)}
                   className="w-4 h-4 rounded border-border accent-primary"
                 />
-                <span className="text-sm text-text">{r.label}</span>
+                <span className="text-sm text-text">{rubricLabels[r.key]}</span>
               </label>
             ))}
           </div>
@@ -222,14 +226,14 @@ export default function RecordingStep({ step, onComplete }: Props) {
           <div className="flex gap-3">
             <button onClick={resetRecording} className="btn-secondary flex items-center gap-2">
               <RotateCcw size={16} />
-              Ghi lại
+              {t.btnReRecord}
             </button>
             <button
               onClick={handleSubmit}
               disabled={submitting}
               className="btn-primary flex-1 justify-center"
             >
-              {submitting ? 'Đang nộp...' : '📤 Nộp bài'}
+              {submitting ? t.btnSubmitting : t.btnSubmit}
             </button>
           </div>
         </div>
@@ -240,25 +244,25 @@ export default function RecordingStep({ step, onComplete }: Props) {
         <div className="space-y-4">
           <div className="card p-6 text-center bg-green-50 border-success">
             <CheckCircle size={48} className="mx-auto mb-3 text-success" />
-            <p className="text-lg font-semibold text-text">Đã nộp!</p>
-            <p className="text-sm text-text-muted mt-1">Bài ghi âm của bạn đã được lưu thành công</p>
+            <p className="text-lg font-semibold text-text">{t.submittedTitle}</p>
+            <p className="text-sm text-text-muted mt-1">{t.submittedDesc}</p>
           </div>
 
           {/* Rubric summary */}
           <div className="card p-4 space-y-2">
-            <p className="text-sm font-semibold text-text">Kết quả tự đánh giá</p>
+            <p className="text-sm font-semibold text-text">{t.selfEvalSummaryTitle}</p>
             {rubric.map((r) => (
               <div key={r.key} className="flex items-center gap-2 text-sm">
                 <span className={r.checked ? 'text-success' : 'text-text-muted'}>
                   {r.checked ? '✅' : '⬜'}
                 </span>
-                <span className={r.checked ? 'text-text' : 'text-text-muted'}>{r.label}</span>
+                <span className={r.checked ? 'text-text' : 'text-text-muted'}>{rubricLabels[r.key]}</span>
               </div>
             ))}
           </div>
 
           <button onClick={onComplete} className="btn-primary w-full justify-center">
-            Tiếp theo <ChevronRight size={16} />
+            {t.btnNextRecording} <ChevronRight size={16} />
           </button>
         </div>
       )}

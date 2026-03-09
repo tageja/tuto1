@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react'
 import { Users, Plus, LogIn, Upload } from 'lucide-react'
 import type { NursedPairGroup } from '@/lib/supabase'
+import { useLang } from '@/contexts/LanguageContext'
 
 export default function PairsPage() {
+  const { t } = useLang()
   const [groups, setGroups] = useState<NursedPairGroup[]>([])
   const [loadingGroups, setLoadingGroups] = useState(true)
 
@@ -24,6 +26,7 @@ export default function PairsPage() {
   const [sessionFile, setSessionFile] = useState<File | null>(null)
   const [uploadingSession, setUploadingSession] = useState(false)
   const [sessionMsg, setSessionMsg] = useState<string | null>(null)
+  const [sessionSuccess, setSessionSuccess] = useState(false)
 
   const fetchGroups = async () => {
     setLoadingGroups(true)
@@ -51,7 +54,7 @@ export default function PairsPage() {
         body: JSON.stringify({ name: groupName.trim() }),
       })
       const json = await res.json()
-      if (!res.ok) throw new Error(json.error ?? 'Lỗi tạo nhóm')
+      if (!res.ok) throw new Error(json.error ?? t.errorCreateGroup)
       setCreatedGroup(json.data)
       setGroupName('')
       fetchGroups()
@@ -75,8 +78,8 @@ export default function PairsPage() {
         body: JSON.stringify({ action: 'join', joinCode: joinCode.trim(), userId: 'guest' }),
       })
       const json = await res.json()
-      if (!res.ok) throw new Error(json.error ?? 'Lỗi tham gia nhóm')
-      setJoinResult('Tham gia nhóm thành công! 🎉')
+      if (!res.ok) throw new Error(json.error ?? t.errorJoinGroup)
+      setJoinResult(t.joinSuccess)
       setJoinCode('')
       fetchGroups()
     } catch (err: any) {
@@ -91,16 +94,19 @@ export default function PairsPage() {
     if (!sessionFile) return
     setUploadingSession(true)
     setSessionMsg(null)
+    setSessionSuccess(false)
     try {
       const formData = new FormData()
       formData.append('file', sessionFile)
       formData.append('type', 'audio')
       const res = await fetch('/api/assets/upload', { method: 'POST', body: formData })
-      if (!res.ok) throw new Error('Upload thất bại')
-      setSessionMsg('Đã nộp bản ghi âm nhóm thành công! ✅')
+      if (!res.ok) throw new Error(t.uploadError)
+      setSessionMsg(t.uploadSuccess)
+      setSessionSuccess(true)
       setSessionFile(null)
     } catch {
-      setSessionMsg('Lỗi khi upload. Vui lòng thử lại.')
+      setSessionMsg(t.uploadRetryError)
+      setSessionSuccess(false)
     } finally {
       setUploadingSession(false)
     }
@@ -110,8 +116,8 @@ export default function PairsPage() {
     <div className="space-y-8">
       <div className="page-header">
         <div>
-          <h1>Nhóm luyện tập</h1>
-          <p className="text-sm text-text-muted mt-1">Luyện tập cùng đồng nghiệp để tiến bộ nhanh hơn</p>
+          <h1>{t.pairsTitle}</h1>
+          <p className="text-sm text-text-muted mt-1">{t.pairsSubtitle}</p>
         </div>
       </div>
 
@@ -120,10 +126,8 @@ export default function PairsPage() {
         <div className="flex items-start gap-3">
           <Users size={24} className="text-primary flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-semibold text-text mb-1">Luyện tập cùng đồng nghiệp</h3>
-            <p className="text-sm text-text-muted">
-              Tạo nhóm và mời đồng nghiệp tham gia. Cùng nhau luyện đối thoại y tế và nộp bản ghi âm nhóm.
-            </p>
+            <h3 className="font-semibold text-text mb-1">{t.pairsBannerTitle}</h3>
+            <p className="text-sm text-text-muted">{t.pairsBannerDesc}</p>
           </div>
         </div>
       </div>
@@ -133,37 +137,37 @@ export default function PairsPage() {
         <div className="card p-5 space-y-4">
           <div className="flex items-center gap-2">
             <Plus size={20} className="text-primary" />
-            <h2 className="text-base font-semibold">Tạo nhóm mới</h2>
+            <h2 className="text-base font-semibold">{t.createGroupTitle}</h2>
           </div>
 
           <form onSubmit={handleCreate} className="space-y-3">
             <div>
-              <label className="label">Tên nhóm</label>
+              <label className="label">{t.labelGroupName}</label>
               <input
                 type="text"
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
-                placeholder="VD: Nhóm A - Phòng ICU"
+                placeholder={t.placeholderGroupName}
                 className="input"
               />
             </div>
             {createError && <p className="text-sm text-error">{createError}</p>}
             <button type="submit" disabled={creating || !groupName.trim()} className="btn-primary w-full justify-center">
-              {creating ? 'Đang tạo...' : 'Tạo nhóm'}
+              {creating ? t.btnCreating : t.btnCreateGroup}
             </button>
           </form>
 
           {createdGroup && (
             <div className="card p-4 bg-green-50 border-success space-y-2">
-              <p className="text-sm font-semibold text-success">✅ Nhóm đã được tạo!</p>
-              <p className="text-sm text-text">Tên: <strong>{createdGroup.name}</strong></p>
+              <p className="text-sm font-semibold text-success">{t.createdSuccessTitle}</p>
+              <p className="text-sm text-text">{t.createdGroupNameLabel} <strong>{createdGroup.name}</strong></p>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-text">Mã tham gia:</span>
+                <span className="text-sm text-text">{t.joinCodeLabel}</span>
                 <code className="px-2 py-1 rounded bg-white border border-success text-success font-mono font-bold text-sm">
                   {createdGroup.join_code}
                 </code>
               </div>
-              <p className="text-xs text-text-muted">Chia sẻ mã này với đồng nghiệp của bạn</p>
+              <p className="text-xs text-text-muted">{t.shareCodeHint}</p>
             </div>
           )}
         </div>
@@ -172,17 +176,17 @@ export default function PairsPage() {
         <div className="card p-5 space-y-4">
           <div className="flex items-center gap-2">
             <LogIn size={20} className="text-primary" />
-            <h2 className="text-base font-semibold">Tham gia nhóm</h2>
+            <h2 className="text-base font-semibold">{t.joinGroupTitle}</h2>
           </div>
 
           <form onSubmit={handleJoin} className="space-y-3">
             <div>
-              <label className="label">Mã tham gia</label>
+              <label className="label">{t.labelJoinCode}</label>
               <input
                 type="text"
                 value={joinCode}
                 onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                placeholder="VD: ABC123"
+                placeholder={t.placeholderJoinCode}
                 className="input font-mono"
                 maxLength={10}
               />
@@ -190,7 +194,7 @@ export default function PairsPage() {
             {joinError && <p className="text-sm text-error">{joinError}</p>}
             {joinResult && <p className="text-sm text-success">{joinResult}</p>}
             <button type="submit" disabled={joining || !joinCode.trim()} className="btn-primary w-full justify-center">
-              {joining ? 'Đang tham gia...' : 'Tham gia'}
+              {joining ? t.btnJoining : t.btnJoin}
             </button>
           </form>
         </div>
@@ -200,13 +204,13 @@ export default function PairsPage() {
       <div className="card p-5 space-y-4">
         <div className="flex items-center gap-2">
           <Upload size={20} className="text-primary" />
-          <h2 className="text-base font-semibold">Nộp bản ghi âm nhóm</h2>
+          <h2 className="text-base font-semibold">{t.uploadSessionTitle}</h2>
         </div>
-        <p className="text-sm text-text-muted">Upload file ghi âm buổi luyện tập của nhóm bạn</p>
+        <p className="text-sm text-text-muted">{t.uploadSessionDesc}</p>
 
         <form onSubmit={handleSessionUpload} className="space-y-3">
           <div>
-            <label className="label">Chọn file audio</label>
+            <label className="label">{t.labelAudioFileUpload}</label>
             <input
               type="file"
               accept="audio/*"
@@ -215,7 +219,7 @@ export default function PairsPage() {
             />
           </div>
           {sessionMsg && (
-            <p className={`text-sm ${sessionMsg.includes('thành công') ? 'text-success' : 'text-error'}`}>
+            <p className={`text-sm ${sessionSuccess ? 'text-success' : 'text-error'}`}>
               {sessionMsg}
             </p>
           )}
@@ -224,14 +228,14 @@ export default function PairsPage() {
             disabled={uploadingSession || !sessionFile}
             className="btn-primary justify-center"
           >
-            {uploadingSession ? 'Đang nộp...' : 'Nộp bản ghi âm'}
+            {uploadingSession ? t.btnUploading : t.btnSubmitRecording}
           </button>
         </form>
       </div>
 
       {/* Active groups list */}
       <section>
-        <h2 className="section-title">Nhóm hiện có</h2>
+        <h2 className="section-title">{t.groupsSectionTitle}</h2>
         {loadingGroups ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
@@ -241,7 +245,7 @@ export default function PairsPage() {
         ) : groups.length === 0 ? (
           <div className="card p-8 text-center">
             <Users size={40} className="mx-auto mb-3 text-text-muted opacity-30" />
-            <p className="text-text-muted">Chưa có nhóm nào. Hãy tạo nhóm đầu tiên!</p>
+            <p className="text-text-muted">{t.emptyGroups}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -252,9 +256,9 @@ export default function PairsPage() {
                     <Users size={18} className="text-primary" />
                   </div>
                   <div>
-                    <p className="font-medium text-text">{g.name ?? 'Nhóm chưa đặt tên'}</p>
+                    <p className="font-medium text-text">{g.name ?? t.groupNameUnnamed}</p>
                     <p className="text-xs text-text-muted">
-                      Tối đa {g.max_size} thành viên
+                      {t.groupMaxMembers.replace('{n}', String(g.max_size))}
                     </p>
                   </div>
                 </div>
@@ -263,7 +267,7 @@ export default function PairsPage() {
                     {g.join_code}
                   </code>
                   <span className={`badge ${g.active ? 'badge-green' : 'badge-gray'}`}>
-                    {g.active ? 'Đang hoạt động' : 'Ngừng'}
+                    {g.active ? t.groupStatusActive : t.groupStatusInactive}
                   </span>
                 </div>
               </div>

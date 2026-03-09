@@ -2,6 +2,7 @@
 
 import { ChevronRight } from 'lucide-react'
 import type { NursedLessonStep } from '@/lib/supabase'
+import { useLang } from '@/contexts/LanguageContext'
 
 interface ScriptLine {
   role: 'nurse' | 'patient'
@@ -22,25 +23,26 @@ const EXAMPLE_LINES: ScriptLine[] = [
 ]
 
 export default function ScriptReadStep({ step, onComplete }: Props) {
+  const { t } = useLang()
   const rawLines = step.config?.lines as ScriptLine[] | undefined
   const lines = rawLines && rawLines.length > 0 ? rawLines : EXAMPLE_LINES
 
   return (
     <div className="space-y-5">
       <div>
-        <h3 className="text-base font-semibold text-text">📖 {step.title ?? 'Đọc kịch bản'}</h3>
-        <p className="text-sm text-text-muted mt-1">Đọc to từng lượt thoại theo vai</p>
+        <h3 className="text-base font-semibold text-text">📖 {step.title ?? t.scriptTitleFallback}</h3>
+        <p className="text-sm text-text-muted mt-1">{t.scriptSubtitle}</p>
       </div>
 
       {/* Legend */}
       <div className="flex gap-3 text-xs">
         <span className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded-full bg-primary inline-block" />
-          Điều dưỡng
+          {t.legendNurse}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded-full bg-gray-400 inline-block" />
-          Bệnh nhân
+          {t.legendPatient}
         </span>
       </div>
 
@@ -58,7 +60,7 @@ export default function ScriptReadStep({ step, onComplete }: Props) {
                   isNurse ? 'bg-primary' : 'bg-gray-400'
                 }`}
               >
-                {isNurse ? 'ĐD' : 'BN'}
+                {isNurse ? t.roleNurseShort : t.rolePatientShort}
               </div>
               <div
                 className={`max-w-[80%] rounded-xl px-4 py-3 text-sm ${
@@ -68,7 +70,7 @@ export default function ScriptReadStep({ step, onComplete }: Props) {
                 }`}
               >
                 <span className={`text-xs font-semibold block mb-1 ${isNurse ? 'text-primary' : 'text-gray-500'}`}>
-                  {isNurse ? 'Điều dưỡng' : 'Bệnh nhân'}
+                  {isNurse ? t.roleNurseLabel : t.rolePatientLabel}
                 </span>
                 {line.text}
               </div>
@@ -79,7 +81,7 @@ export default function ScriptReadStep({ step, onComplete }: Props) {
 
       <button onClick={onComplete} className="btn-primary w-full justify-center">
         <ChevronRight size={16} />
-        Đã đọc xong - Bước tiếp
+        {t.btnDoneReading}
       </button>
     </div>
   )

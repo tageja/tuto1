@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { CheckCircle, XCircle, ChevronRight } from 'lucide-react'
 import type { NursedLessonStep } from '@/lib/supabase'
+import { useLang } from '@/contexts/LanguageContext'
 
 interface ClozeToken {
   text: string
@@ -28,6 +29,7 @@ const EXAMPLE_TEXT =
   "Hello, I'm [Nurse Lan]. How can I [help] you today? Please take a [seat] and I'll be right with you."
 
 export default function ClozeStep({ step, onComplete }: Props) {
+  const { t } = useLang()
   const rawText = step.config?.clozeText as string | undefined
   const tokens = parseClozeText(rawText ?? EXAMPLE_TEXT)
   const blanks = tokens.filter((t) => t.isBlank)
@@ -36,12 +38,10 @@ export default function ClozeStep({ step, onComplete }: Props) {
   const [checked, setChecked] = useState(false)
   const [results, setResults] = useState<Record<number, boolean>>({})
 
-  let blankIdx = 0
-
   const handleCheck = () => {
     const res: Record<number, boolean> = {}
     let bi = 0
-    tokens.forEach((token, idx) => {
+    tokens.forEach((token) => {
       if (!token.isBlank) return
       const userAnswer = (answers[bi] ?? '').trim().toLowerCase()
       const correct = (token.answer ?? '').trim().toLowerCase()
@@ -64,8 +64,8 @@ export default function ClozeStep({ step, onComplete }: Props) {
   return (
     <div className="space-y-5">
       <div>
-        <h3 className="text-base font-semibold text-text">✏️ {step.title ?? 'Điền vào chỗ trống'}</h3>
-        <p className="text-sm text-text-muted mt-1">Điền từ còn thiếu vào ô trống</p>
+        <h3 className="text-base font-semibold text-text">✏️ {step.title ?? t.clozeTitleFallback}</h3>
+        <p className="text-sm text-text-muted mt-1">{t.clozeSubtitle}</p>
       </div>
 
       {/* Cloze text */}
@@ -114,10 +114,10 @@ export default function ClozeStep({ step, onComplete }: Props) {
           <span className="text-2xl">{score === total ? '🎉' : '💪'}</span>
           <div>
             <p className="font-semibold text-text">
-              {score}/{total} đúng
+              {score}/{total} {t.btnCheckQuiz}
             </p>
             <p className="text-sm text-text-muted">
-              {score === total ? 'Xuất sắc!' : 'Xem đáp án đúng và thử lại'}
+              {score === total ? t.scorePerfectDesc : t.scoreRetryDesc}
             </p>
           </div>
         </div>
@@ -130,15 +130,15 @@ export default function ClozeStep({ step, onComplete }: Props) {
             disabled={blanks.some((_, i) => !answers[i]?.trim())}
             className="btn-primary flex-1 justify-center"
           >
-            Kiểm tra
+            {t.btnCheck}
           </button>
         ) : (
           <>
             <button onClick={handleReset} className="btn-secondary flex-1 justify-center">
-              Thử lại
+              {t.btnRetry}
             </button>
             <button onClick={onComplete} className="btn-primary flex-1 justify-center">
-              Tiếp theo <ChevronRight size={16} />
+              {t.btnNextCloze} <ChevronRight size={16} />
             </button>
           </>
         )}

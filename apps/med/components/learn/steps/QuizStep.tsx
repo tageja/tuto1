@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { CheckCircle, XCircle, ChevronRight, RotateCcw } from 'lucide-react'
 import type { NursedLessonStep, NursedQuizQuestion } from '@/lib/supabase'
+import { useLang } from '@/contexts/LanguageContext'
 
 interface Props {
   step: NursedLessonStep
@@ -53,6 +54,7 @@ const EXAMPLE_QUESTIONS: NursedQuizQuestion[] = [
 ]
 
 export default function QuizStep({ step, onComplete }: Props) {
+  const { t } = useLang()
   const rawQ = step.config?.questions as NursedQuizQuestion[] | undefined
   const questions = rawQ && rawQ.length > 0 ? rawQ : EXAMPLE_QUESTIONS
 
@@ -86,8 +88,8 @@ export default function QuizStep({ step, onComplete }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-base font-semibold text-text">🧠 {step.title ?? 'Bài kiểm tra'}</h3>
-        <p className="text-sm text-text-muted mt-1">{questions.length} câu hỏi trắc nghiệm</p>
+        <h3 className="text-base font-semibold text-text">🧠 {step.title ?? t.quizTitleFallback}</h3>
+        <p className="text-sm text-text-muted mt-1">{t.quizSubtitle.replace('{n}', String(questions.length))}</p>
       </div>
 
       {/* Questions */}
@@ -152,9 +154,14 @@ export default function QuizStep({ step, onComplete }: Props) {
         <div className={`card p-4 flex items-center gap-3 ${passed ? 'bg-green-50 border-success' : 'bg-orange-50 border-warning'}`}>
           <span className="text-3xl">{passed ? '🎉' : '💪'}</span>
           <div>
-            <p className="font-semibold text-text">{score}/{total} đúng ({pct}%)</p>
+            <p className="font-semibold text-text">
+              {t.scoreLabel
+                .replace('{score}', String(score))
+                .replace('{total}', String(total))
+                .replace('{pct}', String(pct))}
+            </p>
             <p className="text-sm text-text-muted">
-              {passed ? 'Xuất sắc! Bạn đã vượt qua bài kiểm tra.' : 'Chưa đạt 80%. Thử lại để cải thiện!'}
+              {passed ? t.scorePassed : t.scoreFailed}
             </p>
           </div>
         </div>
@@ -168,20 +175,20 @@ export default function QuizStep({ step, onComplete }: Props) {
             disabled={!allAnswered}
             className="btn-primary flex-1 justify-center disabled:opacity-50"
           >
-            Kiểm tra
+            {t.btnCheckQuiz}
           </button>
         ) : passed ? (
           <button onClick={onComplete} className="btn-primary flex-1 justify-center">
-            Tiếp theo <ChevronRight size={16} />
+            {t.btnNextQuiz} <ChevronRight size={16} />
           </button>
         ) : (
           <>
             <button onClick={handleReset} className="btn-secondary flex items-center gap-2">
               <RotateCcw size={16} />
-              Thử lại
+              {t.btnRetryQuiz}
             </button>
             <button onClick={onComplete} className="btn-ghost flex items-center gap-2">
-              Bỏ qua
+              {t.btnSkipQuiz}
             </button>
           </>
         )}

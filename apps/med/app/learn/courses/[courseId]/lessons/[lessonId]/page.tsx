@@ -5,9 +5,11 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronRight, BookOpen } from 'lucide-react'
 import LessonPlayer from '@/components/learn/LessonPlayer'
+import { useLang } from '@/contexts/LanguageContext'
 
 export default function LessonPage() {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>()
+  const { t } = useLang()
   const [lesson, setLesson] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
@@ -42,9 +44,9 @@ export default function LessonPage() {
     return (
       <div className="card p-12 text-center text-text-muted">
         <BookOpen size={48} className="mx-auto mb-4 opacity-30" />
-        <p>Không tìm thấy bài học</p>
+        <p>{t.notFoundLesson2}</p>
         <Link href={`/learn/courses/${courseId}`} className="btn-secondary mt-4 inline-flex">
-          ← Quay lại khóa học
+          {t.btnBackToCourse}
         </Link>
       </div>
     )
@@ -54,9 +56,9 @@ export default function LessonPage() {
     <div className="space-y-6">
       {/* Breadcrumb */}
       <nav className="text-sm text-text-muted flex items-center gap-1 flex-wrap">
-        <Link href="/learn/courses" className="hover:text-primary">Khóa học</Link>
+        <Link href="/learn/courses" className="hover:text-primary">{t.breadcrumbCoursesLesson}</Link>
         <ChevronRight size={14} />
-        <Link href={`/learn/courses/${courseId}`} className="hover:text-primary">Khóa học</Link>
+        <Link href={`/learn/courses/${courseId}`} className="hover:text-primary">{t.breadcrumbCoursesLesson}</Link>
         <ChevronRight size={14} />
         <span className="text-text">{lesson.title_vi ?? lesson.title}</span>
       </nav>

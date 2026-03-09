@@ -3,16 +3,20 @@
 import { useState, useEffect, useRef } from 'react'
 import { Timer, ChevronRight } from 'lucide-react'
 import type { NursedLessonStep } from '@/lib/supabase'
+import { useLang } from '@/contexts/LanguageContext'
 
 interface Props {
   step: NursedLessonStep
   onComplete: () => void
 }
 
-const EXAMPLE_CUES = ['Chào hỏi', 'Hỏi tên', 'Hỏi ngày sinh', 'Hỏi triệu chứng', 'Kết thúc']
 const TIMER_SECONDS = 60
 
 export default function NoScriptStep({ step, onComplete }: Props) {
+  const { t } = useLang()
+
+  const EXAMPLE_CUES = [t.exampleCue1, t.exampleCue2, t.exampleCue3, t.exampleCue4, t.exampleCue5]
+
   const rawCues = step.config?.cues as string[] | undefined
   const cues = rawCues && rawCues.length > 0 ? rawCues : EXAMPLE_CUES
 
@@ -59,8 +63,8 @@ export default function NoScriptStep({ step, onComplete }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-base font-semibold text-text">🎯 {step.title ?? 'Nói không nhìn kịch bản'}</h3>
-        <p className="text-sm text-text-muted mt-1">Dùng các gợi ý bên dưới để nói tự nhiên</p>
+        <h3 className="text-base font-semibold text-text">🎯 {step.title ?? t.noScriptTitleFallback}</h3>
+        <p className="text-sm text-text-muted mt-1">{t.noScriptSubtitle}</p>
       </div>
 
       {/* Cue cards */}
@@ -95,7 +99,7 @@ export default function NoScriptStep({ step, onComplete }: Props) {
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-2xl font-bold text-text">{minutes}:{seconds}</span>
-            <span className="text-xs text-text-muted">giây</span>
+            <span className="text-xs text-text-muted">{t.timerUnit}</span>
           </div>
         </div>
 
@@ -103,19 +107,19 @@ export default function NoScriptStep({ step, onComplete }: Props) {
           {!running && !finished && (
             <button onClick={start} className="btn-primary">
               <Timer size={16} />
-              Bắt đầu đếm giờ
+              {t.btnStartTimer}
             </button>
           )}
           {running && (
             <button onClick={skip} className="btn-secondary">
-              Bỏ qua
+              {t.btnSkipTimer}
             </button>
           )}
         </div>
 
         {finished && (
           <div className="badge badge-green text-sm px-3 py-1.5">
-            ✅ Thời gian hoàn thành!
+            {t.timerFinished}
           </div>
         )}
       </div>
@@ -125,10 +129,10 @@ export default function NoScriptStep({ step, onComplete }: Props) {
         disabled={!finished}
         className="btn-primary w-full justify-center disabled:opacity-50"
       >
-        Hoàn thành <ChevronRight size={16} />
+        {t.btnComplete} <ChevronRight size={16} />
       </button>
       {!finished && (
-        <p className="text-xs text-center text-text-muted">Hoàn thành bộ đếm giờ để tiếp tục</p>
+        <p className="text-xs text-center text-text-muted">{t.timerHint}</p>
       )}
     </div>
   )

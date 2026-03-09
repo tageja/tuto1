@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronDown, ChevronRight, Clock, BookOpen, Lock } from 'lucide-react'
 import type { NursedCourse, NursedModule, NursedLesson } from '@/lib/supabase'
+import { useLang } from '@/contexts/LanguageContext'
 
 type CourseWithModules = NursedCourse & {
   nursed_modules: (NursedModule & { nursed_lessons: NursedLesson[] })[]
@@ -19,6 +20,7 @@ const LEVEL_COLORS: Record<string, string> = {
 
 export default function CourseOverview() {
   const { courseId } = useParams<{ courseId: string }>()
+  const { t } = useLang()
   const [course, setCourse] = useState<CourseWithModules | null>(null)
   const [loading, setLoading] = useState(true)
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set())
@@ -60,8 +62,8 @@ export default function CourseOverview() {
     return (
       <div className="card p-12 text-center text-text-muted">
         <BookOpen size={48} className="mx-auto mb-4 opacity-30" />
-        <p>Không tìm thấy khóa học</p>
-        <Link href="/learn/courses" className="btn-secondary mt-4 inline-flex">← Quay lại</Link>
+        <p>{t.notFoundCourseLearn}</p>
+        <Link href="/learn/courses" className="btn-secondary mt-4 inline-flex">{t.btnBackCourseLearn}</Link>
       </div>
     )
   }
@@ -73,7 +75,7 @@ export default function CourseOverview() {
     <div className="space-y-6">
       {/* Breadcrumb */}
       <nav className="text-sm text-text-muted flex items-center gap-1">
-        <Link href="/learn/courses" className="hover:text-primary">Khóa học</Link>
+        <Link href="/learn/courses" className="hover:text-primary">{t.breadcrumbCourses}</Link>
         <ChevronRight size={14} />
         <span className="text-text">{course.title_vi ?? course.title}</span>
       </nav>
@@ -82,7 +84,7 @@ export default function CourseOverview() {
       <div className="card p-6">
         <div className="flex flex-wrap items-start gap-3 mb-3">
           <span className={LEVEL_COLORS[course.level] ?? 'badge badge-gray'}>{course.level}</span>
-          <span className="badge badge-gray">{totalLessons} bài học</span>
+          <span className="badge badge-gray">{t.lessonMinutes.replace('{n}', String(totalLessons))}</span>
         </div>
         <h1 className="mb-1">{course.title}</h1>
         {course.title_vi && <p className="text-text-muted mb-3">{course.title_vi}</p>}
@@ -96,10 +98,10 @@ export default function CourseOverview() {
 
       {/* Module list */}
       <div className="space-y-3">
-        <h2>Nội dung khóa học</h2>
+        <h2>{t.sectionCourseContentLearn}</h2>
         {modules.length === 0 ? (
           <div className="card p-8 text-center text-text-muted">
-            <p>Chưa có module nào</p>
+            <p>{t.emptyModulesLearn}</p>
           </div>
         ) : (
           modules.map((mod, idx) => {
@@ -117,7 +119,7 @@ export default function CourseOverview() {
                     </div>
                     <div>
                       <p className="font-medium text-text">{mod.title_vi ?? mod.title}</p>
-                      <p className="text-xs text-text-muted">{lessons.length} bài học</p>
+                      <p className="text-xs text-text-muted">{t.lessonCountBadge.replace('{n}', String(lessons.length))}</p>
                     </div>
                   </div>
                   {isExpanded ? <ChevronDown size={18} className="text-text-muted" /> : <ChevronRight size={18} className="text-text-muted" />}
@@ -126,7 +128,7 @@ export default function CourseOverview() {
                 {isExpanded && (
                   <div className="border-t border-border">
                     {lessons.length === 0 ? (
-                      <p className="px-4 py-3 text-sm text-text-muted">Chưa có bài học</p>
+                      <p className="px-4 py-3 text-sm text-text-muted">{t.emptyLessonsLearn}</p>
                     ) : (
                       lessons.map((lesson, lIdx) => (
                         <div
@@ -139,7 +141,9 @@ export default function CourseOverview() {
                               <p className="text-sm font-medium text-text">{lesson.title_vi ?? lesson.title}</p>
                               <div className="flex items-center gap-2 mt-0.5">
                                 <Clock size={12} className="text-text-muted" />
-                                <span className="text-xs text-text-muted">{lesson.est_minutes} phút</span>
+                                <span className="text-xs text-text-muted">
+                                  {t.lessonMinutes.replace('{n}', String(lesson.est_minutes))}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -148,11 +152,11 @@ export default function CourseOverview() {
                               href={`/learn/courses/${courseId}/lessons/${lesson.id}`}
                               className="btn-primary text-xs px-3 py-1.5"
                             >
-                              Học
+                              {t.btnLearn}
                             </Link>
                           ) : (
                             <span className="text-text-muted flex items-center gap-1 text-xs">
-                              <Lock size={14} /> Sắp ra mắt
+                              <Lock size={14} /> {t.statusComingSoon}
                             </span>
                           )}
                         </div>

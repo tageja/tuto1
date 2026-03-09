@@ -3,15 +3,17 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, BookOpen, Users } from 'lucide-react'
+import { useLang } from '@/contexts/LanguageContext'
 
-const NAV_ITEMS = [
-  { label: 'Dashboard', labelVi: 'Tổng quan', icon: Home, href: '/learn' },
-  { label: 'My Courses', labelVi: 'Khóa học của tôi', icon: BookOpen, href: '/learn/courses' },
-  { label: 'Practice Groups', labelVi: 'Nhóm luyện tập', icon: Users, href: '/learn/pairs' },
+const NAV_HREFS = [
+  { icon: Home, href: '/learn', tKey: 'learnNavDashboard' as const },
+  { icon: BookOpen, href: '/learn/courses', tKey: 'learnNavMyCourses' as const },
+  { icon: Users, href: '/learn/pairs', tKey: 'learnNavPracticeGroups' as const },
 ]
 
 export default function LearnerSidebar() {
   const pathname = usePathname()
+  const { t, lang, toggleLang } = useLang()
 
   const isActive = (href: string) => {
     if (href === '/learn') return pathname === '/learn'
@@ -24,19 +26,19 @@ export default function LearnerSidebar() {
       <div className="px-4 py-5 border-b border-border">
         <Link href="/learn" className="block">
           <img src="/images/tuto-logo.png" alt="tuto." className="h-9 w-auto" />
-          <span className="text-xs font-semibold text-text-muted tracking-wide mt-1 block">NurseEd</span>
+          <span className="text-xs font-semibold text-text-muted tracking-wide mt-1 block">{t.logoSub}</span>
         </Link>
       </div>
 
       {/* User greeting */}
       <div className="px-4 py-4 border-b border-border">
-        <p className="text-sm font-medium text-text">Xin chào, Điều dưỡng 👋</p>
-        <p className="text-xs text-text-muted mt-0.5">Chào mừng trở lại!</p>
+        <p className="text-sm font-medium text-text">{t.greeting}</p>
+        <p className="text-xs text-text-muted mt-0.5">{t.greetingSub}</p>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {NAV_ITEMS.map((item) => {
+        {NAV_HREFS.map((item) => {
           const Icon = item.icon
           const active = isActive(item.href)
           return (
@@ -46,7 +48,7 @@ export default function LearnerSidebar() {
               className={active ? 'sidebar-item-active' : 'sidebar-item-inactive'}
             >
               <Icon size={18} />
-              <span>{item.labelVi}</span>
+              <span>{t[item.tKey]}</span>
             </Link>
           )
         })}
@@ -57,10 +59,23 @@ export default function LearnerSidebar() {
         <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-orange-50 border border-orange-100">
           <span className="text-xl">🔥</span>
           <div>
-            <p className="text-sm font-semibold text-orange-700">3 ngày liên tục</p>
-            <p className="text-xs text-orange-500">Tiếp tục duy trì nhé!</p>
+            <p className="text-sm font-semibold text-orange-700">{t.streakLabel}</p>
+            <p className="text-xs text-orange-500">{t.streakEncouragement}</p>
           </div>
         </div>
+      </div>
+
+      {/* Partner logo + language toggle */}
+      <div className="px-4 py-4 border-t border-border space-y-3">
+        <div className="rounded-lg bg-white border border-border px-3 py-3 flex flex-col items-center gap-1">
+          <span className="text-[10px] text-text-muted tracking-widest uppercase font-semibold">In partnership with</span>
+          <img src="/images/chir-logo.jpg" alt="chir" className="h-14 w-auto object-contain" style={{ maxWidth: 120 }} />
+        </div>
+        <button onClick={toggleLang} className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border text-xs font-medium text-text-muted hover:bg-surface transition-all w-full justify-center">
+          <span className={lang === 'en' ? 'text-primary font-bold' : ''}>{t.langToggleEn}</span>
+          <span className="text-border mx-1">|</span>
+          <span className={lang === 'vi' ? 'text-primary font-bold' : ''}>{t.langToggleVi}</span>
+        </button>
       </div>
     </aside>
   )

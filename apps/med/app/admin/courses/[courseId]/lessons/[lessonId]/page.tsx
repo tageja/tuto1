@@ -7,17 +7,7 @@ import { ArrowLeft, Plus, Trash2, Edit, GripVertical, ChevronDown } from 'lucide
 import { useToast } from '@/components/ui/Toast'
 import { StepEditor } from '@/components/admin/StepEditor'
 import type { NursedLesson, NursedLessonStep, StepType } from '@/lib/supabase'
-
-const STEP_TYPES: { value: StepType; label: string }[] = [
-  { value: 'video', label: 'Video' },
-  { value: 'audio_shadow', label: 'Nghe & Bắt chước (Audio Shadow)' },
-  { value: 'script_read', label: 'Đọc kịch bản (Script Read)' },
-  { value: 'cloze', label: 'Điền vào chỗ trống (Cloze)' },
-  { value: 'no_script', label: 'Hội thoại tự do (No Script)' },
-  { value: 'recording_submit', label: 'Nộp bản ghi âm (Recording)' },
-  { value: 'quiz', label: 'Bài kiểm tra (Quiz)' },
-  { value: 'mission', label: 'Nhiệm vụ (Mission)' },
-]
+import { useLang } from '@/contexts/LanguageContext'
 
 const TYPE_BADGE: Record<StepType, string> = {
   video: 'badge-blue',
@@ -30,20 +20,10 @@ const TYPE_BADGE: Record<StepType, string> = {
   mission: 'badge-green',
 }
 
-const TYPE_LABEL: Record<StepType, string> = {
-  video: 'Video',
-  audio_shadow: 'Audio',
-  script_read: 'Script',
-  cloze: 'Cloze',
-  no_script: 'No Script',
-  recording_submit: 'Recording',
-  quiz: 'Quiz',
-  mission: 'Mission',
-}
-
 export default function LessonBuilderPage() {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>()
   const { toast } = useToast()
+  const { t } = useLang()
   const [lesson, setLesson] = useState<NursedLesson | null>(null)
   const [steps, setSteps] = useState<NursedLessonStep[]>([])
   const [loading, setLoading] = useState(true)
@@ -52,6 +32,28 @@ export default function LessonBuilderPage() {
   const [editingStepId, setEditingStepId] = useState<string | null>(null)
   const [showAddDropdown, setShowAddDropdown] = useState(false)
   const [addingStep, setAddingStep] = useState(false)
+
+  const STEP_TYPES: { value: StepType; label: string }[] = [
+    { value: 'video', label: t.stepTypeVideo },
+    { value: 'audio_shadow', label: t.stepTypeAudioShadow },
+    { value: 'script_read', label: t.stepTypeScriptRead },
+    { value: 'cloze', label: t.stepTypeCloze },
+    { value: 'no_script', label: t.stepTypeNoScript },
+    { value: 'recording_submit', label: t.stepTypeRecording },
+    { value: 'quiz', label: t.stepTypeQuiz },
+    { value: 'mission', label: t.stepTypeMission },
+  ]
+
+  const TYPE_LABEL: Record<StepType, string> = {
+    video: t.stepTypeVideo,
+    audio_shadow: t.stepTypeAudioShadow,
+    script_read: t.stepTypeScriptRead,
+    cloze: t.stepTypeCloze,
+    no_script: t.stepTypeNoScript,
+    recording_submit: t.stepTypeRecording,
+    quiz: t.stepTypeQuiz,
+    mission: t.stepTypeMission,
+  }
 
   useEffect(() => {
     loadLesson()
@@ -85,9 +87,9 @@ export default function LessonBuilderPage() {
     if (res.ok) {
       setLesson({ ...lesson, ...headerDraft })
       setEditingHeader(false)
-      toast('Đã cập nhật bài học', 'success')
+      toast(t.toastLessonUpdated, 'success')
     } else {
-      toast('Lỗi cập nhật', 'error')
+      toast(t.toastUpdateError, 'error')
     }
   }
 
@@ -100,7 +102,7 @@ export default function LessonBuilderPage() {
     })
     if (res.ok) {
       setLesson({ ...lesson, published: !lesson.published })
-      toast(lesson.published ? 'Đặt thành nháp' : 'Đã xuất bản', 'success')
+      toast(lesson.published ? t.statusDraft : t.statusPublished, 'success')
     }
   }
 
@@ -123,9 +125,9 @@ export default function LessonBuilderPage() {
         const data = await res.json()
         setSteps((prev) => [...prev, data.data])
         setEditingStepId(data.data.id)
-        toast('Đã thêm bước', 'success')
+        toast(t.toastStepAdded, 'success')
       } else {
-        toast('Lỗi thêm bước', 'error')
+        toast(t.toastStepAddError, 'error')
       }
     } finally {
       setAddingStep(false)
@@ -142,20 +144,20 @@ export default function LessonBuilderPage() {
       const data = await res.json()
       setSteps((prev) => prev.map((s) => (s.id === stepId ? data.data : s)))
       setEditingStepId(null)
-      toast('Đã lưu bước', 'success')
+      toast(t.toastStepSaved, 'success')
     } else {
-      toast('Lỗi lưu bước', 'error')
+      toast(t.toastStepSaveError, 'error')
     }
   }
 
   async function handleDeleteStep(stepId: string) {
-    if (!confirm('Xóa bước này?')) return
+    if (!confirm(t.confirmDeleteStep)) return
     const res = await fetch(`/api/steps/${stepId}`, { method: 'DELETE' })
     if (res.ok) {
       setSteps((prev) => prev.filter((s) => s.id !== stepId))
-      toast('Đã xóa bước', 'success')
+      toast(t.toastStepDeleted, 'success')
     } else {
-      toast('Lỗi xóa', 'error')
+      toast(t.toastStepDeleteError, 'error')
     }
   }
 
@@ -169,14 +171,14 @@ export default function LessonBuilderPage() {
     )
   }
 
-  if (!lesson) return <p className="text-text-muted">Không tìm thấy bài học.</p>
+  if (!lesson) return <p className="text-text-muted">{t.notFoundLesson}</p>
 
   return (
     <div>
       <div className="flex items-center gap-3 mb-6">
         <Link href={`/admin/courses/${courseId}`} className="btn-ghost !py-1.5">
           <ArrowLeft size={16} />
-          Quay lại
+          {t.btnBackLesson}
         </Link>
       </div>
 
@@ -185,7 +187,7 @@ export default function LessonBuilderPage() {
           <div className="space-y-3">
             <div className="grid grid-cols-3 gap-3">
               <div className="col-span-2">
-                <label className="label">Tên bài học *</label>
+                <label className="label">{t.labelLessonTitle}</label>
                 <input
                   className="input"
                   value={headerDraft.title}
@@ -193,7 +195,7 @@ export default function LessonBuilderPage() {
                 />
               </div>
               <div>
-                <label className="label">Phút ước tính</label>
+                <label className="label">{t.labelEstMinutes}</label>
                 <input
                   className="input"
                   type="number"
@@ -206,8 +208,8 @@ export default function LessonBuilderPage() {
               </div>
             </div>
             <div className="flex gap-2">
-              <button onClick={handleSaveHeader} className="btn-primary">Lưu</button>
-              <button onClick={() => setEditingHeader(false)} className="btn-secondary">Hủy</button>
+              <button onClick={handleSaveHeader} className="btn-primary">{t.btnSave}</button>
+              <button onClick={() => setEditingHeader(false)} className="btn-secondary">{t.btnCancel}</button>
             </div>
           </div>
         ) : (
@@ -215,14 +217,16 @@ export default function LessonBuilderPage() {
             <div>
               <h1>{lesson.title}</h1>
               {lesson.title_vi && <p className="text-sm text-text-muted mt-1">{lesson.title_vi}</p>}
-              <p className="text-xs text-text-muted mt-2">{lesson.est_minutes} phút ước tính</p>
+              <p className="text-xs text-text-muted mt-2">
+                {t.lessonEstMinutes.replace('{n}', String(lesson.est_minutes))}
+              </p>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleTogglePublished}
                 className={`badge cursor-pointer ${lesson.published ? 'badge-green' : 'badge-gray'}`}
               >
-                {lesson.published ? 'Đã xuất bản' : 'Nháp'}
+                {lesson.published ? t.statusPublished : t.statusDraft}
               </button>
               <button onClick={() => setEditingHeader(true)} className="btn-ghost !p-1.5">
                 <Edit size={15} />
@@ -233,7 +237,7 @@ export default function LessonBuilderPage() {
       </div>
 
       <div className="flex items-center justify-between mb-4">
-        <h2>Các bước ({steps.length})</h2>
+        <h2>{t.sectionSteps.replace('{n}', String(steps.length))}</h2>
         <div className="relative">
           <button
             className="btn-primary"
@@ -241,7 +245,7 @@ export default function LessonBuilderPage() {
             disabled={addingStep}
           >
             <Plus size={15} />
-            Thêm bước
+            {t.btnAddStep}
             <ChevronDown size={14} />
           </button>
           {showAddDropdown && (
@@ -268,7 +272,7 @@ export default function LessonBuilderPage() {
       <div className="space-y-3">
         {steps.length === 0 ? (
           <div className="card p-10 text-center">
-            <p className="text-text-muted">Chưa có bước nào. Nhấn "Thêm bước" để bắt đầu!</p>
+            <p className="text-text-muted">{t.emptySteps}</p>
           </div>
         ) : (
           steps.map((step, idx) => (
@@ -288,7 +292,7 @@ export default function LessonBuilderPage() {
                     className="btn-secondary !py-1 !px-2.5 text-xs"
                   >
                     <Edit size={13} />
-                    {editingStepId === step.id ? 'Đóng' : 'Chỉnh sửa'}
+                    {editingStepId === step.id ? t.btnCloseStep : t.btnEditStep}
                   </button>
                   <button
                     onClick={() => handleDeleteStep(step.id)}

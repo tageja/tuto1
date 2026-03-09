@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { Play, Pause, ChevronRight } from 'lucide-react'
 import type { NursedLessonStep } from '@/lib/supabase'
+import { useLang } from '@/contexts/LanguageContext'
 
 interface Props {
   step: NursedLessonStep
@@ -12,6 +13,7 @@ interface Props {
 const SPEEDS = [0.75, 1, 1.25] as const
 
 export default function AudioShadowStep({ step, onComplete }: Props) {
+  const { t } = useLang()
   const [isPlaying, setIsPlaying] = useState(false)
   const [speed, setSpeed] = useState<number>(1)
   const [progress, setProgress] = useState(0)
@@ -21,6 +23,12 @@ export default function AudioShadowStep({ step, onComplete }: Props) {
 
   const audioUrl = step.config?.audioUrl as string | undefined
   const transcript = (step.config?.transcript ?? step.config?.transcriptEn ?? '') as string
+
+  const phases = [
+    { key: 'listen' as const, icon: '👂', label: t.phaseListen },
+    { key: 'read' as const, icon: '📖', label: t.phaseRead },
+    { key: 'speak' as const, icon: '🗣️', label: t.phaseSpeak },
+  ]
 
   const togglePlay = () => {
     if (!audioRef.current) return
@@ -52,14 +60,14 @@ export default function AudioShadowStep({ step, onComplete }: Props) {
   return (
     <div className="space-y-5">
       <div>
-        <h3 className="text-base font-semibold text-text">🎧 {step.title ?? 'Nghe & Shadowing'}</h3>
-        <p className="text-sm text-text-muted mt-1">Nghe → Đọc theo → Nói cùng</p>
+        <h3 className="text-base font-semibold text-text">🎧 {step.title ?? t.audioTitleFallback}</h3>
+        <p className="text-sm text-text-muted mt-1">{t.audioSubtitle}</p>
       </div>
 
       {/* Transcript */}
       {transcript ? (
         <div className="card p-4 bg-surface">
-          <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Nội dung</p>
+          <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">{t.transcriptLabel}</p>
           <p className="text-sm text-text leading-relaxed">{transcript}</p>
         </div>
       ) : null}
@@ -114,18 +122,14 @@ export default function AudioShadowStep({ step, onComplete }: Props) {
       ) : (
         <div className="card p-8 text-center bg-surface">
           <div className="text-4xl mb-3">🎵</div>
-          <p className="font-medium text-text">Audio sẽ có sớm</p>
-          <p className="text-sm text-text-muted">Nội dung đang được chuẩn bị</p>
+          <p className="font-medium text-text">{t.audioComingSoon}</p>
+          <p className="text-sm text-text-muted">{t.audioComingSoonDesc}</p>
         </div>
       )}
 
       {/* Phase buttons */}
       <div className="grid grid-cols-3 gap-3">
-        {[
-          { key: 'listen' as const, icon: '👂', label: 'Nghe' },
-          { key: 'read' as const, icon: '📖', label: 'Đọc theo' },
-          { key: 'speak' as const, icon: '🗣️', label: 'Nói cùng' },
-        ].map((phase) => (
+        {phases.map((phase) => (
           <button
             key={phase.key}
             onClick={() => setActivePhase(phase.key)}
@@ -146,10 +150,10 @@ export default function AudioShadowStep({ step, onComplete }: Props) {
         disabled={!hasPlayed && !!audioUrl}
         className="btn-primary w-full justify-center disabled:opacity-50"
       >
-        Tiếp theo <ChevronRight size={16} />
+        {t.btnNextAudio} <ChevronRight size={16} />
       </button>
       {!hasPlayed && audioUrl && (
-        <p className="text-xs text-center text-text-muted">Nghe audio ít nhất một lần để tiếp tục</p>
+        <p className="text-xs text-center text-text-muted">{t.listenHint}</p>
       )}
     </div>
   )

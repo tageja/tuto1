@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import type { NursedLessonStep } from '@/lib/supabase'
+import { useLang } from '@/contexts/LanguageContext'
 
 import VideoStep from './steps/VideoStep'
 import AudioShadowStep from './steps/AudioShadowStep'
@@ -14,17 +15,6 @@ import RecordingStep from './steps/RecordingStep'
 import QuizStep from './steps/QuizStep'
 import MissionStep from './steps/MissionStep'
 
-const STEP_TYPE_LABELS: Record<string, string> = {
-  video: '🎬 Video',
-  audio_shadow: '🎧 Nghe & Shadow',
-  script_read: '📖 Đọc kịch bản',
-  cloze: '✏️ Điền chỗ trống',
-  no_script: '🎯 Nói tự do',
-  recording_submit: '🎤 Ghi âm',
-  quiz: '🧠 Kiểm tra',
-  mission: '🎯 Nhiệm vụ',
-}
-
 interface Props {
   lesson: any
   courseId?: string
@@ -33,6 +23,18 @@ interface Props {
 export default function LessonPlayer({ lesson, courseId }: Props) {
   const params = useParams<{ courseId?: string }>()
   const resolvedCourseId = courseId ?? params?.courseId ?? ''
+  const { t } = useLang()
+
+  const STEP_TYPE_LABELS: Record<string, string> = {
+    video: t.stepTypeVideoLabel,
+    audio_shadow: t.stepTypeAudioShadowLabel,
+    script_read: t.stepTypeScriptReadLabel,
+    cloze: t.stepTypeClozeLabel,
+    no_script: t.stepTypeNoScriptLabel,
+    recording_submit: t.stepTypeRecordingLabel,
+    quiz: t.stepTypeQuizLabel,
+    mission: t.stepTypeMissionLabel,
+  }
 
   const rawSteps: NursedLessonStep[] = lesson?.nursed_lesson_steps ?? []
   const steps = [...rawSteps].sort((a, b) => a.order_index - b.order_index)
@@ -44,11 +46,11 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
     return (
       <div className="card p-12 text-center">
         <div className="text-6xl mb-4">📭</div>
-        <h3 className="text-lg font-semibold text-text mb-2">Bài học này chưa có nội dung</h3>
-        <p className="text-sm text-text-muted">Nội dung đang được biên soạn, vui lòng quay lại sau.</p>
+        <h3 className="text-lg font-semibold text-text mb-2">{t.emptyLessonTitle}</h3>
+        <p className="text-sm text-text-muted">{t.emptyLessonDesc}</p>
         {resolvedCourseId && (
           <Link href={`/learn/courses/${resolvedCourseId}`} className="btn-secondary mt-4 inline-flex">
-            ← Quay lại khóa học
+            {t.btnBackToCourse}
           </Link>
         )}
       </div>
@@ -68,8 +70,8 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
     return (
       <div className="card p-12 text-center space-y-4">
         <div className="text-7xl mb-2 animate-bounce">🎉</div>
-        <h2 className="text-2xl font-bold text-text">Xuất sắc!</h2>
-        <p className="text-text-muted">Bạn đã hoàn thành bài học này!</p>
+        <h2 className="text-2xl font-bold text-text">{t.completedTitle}</h2>
+        <p className="text-text-muted">{t.completedDesc}</p>
 
         {/* XP animation */}
         <div className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-yellow-50 border border-yellow-200">
@@ -80,11 +82,11 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
           {resolvedCourseId && (
             <Link href={`/learn/courses/${resolvedCourseId}`} className="btn-secondary justify-center">
-              ← Quay lại khóa học
+              {t.btnBackToCourse}
             </Link>
           )}
           <Link href="/learn" className="btn-primary justify-center">
-            🏠 Về trang chủ
+            {t.btnHome}
           </Link>
         </div>
       </div>
@@ -115,9 +117,9 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
       default:
         return (
           <div className="card p-8 text-center text-text-muted">
-            <p>Loại bước chưa được hỗ trợ: {currentStep.type}</p>
+            <p>{t.unsupportedStep.replace('{type}', currentStep.type)}</p>
             <button onClick={handleStepComplete} className="btn-secondary mt-4">
-              Bỏ qua
+              {t.btnSkip}
             </button>
           </div>
         )
@@ -129,7 +131,11 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
       {/* Progress bar */}
       <div className="card p-4 space-y-2">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-text-muted">Bước {currentIdx + 1} / {steps.length}</span>
+          <span className="text-text-muted">
+            {t.progressLabel
+              .replace('{current}', String(currentIdx + 1))
+              .replace('{total}', String(steps.length))}
+          </span>
           <span className="badge badge-blue">{stepLabel}</span>
         </div>
 

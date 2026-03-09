@@ -4,15 +4,9 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { BookOpen } from 'lucide-react'
 import type { NursedCourse } from '@/lib/supabase'
+import { useLang } from '@/contexts/LanguageContext'
 
 type Level = 'all' | 'A1' | 'A2' | 'B1'
-
-const LEVELS: { key: Level; label: string }[] = [
-  { key: 'all', label: 'Tất cả' },
-  { key: 'A1', label: 'A1' },
-  { key: 'A2', label: 'A2' },
-  { key: 'B1', label: 'B1' },
-]
 
 const LEVEL_COLORS: Record<string, string> = {
   A1: 'badge-green',
@@ -29,9 +23,17 @@ const LEVEL_GRADIENTS: Record<string, string> = {
 }
 
 export default function CourseCatalog() {
+  const { t } = useLang()
   const [courses, setCourses] = useState<NursedCourse[]>([])
   const [loading, setLoading] = useState(true)
   const [activeLevel, setActiveLevel] = useState<Level>('all')
+
+  const LEVELS: { key: Level; label: string }[] = [
+    { key: 'all', label: t.filterAll },
+    { key: 'A1', label: 'A1' },
+    { key: 'A2', label: 'A2' },
+    { key: 'B1', label: 'B1' },
+  ]
 
   useEffect(() => {
     fetch('/api/courses?published=true')
@@ -47,8 +49,8 @@ export default function CourseCatalog() {
     <div className="space-y-6">
       <div className="page-header">
         <div>
-          <h1>Khám phá Khóa học</h1>
-          <p className="text-sm text-text-muted mt-1">Nâng cao tiếng Anh y tế theo từng cấp độ</p>
+          <h1>{t.learnCatalogTitle}</h1>
+          <p className="text-sm text-text-muted mt-1">{t.learnCatalogSubtitle}</p>
         </div>
       </div>
 
@@ -87,16 +89,16 @@ export default function CourseCatalog() {
           <BookOpen size={48} className="text-text-muted opacity-30" />
           {courses.length === 0 ? (
             <>
-              <p className="text-lg font-semibold text-text">Chưa có khóa học nào</p>
-              <p className="text-sm text-text-muted max-w-xs">
-                Các khóa học đang được chuẩn bị. Hãy liên hệ quản trị viên hoặc thử lại sau nhé!
-              </p>
+              <p className="text-lg font-semibold text-text">{t.emptyNoCoursesTitle}</p>
+              <p className="text-sm text-text-muted max-w-xs">{t.emptyNoCoursesDesc}</p>
             </>
           ) : (
             <>
-              <p className="text-base font-medium text-text">Không có khóa học cấp độ {activeLevel}</p>
+              <p className="text-base font-medium text-text">
+                {t.emptyLevelFiltered.replace('{level}', activeLevel)}
+              </p>
               <button onClick={() => setActiveLevel('all')} className="btn-secondary text-sm">
-                Xem tất cả khóa học
+                {t.btnViewAllCourses}
               </button>
             </>
           )}
@@ -113,6 +115,7 @@ export default function CourseCatalog() {
 }
 
 function CourseCard({ course }: { course: NursedCourse }) {
+  const { t } = useLang()
   const gradient = LEVEL_GRADIENTS[course.level] ?? 'from-gray-400 to-gray-500'
   return (
     <div className="card overflow-hidden flex flex-col">
@@ -135,7 +138,7 @@ function CourseCard({ course }: { course: NursedCourse }) {
             href={`/learn/courses/${course.id}`}
             className="btn-primary w-full justify-center"
           >
-            Bắt đầu
+            {t.btnStart}
           </Link>
         </div>
       </div>

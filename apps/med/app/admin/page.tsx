@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { BookOpen, Building2, Users, TrendingUp } from 'lucide-react'
 import type { NursedCourse, NursedHospital } from '@/lib/supabase'
+import { useLang } from '@/contexts/LanguageContext'
 
 interface KpiData {
   totalCourses: number
@@ -19,6 +20,7 @@ const LEVEL_CLASS: Record<string, string> = {
 }
 
 export default function AdminDashboard() {
+  const { t } = useLang()
   const [kpi, setKpi] = useState<KpiData>({ totalCourses: 0, publishedCourses: 0, totalHospitals: 0 })
   const [recentCourses, setRecentCourses] = useState<NursedCourse[]>([])
   const [loading, setLoading] = useState(true)
@@ -50,18 +52,18 @@ export default function AdminDashboard() {
   }, [])
 
   const kpiCards = [
-    { label: 'Tổng khóa học', value: kpi.totalCourses, icon: BookOpen, color: 'text-primary' },
-    { label: 'Đã xuất bản', value: kpi.publishedCourses, icon: TrendingUp, color: 'text-success' },
-    { label: 'Bệnh viện', value: kpi.totalHospitals, icon: Building2, color: 'text-warning' },
-    { label: 'Học viên', value: '—', icon: Users, color: 'text-text-muted' },
+    { label: t.kpiTotalCourses, value: kpi.totalCourses, icon: BookOpen, color: 'text-primary' },
+    { label: t.kpiPublished, value: kpi.publishedCourses, icon: TrendingUp, color: 'text-success' },
+    { label: t.kpiHospitals, value: kpi.totalHospitals, icon: Building2, color: 'text-warning' },
+    { label: t.kpiStudents, value: '—', icon: Users, color: 'text-text-muted' },
   ]
 
   return (
     <div>
       <div className="page-header">
         <div>
-          <h1>Tổng quan</h1>
-          <p className="text-sm text-text-muted mt-1">Chào mừng đến NurseEd Admin</p>
+          <h1>{t.adminDashTitle}</h1>
+          <p className="text-sm text-text-muted mt-1">{t.adminDashSubtitle}</p>
         </div>
       </div>
 
@@ -81,9 +83,9 @@ export default function AdminDashboard() {
 
       <div className="card p-5">
         <div className="flex items-center justify-between mb-4">
-          <h3>Khóa học gần đây</h3>
+          <h3>{t.recentCoursesTitle}</h3>
           <Link href="/admin/courses" className="text-sm text-primary hover:underline">
-            Xem tất cả →
+            {t.recentCoursesViewAll}
           </Link>
         </div>
 
@@ -94,7 +96,7 @@ export default function AdminDashboard() {
             ))}
           </div>
         ) : recentCourses.length === 0 ? (
-          <p className="text-sm text-text-muted text-center py-8">Chưa có khóa học nào</p>
+          <p className="text-sm text-text-muted text-center py-8">{t.emptyCourses}</p>
         ) : (
           <div className="divide-y divide-border">
             {recentCourses.map((course) => (
@@ -110,13 +112,13 @@ export default function AdminDashboard() {
                 </div>
                 <div className="flex items-center gap-3 shrink-0 ml-4">
                   <span className={course.published ? 'badge-green' : 'badge-gray'}>
-                    {course.published ? 'Đã xuất bản' : 'Nháp'}
+                    {course.published ? t.statusPublished : t.statusDraft}
                   </span>
                   <Link
                     href={`/admin/courses/${course.id}`}
                     className="text-xs text-primary hover:underline"
                   >
-                    Chi tiết
+                    {t.linkDetail}
                   </Link>
                 </div>
               </div>

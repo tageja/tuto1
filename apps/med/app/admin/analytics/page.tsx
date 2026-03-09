@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Users, FileText, Mic, Award, TrendingUp, BookOpen } from 'lucide-react'
 import type { NursedHospital } from '@/lib/supabase'
+import { useLang } from '@/contexts/LanguageContext'
 
 interface Analytics {
   totalEnrolled: number
@@ -23,6 +24,7 @@ interface KpiCard {
 }
 
 export default function AnalyticsPage() {
+  const { t } = useLang()
   const [hospitals, setHospitals] = useState<NursedHospital[]>([])
   const [selectedId, setSelectedId] = useState<string>('')
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
@@ -53,38 +55,38 @@ export default function AnalyticsPage() {
   const kpiCards: KpiCard[] = analytics
     ? [
         {
-          label: 'Tổng học viên đăng ký',
+          label: t.kpiTotalEnrolled,
           value: analytics.totalEnrolled,
           icon: Users,
           color: 'text-primary',
         },
         {
-          label: 'Tổng lượt nộp bài',
+          label: t.kpiTotalSubmissions,
           value: analytics.totalSubmissions,
           icon: FileText,
           color: 'text-warning',
         },
         {
-          label: 'Bản ghi âm đã nộp',
+          label: t.kpiRecordings,
           value: analytics.recordingSubmissions,
           icon: Mic,
           color: 'text-error',
         },
         {
-          label: 'Điểm Quiz trung bình',
+          label: t.kpiQuizScore,
           value: analytics.avgQuizScore > 0 ? `${analytics.avgQuizScore.toFixed(1)}%` : '—',
           icon: Award,
           color: 'text-success',
         },
         {
-          label: 'Hoàn thành trung bình',
+          label: t.kpiAvgCompletion,
           value: analytics.avgCompletion > 0 ? `${analytics.avgCompletion.toFixed(1)}%` : '—',
           icon: TrendingUp,
           color: 'text-primary',
-          desc: 'Tỷ lệ hoàn thành bài học',
+          desc: t.kpiCompletionDesc,
         },
         {
-          label: 'Bài học đã hoàn thành',
+          label: t.kpiCompletedLessons,
           value: analytics.completedLessons,
           icon: BookOpen,
           color: 'text-success',
@@ -98,20 +100,20 @@ export default function AnalyticsPage() {
     <div>
       <div className="page-header">
         <div>
-          <h1>Phân tích</h1>
-          <p className="text-sm text-text-muted mt-1">Theo dõi tiến độ học tập theo bệnh viện</p>
+          <h1>{t.adminAnalyticsTitle}</h1>
+          <p className="text-sm text-text-muted mt-1">{t.adminAnalyticsSubtitle}</p>
         </div>
       </div>
 
       <div className="card p-5 mb-6">
-        <label className="label">Chọn bệnh viện</label>
+        <label className="label">{t.labelSelectHospital}</label>
         <select
           className="input max-w-sm"
           value={selectedId}
           onChange={(e) => setSelectedId(e.target.value)}
           disabled={hospitalsLoading}
         >
-          <option value="">— Chọn bệnh viện —</option>
+          <option value="">{t.selectHospitalPlaceholder}</option>
           {hospitals.map((h) => (
             <option key={h.id} value={h.id}>
               {h.name}
@@ -120,14 +122,14 @@ export default function AnalyticsPage() {
           ))}
         </select>
         {hospitalsLoading && (
-          <p className="text-xs text-text-muted mt-2">Đang tải danh sách...</p>
+          <p className="text-xs text-text-muted mt-2">{t.loadingHospitalList}</p>
         )}
       </div>
 
       {!selectedId && !hospitalsLoading && (
         <div className="card p-12 text-center">
           <TrendingUp size={40} className="text-text-muted mx-auto mb-3" />
-          <p className="text-text-muted">Chọn một bệnh viện để xem số liệu phân tích</p>
+          <p className="text-text-muted">{t.emptySelectPrompt}</p>
         </div>
       )}
 
@@ -138,7 +140,7 @@ export default function AnalyticsPage() {
               <h2 className="text-text">{selectedHospital.name}</h2>
               <p className="text-sm text-text-muted mt-0.5">
                 {selectedHospital.city && `${selectedHospital.city} · `}
-                Gói: <span className={selectedHospital.plan === 'pro' ? 'text-primary font-medium' : ''}>{selectedHospital.plan.toUpperCase()}</span>
+                {t.labelPlan} <span className={selectedHospital.plan === 'pro' ? 'text-primary font-medium' : ''}>{selectedHospital.plan.toUpperCase()}</span>
               </p>
             </div>
           )}
@@ -164,7 +166,7 @@ export default function AnalyticsPage() {
             </div>
           ) : (
             <div className="card p-8 text-center">
-              <p className="text-text-muted">Không có dữ liệu cho bệnh viện này</p>
+              <p className="text-text-muted">{t.noAnalyticsData}</p>
             </div>
           )}
         </>

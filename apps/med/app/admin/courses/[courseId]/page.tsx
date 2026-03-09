@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ChevronDown, ChevronRight, Plus, Edit, Trash2, ArrowLeft } from 'lucide-react'
 import { useToast } from '@/components/ui/Toast'
 import type { NursedCourse, NursedModule, NursedLesson } from '@/lib/supabase'
+import { useLang } from '@/contexts/LanguageContext'
 
 interface ModuleWithLessons extends NursedModule {
   lessons: NursedLesson[]
@@ -15,6 +16,7 @@ interface ModuleWithLessons extends NursedModule {
 export default function CourseDetailPage() {
   const { courseId } = useParams<{ courseId: string }>()
   const { toast } = useToast()
+  const { t } = useLang()
   const [course, setCourse] = useState<NursedCourse | null>(null)
   const [modules, setModules] = useState<ModuleWithLessons[]>([])
   const [loading, setLoading] = useState(true)
@@ -70,9 +72,9 @@ export default function CourseDetailPage() {
     if (res.ok) {
       setCourse({ ...course, title: titleDraft })
       setEditingTitle(false)
-      toast('Đã cập nhật tên', 'success')
+      toast(t.toastUpdated, 'success')
     } else {
-      toast('Lỗi cập nhật', 'error')
+      toast(t.toastUpdateError, 'error')
     }
   }
 
@@ -85,7 +87,7 @@ export default function CourseDetailPage() {
     })
     if (res.ok) {
       setCourse({ ...course, published: !course.published })
-      toast(course.published ? 'Đặt thành nháp' : 'Đã xuất bản', 'success')
+      toast(course.published ? t.statusDraft : t.statusPublished, 'success')
     }
   }
 
@@ -99,12 +101,12 @@ export default function CourseDetailPage() {
         body: JSON.stringify({ ...moduleForm, course_id: courseId }),
       })
       if (res.ok) {
-        toast('Đã tạo chương', 'success')
+        toast(t.toastModuleCreated, 'success')
         setShowAddModule(false)
         setModuleForm({ title: '', title_vi: '', order_index: modules.length + 1 })
         await loadCourse()
       } else {
-        toast('Lỗi tạo chương', 'error')
+        toast(t.toastModuleError, 'error')
       }
     } finally {
       setSaving(false)
@@ -121,12 +123,12 @@ export default function CourseDetailPage() {
         body: JSON.stringify({ ...lessonForm, module_id: moduleId, order_index: 1 }),
       })
       if (res.ok) {
-        toast('Đã tạo bài học', 'success')
+        toast(t.toastLessonCreated, 'success')
         setAddLessonFor(null)
         setLessonForm({ title: '', title_vi: '', est_minutes: 10 })
         await loadCourse()
       } else {
-        toast('Lỗi tạo bài học', 'error')
+        toast(t.toastLessonError, 'error')
       }
     } finally {
       setSaving(false)
@@ -134,16 +136,16 @@ export default function CourseDetailPage() {
   }
 
   async function handleDeleteModule(moduleId: string) {
-    if (!confirm('Xóa chương này?')) return
+    if (!confirm(t.confirmDeleteModule)) return
     const res = await fetch(`/api/modules/${moduleId}`, { method: 'DELETE' })
     if (res.ok) {
       setModules((prev) => prev.filter((m) => m.id !== moduleId))
-      toast('Đã xóa chương', 'success')
+      toast(t.toastModuleDeleted, 'success')
     }
   }
 
   async function handleDeleteLesson(lessonId: string, moduleId: string) {
-    if (!confirm('Xóa bài học này?')) return
+    if (!confirm(t.confirmDeleteLesson)) return
     const res = await fetch(`/api/lessons/${lessonId}`, { method: 'DELETE' })
     if (res.ok) {
       setModules((prev) =>
@@ -151,7 +153,7 @@ export default function CourseDetailPage() {
           m.id === moduleId ? { ...m, lessons: m.lessons.filter((l) => l.id !== lessonId) } : m,
         ),
       )
-      toast('Đã xóa bài học', 'success')
+      toast(t.toastLessonDeleted, 'success')
     }
   }
 
@@ -165,14 +167,14 @@ export default function CourseDetailPage() {
     )
   }
 
-  if (!course) return <p className="text-text-muted">Không tìm thấy khóa học.</p>
+  if (!course) return <p className="text-text-muted">{t.notFoundCourse}</p>
 
   return (
     <div>
       <div className="flex items-center gap-3 mb-6">
         <Link href="/admin/courses" className="btn-ghost !py-1.5">
           <ArrowLeft size={16} />
-          Quay lại
+          {t.btnBackCourses}
         </Link>
       </div>
 
@@ -188,10 +190,10 @@ export default function CourseDetailPage() {
                   autoFocus
                 />
                 <button onClick={handleSaveTitle} className="btn-primary !py-1.5">
-                  Lưu
+                  {t.btnSave}
                 </button>
                 <button onClick={() => setEditingTitle(false)} className="btn-secondary !py-1.5">
-                  Hủy
+                  {t.btnCancel}
                 </button>
               </div>
             ) : (
@@ -214,7 +216,7 @@ export default function CourseDetailPage() {
                 course.published ? 'badge-green' : 'badge-gray'
               }`}
             >
-              {course.published ? 'Đã xuất bản' : 'Nháp'}
+              {course.published ? t.statusPublished : t.statusDraft}
             </button>
           </div>
         </div>
@@ -226,40 +228,40 @@ export default function CourseDetailPage() {
       </div>
 
       <div className="flex items-center justify-between mb-4">
-        <h2>Nội dung khóa học</h2>
+        <h2>{t.sectionCourseContent}</h2>
         <button className="btn-primary" onClick={() => setShowAddModule(true)}>
           <Plus size={15} />
-          Thêm chương
+          {t.btnAddModule}
         </button>
       </div>
 
       {showAddModule && (
         <div className="card p-4 mb-4 border-primary/30 bg-primary-light/20">
-          <h3 className="mb-3">Tạo chương mới</h3>
+          <h3 className="mb-3">{t.modalAddModuleTitle}</h3>
           <form onSubmit={handleAddModule} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="label">Tên chương (EN) *</label>
+                <label className="label">{t.labelModuleTitleEn}</label>
                 <input
                   className="input"
                   required
                   value={moduleForm.title}
                   onChange={(e) => setModuleForm({ ...moduleForm, title: e.target.value })}
-                  placeholder="Unit 1: Greetings"
+                  placeholder={t.placeholderModuleTitleEn}
                 />
               </div>
               <div>
-                <label className="label">Tên chương (VI)</label>
+                <label className="label">{t.labelModuleTitleVi}</label>
                 <input
                   className="input"
                   value={moduleForm.title_vi}
                   onChange={(e) => setModuleForm({ ...moduleForm, title_vi: e.target.value })}
-                  placeholder="Chương 1: Chào hỏi"
+                  placeholder={t.placeholderModuleTitleVi}
                 />
               </div>
             </div>
             <div className="w-32">
-              <label className="label">Thứ tự</label>
+              <label className="label">{t.labelOrder}</label>
               <input
                 className="input"
                 type="number"
@@ -272,10 +274,10 @@ export default function CourseDetailPage() {
             </div>
             <div className="flex gap-2">
               <button type="submit" disabled={saving} className="btn-primary">
-                {saving ? 'Đang lưu...' : 'Tạo chương'}
+                {saving ? t.btnSaving : t.btnCreateModule}
               </button>
               <button type="button" onClick={() => setShowAddModule(false)} className="btn-secondary">
-                Hủy
+                {t.btnCancel}
               </button>
             </div>
           </form>
@@ -285,7 +287,7 @@ export default function CourseDetailPage() {
       <div className="space-y-3">
         {modules.length === 0 ? (
           <div className="card p-8 text-center">
-            <p className="text-text-muted">Chưa có chương nào. Hãy thêm chương đầu tiên!</p>
+            <p className="text-text-muted">{t.emptyModules}</p>
           </div>
         ) : (
           modules.map((mod) => (
@@ -310,7 +312,9 @@ export default function CourseDetailPage() {
                       <p className="text-xs text-text-muted">{mod.title_vi}</p>
                     )}
                   </div>
-                  <span className="badge-gray text-xs">{mod.lessons.length} bài</span>
+                  <span className="badge-gray text-xs">
+                    {t.lessonCountBadge.replace('{n}', String(mod.lessons.length))}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                   <button
@@ -318,7 +322,7 @@ export default function CourseDetailPage() {
                     className="btn-ghost !py-1 !px-2 text-xs"
                   >
                     <Plus size={13} />
-                    Thêm bài
+                    {t.btnAddLesson}
                   </button>
                   <button
                     onClick={() => handleDeleteModule(mod.id)}
@@ -336,28 +340,28 @@ export default function CourseDetailPage() {
                     className="flex items-end gap-3 flex-wrap"
                   >
                     <div className="flex-1 min-w-[180px]">
-                      <label className="label text-xs">Tên bài học (EN) *</label>
+                      <label className="label text-xs">{t.labelLessonTitleEn}</label>
                       <input
                         className="input text-sm"
                         required
                         value={lessonForm.title}
                         onChange={(e) => setLessonForm({ ...lessonForm, title: e.target.value })}
-                        placeholder="Lesson 1: Introduction"
+                        placeholder={t.placeholderLessonTitleEn}
                       />
                     </div>
                     <div className="flex-1 min-w-[160px]">
-                      <label className="label text-xs">Tên bài học (VI)</label>
+                      <label className="label text-xs">{t.labelLessonTitleVi}</label>
                       <input
                         className="input text-sm"
                         value={lessonForm.title_vi}
                         onChange={(e) =>
                           setLessonForm({ ...lessonForm, title_vi: e.target.value })
                         }
-                        placeholder="Bài 1: Giới thiệu"
+                        placeholder={t.placeholderLessonTitleVi}
                       />
                     </div>
                     <div className="w-24">
-                      <label className="label text-xs">Phút</label>
+                      <label className="label text-xs">{t.labelMinutes}</label>
                       <input
                         className="input text-sm"
                         type="number"
@@ -370,14 +374,14 @@ export default function CourseDetailPage() {
                     </div>
                     <div className="flex gap-2 pb-0.5">
                       <button type="submit" disabled={saving} className="btn-primary !py-2">
-                        Tạo
+                        {t.btnCreate}
                       </button>
                       <button
                         type="button"
                         onClick={() => setAddLessonFor(null)}
                         className="btn-secondary !py-2"
                       >
-                        Hủy
+                        {t.btnCancel}
                       </button>
                     </div>
                   </form>
@@ -387,7 +391,7 @@ export default function CourseDetailPage() {
               {mod.expanded && (
                 <div className="divide-y divide-border border-t border-border">
                   {mod.lessons.length === 0 ? (
-                    <p className="px-10 py-4 text-sm text-text-muted">Chưa có bài học</p>
+                    <p className="px-10 py-4 text-sm text-text-muted">{t.emptyLessons}</p>
                   ) : (
                     mod.lessons.map((lesson, idx) => (
                       <div
@@ -406,16 +410,18 @@ export default function CourseDetailPage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-text-muted">{lesson.est_minutes} phút</span>
+                          <span className="text-xs text-text-muted">
+                            {t.lessonMinutes.replace('{n}', String(lesson.est_minutes))}
+                          </span>
                           <span className={lesson.published ? 'badge-green' : 'badge-gray'}>
-                            {lesson.published ? 'Đã xuất bản' : 'Nháp'}
+                            {lesson.published ? t.statusPublished : t.statusDraft}
                           </span>
                           <Link
                             href={`/admin/courses/${courseId}/lessons/${lesson.id}`}
                             className="btn-secondary !py-1 !px-2.5 text-xs"
                           >
                             <Edit size={12} />
-                            Chỉnh sửa
+                            {t.btnEdit}
                           </Link>
                           <button
                             onClick={() => handleDeleteLesson(lesson.id, mod.id)}
