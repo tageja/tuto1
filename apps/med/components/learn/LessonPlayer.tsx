@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import type { NursedLessonStep } from '@/lib/supabase'
+import type { NursedLesson, NursedLessonStep, LessonStage } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
 
 import VideoStep from './steps/VideoStep'
@@ -14,16 +14,41 @@ import NoScriptStep from './steps/NoScriptStep'
 import RecordingStep from './steps/RecordingStep'
 import QuizStep from './steps/QuizStep'
 import MissionStep from './steps/MissionStep'
+import ScenarioIntroStep from './steps/ScenarioIntroStep'
+import SelfReflectionStep from './steps/SelfReflectionStep'
 
 interface Props {
-  lesson: any
+  lesson: NursedLesson & { nursed_lesson_steps?: NursedLessonStep[] }
   courseId?: string
+}
+
+const STAGE_CONFIG: Record<LessonStage, { label_en: string; label_vi: string; color: string }> = {
+  heads_up: {
+    label_en: 'Heads Up',
+    label_vi: 'Làm quen',
+    color: 'bg-blue-100 text-blue-700 border-blue-200',
+  },
+  heads_down: {
+    label_en: 'Heads Down',
+    label_vi: 'Luyện tập',
+    color: 'bg-amber-100 text-amber-700 border-amber-200',
+  },
+  heads_together: {
+    label_en: 'Heads Together',
+    label_vi: 'Cùng nhau',
+    color: 'bg-green-100 text-green-700 border-green-200',
+  },
+  assessment: {
+    label_en: 'Assessment',
+    label_vi: 'Kiểm tra',
+    color: 'bg-purple-100 text-purple-700 border-purple-200',
+  },
 }
 
 export default function LessonPlayer({ lesson, courseId }: Props) {
   const params = useParams<{ courseId?: string }>()
   const resolvedCourseId = courseId ?? params?.courseId ?? ''
-  const { t } = useLang()
+  const { t, lang } = useLang()
 
   const STEP_TYPE_LABELS: Record<string, string> = {
     video: t.stepTypeVideoLabel,
@@ -34,7 +59,12 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
     recording_submit: t.stepTypeRecordingLabel,
     quiz: t.stepTypeQuizLabel,
     mission: t.stepTypeMissionLabel,
+    scenario_intro: t.stepTypeScenarioIntroLabel,
+    self_reflection: t.stepTypeSelfReflectionLabel,
   }
+
+  const stage = lesson?.stage as LessonStage | null
+  const stageConfig = stage ? STAGE_CONFIG[stage] : null
 
   const rawSteps: NursedLessonStep[] = lesson?.nursed_lesson_steps ?? []
   const steps = [...rawSteps].sort((a, b) => a.order_index - b.order_index)
@@ -114,6 +144,10 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
         return <QuizStep step={currentStep} onComplete={handleStepComplete} />
       case 'mission':
         return <MissionStep step={currentStep} onComplete={handleStepComplete} />
+      case 'scenario_intro':
+        return <ScenarioIntroStep step={currentStep} onComplete={handleStepComplete} />
+      case 'self_reflection':
+        return <SelfReflectionStep step={currentStep} onComplete={handleStepComplete} />
       default:
         return (
           <div className="card p-8 text-center text-text-muted">
@@ -128,6 +162,20 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
 
   return (
     <div className="space-y-4">
+      {/* Lesson stage banner */}
+      {stageConfig && (
+        <div className={`flex items-center justify-between px-4 py-2.5 rounded-xl border text-sm font-medium ${stageConfig.color}`}>
+          <span>
+            {lang === 'vi' ? stageConfig.label_vi : stageConfig.label_en}
+          </span>
+          {lesson.objective && (
+            <span className="text-xs font-normal opacity-80 max-w-[60%] text-right truncate">
+              {lesson.objective}
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Progress bar */}
       <div className="card p-4 space-y-2">
         <div className="flex items-center justify-between text-sm">
@@ -156,8 +204,10 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
         </div>
 
         {/* Step title */}
-        {currentStep.title && (
-          <p className="text-xs text-text-muted">{currentStep.title}</p>
+        {(currentStep.title_vi ?? currentStep.title) && (
+          <p className="text-xs text-text-muted">
+            {lang === 'vi' ? (currentStep.title_vi ?? currentStep.title) : currentStep.title}
+          </p>
         )}
       </div>
 

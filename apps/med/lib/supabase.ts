@@ -30,8 +30,8 @@ export type Database = {
       nursed_hospitals: { Row: NursedHospital; Insert: Omit<NursedHospital, 'id' | 'created_at'>; Update: Partial<NursedHospital> }
       nursed_courses: { Row: NursedCourse; Insert: Omit<NursedCourse, 'id' | 'created_at' | 'updated_at'>; Update: Partial<NursedCourse> }
       nursed_modules: { Row: NursedModule; Insert: Omit<NursedModule, 'id' | 'created_at'>; Update: Partial<NursedModule> }
-      nursed_lessons: { Row: NursedLesson; Insert: Omit<NursedLesson, 'id' | 'created_at'>; Update: Partial<NursedLesson> }
-      nursed_lesson_steps: { Row: NursedLessonStep; Insert: Omit<NursedLessonStep, 'id' | 'created_at'>; Update: Partial<NursedLessonStep> }
+      nursed_lessons: { Row: NursedLesson; Insert: Omit<NursedLesson, 'id' | 'created_at'> & { stage?: LessonStage | null; objective?: string | null }; Update: Partial<NursedLesson> }
+      nursed_lesson_steps: { Row: NursedLessonStep; Insert: Omit<NursedLessonStep, 'id' | 'created_at'> & { title_vi?: string | null }; Update: Partial<NursedLessonStep> }
       nursed_content_assets: { Row: NursedContentAsset; Insert: Omit<NursedContentAsset, 'id' | 'created_at'>; Update: Partial<NursedContentAsset> }
       nursed_quiz_questions: { Row: NursedQuizQuestion; Insert: Omit<NursedQuizQuestion, 'id' | 'created_at'>; Update: Partial<NursedQuizQuestion> }
       nursed_enrollments: { Row: NursedEnrollment; Insert: Omit<NursedEnrollment, 'id' | 'created_at'>; Update: Partial<NursedEnrollment> }
@@ -88,6 +88,8 @@ export type NursedLesson = {
   est_minutes: number
   order_index: number
   published: boolean
+  stage: LessonStage | null
+  objective: string | null
   created_at: string
 }
 
@@ -100,12 +102,17 @@ export type StepType =
   | 'recording_submit'
   | 'quiz'
   | 'mission'
+  | 'scenario_intro'
+  | 'self_reflection'
+
+export type LessonStage = 'heads_up' | 'heads_down' | 'heads_together' | 'assessment'
 
 export type NursedLessonStep = {
   id: string
   lesson_id: string
   type: StepType
   title: string | null
+  title_vi: string | null
   order_index: number
   config: Record<string, unknown>
   created_at: string

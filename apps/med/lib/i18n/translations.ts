@@ -452,6 +452,53 @@ const en = {
   notesPlaceholder: 'Share your experience...',
   feedbackRecorded: '✅ Your response has been recorded!',
   exampleMission: "Today, try saying 'Good morning, how can I help you?' to a colleague or patient.",
+
+  // ─── Scenario Intro Step ───────────────────────────────────────
+  scenarioIntroTitleFallback: 'Scenario Introduction',
+  scenarioIntroSubtitle: 'Read the scenario below and get ready for the lesson',
+  scenarioLabel: 'Scenario',
+  keyPhrasesLabel: 'Key Phrases to Recognise',
+  btnListenScenario: '🔊 Listen to Introduction',
+  audioPlayedLabel: '✅ Played',
+  audioPlaceholderLabel: '🔊 Audio Coming Soon',
+  btnScenarioReady: "I'm Ready",
+  scenarioObjectiveLabel: 'Goal',
+  scenarioObjectiveHint: 'Notice the language used — you do not need to produce it yet.',
+
+  // ─── Self Reflection Step ─────────────────────────────────────
+  reflectionTitleFallback: 'Module Reflection',
+  reflectionSubtitle: 'Take a moment to reflect on your learning',
+  reflectionTextPlaceholder: 'Type your answer here...',
+  reflectionSummaryLabel: 'Your Responses',
+  btnSubmitReflection: '✅ Submit Reflection',
+  reflectionSubmittedTitle: 'Thank you!',
+  reflectionSubmittedDesc: 'Your reflection has been saved. Great work completing this module!',
+
+  // ─── Lesson stage names ────────────────────────────────────────
+  stageHeadsUp: 'Heads Up',
+  stageHeadsDown: 'Heads Down',
+  stageHeadsTogether: 'Heads Together',
+  stageAssessment: 'Assessment',
+
+  // ─── Step type labels (add-step dropdown) ─────────────────────
+  stepTypeScenarioIntro: '🏥 Scenario Intro',
+  stepTypeSelfReflection: '💭 Self Reflection',
+
+  // ─── Admin: new step editor labels ────────────────────────────
+  labelScenarioSettingEn: 'Location / Setting (English)',
+  labelScenarioSettingVi: 'Location / Setting (Vietnamese)',
+  labelScenarioContextEn: 'Scenario Description (English)',
+  labelScenarioContextVi: 'Scenario Description (Vietnamese)',
+  labelKeyPhrases: 'Key Phrases',
+  btnAddPhrase: 'Add phrase',
+  labelAudioUrl: 'Audio URL (or "PLACEHOLDER")',
+  labelAudioInstructions: 'Audio Production Instructions',
+  selfReflectionEditorHint: 'Configure the reflection prompts shown after the module assessment.',
+  btnAddPrompt: 'Add prompt',
+
+  // ─── New step type labels (lesson player) ─────────────────────
+  stepTypeScenarioIntroLabel: '🏥 Scenario',
+  stepTypeSelfReflectionLabel: '💭 Reflect',
 } as const
 
 const vi = {
@@ -906,6 +953,53 @@ const vi = {
   notesPlaceholder: 'Chia sẻ trải nghiệm của bạn...',
   feedbackRecorded: '✅ Đã ghi nhận phản hồi của bạn!',
   exampleMission: "Hôm nay, hãy thử nói 'Good morning, how can I help you?' với 1 đồng nghiệp hoặc bệnh nhân của bạn.",
+
+  // ─── Scenario Intro Step ───────────────────────────────────────
+  scenarioIntroTitleFallback: 'Giới thiệu Tình huống',
+  scenarioIntroSubtitle: 'Đọc tình huống bên dưới và chuẩn bị cho bài học',
+  scenarioLabel: 'Tình huống',
+  keyPhrasesLabel: 'Các cụm từ chính cần nhận biết',
+  btnListenScenario: '🔊 Nghe phần giới thiệu',
+  audioPlayedLabel: '✅ Đã nghe',
+  audioPlaceholderLabel: '🔊 Audio sắp có',
+  btnScenarioReady: 'Tôi đã sẵn sàng',
+  scenarioObjectiveLabel: 'Mục tiêu',
+  scenarioObjectiveHint: 'Chú ý đến ngôn ngữ được sử dụng — bạn chưa cần phải nói lại ngay.',
+
+  // ─── Self Reflection Step ─────────────────────────────────────
+  reflectionTitleFallback: 'Suy ngẫm sau Module',
+  reflectionSubtitle: 'Hãy dành một chút thời gian để suy ngẫm về quá trình học tập của bạn',
+  reflectionTextPlaceholder: 'Nhập câu trả lời của bạn ở đây...',
+  reflectionSummaryLabel: 'Câu trả lời của bạn',
+  btnSubmitReflection: '✅ Gửi phản hồi',
+  reflectionSubmittedTitle: 'Cảm ơn bạn!',
+  reflectionSubmittedDesc: 'Phản hồi của bạn đã được lưu lại. Chúc mừng bạn đã hoàn thành module này!',
+
+  // ─── Lesson stage names ────────────────────────────────────────
+  stageHeadsUp: 'Làm quen',
+  stageHeadsDown: 'Luyện tập',
+  stageHeadsTogether: 'Cùng nhau',
+  stageAssessment: 'Kiểm tra',
+
+  // ─── Step type labels (add-step dropdown) ─────────────────────
+  stepTypeScenarioIntro: '🏥 Giới thiệu tình huống',
+  stepTypeSelfReflection: '💭 Suy ngẫm',
+
+  // ─── Admin: new step editor labels ────────────────────────────
+  labelScenarioSettingEn: 'Địa điểm / Bối cảnh (Tiếng Anh)',
+  labelScenarioSettingVi: 'Địa điểm / Bối cảnh (Tiếng Việt)',
+  labelScenarioContextEn: 'Mô tả tình huống (Tiếng Anh)',
+  labelScenarioContextVi: 'Mô tả tình huống (Tiếng Việt)',
+  labelKeyPhrases: 'Các cụm từ chính',
+  btnAddPhrase: 'Thêm cụm từ',
+  labelAudioUrl: 'URL Audio (hoặc "PLACEHOLDER")',
+  labelAudioInstructions: 'Hướng dẫn sản xuất Audio',
+  selfReflectionEditorHint: 'Cấu hình các câu hỏi suy ngẫm hiển thị sau bài kiểm tra module.',
+  btnAddPrompt: 'Thêm câu hỏi',
+
+  // ─── New step type labels (lesson player) ─────────────────────
+  stepTypeScenarioIntroLabel: '🏥 Tình huống',
+  stepTypeSelfReflectionLabel: '💭 Suy ngẫm',
 } as const
 
 export const translations: Record<Lang, typeof en> = { en, vi }

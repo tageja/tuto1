@@ -35,6 +35,8 @@ export function StepEditor({ step, onSave, onCancel }: StepEditorProps) {
     case 'recording_submit': return <RecordingEditor {...editorProps} />
     case 'quiz': return <QuizEditor {...editorProps} />
     case 'mission': return <MissionEditor {...editorProps} />
+    case 'scenario_intro': return <ScenarioIntroEditor {...editorProps} />
+    case 'self_reflection': return <SelfReflectionEditor {...editorProps} />
     default: return <p className="text-sm text-text-muted">{t.unsupportedStepType}</p>
   }
 }
@@ -300,6 +302,163 @@ function MissionEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
         <textarea className="input resize-none text-sm" rows={3} value={missionVi} onChange={(e) => setMissionVi(e.target.value)} placeholder={t.placeholderMissionVi} />
       </div>
       <EditorActions saving={saving} onCancel={onCancel} onSave={() => onSubmit({ mission_en: missionEn, mission_vi: missionVi })} />
+    </div>
+  )
+}
+
+interface KeyPhrase { en: string; vi: string }
+
+function ScenarioIntroEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
+  const { t } = useLang()
+  const cfg = step.config as {
+    context_en?: string
+    context_vi?: string
+    setting_en?: string
+    setting_vi?: string
+    audio_url?: string
+    _instructions?: string
+    key_phrases?: KeyPhrase[]
+  }
+
+  const [contextEn, setContextEn] = useState(cfg.context_en ?? '')
+  const [contextVi, setContextVi] = useState(cfg.context_vi ?? '')
+  const [settingEn, setSettingEn] = useState(cfg.setting_en ?? '')
+  const [settingVi, setSettingVi] = useState(cfg.setting_vi ?? '')
+  const [audioUrl, setAudioUrl] = useState(cfg.audio_url ?? 'PLACEHOLDER')
+  const [instructions, setInstructions] = useState(cfg._instructions ?? '')
+  const [phrases, setPhrases] = useState<KeyPhrase[]>(cfg.key_phrases ?? [{ en: '', vi: '' }])
+
+  function addPhrase() {
+    setPhrases([...phrases, { en: '', vi: '' }])
+  }
+
+  function updatePhrase(idx: number, field: 'en' | 'vi', val: string) {
+    setPhrases(phrases.map((p, i) => i === idx ? { ...p, [field]: val } : p))
+  }
+
+  function removePhrase(idx: number) {
+    setPhrases(phrases.filter((_, i) => i !== idx))
+  }
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="label text-xs">{t.labelScenarioSettingEn}</label>
+        <input className="input text-sm" value={settingEn} onChange={(e) => setSettingEn(e.target.value)} placeholder="e.g. Emergency Room — Chest Pain" />
+      </div>
+      <div>
+        <label className="label text-xs">{t.labelScenarioSettingVi}</label>
+        <input className="input text-sm" value={settingVi} onChange={(e) => setSettingVi(e.target.value)} placeholder="e.g. Phòng Cấp cứu — Đau ngực" />
+      </div>
+      <div>
+        <label className="label text-xs">{t.labelScenarioContextEn}</label>
+        <textarea className="input resize-none text-sm" rows={3} value={contextEn} onChange={(e) => setContextEn(e.target.value)} placeholder="Describe the clinical scenario in English..." />
+      </div>
+      <div>
+        <label className="label text-xs">{t.labelScenarioContextVi}</label>
+        <textarea className="input resize-none text-sm" rows={3} value={contextVi} onChange={(e) => setContextVi(e.target.value)} placeholder="Mô tả tình huống lâm sàng bằng tiếng Việt..." />
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <label className="label text-xs mb-0">{t.labelKeyPhrases}</label>
+          <button type="button" onClick={addPhrase} className="text-xs text-primary hover:underline flex items-center gap-1">
+            <Plus size={12} /> {t.btnAddPhrase}
+          </button>
+        </div>
+        <div className="space-y-2">
+          {phrases.map((p, i) => (
+            <div key={i} className="flex gap-2 items-center">
+              <input className="input text-xs flex-1" value={p.en} onChange={(e) => updatePhrase(i, 'en', e.target.value)} placeholder="English phrase" />
+              <input className="input text-xs flex-1" value={p.vi} onChange={(e) => updatePhrase(i, 'vi', e.target.value)} placeholder="Cụm từ tiếng Việt" />
+              <button onClick={() => removePhrase(i)} className="text-error"><Trash2 size={13} /></button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="label text-xs">{t.labelAudioUrl}</label>
+        <input className="input text-sm" value={audioUrl} onChange={(e) => setAudioUrl(e.target.value)} placeholder="PLACEHOLDER or actual URL" />
+      </div>
+
+      <div>
+        <label className="label text-xs">{t.labelAudioInstructions}</label>
+        <textarea className="input resize-none text-sm" rows={4} value={instructions} onChange={(e) => setInstructions(e.target.value)} placeholder="Instructions for audio producer: duration, speed, tone, key phrases..." />
+      </div>
+
+      <EditorActions
+        saving={saving}
+        onCancel={onCancel}
+        onSave={() => onSubmit({
+          context_en: contextEn,
+          context_vi: contextVi,
+          setting_en: settingEn,
+          setting_vi: settingVi,
+          audio_url: audioUrl,
+          _instructions: instructions,
+          key_phrases: phrases.filter((p) => p.en || p.vi),
+        })}
+      />
+    </div>
+  )
+}
+
+interface ReflectionPrompt { key: string; label_en: string; label_vi: string; type: 'slider' | 'text' }
+
+function SelfReflectionEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
+  const { t } = useLang()
+  const cfg = step.config as { prompts?: ReflectionPrompt[] }
+
+  const DEFAULT_PROMPTS: ReflectionPrompt[] = [
+    { key: 'confidence', label_en: 'How confident do you feel using this language now?', label_vi: 'Bạn cảm thấy tự tin ở mức nào?', type: 'slider' },
+    { key: 'usefulness', label_en: 'How useful was this module for your real work?', label_vi: 'Module này có hữu ích cho công việc thực tế không?', type: 'slider' },
+    { key: 'difficulty', label_en: 'How difficult was this module overall?', label_vi: 'Module này khó ở mức độ nào?', type: 'slider' },
+    { key: 'pair_helped', label_en: 'Did the pair practice help you speak more naturally?', label_vi: 'Luyện cặp đôi có giúp bạn nói tự nhiên hơn không?', type: 'slider' },
+    { key: 'open_feedback', label_en: 'Which task felt most useful for your real work?', label_vi: 'Bài tập nào hữu ích nhất cho công việc của bạn?', type: 'text' },
+  ]
+
+  const [prompts, setPrompts] = useState<ReflectionPrompt[]>(cfg.prompts ?? DEFAULT_PROMPTS)
+
+  function addPrompt() {
+    setPrompts([...prompts, { key: `prompt_${prompts.length}`, label_en: '', label_vi: '', type: 'slider' }])
+  }
+
+  function updatePrompt(idx: number, field: keyof ReflectionPrompt, val: string) {
+    setPrompts(prompts.map((p, i) => i === idx ? { ...p, [field]: val } : p))
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-text-muted">{t.selfReflectionEditorHint}</p>
+      <div className="space-y-3">
+        {prompts.map((prompt, idx) => (
+          <div key={idx} className="bg-surface border border-border rounded-lg p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-text-muted">Prompt {idx + 1}</span>
+              <div className="flex items-center gap-2">
+                <select
+                  className="text-xs border border-border rounded px-2 py-1"
+                  value={prompt.type}
+                  onChange={(e) => updatePrompt(idx, 'type', e.target.value)}
+                >
+                  <option value="slider">Slider (1–5)</option>
+                  <option value="text">Open Text</option>
+                </select>
+                <button onClick={() => setPrompts(prompts.filter((_, i) => i !== idx))} className="text-error">
+                  <Trash2 size={12} />
+                </button>
+              </div>
+            </div>
+            <input className="input text-xs" value={prompt.label_en} onChange={(e) => updatePrompt(idx, 'label_en', e.target.value)} placeholder="English prompt..." />
+            <input className="input text-xs" value={prompt.label_vi} onChange={(e) => updatePrompt(idx, 'label_vi', e.target.value)} placeholder="Câu hỏi tiếng Việt..." />
+          </div>
+        ))}
+      </div>
+      <button type="button" onClick={addPrompt} className="btn-secondary text-xs w-full">
+        <Plus size={13} /> {t.btnAddPrompt}
+      </button>
+      <EditorActions saving={saving} onCancel={onCancel} onSave={() => onSubmit({ prompts })} />
     </div>
   )
 }

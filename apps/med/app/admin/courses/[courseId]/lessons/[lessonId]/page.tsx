@@ -18,6 +18,29 @@ const TYPE_BADGE: Record<StepType, string> = {
   recording_submit: 'badge-red',
   quiz: 'badge-blue',
   mission: 'badge-green',
+  scenario_intro: 'badge-red',
+  self_reflection: 'badge-green',
+}
+
+const STAGE_COLORS: Record<string, string> = {
+  heads_up: 'bg-blue-100 text-blue-700 border-blue-200',
+  heads_down: 'bg-amber-100 text-amber-700 border-amber-200',
+  heads_together: 'bg-green-100 text-green-700 border-green-200',
+  assessment: 'bg-purple-100 text-purple-700 border-purple-200',
+}
+
+const STAGE_LABELS_EN: Record<string, string> = {
+  heads_up: 'Heads Up',
+  heads_down: 'Heads Down',
+  heads_together: 'Heads Together',
+  assessment: 'Assessment',
+}
+
+const STAGE_LABELS_VI: Record<string, string> = {
+  heads_up: 'Làm quen',
+  heads_down: 'Luyện tập',
+  heads_together: 'Cùng nhau',
+  assessment: 'Kiểm tra',
 }
 
 export default function LessonBuilderPage() {
@@ -34,7 +57,7 @@ export default function LessonBuilderPage() {
   const [addingStep, setAddingStep] = useState(false)
 
   const STEP_TYPES: { value: StepType; label: string }[] = [
-    { value: 'video', label: t.stepTypeVideo },
+    { value: 'scenario_intro', label: t.stepTypeScenarioIntro },
     { value: 'audio_shadow', label: t.stepTypeAudioShadow },
     { value: 'script_read', label: t.stepTypeScriptRead },
     { value: 'cloze', label: t.stepTypeCloze },
@@ -42,6 +65,8 @@ export default function LessonBuilderPage() {
     { value: 'recording_submit', label: t.stepTypeRecording },
     { value: 'quiz', label: t.stepTypeQuiz },
     { value: 'mission', label: t.stepTypeMission },
+    { value: 'self_reflection', label: t.stepTypeSelfReflection },
+    { value: 'video', label: t.stepTypeVideo },
   ]
 
   const TYPE_LABEL: Record<StepType, string> = {
@@ -53,6 +78,8 @@ export default function LessonBuilderPage() {
     recording_submit: t.stepTypeRecording,
     quiz: t.stepTypeQuiz,
     mission: t.stepTypeMission,
+    scenario_intro: t.stepTypeScenarioIntro,
+    self_reflection: t.stepTypeSelfReflection,
   }
 
   useEffect(() => {
@@ -215,8 +242,18 @@ export default function LessonBuilderPage() {
         ) : (
           <div className="flex items-start justify-between">
             <div>
-              <h1>{lesson.title}</h1>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1>{lesson.title}</h1>
+                {lesson.stage && (
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${STAGE_COLORS[lesson.stage] ?? 'bg-surface text-text-muted border-border'}`}>
+                    {STAGE_LABELS_EN[lesson.stage] ?? lesson.stage}
+                  </span>
+                )}
+              </div>
               {lesson.title_vi && <p className="text-sm text-text-muted mt-1">{lesson.title_vi}</p>}
+              {lesson.objective && (
+                <p className="text-xs text-primary mt-1 italic">{lesson.objective}</p>
+              )}
               <p className="text-xs text-text-muted mt-2">
                 {t.lessonEstMinutes.replace('{n}', String(lesson.est_minutes))}
               </p>
