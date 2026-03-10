@@ -29,6 +29,53 @@ const LEVEL_GRADIENTS: Record<string, string> = {
   B2: 'from-red-400 to-rose-600',
 }
 
+// Handcrafted learning outcomes per course — bilingual (en / vi)
+const COURSE_OUTCOMES: Record<string, { en: string; vi: string }[]> = {
+  'Emergency Nursing Communication': [
+    { en: 'Triage patients in English — ask the right questions fast, under pressure', vi: 'Sàng lọc bệnh nhân bằng tiếng Anh — đặt câu hỏi đúng, nhanh, dù áp lực cao' },
+    { en: 'Give immediate step-by-step instructions that patients can follow', vi: 'Đưa hướng dẫn từng bước tức thì mà bệnh nhân có thể làm theo' },
+    { en: 'Escalate to a doctor or team using clear, confident red-flag language', vi: 'Leo thang đến bác sĩ hoặc nhóm bằng ngôn ngữ báo động rõ ràng, tự tin' },
+    { en: 'Explain emergency procedures simply — needles, drips, oxygen, monitors', vi: 'Giải thích thủ thuật cấp cứu đơn giản — kim, truyền dịch, oxy, màn hình' },
+    { en: 'Stay calm and reassure frightened patients and distressed families', vi: 'Giữ bình tĩnh và trấn an bệnh nhân hoảng sợ, gia đình lo lắng' },
+    { en: 'Document and hand over an emergency case in spoken and written English', vi: 'Ghi chép và bàn giao ca cấp cứu bằng tiếng Anh nói và viết' },
+  ],
+  'Foundations of Nursing English': [
+    { en: 'Greet and admit patients confidently in English from day one', vi: 'Chào hỏi và tiếp nhận bệnh nhân bằng tiếng Anh tự tin ngay từ đầu' },
+    { en: 'Explain vital signs checks — blood pressure, temperature, pulse — clearly', vi: 'Giải thích kiểm tra dấu hiệu sinh tồn — huyết áp, nhiệt độ, mạch — rõ ràng' },
+    { en: 'Verify patient identity and collect basic medical history in English', vi: 'Xác minh danh tính bệnh nhân và thu thập tiền sử bệnh cơ bản bằng tiếng Anh' },
+    { en: 'Use 50+ essential clinical vocabulary words with correct pronunciation', vi: 'Sử dụng hơn 50 từ vựng lâm sàng thiết yếu với phát âm chính xác' },
+    { en: 'Understand simple patient questions and respond with short, clear answers', vi: 'Hiểu các câu hỏi đơn giản của bệnh nhân và trả lời ngắn gọn, rõ ràng' },
+  ],
+  'Ward and Inpatient Communication': [
+    { en: 'Conduct daily ward rounds — explain what you are doing before you do it', vi: 'Thực hiện thăm khám hằng ngày — giải thích những gì bạn sẽ làm trước khi làm' },
+    { en: 'Administer medication safely — name, dose, route, timing — in English', vi: 'Phát thuốc an toàn — tên thuốc, liều lượng, đường dùng, thời gian — bằng tiếng Anh' },
+    { en: 'Manage patient anxiety with empathetic, plain-English reassurance', vi: 'Xử lý lo lắng của bệnh nhân bằng sự trấn an chân thành, dễ hiểu' },
+    { en: 'Answer family questions about care plans without oversharing or confusing', vi: 'Trả lời câu hỏi của gia đình về kế hoạch chăm sóc mà không gây nhầm lẫn' },
+    { en: 'Explain pre-procedure instructions so patients are truly prepared', vi: 'Giải thích hướng dẫn trước thủ thuật để bệnh nhân thực sự sẵn sàng' },
+  ],
+  'International Patient Communication': [
+    { en: 'Navigate cultural differences in care expectations without causing offence', vi: 'Xử lý khác biệt văn hóa trong kỳ vọng chăm sóc mà không gây hiểu lầm' },
+    { en: 'Discuss sensitive topics — pain, dignity, end-of-life — with tact', vi: 'Thảo luận chủ đề nhạy cảm — đau, phẩm giá, cuối đời — một cách khéo léo' },
+    { en: 'Explain diagnoses and treatment plans in plain, accurate English', vi: 'Giải thích chẩn đoán và kế hoạch điều trị bằng tiếng Anh rõ ràng, chính xác' },
+    { en: 'Obtain informed consent — check understanding, not just a signature', vi: 'Lấy sự đồng ý có thông báo — kiểm tra hiểu biết, không chỉ chữ ký' },
+    { en: 'Work effectively with interpreters and multilingual patient families', vi: 'Làm việc hiệu quả với phiên dịch viên và gia đình bệnh nhân đa ngôn ngữ' },
+  ],
+  'Clinical Handover and Team Communication': [
+    { en: 'Deliver a structured SBAR handover that leaves nothing out', vi: 'Thực hiện bàn giao SBAR có cấu trúc, không bỏ sót thông tin nào' },
+    { en: 'Speak up clearly in multi-disciplinary team meetings', vi: 'Lên tiếng rõ ràng trong các cuộc họp nhóm đa chuyên khoa' },
+    { en: 'Use assertive escalation language when a patient\'s condition changes', vi: 'Sử dụng ngôn ngữ leo thang quyết đoán khi tình trạng bệnh nhân thay đổi' },
+    { en: 'Write professional clinical notes and shift summaries in English', vi: 'Viết ghi chú lâm sàng chuyên nghiệp và tóm tắt ca trực bằng tiếng Anh' },
+    { en: 'Read and respond to clinical emails and documentation confidently', vi: 'Đọc và phản hồi email lâm sàng và tài liệu một cách tự tin' },
+  ],
+  'Career English for Nurses': [
+    { en: 'Write a standout nursing CV and cover letter in English', vi: 'Viết CV điều dưỡng nổi bật và thư xin việc bằng tiếng Anh' },
+    { en: 'Perform confidently in an English-language job interview', vi: 'Thể hiện tự tin trong phỏng vấn xin việc bằng tiếng Anh' },
+    { en: 'Understand the language of international nursing certifications (IELTS, OET)', vi: 'Hiểu ngôn ngữ của các chứng chỉ điều dưỡng quốc tế (IELTS, OET)' },
+    { en: 'Present a patient case clearly to international colleagues', vi: 'Trình bày ca bệnh rõ ràng cho đồng nghiệp quốc tế' },
+    { en: 'Read research abstracts and clinical guidelines written in English', vi: 'Đọc tóm tắt nghiên cứu và hướng dẫn lâm sàng viết bằng tiếng Anh' },
+  ],
+}
+
 export default function CourseOverview() {
   const { courseId } = useParams<{ courseId: string }>()
   const { t } = useLang()
@@ -180,18 +227,23 @@ export default function CourseOverview() {
               </div>
             )}
 
-            {/* What you will learn — auto-generated from module titles */}
-            {modules.length > 0 && (
+            {/* What you will learn — handcrafted outcomes */}
+            {(COURSE_OUTCOMES[course.title]?.length ?? 0) > 0 && (
               <div className="card p-6">
-                <h2 className="text-base font-bold text-text mb-3 flex items-center gap-2">
+                <h2 className="text-base font-bold text-text mb-4 flex items-center gap-2">
                   <CheckCircle size={16} className="text-green-500" />
                   {t.whatYouLearnTitle}
                 </h2>
-                <ul className="space-y-2">
-                  {modules.map((mod) => (
-                    <li key={mod.id} className="flex items-start gap-2 text-sm text-text-muted">
-                      <span className="text-green-500 mt-0.5 flex-shrink-0">✓</span>
-                      <span>{mod.title_vi ?? mod.title}</span>
+                <ul className="space-y-3">
+                  {COURSE_OUTCOMES[course.title].map((outcome, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
+                        <CheckCircle size={12} className="text-green-600" />
+                      </span>
+                      <div>
+                        <p className="text-sm font-medium text-text leading-snug">{outcome.vi}</p>
+                        <p className="text-xs text-text-muted mt-0.5 leading-snug italic">{outcome.en}</p>
+                      </div>
                     </li>
                   ))}
                 </ul>
