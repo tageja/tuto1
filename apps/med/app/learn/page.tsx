@@ -3,11 +3,13 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
-  ChevronRight, BookOpen, Flame, CheckCircle2, Lock, Play, ArrowRight,
+  ChevronRight, BookOpen, CheckCircle2, Lock, Play, ArrowRight, Building2, X, Link2,
 } from 'lucide-react'
 import type { NursedCourse } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
 import { COURSE_ICONS } from './courses/page'
+
+const HOSP_LINK_KEY = 'nursed_hospital_link'
 
 const LEVEL_BADGE: Record<string, string> = {
   A1: 'bg-emerald-100 text-emerald-700',
@@ -57,6 +59,13 @@ export default function LearnDashboard() {
   const streak = 3
   const lessonsCompleted = 4
 
+  // Hospital link state
+  const [hospitalLink, setHospitalLink] = useState<{ hospital_id: string; name: string } | null>(null)
+  const [inviteInput, setInviteInput] = useState('')
+  const [linking, setLinking] = useState(false)
+  const [linkError, setLinkError] = useState('')
+  const [showLinkInput, setShowLinkInput] = useState(false)
+
   useEffect(() => {
     fetch('/api/courses')
       .then((r) => r.json())
@@ -70,8 +79,39 @@ export default function LearnDashboard() {
     try {
       const raw = localStorage.getItem('nursed_last_lesson')
       if (raw) setLastLesson(JSON.parse(raw))
+      const hosp = localStorage.getItem(HOSP_LINK_KEY)
+      if (hosp) setHospitalLink(JSON.parse(hosp))
     } catch {}
   }, [])
+
+  const handleLinkHospital = async () => {
+    const code = inviteInput.trim().toUpperCase()
+    if (!code) return
+    setLinking(true)
+    setLinkError('')
+    try {
+      const res = await fetch(`/api/invite-codes/${code}`)
+      const data = await res.json()
+      if (data.success) {
+        const link = { hospital_id: data.data.hospital_id, name: data.data.name }
+        setHospitalLink(link)
+        localStorage.setItem(HOSP_LINK_KEY, JSON.stringify(link))
+        setInviteInput('')
+        setShowLinkInput(false)
+      } else {
+        setLinkError(t.hospLinkError)
+      }
+    } catch {
+      setLinkError(t.hospLinkError)
+    } finally {
+      setLinking(false)
+    }
+  }
+
+  const handleUnlink = () => {
+    setHospitalLink(null)
+    localStorage.removeItem(HOSP_LINK_KEY)
+  }
 
   const activeCourse = lastLesson
     ? allCourses.find((c) => c.id === lastLesson.courseId) ?? null
@@ -97,6 +137,55 @@ export default function LearnDashboard() {
           <StatPill icon="📚" value={allCourses.filter(c => c.published).length} label={t.statsCoursesEnrolled} color="bg-white/10 text-white border-white/20" />
         </div>
       </div>
+
+      {/* ── HOSPITAL LINK ────────────────────────────────────────── */}
+      {hospitalLink ? (
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-50 border border-blue-100">
+          <Building2 size={16} className="text-blue-600 flex-shrink-0" />
+          <p className="text-sm text-blue-700 flex-1 font-medium">
+            {t.hospLinkedBadge.replace('{name}', hospitalLink.name)}
+          </p>
+          <button onClick={handleUnlink} className="text-xs text-blue-500 hover:text-blue-700 flex items-center gap-1">
+            <X size={13} />
+            {t.hospUnlink}
+          </button>
+        </div>
+      ) : (
+        <div>
+          {showLinkInput ? (
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                value={inviteInput}
+                onChange={e => setInviteInput(e.target.value.toUpperCase())}
+                placeholder={t.hospLinkPlaceholder}
+                className="input flex-1 text-sm uppercase tracking-widest"
+                maxLength={8}
+                onKeyDown={e => e.key === 'Enter' && handleLinkHospital()}
+              />
+              <button
+                onClick={handleLinkHospital}
+                disabled={linking || !inviteInput.trim()}
+                className="btn-primary text-sm py-2 px-4 disabled:opacity-60"
+              >
+                {linking ? t.hospLinking : t.hospLinkBtn}
+              </button>
+              <button onClick={() => { setShowLinkInput(false); setLinkError('') }} className="p-2 text-text-muted hover:text-text">
+                <X size={16} />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowLinkInput(true)}
+              className="flex items-center gap-2 text-sm text-text-muted hover:text-primary transition-colors"
+            >
+              <Link2 size={14} />
+              {t.hospLinkTitle}
+            </button>
+          )}
+          {linkError && <p className="text-xs text-red-500 mt-1">{linkError}</p>}
+        </div>
+      )}
 
       {/* ── CONTINUE LEARNING ────────────────────────────────────── */}
       {lastLesson && (

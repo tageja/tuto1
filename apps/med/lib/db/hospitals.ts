@@ -65,6 +65,32 @@ export async function createPairGroup(payload: { name?: string; hospital_id?: st
   return data
 }
 
+function generateInviteCode(): string {
+  return Math.random().toString(36).substring(2, 8).toUpperCase()
+}
+
+export async function generateHospitalInviteCode(hospitalId: string): Promise<string> {
+  const db = getServiceClient()
+  const code = generateInviteCode()
+  const { error } = await db
+    .from('nursed_hospitals')
+    .update({ invite_code: code })
+    .eq('id', hospitalId)
+  if (error) throw error
+  return code
+}
+
+export async function getHospitalByInviteCode(code: string): Promise<NursedHospital | null> {
+  const db = getServiceClient()
+  const { data, error } = await db
+    .from('nursed_hospitals')
+    .select('*')
+    .eq('invite_code', code.toUpperCase())
+    .single()
+  if (error) return null
+  return data as NursedHospital
+}
+
 export async function joinPairGroup(joinCode: string, userId: string) {
   const db = getServiceClient()
   const { data: group, error: gErr } = await db

@@ -140,7 +140,7 @@ export default function AnalyticsPage() {
               <h2 className="text-text">{selectedHospital.name}</h2>
               <p className="text-sm text-text-muted mt-0.5">
                 {selectedHospital.city && `${selectedHospital.city} · `}
-                {t.labelPlan} <span className={selectedHospital.plan === 'pro' ? 'text-primary font-medium' : ''}>{selectedHospital.plan.toUpperCase()}</span>
+                {t.labelPlanDisplay} <span className={selectedHospital.plan === 'pro' ? 'text-primary font-medium' : ''}>{selectedHospital.plan.toUpperCase()}</span>
               </p>
             </div>
           )}

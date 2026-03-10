@@ -2,8 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, BookOpen, Users } from 'lucide-react'
+import { Home, BookOpen, Users, X } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
+
+interface Props {
+  isOpen?: boolean
+  onClose?: () => void
+}
 
 const NAV_HREFS = [
   { icon: Home, href: '/learn', tKey: 'learnNavDashboard' as const },
@@ -11,7 +16,7 @@ const NAV_HREFS = [
   { icon: Users, href: '/learn/pairs', tKey: 'learnNavPracticeGroups' as const },
 ]
 
-export default function LearnerSidebar() {
+export default function LearnerSidebar({ isOpen = false, onClose }: Props) {
   const pathname = usePathname()
   const { t, lang, toggleLang } = useLang()
 
@@ -21,13 +26,28 @@ export default function LearnerSidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-bg border-r border-border flex flex-col z-40">
+    <aside
+      className={[
+        'fixed left-0 top-0 h-screen w-64 bg-bg border-r border-border flex flex-col z-50',
+        'transition-transform duration-200 ease-in-out',
+        'md:translate-x-0',
+        isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
+      ].join(' ')}
+    >
       {/* Logo */}
-      <div className="px-4 py-5 border-b border-border">
-        <Link href="/learn" className="block">
+      <div className="px-4 py-5 border-b border-border flex items-center justify-between">
+        <Link href="/learn" className="block" onClick={onClose}>
           <img src="/images/tuto-logo.png" alt="tuto." className="h-9 w-auto" />
           <span className="text-xs font-semibold text-text-muted tracking-wide mt-1 block">{t.logoSub}</span>
         </Link>
+        {/* Mobile close button */}
+        <button
+          onClick={onClose}
+          className="md:hidden p-1.5 rounded-lg hover:bg-surface text-text-muted"
+          aria-label="Close menu"
+        >
+          <X size={20} />
+        </button>
       </div>
 
       {/* User greeting */}
@@ -45,6 +65,7 @@ export default function LearnerSidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onClose}
               className={active ? 'sidebar-item-active' : 'sidebar-item-inactive'}
             >
               <Icon size={18} />

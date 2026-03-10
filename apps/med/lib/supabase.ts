@@ -51,6 +51,15 @@ export type NursedHospital = {
   contact_email: string | null
   plan: 'free' | 'pro'
   active: boolean
+  invite_code: string | null
+  created_at: string
+}
+
+export type NursedHospitalAdmin = {
+  id: string
+  user_id: string
+  hospital_id: string
+  role: 'admin' | 'viewer'
   created_at: string
 }
 
