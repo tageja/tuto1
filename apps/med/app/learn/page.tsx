@@ -2,23 +2,18 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { ChevronRight, BookOpen, Flame, Clock, CheckCircle2, Lock, Layers, Play } from 'lucide-react'
+import {
+  ChevronRight, BookOpen, Flame, CheckCircle2, Lock, Play, ArrowRight,
+} from 'lucide-react'
 import type { NursedCourse } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
 import { COURSE_ICONS } from './courses/page'
 
-const LEVEL_COLORS: Record<string, string> = {
-  A1: 'badge-green',
-  A2: 'badge-blue',
-  B1: 'badge-yellow',
-  B2: 'badge-red',
-}
-
-const LEVEL_GRADIENTS: Record<string, string> = {
-  A1: 'from-green-400 to-emerald-600',
-  A2: 'from-blue-400 to-primary',
-  B1: 'from-yellow-400 to-orange-500',
-  B2: 'from-red-400 to-rose-600',
+const LEVEL_BADGE: Record<string, string> = {
+  A1: 'bg-emerald-100 text-emerald-700',
+  A2: 'bg-blue-100 text-blue-700',
+  B1: 'bg-amber-100 text-amber-700',
+  B2: 'bg-rose-100 text-rose-700',
 }
 
 const COURSE_ORDER: string[] = [
@@ -30,32 +25,42 @@ const COURSE_ORDER: string[] = [
   'Career English for Nurses',
 ]
 
+const COURSE_COLOR: Record<string, { bg: string; text: string; ring: string }> = {
+  'Foundations of Nursing English':           { bg: 'bg-emerald-50',  text: 'text-emerald-600', ring: 'ring-emerald-200' },
+  'Emergency Nursing Communication':          { bg: 'bg-red-50',      text: 'text-red-500',     ring: 'ring-red-200' },
+  'Ward and Inpatient Communication':         { bg: 'bg-blue-50',     text: 'text-blue-600',    ring: 'ring-blue-200' },
+  'International Patient Communication':      { bg: 'bg-violet-50',   text: 'text-violet-600',  ring: 'ring-violet-200' },
+  'Clinical Handover and Team Communication': { bg: 'bg-amber-50',    text: 'text-amber-600',   ring: 'ring-amber-200' },
+  'Career English for Nurses':               { bg: 'bg-indigo-50',   text: 'text-indigo-600',  ring: 'ring-indigo-200' },
+}
+
+function sortCourses(data: NursedCourse[]) {
+  return [...data].sort((a, b) => {
+    const ai = COURSE_ORDER.indexOf(a.title)
+    const bi = COURSE_ORDER.indexOf(b.title)
+    if (ai === -1 && bi === -1) return 0
+    if (ai === -1) return 1
+    if (bi === -1) return -1
+    return ai - bi
+  })
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function LearnDashboard() {
   const { t } = useLang()
   const [allCourses, setAllCourses] = useState<NursedCourse[]>([])
-  const [featuredCourses, setFeaturedCourses] = useState<NursedCourse[]>([])
   const [loading, setLoading] = useState(true)
-  const [lastLesson, setLastLesson] = useState<{ lessonId: string; courseId: string; title: string } | null>(null)
-  const [streak] = useState(3)
-  const [lessonsCompleted] = useState(4)
+  const [lastLesson, setLastLesson] = useState<{
+    lessonId: string; courseId: string; title: string
+  } | null>(null)
+  const streak = 3
+  const lessonsCompleted = 4
 
   useEffect(() => {
-    // Fetch all courses for the learning path stepper
     fetch('/api/courses')
       .then((r) => r.json())
-      .then((j) => {
-        const data: NursedCourse[] = j.data ?? []
-        data.sort((a, b) => {
-          const ai = COURSE_ORDER.indexOf(a.title)
-          const bi = COURSE_ORDER.indexOf(b.title)
-          if (ai === -1 && bi === -1) return 0
-          if (ai === -1) return 1
-          if (bi === -1) return -1
-          return ai - bi
-        })
-        setAllCourses(data)
-        setFeaturedCourses(data.filter((c) => c.published).slice(0, 3))
-      })
+      .then((j) => setAllCourses(sortCourses(j.data ?? [])))
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
@@ -73,238 +78,242 @@ export default function LearnDashboard() {
     : null
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-5xl mx-auto space-y-8">
 
-      {/* ── Hero welcome banner ───────────────────────────────── */}
-      <div className="card overflow-hidden bg-gradient-to-br from-primary to-primary-dark text-white">
-        <div className="p-6 pb-4">
-          <p className="text-primary-light/80 text-sm font-medium mb-1">NurseEd</p>
-          <h1 className="text-2xl font-bold mb-1">{t.learnWelcomeTitle}</h1>
-          <p className="text-primary-light/90 text-sm max-w-lg">{t.learnWelcomeSubtitle}</p>
+      {/* ── HERO ─────────────────────────────────────────────────── */}
+      <div className="rounded-2xl bg-gradient-to-r from-[#0B5FFF] to-[#3B82F6] p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center gap-6 shadow-lg">
+        <div className="flex-1">
+          <p className="text-blue-200 text-sm font-medium mb-1 tracking-wide uppercase">NurseEd</p>
+          <h1 className="text-white text-2xl sm:text-3xl font-bold leading-tight mb-2">
+            {t.learnWelcomeTitle}
+          </h1>
+          <p className="text-blue-100 text-sm leading-relaxed max-w-md">{t.learnWelcomeSubtitle}</p>
         </div>
-        {/* Stats strip */}
-        <div className="grid grid-cols-3 border-t border-white/20">
-          <StatChip icon={<Flame size={16} />} value={streak} label={t.statsDaysStreak} />
-          <StatChip icon={<CheckCircle2 size={16} />} value={lessonsCompleted} label={t.statsLessonsCompleted} border />
-          <StatChip icon={<BookOpen size={16} />} value={allCourses.filter(c => c.published).length} label={t.statsCoursesEnrolled} border />
+
+        {/* Stats pills */}
+        <div className="flex sm:flex-col gap-3 flex-wrap">
+          <StatPill icon="🔥" value={streak} label={t.statsDaysStreak} color="bg-orange-400/20 text-white border-orange-300/30" />
+          <StatPill icon="✓" value={lessonsCompleted} label={t.statsLessonsCompleted} color="bg-white/10 text-white border-white/20" />
+          <StatPill icon="📚" value={allCourses.filter(c => c.published).length} label={t.statsCoursesEnrolled} color="bg-white/10 text-white border-white/20" />
         </div>
       </div>
 
-      {/* ── Continue learning ─────────────────────────────────── */}
+      {/* ── CONTINUE LEARNING ────────────────────────────────────── */}
       {lastLesson && (
         <section>
-          <h2 className="section-title">{t.continueLearningTitle}</h2>
-          <div className="card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
-            {/* Course icon */}
-            <div className={`w-14 h-14 rounded-xl flex-shrink-0 flex items-center justify-center text-2xl bg-gradient-to-br ${activeCourse ? (LEVEL_GRADIENTS[activeCourse.level] ?? 'from-primary to-primary-dark') : 'from-primary to-primary-dark'}`}>
-              {activeCourse ? (COURSE_ICONS[activeCourse.title] ?? '📖') : '📖'}
-            </div>
-            <div className="flex-1 min-w-0">
-              {activeCourse && (
-                <p className="text-xs text-text-muted mb-0.5 truncate">{activeCourse.title_vi ?? activeCourse.title}</p>
-              )}
-              <p className="text-sm font-semibold text-text truncate">{lastLesson.title}</p>
-              <p className="text-xs text-text-muted mt-0.5">{t.continueLearningInProgress}</p>
-            </div>
-            <Link
-              href={`/learn/courses/${lastLesson.courseId}/lessons/${lastLesson.lessonId}`}
-              className="btn-primary flex-shrink-0 flex items-center gap-1.5"
-            >
-              <Play size={14} />
-              {t.btnContinue}
-            </Link>
-          </div>
+          <SectionHeading title={t.continueLearningTitle} />
+          <ContinueLearningCard lesson={lastLesson} course={activeCourse} />
         </section>
       )}
 
-      {/* ── Learning path stepper ─────────────────────────────── */}
+      {/* ── LEARNING PATH ─────────────────────────────────────────── */}
       <section>
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-end justify-between mb-4">
           <div>
-            <h2 className="section-title mb-0">{t.learningPathTitle}</h2>
-            <p className="text-xs text-text-muted mt-1">{t.learningPathDesc}</p>
+            <SectionHeading title={t.learningPathTitle} className="mb-0" />
+            <p className="text-sm text-[var(--text-muted)] mt-1">{t.learningPathDesc}</p>
           </div>
-        </div>
-
-        {loading ? (
-          <div className="flex gap-3 overflow-x-auto pb-2">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="flex-shrink-0 w-44 h-28 rounded-xl bg-surface animate-pulse" />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {allCourses.map((course, idx) => (
-              <PathCard key={course.id} course={course} index={idx} />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* ── Today's mission + streak ──────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Mission card */}
-        <div className="md:col-span-2 card p-5">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base font-semibold text-text">{t.todayMissionTitle}</h2>
-          </div>
-          <p className="text-sm text-text-muted mb-4">{t.missionDesc}</p>
-          <div className="w-full bg-surface rounded-full h-2 overflow-hidden">
-            <div
-              className="h-2 rounded-full bg-primary transition-all duration-500"
-              style={{ width: lessonsCompleted > 0 ? '40%' : '0%' }}
-            />
-          </div>
-          <p className="text-xs text-text-muted mt-2">{t.missionProgressTodo}</p>
-        </div>
-
-        {/* Streak card */}
-        <div className="card p-5 flex flex-col items-center justify-center gap-2">
-          <span className="text-4xl">🔥</span>
-          <p className="text-3xl font-bold text-orange-500">{streak}</p>
-          <p className="text-sm text-text-muted text-center">{t.streakDays}</p>
-          <p className="text-xs text-text-muted text-center">{t.streakNudge}</p>
-        </div>
-      </div>
-
-      {/* ── Featured courses ──────────────────────────────────── */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="section-title mb-0">{t.featuredCoursesTitle}</h2>
-          <Link href="/learn/courses" className="text-sm text-primary font-medium hover:underline flex items-center gap-1">
+          <Link
+            href="/learn/courses"
+            className="text-sm text-[var(--primary)] font-medium hover:underline flex items-center gap-1 flex-shrink-0 ml-4"
+          >
             {t.linkViewAll} <ChevronRight size={14} />
           </Link>
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="card animate-pulse">
-                <div className="h-36 rounded-t-xl bg-surface" />
-                <div className="p-4 space-y-2">
-                  <div className="h-4 bg-surface rounded w-3/4" />
-                  <div className="h-3 bg-surface rounded w-1/2" />
-                </div>
-              </div>
+          <div className="flex gap-3 overflow-x-auto pb-1">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="flex-shrink-0 w-40 h-52 rounded-2xl bg-[var(--surface)] animate-pulse" />
             ))}
-          </div>
-        ) : featuredCourses.length === 0 ? (
-          <div className="card p-8 text-center text-text-muted">
-            <BookOpen size={40} className="mx-auto mb-3 opacity-30" />
-            <p>{t.emptyFeaturedCourses}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {featuredCourses.map((course) => (
-              <FeaturedCourseCard key={course.id} course={course} />
-            ))}
-          </div>
+          <LearningPathRow courses={allCourses} />
         )}
       </section>
+
+      {/* ── DAILY GOAL + STREAK ───────────────────────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Daily goal — takes 2 cols */}
+        <div className="sm:col-span-2 rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-7 h-7 rounded-full bg-[var(--primary-light)] flex items-center justify-center">
+              <BookOpen size={14} className="text-[var(--primary)]" />
+            </div>
+            <h3 className="text-sm font-semibold text-[var(--text)]">{t.todayMissionTitle}</h3>
+          </div>
+          <p className="text-sm text-[var(--text-muted)] mb-4">{t.missionDesc}</p>
+
+          <div className="relative h-2 bg-[var(--surface)] rounded-full overflow-hidden">
+            <div
+              className="absolute inset-y-0 left-0 bg-[var(--primary)] rounded-full transition-all duration-700"
+              style={{ width: lessonsCompleted > 0 ? '40%' : '0%' }}
+            />
+          </div>
+          <div className="flex justify-between mt-2">
+            <span className="text-xs text-[var(--text-muted)]">{t.missionProgressTodo}</span>
+            <span className="text-xs font-medium text-[var(--primary)]">40%</span>
+          </div>
+        </div>
+
+        {/* Streak */}
+        <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm flex flex-col items-center justify-center gap-1 text-center">
+          <span className="text-3xl mb-1">🔥</span>
+          <p className="text-4xl font-bold text-orange-500 leading-none">{streak}</p>
+          <p className="text-sm text-[var(--text-muted)] mt-1">{t.streakDays}</p>
+          <p className="text-xs text-[var(--text-muted)]">{t.streakNudge}</p>
+        </div>
+      </div>
     </div>
   )
 }
 
-// ── Sub-components ──────────────────────────────────────────────────
+// ── Sub-components ─────────────────────────────────────────────────────────
 
-function StatChip({
-  icon,
-  value,
-  label,
-  border,
-}: {
-  icon: React.ReactNode
-  value: number
-  label: string
-  border?: boolean
-}) {
+function SectionHeading({ title, className = '' }: { title: string; className?: string }) {
   return (
-    <div className={`flex flex-col items-center justify-center gap-0.5 py-3 ${border ? 'border-l border-white/20' : ''}`}>
-      <span className="text-white/70">{icon}</span>
-      <span className="text-white text-xl font-bold leading-none">{value}</span>
-      <span className="text-white/70 text-xs text-center leading-tight">{label}</span>
+    <h2 className={`text-base font-semibold text-[var(--text)] mb-4 ${className}`}>{title}</h2>
+  )
+}
+
+function StatPill({
+  icon, value, label, color,
+}: { icon: string; value: number; label: string; color: string }) {
+  return (
+    <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${color} text-sm`}>
+      <span className="text-base leading-none">{icon}</span>
+      <div>
+        <p className="font-bold text-base leading-none">{value}</p>
+        <p className="text-xs opacity-80 leading-none mt-0.5">{label}</p>
+      </div>
     </div>
   )
 }
 
-function PathCard({ course, index }: { course: NursedCourse; index: number }) {
+function ContinueLearningCard({
+  lesson,
+  course,
+}: {
+  lesson: { lessonId: string; courseId: string; title: string }
+  course: NursedCourse | null
+}) {
   const { t } = useLang()
-  const icon = COURSE_ICONS[course.title] ?? '📖'
-  const isActive = course.published
-  const gradient = LEVEL_GRADIENTS[course.level] ?? 'from-gray-300 to-gray-400'
+  const colors = course ? (COURSE_COLOR[course.title] ?? { bg: 'bg-blue-50', text: 'text-blue-600', ring: 'ring-blue-200' }) : { bg: 'bg-blue-50', text: 'text-blue-600', ring: 'ring-blue-200' }
+  const icon = course ? (COURSE_ICONS[course.title] ?? '📖') : '📖'
 
-  const content = (
+  return (
+    <div className="rounded-2xl border border-[var(--border)] bg-white p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
+      {/* Icon */}
+      <div className={`w-14 h-14 rounded-2xl ${colors.bg} flex items-center justify-center text-3xl flex-shrink-0 ring-2 ${colors.ring}`}>
+        {icon}
+      </div>
+
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        {course && (
+          <p className={`text-xs font-semibold uppercase tracking-wide ${colors.text} mb-0.5`}>
+            {course.title_vi ?? course.title}
+          </p>
+        )}
+        <p className="text-sm font-semibold text-[var(--text)] truncate">{lesson.title}</p>
+        <div className="flex items-center gap-1.5 mt-2">
+          <div className="flex-1 h-1.5 bg-[var(--surface)] rounded-full overflow-hidden">
+            <div className="h-full w-1/3 bg-[var(--primary)] rounded-full" />
+          </div>
+          <span className="text-xs text-[var(--text-muted)] flex-shrink-0">{t.continueLearningInProgress}</span>
+        </div>
+      </div>
+
+      {/* CTA */}
+      <Link
+        href={`/learn/courses/${lesson.courseId}/lessons/${lesson.lessonId}`}
+        className="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--primary)] text-white text-sm font-medium hover:bg-[var(--primary-dark)] transition-colors"
+      >
+        <Play size={14} fill="white" />
+        {t.btnContinue}
+      </Link>
+    </div>
+  )
+}
+
+function LearningPathRow({ courses }: { courses: NursedCourse[] }) {
+  return (
+    <div className="relative">
+      {/* Horizontal scroll wrapper */}
+      <div className="flex items-stretch gap-0 overflow-x-auto pb-2 -mx-1 px-1">
+        {courses.map((course, idx) => (
+          <div key={course.id} className="flex items-center flex-shrink-0">
+            <PathStepCard course={course} index={idx} />
+            {/* Connector arrow — not after last */}
+            {idx < courses.length - 1 && (
+              <div className="flex-shrink-0 px-1">
+                <ArrowRight size={16} className={course.published ? 'text-[var(--primary)]' : 'text-[var(--border)]'} />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function PathStepCard({ course, index }: { course: NursedCourse; index: number }) {
+  const { t } = useLang()
+  const isActive = course.published
+  const icon = COURSE_ICONS[course.title] ?? '📖'
+  const colors = COURSE_COLOR[course.title] ?? { bg: 'bg-gray-50', text: 'text-gray-400', ring: 'ring-gray-200' }
+
+  const inner = (
     <div
-      className={`relative rounded-xl border p-3 flex flex-col items-center text-center gap-2 h-full transition-all duration-200 ${
+      className={`w-36 rounded-2xl border-2 p-4 flex flex-col items-center text-center gap-3 transition-all duration-200 select-none ${
         isActive
-          ? 'border-primary/20 bg-gradient-to-b from-primary-light to-bg hover:shadow-md hover:-translate-y-0.5 cursor-pointer'
-          : 'border-border bg-surface opacity-60 cursor-default'
+          ? `border-[var(--primary)] bg-white shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer`
+          : `border-[var(--border)] bg-[var(--surface)] opacity-65 cursor-default`
       }`}
     >
-      {/* Number badge */}
-      <div className={`absolute -top-2 -left-2 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-        isActive ? 'bg-primary text-white' : 'bg-border text-text-muted'
+      {/* Step number */}
+      <div className={`w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center self-start -mb-1 ${
+        isActive ? 'bg-[var(--primary)] text-white' : 'bg-[var(--border)] text-[var(--text-muted)]'
       }`}>
         {index + 1}
       </div>
 
-      {/* Icon in mini gradient circle */}
-      <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-gradient-to-br ${gradient} mt-1`}>
+      {/* Icon */}
+      <div className={`w-14 h-14 rounded-2xl ${colors.bg} flex items-center justify-center text-3xl ring-2 ${colors.ring}`}>
         {icon}
       </div>
 
-      <p className="text-xs font-medium text-text leading-tight line-clamp-2">{course.title_vi ?? course.title}</p>
+      {/* Title */}
+      <p className="text-xs font-medium text-[var(--text)] leading-tight line-clamp-3">
+        {course.title_vi ?? course.title}
+      </p>
 
-      {/* Status badge */}
+      {/* Status */}
       <div className="mt-auto">
         {isActive ? (
-          <span className="text-[10px] text-primary font-semibold">{t.courseNotStarted} →</span>
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[var(--primary)] bg-[var(--primary-light)] px-2 py-0.5 rounded-full">
+            <CheckCircle2 size={9} /> Active
+          </span>
         ) : (
-          <span className="flex items-center gap-0.5 text-[10px] text-text-muted">
-            <Lock size={10} /> {t.courseComingSoon}
+          <span className="inline-flex items-center gap-1 text-[10px] text-[var(--text-muted)] bg-[var(--border)] px-2 py-0.5 rounded-full">
+            <Lock size={9} /> {t.courseComingSoon}
           </span>
         )}
       </div>
+
+      {/* Level badge */}
+      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${LEVEL_BADGE[course.level] ?? 'bg-gray-100 text-gray-500'}`}>
+        {course.level}
+      </span>
     </div>
   )
 
   if (isActive) {
     return (
-      <Link href={`/learn/courses/${course.id}`} className="block h-full">
-        {content}
+      <Link href={`/learn/courses/${course.id}`}>
+        {inner}
       </Link>
     )
   }
-  return content
-}
-
-function FeaturedCourseCard({ course }: { course: NursedCourse }) {
-  const { t } = useLang()
-  const gradient = LEVEL_GRADIENTS[course.level] ?? 'from-gray-400 to-gray-500'
-  const icon = COURSE_ICONS[course.title] ?? '📖'
-
-  return (
-    <div className="card overflow-hidden flex flex-col hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
-      <div className={`h-36 bg-gradient-to-br ${gradient} flex items-center justify-center relative`}>
-        <span className="text-5xl drop-shadow">{icon}</span>
-        <div className="absolute top-3 left-3">
-          <span className={`${LEVEL_COLORS[course.level] ?? 'badge badge-gray'} text-xs`}>
-            {course.level}
-          </span>
-        </div>
-      </div>
-      <div className="p-4 flex flex-col flex-1 gap-2">
-        <h3 className="text-sm font-semibold text-text line-clamp-2 leading-snug">{course.title_vi ?? course.title}</h3>
-        {course.description_vi && (
-          <p className="text-xs text-text-muted line-clamp-2 leading-relaxed">{course.description_vi}</p>
-        )}
-        <Link
-          href={`/learn/courses/${course.id}`}
-          className="btn-primary mt-auto w-full justify-center"
-        >
-          {t.btnLearnNow}
-        </Link>
-      </div>
-    </div>
-  )
+  return inner
 }

@@ -2,33 +2,19 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { BookOpen, Lock, Clock, Layers } from 'lucide-react'
+import { BookOpen, Lock, Clock } from 'lucide-react'
 import type { NursedCourse } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
 
 type Level = 'all' | 'A1' | 'A2' | 'B1' | 'B2'
 
-const LEVEL_COLORS: Record<string, string> = {
-  A1: 'badge-green',
-  A2: 'badge-blue',
-  B1: 'badge-yellow',
-  B2: 'badge-red',
-}
-
-const LEVEL_GRADIENTS: Record<string, string> = {
-  A1: 'from-green-400 to-emerald-600',
-  A2: 'from-blue-400 to-primary',
-  B1: 'from-yellow-400 to-orange-500',
-  B2: 'from-red-400 to-rose-600',
-}
-
 export const COURSE_ICONS: Record<string, string> = {
-  'Foundations of Nursing English': '🩺',
-  'Emergency Nursing Communication': '🚨',
-  'Ward and Inpatient Communication': '🛏️',
-  'International Patient Communication': '🌍',
+  'Foundations of Nursing English':           '🩺',
+  'Emergency Nursing Communication':          '🚨',
+  'Ward and Inpatient Communication':         '🛏️',
+  'International Patient Communication':      '🌍',
   'Clinical Handover and Team Communication': '📋',
-  'Career English for Nurses': '💼',
+  'Career English for Nurses':               '💼',
 }
 
 const COURSE_ORDER: string[] = [
@@ -39,6 +25,33 @@ const COURSE_ORDER: string[] = [
   'Clinical Handover and Team Communication',
   'Career English for Nurses',
 ]
+
+const LEVEL_BADGE: Record<string, string> = {
+  A1: 'bg-emerald-100 text-emerald-700',
+  A2: 'bg-blue-100 text-blue-700',
+  B1: 'bg-amber-100 text-amber-700',
+  B2: 'bg-rose-100 text-rose-700',
+}
+
+const COURSE_COLOR: Record<string, { icon: string; bar: string }> = {
+  'Foundations of Nursing English':           { icon: 'bg-emerald-50 ring-emerald-200', bar: 'from-emerald-400 to-emerald-600' },
+  'Emergency Nursing Communication':          { icon: 'bg-red-50 ring-red-200',         bar: 'from-red-400 to-rose-500' },
+  'Ward and Inpatient Communication':         { icon: 'bg-blue-50 ring-blue-200',       bar: 'from-blue-400 to-blue-600' },
+  'International Patient Communication':      { icon: 'bg-violet-50 ring-violet-200',   bar: 'from-violet-400 to-violet-600' },
+  'Clinical Handover and Team Communication': { icon: 'bg-amber-50 ring-amber-200',     bar: 'from-amber-400 to-amber-600' },
+  'Career English for Nurses':               { icon: 'bg-indigo-50 ring-indigo-200',   bar: 'from-indigo-400 to-indigo-600' },
+}
+
+function sortCourses(data: NursedCourse[]) {
+  return [...data].sort((a, b) => {
+    const ai = COURSE_ORDER.indexOf(a.title)
+    const bi = COURSE_ORDER.indexOf(b.title)
+    if (ai === -1 && bi === -1) return 0
+    if (ai === -1) return 1
+    if (bi === -1) return -1
+    return ai - bi
+  })
+}
 
 export default function CourseCatalog() {
   const { t } = useLang()
@@ -55,22 +68,9 @@ export default function CourseCatalog() {
   ]
 
   useEffect(() => {
-    // Fetch all courses — including unpublished (coming soon)
     fetch('/api/courses')
       .then((r) => r.json())
-      .then((j) => {
-        const data: NursedCourse[] = j.data ?? []
-        // Sort by the defined course order
-        data.sort((a, b) => {
-          const ai = COURSE_ORDER.indexOf(a.title)
-          const bi = COURSE_ORDER.indexOf(b.title)
-          if (ai === -1 && bi === -1) return 0
-          if (ai === -1) return 1
-          if (bi === -1) return -1
-          return ai - bi
-        })
-        setCourses(data)
-      })
+      .then((j) => setCourses(sortCourses(j.data ?? [])))
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
@@ -81,24 +81,23 @@ export default function CourseCatalog() {
   const comingSoon = filtered.filter((c) => !c.published)
 
   return (
-    <div className="space-y-6">
-      <div className="page-header">
-        <div>
-          <h1>{t.learnCatalogTitle}</h1>
-          <p className="text-sm text-text-muted mt-1">{t.learnCatalogSubtitle}</p>
-        </div>
+    <div className="max-w-5xl mx-auto space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-[var(--text)]">{t.learnCatalogTitle}</h1>
+        <p className="text-sm text-[var(--text-muted)] mt-1">{t.learnCatalogSubtitle}</p>
       </div>
 
-      {/* Level filter tabs */}
+      {/* Level filters */}
       <div className="flex gap-2 flex-wrap">
         {LEVELS.map((lvl) => (
           <button
             key={lvl.key}
             onClick={() => setActiveLevel(lvl.key)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all border ${
               activeLevel === lvl.key
-                ? 'bg-primary text-white border-primary'
-                : 'bg-bg border-border text-text-muted hover:bg-surface'
+                ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
+                : 'bg-white border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--primary)] hover:text-[var(--primary)]'
             }`}
           >
             {lvl.label}
@@ -107,56 +106,52 @@ export default function CourseCatalog() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="card animate-pulse">
-              <div className="h-40 rounded-t-xl bg-surface" />
-              <div className="p-4 space-y-2">
-                <div className="h-4 bg-surface rounded w-3/4" />
-                <div className="h-3 bg-surface rounded w-1/2" />
-                <div className="h-8 bg-surface rounded mt-4" />
-              </div>
-            </div>
+            <div key={i} className="rounded-2xl bg-[var(--surface)] animate-pulse h-72" />
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="card p-12 text-center flex flex-col items-center gap-3">
-          <BookOpen size={48} className="text-text-muted opacity-30" />
-          <>
-            <p className="text-base font-medium text-text">
-              {t.emptyLevelFiltered.replace('{level}', activeLevel)}
-            </p>
-            <button onClick={() => setActiveLevel('all')} className="btn-secondary text-sm">
-              {t.btnViewAllCourses}
-            </button>
-          </>
+        <div className="rounded-2xl border border-[var(--border)] p-12 text-center flex flex-col items-center gap-3">
+          <BookOpen size={40} className="text-[var(--text-muted)] opacity-30" />
+          <p className="text-sm text-[var(--text-muted)]">
+            {t.emptyLevelFiltered.replace('{level}', activeLevel)}
+          </p>
+          <button
+            onClick={() => setActiveLevel('all')}
+            className="text-sm text-[var(--primary)] font-medium hover:underline"
+          >
+            {t.btnViewAllCourses}
+          </button>
         </div>
       ) : (
-        <>
+        <div className="space-y-8">
           {/* Active courses */}
           {published.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {published.map((course) => (
                 <CourseCard key={course.id} course={course} />
               ))}
             </div>
           )}
 
-          {/* Coming soon courses */}
+          {/* Coming soon */}
           {comingSoon.length > 0 && (
             <div>
-              <h2 className="text-base font-semibold text-text-muted mb-3 flex items-center gap-2">
-                <Lock size={15} />
-                {t.courseComingSoon}
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Lock size={14} className="text-[var(--text-muted)]" />
+                <h2 className="text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wide">
+                  {t.courseComingSoon}
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {comingSoon.map((course) => (
                   <CourseCard key={course.id} course={course} />
                 ))}
               </div>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   )
@@ -164,58 +159,66 @@ export default function CourseCatalog() {
 
 function CourseCard({ course }: { course: NursedCourse }) {
   const { t } = useLang()
-  const gradient = LEVEL_GRADIENTS[course.level] ?? 'from-gray-400 to-gray-500'
   const icon = COURSE_ICONS[course.title] ?? '📖'
+  const colors = COURSE_COLOR[course.title] ?? { icon: 'bg-gray-50 ring-gray-200', bar: 'from-gray-300 to-gray-500' }
   const isComingSoon = !course.published
 
   return (
-    <div className={`card overflow-hidden flex flex-col transition-all duration-200 ${isComingSoon ? 'opacity-80' : 'hover:shadow-lg hover:-translate-y-0.5'}`}>
-      {/* Card header */}
-      <div className={`relative h-40 bg-gradient-to-br ${gradient} flex items-center justify-center`}>
-        <span className="text-6xl drop-shadow">{icon}</span>
-        {isComingSoon && (
-          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-            <div className="flex flex-col items-center gap-1">
-              <Lock size={24} className="text-white" />
-              <span className="text-white text-xs font-semibold tracking-wider uppercase bg-black/40 px-3 py-1 rounded-full">
-                {t.courseComingSoonBadge}
-              </span>
-            </div>
-          </div>
-        )}
-        <div className="absolute top-3 left-3">
-          <span className={`${LEVEL_COLORS[course.level] ?? 'badge badge-gray'} text-xs`}>
-            {course.level}
-          </span>
-        </div>
-      </div>
+    <div className={`group rounded-2xl border bg-white overflow-hidden flex flex-col transition-all duration-200 ${
+      isComingSoon
+        ? 'border-[var(--border)] opacity-70'
+        : 'border-[var(--border)] hover:shadow-lg hover:-translate-y-1 hover:border-[var(--primary)]/30 cursor-pointer'
+    }`}>
+      {/* Color bar top */}
+      <div className={`h-1.5 w-full bg-gradient-to-r ${colors.bar} ${isComingSoon ? 'opacity-40' : ''}`} />
 
       {/* Card body */}
-      <div className="p-4 flex flex-col flex-1 gap-2">
-        <h3 className="font-semibold text-text leading-snug">{course.title}</h3>
-        {course.title_vi && (
-          <p className="text-xs text-text-muted">{course.title_vi}</p>
-        )}
-        {(course.description_vi ?? course.description) && (
-          <p className="text-xs text-text-muted line-clamp-2 leading-relaxed">
+      <div className="p-5 flex flex-col flex-1 gap-3">
+        {/* Icon + level badge row */}
+        <div className="flex items-start justify-between">
+          <div className={`w-14 h-14 rounded-2xl ${colors.icon} flex items-center justify-center text-3xl ring-2 ${isComingSoon ? 'grayscale opacity-60' : ''}`}>
+            {icon}
+          </div>
+          <div className="flex flex-col items-end gap-1.5">
+            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${LEVEL_BADGE[course.level] ?? 'bg-gray-100 text-gray-500'}`}>
+              {course.level}
+            </span>
+            {isComingSoon && (
+              <span className="inline-flex items-center gap-1 text-[10px] text-[var(--text-muted)] bg-[var(--surface)] px-2 py-0.5 rounded-full border border-[var(--border)]">
+                <Lock size={9} /> {t.courseComingSoonBadge}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Title */}
+        <div>
+          <h3 className="font-semibold text-[var(--text)] text-sm leading-snug">{course.title}</h3>
+          {course.title_vi && (
+            <p className="text-xs text-[var(--text-muted)] mt-0.5">{course.title_vi}</p>
+          )}
+        </div>
+
+        {/* Description */}
+        {(course.description_vi || course.description) && (
+          <p className="text-xs text-[var(--text-muted)] line-clamp-2 leading-relaxed flex-1">
             {course.description_vi ?? course.description}
           </p>
         )}
 
-        <div className="mt-auto pt-3">
+        {/* CTA */}
+        <div className="mt-auto pt-2">
           {isComingSoon ? (
-            <div className="flex items-center gap-2">
-              <span className="flex-1 text-center text-xs text-text-muted bg-surface rounded-xl py-2 px-4 border border-border flex items-center justify-center gap-1">
-                <Clock size={13} />
-                {t.courseComingSoon}
-              </span>
+            <div className="flex items-center justify-center gap-1.5 text-xs text-[var(--text-muted)] py-2 rounded-xl bg-[var(--surface)] border border-[var(--border)]">
+              <Clock size={12} />
+              {t.courseComingSoon}
             </div>
           ) : (
             <Link
               href={`/learn/courses/${course.id}`}
-              className="btn-primary w-full justify-center"
+              className="flex items-center justify-center gap-1.5 text-sm font-medium text-[var(--primary)] py-2 rounded-xl bg-[var(--primary-light)] hover:bg-[var(--primary)] hover:text-white transition-all"
             >
-              {t.btnStart}
+              {t.btnStart} <Clock size={12} className="opacity-0 group-hover:opacity-100" />
             </Link>
           )}
         </div>
