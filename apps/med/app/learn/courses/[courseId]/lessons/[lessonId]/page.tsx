@@ -6,11 +6,13 @@ import Link from 'next/link'
 import { ChevronRight, BookOpen } from 'lucide-react'
 import LessonPlayer from '@/components/learn/LessonPlayer'
 import { useLang } from '@/contexts/LanguageContext'
+import type { NursedCourse } from '@/lib/supabase'
 
 export default function LessonPage() {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>()
   const { t } = useLang()
   const [lesson, setLesson] = useState<any>(null)
+  const [course, setCourse] = useState<NursedCourse | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -20,6 +22,15 @@ export default function LessonPage() {
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [lessonId])
+
+  // Fetch course for breadcrumb title
+  useEffect(() => {
+    if (!courseId) return
+    fetch(`/api/courses/${courseId}`)
+      .then((r) => r.json())
+      .then((j) => setCourse(j.data))
+      .catch(() => {})
+  }, [courseId])
 
   useEffect(() => {
     if (lesson && typeof window !== 'undefined') {
@@ -52,15 +63,21 @@ export default function LessonPage() {
     )
   }
 
+  const courseTitle = course ? (course.title_vi ?? course.title) : '...'
+
   return (
     <div className="space-y-6">
-      {/* Breadcrumb */}
+      {/* Breadcrumb: Courses → Course Title → Lesson Title */}
       <nav className="text-sm text-text-muted flex items-center gap-1 flex-wrap">
-        <Link href="/learn/courses" className="hover:text-primary">{t.breadcrumbCoursesLesson}</Link>
+        <Link href="/learn/courses" className="hover:text-primary">
+          {t.breadcrumbCoursesLabel}
+        </Link>
         <ChevronRight size={14} />
-        <Link href={`/learn/courses/${courseId}`} className="hover:text-primary">{t.breadcrumbCoursesLesson}</Link>
+        <Link href={`/learn/courses/${courseId}`} className="hover:text-primary max-w-[160px] truncate">
+          {courseTitle}
+        </Link>
         <ChevronRight size={14} />
-        <span className="text-text">{lesson.title_vi ?? lesson.title}</span>
+        <span className="text-text max-w-[200px] truncate">{lesson.title_vi ?? lesson.title}</span>
       </nav>
 
       {/* Lesson header */}

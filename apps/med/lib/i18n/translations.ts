@@ -499,6 +499,42 @@ const en = {
   // ─── New step type labels (lesson player) ─────────────────────
   stepTypeScenarioIntroLabel: '🏥 Scenario',
   stepTypeSelfReflectionLabel: '💭 Reflect',
+
+  // ─── Overview page (redesigned) ────────────────────────────────
+  statsLessonsCompleted: 'Lessons Completed',
+  statsCoursesEnrolled: 'Courses',
+  statsDaysStreak: 'Day Streak',
+  learningPathTitle: 'Your Learning Path',
+  learningPathDesc: '6 courses taking you from first contact to professional nursing English',
+  courseInProgress: 'In Progress',
+  courseComingSoon: 'Coming Soon',
+  courseLocked: 'Locked',
+  totalHoursLabel: 'hrs',
+  totalModulesLabel: 'modules',
+  continueLearningCourse: 'Continue where you left off',
+  overviewStatsTitle: "Today's Progress",
+
+  // ─── Course catalog (coming-soon) ──────────────────────────────
+  courseComingSoonBadge: 'Coming Soon',
+  courseComingSoonCta: 'Notify me',
+  courseStarted: 'Started',
+  courseNotStarted: 'Start',
+
+  // ─── Rich course detail ─────────────────────────────────────────
+  aboutCourseTitle: 'About This Course',
+  whatYouLearnTitle: 'What You Will Learn',
+  courseStatsModules: '{n} modules',
+  courseStatsLessons: '{n} lessons',
+  courseStatsHours: '{n} hours',
+  courseStatsLevel: 'Level',
+  courseTotalTime: 'Total time',
+  comingSoonCourseTitle: 'Coming Soon',
+  comingSoonCourseDesc: 'This course is under development. Check back soon — we are working hard to bring you the best content.',
+  comingSoonInterestBtn: 'Notify me when available',
+  breadcrumbCoursesLabel: 'Courses',
+  breadcrumbLessonLabel: 'Lesson',
+  allModulesTitle: 'Course Content',
+  moduleCountLabel: '{m} modules · {l} lessons · {h} hrs total',
 } as const
 
 const vi = {
@@ -1000,6 +1036,42 @@ const vi = {
   // ─── New step type labels (lesson player) ─────────────────────
   stepTypeScenarioIntroLabel: '🏥 Tình huống',
   stepTypeSelfReflectionLabel: '💭 Suy ngẫm',
+
+  // ─── Overview page (redesigned) ────────────────────────────────
+  statsLessonsCompleted: 'Bài đã hoàn thành',
+  statsCoursesEnrolled: 'Khóa học',
+  statsDaysStreak: 'Ngày liên tiếp',
+  learningPathTitle: 'Lộ trình học tập',
+  learningPathDesc: '6 khóa học đưa bạn từ giao tiếp cơ bản đến tiếng Anh điều dưỡng chuyên nghiệp',
+  courseInProgress: 'Đang học',
+  courseComingSoon: 'Sắp ra mắt',
+  courseLocked: 'Chưa mở',
+  totalHoursLabel: 'giờ',
+  totalModulesLabel: 'module',
+  continueLearningCourse: 'Tiếp tục bài học',
+  overviewStatsTitle: 'Tiến độ hôm nay',
+
+  // ─── Course catalog (coming-soon) ──────────────────────────────
+  courseComingSoonBadge: 'Sắp ra mắt',
+  courseComingSoonCta: 'Nhận thông báo',
+  courseStarted: 'Tiếp tục',
+  courseNotStarted: 'Bắt đầu',
+
+  // ─── Rich course detail ─────────────────────────────────────────
+  aboutCourseTitle: 'Về khóa học này',
+  whatYouLearnTitle: 'Những gì bạn sẽ học',
+  courseStatsModules: '{n} module',
+  courseStatsLessons: '{n} bài học',
+  courseStatsHours: '{n} giờ',
+  courseStatsLevel: 'Cấp độ',
+  courseTotalTime: 'Tổng thời gian',
+  comingSoonCourseTitle: 'Sắp ra mắt',
+  comingSoonCourseDesc: 'Khóa học đang được phát triển. Hãy quay lại sớm — chúng tôi đang nỗ lực mang đến nội dung tốt nhất.',
+  comingSoonInterestBtn: 'Thông báo khi khóa học ra mắt',
+  breadcrumbCoursesLabel: 'Khóa học',
+  breadcrumbLessonLabel: 'Bài học',
+  allModulesTitle: 'Nội dung khóa học',
+  moduleCountLabel: '{m} module · {l} bài học · {h} giờ',
 } as const
 
 export const translations: Record<Lang, typeof en> = { en, vi }
