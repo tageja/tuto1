@@ -3,9 +3,13 @@ import './globals.css'
 import { LanguageProvider } from '@/contexts/LanguageContext'
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3001'),
   title: 'NurseEd — Medical English for Vietnamese Nurses',
   description: 'Upskill your medical English with bite-sized lessons, audio shadowing, and partner practice.',
-  icons: { icon: '/favicon.ico' },
+  openGraph: {
+    title: 'NurseEd — Medical English for Vietnamese Nurses',
+    description: 'Master emergency nursing communication in English',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

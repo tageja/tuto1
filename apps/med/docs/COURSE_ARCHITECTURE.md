@@ -9,7 +9,7 @@
 | Course | Level | Status | Modules |
 |--------|-------|--------|---------|
 | Foundations of Nursing English | A1 | Draft | 8 shells |
-| **Emergency Nursing Communication** | A2 | **Published** | 8 (M1 fully authored) |
+| **Emergency Nursing Communication** | A2 | **Published** | 8 (M1-M5 fully authored) |
 | Ward and Inpatient Communication | A2 | Draft | 8 shells |
 | International Patient Communication | B1 | Draft | 4 shells |
 | Clinical Handover and Team Communication | B1 | Draft | 4 shells |
@@ -80,8 +80,88 @@ When real audio files are ready, update `audio_url` in the admin panel or via di
 
 ## Next Steps (Content Roadmap)
 
-1. **Audio production**: Record all `PLACEHOLDER` audio files for Module 1 (8 audio files needed)
-2. **Module 2**: Triage language — follow same 8-lesson template
+1. **Audio production**: Record all `PLACEHOLDER` audio files for Modules 1-5 (40+ audio files needed across 5 modules)
+2. **Module 6**: Advanced escalation & team communication — follow same 8-lesson template
 3. **Publish Foundations** course — content shells exist, needs lesson authoring
 4. **Publish Ward** course — content shells exist, needs lesson authoring
 5. **Auth integration** — connect lessons/progress to real user accounts
+
+---
+
+## Module 5: Communicating Patient Deterioration & Escalation Protocols
+
+**"Critical Communication Under Pressure"** — fully authored with all content.
+
+### Learning Objectives
+
+Nurses learn to:
+1. Recognize vital sign deterioration (SpO2, BP, HR, consciousness)
+2. Escalate effectively using SBAR framework
+3. Communicate with confidence under high-pressure situations
+4. Handle anxious family members while being honest
+5. Document deteriorating patient cases in English
+
+### Lesson Summary
+
+| # | Title | Stage | Steps | Est. |
+|---|-------|-------|-------|------|
+| 1 | Vital Signs in Crisis — What the Numbers Mean | heads_up | scenario_intro, audio_shadow, script_read, quiz | 12 min |
+| 2 | Key Phrases in Action — Red Flags & Urgency | heads_up | audio_shadow, script_read, cloze, quiz | 12 min |
+| 3 | Understanding the Situation — Controlled Practice | heads_down | audio_shadow, cloze, no_script, quiz | 15 min |
+| 4 | A Second Scenario — Blood Pressure Crisis | heads_down | scenario_intro, audio_shadow, cloze, recording_submit | 15 min |
+| 5 | Your Turn to Speak — Open Deterioration Scenario | heads_down | scenario_intro, cloze, no_script, recording_submit | 18 min |
+| 6 | Pair Practice — Round 1: Structured Escalation | heads_together | script_read, cloze, no_script, recording_submit | 20 min |
+| 7 | Pair Practice — Round 2: Responding to Family Anxiety | heads_together | script_read, cloze, no_script, recording_submit | 20 min |
+| 8 | Module Assessment — Mixed Input & Self-Reflection | assessment | quiz (4Q), cloze, recording_submit, self_reflection | 25 min |
+
+**Total module time: ~2 hours 17 minutes**
+
+### Key Phrases Framework
+
+**Vital Sign Language:**
+- "His oxygen saturation is dropping"
+- "SpO2 has fallen to 88 percent"
+- "Heart rate has jumped to 128"
+- "Blood pressure is rising rapidly"
+- "He's becoming increasingly confused"
+
+**Red-Flag Language:**
+- "I'm concerned about deterioration"
+- "This is urgent"
+- "We need help NOW"
+- "This patient is critically unstable"
+
+**SBAR Framework:**
+- **S**ituation: "I'm calling about patient in bed 7"
+- **B**ackground: "He was admitted with pneumonia 3 days ago"
+- **A**ssessment: "My assessment is that he's deteriorating"
+- **R**ecommendation: "I recommend we move him to ICU immediately"
+
+**Family Communication:**
+- "Your mother's condition has changed"
+- "I want to be honest with you — we're concerned"
+- "We're taking steps to keep her safe"
+- "We catch these changes early so we can act"
+
+### Content Features
+
+- 8 authentic scenarios (SpO2 drops, BP spikes, multi-system deterioration, family anxiety)
+- 5 audio_shadow steps modeling expert escalation language
+- 4 pair-practice role-plays (Nurse ↔ Nurse, Nurse ↔ Family)
+- Comprehensive SBAR framework teaching and practice
+- Rubric-based assessment of escalation calls (150 seconds final recording)
+- Metacognitive self-reflection on communication under stress
+
+### Audio Production Needed
+
+| Step | Scenario | Duration | Speaker |
+|------|----------|----------|---------|
+| L1-S2 | Vital signs language masterclass | 15 sec | Female nurse, Vietnamese accent |
+| L2-S1 | Red-flag language & urgency | 20 sec | Male doctor + Female nurse |
+| L3-S1 | SpO2 deterioration during sleep | 20 sec | Female nurse, analytical tone |
+| L4-S1 | Blood pressure crisis post-op | 15 sec | Female narrator, urgent |
+| L5-S1 | Multi-system deterioration scenario | 15 sec | Female narrator, complex case |
+
+**Total: ~85 seconds audio across 5 scenarios**
+
+---
