@@ -30,7 +30,7 @@ const COURSE_ORDER: string[] = [
 const COURSE_COLOR: Record<string, { bg: string; text: string; ring: string }> = {
   'Foundations of Nursing English':           { bg: 'bg-emerald-50',  text: 'text-emerald-600', ring: 'ring-emerald-200' },
   'Emergency Nursing Communication':          { bg: 'bg-red-50',      text: 'text-red-500',     ring: 'ring-red-200' },
-  'Ward and Inpatient Communication':         { bg: 'bg-blue-50',     text: 'text-blue-600',    ring: 'ring-blue-200' },
+  'Ward and Inpatient Communication':         { bg: 'bg-primary-light', text: 'text-primary',    ring: 'ring-primary/20' },
   'International Patient Communication':      { bg: 'bg-violet-50',   text: 'text-violet-600',  ring: 'ring-violet-200' },
   'Clinical Handover and Team Communication': { bg: 'bg-amber-50',    text: 'text-amber-600',   ring: 'ring-amber-200' },
   'Career English for Nurses':               { bg: 'bg-indigo-50',   text: 'text-indigo-600',  ring: 'ring-indigo-200' },
@@ -123,11 +123,11 @@ export default function LearnDashboard() {
       {/* ── HERO ─────────────────────────────────────────────────── */}
       <div className="rounded-2xl bg-gradient-to-r from-[#0B5FFF] to-[#3B82F6] p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center gap-6 shadow-lg">
         <div className="flex-1">
-          <p className="text-blue-200 text-sm font-medium mb-1 tracking-wide uppercase">NurseEd</p>
+          <p className="text-white/70 text-sm font-medium mb-1 tracking-wide uppercase">NurseEd</p>
           <h1 className="text-white text-2xl sm:text-3xl font-bold leading-tight mb-2">
             {t.learnWelcomeTitle}
           </h1>
-          <p className="text-blue-100 text-sm leading-relaxed max-w-md">{t.learnWelcomeSubtitle}</p>
+          <p className="text-white/90 text-sm leading-relaxed max-w-md">{t.learnWelcomeSubtitle}</p>
         </div>
 
         {/* Stats pills */}
@@ -140,12 +140,12 @@ export default function LearnDashboard() {
 
       {/* ── HOSPITAL LINK ────────────────────────────────────────── */}
       {hospitalLink ? (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-50 border border-blue-100">
-          <Building2 size={16} className="text-blue-600 flex-shrink-0" />
-          <p className="text-sm text-blue-700 flex-1 font-medium">
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary-light border border-primary/20">
+          <Building2 size={16} className="text-primary flex-shrink-0" />
+          <p className="text-sm text-primary flex-1 font-medium">
             {t.hospLinkedBadge.replace('{name}', hospitalLink.name)}
           </p>
-          <button onClick={handleUnlink} className="text-xs text-blue-500 hover:text-blue-700 flex items-center gap-1">
+          <button onClick={handleUnlink} className="text-xs text-primary hover:opacity-80 flex items-center gap-1">
             <X size={13} />
             {t.hospUnlink}
           </button>
@@ -287,7 +287,7 @@ function ContinueLearningCard({
   course: NursedCourse | null
 }) {
   const { t } = useLang()
-  const colors = course ? (COURSE_COLOR[course.title] ?? { bg: 'bg-blue-50', text: 'text-blue-600', ring: 'ring-blue-200' }) : { bg: 'bg-blue-50', text: 'text-blue-600', ring: 'ring-blue-200' }
+  const colors = course ? (COURSE_COLOR[course.title] ?? { bg: 'bg-primary-light', text: 'text-primary', ring: 'ring-primary/20' }) : { bg: 'bg-primary-light', text: 'text-primary', ring: 'ring-primary/20' }
   const icon = course ? (COURSE_ICONS[course.title] ?? '📖') : '📖'
 
   return (
@@ -350,7 +350,7 @@ function PathStepCard({ course, index }: { course: NursedCourse; index: number }
   const { t } = useLang()
   const isActive = course.published
   const icon = COURSE_ICONS[course.title] ?? '📖'
-  const colors = COURSE_COLOR[course.title] ?? { bg: 'bg-gray-50', text: 'text-gray-400', ring: 'ring-gray-200' }
+  const colors = COURSE_COLOR[course.title] ?? { bg: 'bg-surface', text: 'text-text-muted', ring: 'ring-border' }
 
   const inner = (
     <div
@@ -391,7 +391,7 @@ function PathStepCard({ course, index }: { course: NursedCourse; index: number }
       </div>
 
       {/* Level badge */}
-      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${LEVEL_BADGE[course.level] ?? 'bg-gray-100 text-gray-500'}`}>
+      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${LEVEL_BADGE[course.level] ?? 'bg-surface text-text-muted'}`}>
         {course.level}
       </span>
     </div>

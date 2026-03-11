@@ -26,7 +26,7 @@ const STAGE_CONFIG: Record<LessonStage, { label_en: string; label_vi: string; co
   heads_up: {
     label_en: 'Heads Up',
     label_vi: 'Làm quen',
-    color: 'bg-blue-100 text-blue-700 border-blue-200',
+    color: 'bg-primary-light text-primary border-primary/30',
   },
   heads_down: {
     label_en: 'Heads Down',

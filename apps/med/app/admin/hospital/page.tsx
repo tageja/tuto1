@@ -51,7 +51,7 @@ export default function HospitalOverviewPage() {
 
   const kpiCards = overview
     ? [
-        { label: t.hospKpiEnrolled, value: overview.totalEnrolled, icon: Users, color: 'text-blue-600 bg-blue-50' },
+        { label: t.hospKpiEnrolled, value: overview.totalEnrolled, icon: Users, color: 'text-primary bg-primary-light' },
         { label: t.hospKpiActive, value: overview.activeThisWeek, icon: Activity, color: 'text-green-600 bg-green-50' },
         { label: t.hospKpiAtRisk, value: overview.atRisk, icon: AlertTriangle, color: 'text-orange-600 bg-orange-50' },
         { label: t.hospKpiAvgQuiz, value: `${Math.round(overview.avgQuizScore)}%`, icon: BarChart3, color: 'text-purple-600 bg-purple-50' },
@@ -117,7 +117,7 @@ export default function HospitalOverviewPage() {
                       <span className={row.started > 0 ? 'text-green-700' : 'text-text-muted'}>{row.started}</span>
                     </td>
                     <td className="py-3 text-center px-2">
-                      <span className={row.completed_module1 > 0 ? 'text-blue-700' : 'text-text-muted'}>{row.completed_module1}</span>
+                      <span className={row.completed_module1 > 0 ? 'text-primary' : 'text-text-muted'}>{row.completed_module1}</span>
                     </td>
                     <td className="py-3 text-center px-2">
                       <span className={row.completed_full > 0 ? 'text-purple-700 font-semibold' : 'text-text-muted'}>{row.completed_full}</span>

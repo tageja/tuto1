@@ -36,7 +36,7 @@ const LEVEL_BADGE: Record<string, string> = {
 const COURSE_COLOR: Record<string, { icon: string; bar: string }> = {
   'Foundations of Nursing English':           { icon: 'bg-emerald-50 ring-emerald-200', bar: 'from-emerald-400 to-emerald-600' },
   'Emergency Nursing Communication':          { icon: 'bg-red-50 ring-red-200',         bar: 'from-red-400 to-rose-500' },
-  'Ward and Inpatient Communication':         { icon: 'bg-blue-50 ring-blue-200',       bar: 'from-blue-400 to-blue-600' },
+  'Ward and Inpatient Communication':         { icon: 'bg-primary-light ring-primary/20', bar: 'from-primary to-primary-dark' },
   'International Patient Communication':      { icon: 'bg-violet-50 ring-violet-200',   bar: 'from-violet-400 to-violet-600' },
   'Clinical Handover and Team Communication': { icon: 'bg-amber-50 ring-amber-200',     bar: 'from-amber-400 to-amber-600' },
   'Career English for Nurses':               { icon: 'bg-indigo-50 ring-indigo-200',   bar: 'from-indigo-400 to-indigo-600' },
@@ -160,7 +160,7 @@ export default function CourseCatalog() {
 function CourseCard({ course }: { course: NursedCourse }) {
   const { t } = useLang()
   const icon = COURSE_ICONS[course.title] ?? '📖'
-  const colors = COURSE_COLOR[course.title] ?? { icon: 'bg-gray-50 ring-gray-200', bar: 'from-gray-300 to-gray-500' }
+  const colors = COURSE_COLOR[course.title] ?? { icon: 'bg-surface ring-border', bar: 'from-primary/30 to-primary' }
   const isComingSoon = !course.published
 
   return (
@@ -180,7 +180,7 @@ function CourseCard({ course }: { course: NursedCourse }) {
             {icon}
           </div>
           <div className="flex flex-col items-end gap-1.5">
-            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${LEVEL_BADGE[course.level] ?? 'bg-gray-100 text-gray-500'}`}>
+            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${LEVEL_BADGE[course.level] ?? 'bg-surface text-text-muted'}`}>
               {course.level}
             </span>
             {isComingSoon && (

@@ -52,7 +52,7 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
   const styles: Record<ToastType, string> = {
     success: 'border-success/30 bg-green-50',
     error: 'border-error/30 bg-red-50',
-    info: 'border-primary/30 bg-blue-50',
+    info: 'border-primary/30 bg-primary-light',
   }
 
   return (

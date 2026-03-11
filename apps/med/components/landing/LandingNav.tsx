@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { useLang } from '@/contexts/LanguageContext'
 
 export function LandingNav() {
@@ -13,8 +12,8 @@ export function LandingNav() {
         <div className="flex items-center justify-between h-16 md:h-20">
           <div className="flex items-center gap-6">
             <Link href="/" className="flex flex-col">
-              <span className="font-bold text-xl text-[var(--primary)]">tuto.</span>
-              <span className="text-xs text-[var(--text-muted)] -mt-0.5">{t.logoSub}</span>
+              <img src="/images/tuto-logo.png" alt="tuto." className="h-8 w-auto" />
+              <span className="text-xs font-semibold text-[var(--text-muted)] tracking-wide -mt-0.5">{t.logoSub}</span>
             </Link>
             <div className="hidden md:flex items-center gap-4">
               <Link href="/learn/courses" className="text-sm text-[var(--text-muted)] hover:text-[var(--text)] transition-colors">
@@ -27,9 +26,8 @@ export function LandingNav() {
                 {t.navAbout}
               </Link>
             </div>
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[var(--surface)] rounded-full border border-[var(--border)]">
-              <Image src="/images/chir-logo.jpg" alt="CHIR" width={24} height={24} className="rounded-full object-cover w-6 h-6" />
-              <span className="text-xs text-[var(--text-muted)]">{t.navPartnerChir}</span>
+            <div className="hidden md:flex items-center">
+              <img src="/images/chir-logo.jpg" alt="CHIR" className="h-10 w-auto object-contain" style={{ maxWidth: 80 }} />
             </div>
           </div>
 

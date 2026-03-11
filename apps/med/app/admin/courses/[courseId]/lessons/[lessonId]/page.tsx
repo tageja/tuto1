@@ -23,7 +23,7 @@ const TYPE_BADGE: Record<StepType, string> = {
 }
 
 const STAGE_COLORS: Record<string, string> = {
-  heads_up: 'bg-blue-100 text-blue-700 border-blue-200',
+  heads_up: 'bg-primary-light text-primary border-primary/30',
   heads_down: 'bg-amber-100 text-amber-700 border-amber-200',
   heads_together: 'bg-green-100 text-green-700 border-green-200',
   assessment: 'bg-purple-100 text-purple-700 border-purple-200',

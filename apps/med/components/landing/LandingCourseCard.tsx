@@ -49,7 +49,7 @@ export function LandingCourseCard({ course }: LandingCourseCardProps) {
     <div className="bg-white border border-[var(--border)] rounded-xl p-5 hover:shadow-lg transition-all duration-300 group">
       <div className="flex items-start justify-between mb-3">
         <span className="text-4xl">{icon}</span>
-        <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${LEVEL_BADGE[course.level] ?? 'bg-gray-100 text-gray-700 border-gray-200'}`}>
+        <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${LEVEL_BADGE[course.level] ?? 'bg-surface text-text border-border'}`}>
           {course.level}
         </span>
       </div>

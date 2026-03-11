@@ -73,7 +73,7 @@ export default function SpeakingPage() {
           <div className="space-y-2">
             <p className="text-sm text-text-muted">{t.hospPairEmpty}</p>
             {stats && (
-              <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-blue-50 border border-blue-100 text-xs text-blue-700 mt-2">
+              <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-primary-light border border-primary/20 text-xs text-primary mt-2">
                 <Info size={14} className="mt-0.5 shrink-0" />
                 <p>{t.hospSpeakingShareHint}</p>
               </div>

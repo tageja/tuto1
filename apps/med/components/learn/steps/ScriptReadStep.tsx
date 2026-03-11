@@ -41,7 +41,7 @@ export default function ScriptReadStep({ step, onComplete }: Props) {
           {t.legendNurse}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-gray-400 inline-block" />
+          <span className="w-3 h-3 rounded-full bg-text-muted inline-block" />
           {t.legendPatient}
         </span>
       </div>
@@ -57,7 +57,7 @@ export default function ScriptReadStep({ step, onComplete }: Props) {
             >
               <div
                 className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${
-                  isNurse ? 'bg-primary' : 'bg-gray-400'
+                  isNurse ? 'bg-primary' : 'bg-text-muted'
                 }`}
               >
                 {isNurse ? t.roleNurseShort : t.rolePatientShort}
@@ -66,10 +66,10 @@ export default function ScriptReadStep({ step, onComplete }: Props) {
                 className={`max-w-[80%] rounded-xl px-4 py-3 text-sm ${
                   isNurse
                     ? 'bg-primary-light text-primary rounded-tl-none'
-                    : 'bg-gray-100 text-text rounded-tr-none'
+                    : 'bg-surface text-text rounded-tr-none'
                 }`}
               >
-                <span className={`text-xs font-semibold block mb-1 ${isNurse ? 'text-primary' : 'text-gray-500'}`}>
+                <span className={`text-xs font-semibold block mb-1 ${isNurse ? 'text-primary' : 'text-text-muted'}`}>
                   {isNurse ? t.roleNurseLabel : t.rolePatientLabel}
                 </span>
                 {line.text}

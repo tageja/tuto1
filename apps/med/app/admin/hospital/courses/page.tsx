@@ -80,14 +80,14 @@ export default function CoursesPage() {
                 <span className="text-text-muted">{t.hospFunnelStarted}</span>
                 <span className="font-medium text-text">{row.enrolled > 0 ? `${Math.round((row.started / row.enrolled) * 100)}%` : '—'}</span>
               </div>
-              <ProgressBar value={row.started} max={row.enrolled} color="bg-blue-500" />
+              <ProgressBar value={row.started} max={row.enrolled} color="bg-primary" />
             </div>
             <div>
               <div className="flex justify-between text-xs mb-1">
                 <span className="text-text-muted">{t.hospFunnelModule1}</span>
                 <span className="font-medium text-text">{row.enrolled > 0 ? `${Math.round((row.completed_module1 / row.enrolled) * 100)}%` : '—'}</span>
               </div>
-              <ProgressBar value={row.completed_module1} max={row.enrolled} color="bg-indigo-500" />
+              <ProgressBar value={row.completed_module1} max={row.enrolled} color="bg-primary" />
             </div>
             <div>
               <div className="flex justify-between text-xs mb-1">
