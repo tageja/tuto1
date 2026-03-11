@@ -11,6 +11,43 @@ export async function getCourses(published?: boolean) {
   return data as NursedCourse[]
 }
 
+export type CourseWithCounts = NursedCourse & {
+  modules_count: number
+  lessons_count: number
+  total_minutes: number
+}
+
+export async function getCoursesWithCounts(published?: boolean): Promise<CourseWithCounts[]> {
+  const courses = await getCourses(published)
+  const db = getServiceClient()
+
+  const withCounts = await Promise.all(
+    courses.map(async (c) => {
+      const { data: modules } = await db
+        .from('nursed_modules')
+        .select('id, nursed_lessons(id, est_minutes)')
+        .eq('course_id', c.id)
+
+      let lessonsCount = 0
+      let totalMinutes = 0
+      for (const m of modules ?? []) {
+        const lessons = (m as { nursed_lessons?: { id: string; est_minutes: number | null }[] }).nursed_lessons ?? []
+        lessonsCount += lessons.length
+        totalMinutes += lessons.reduce((s, l) => s + (l.est_minutes ?? 0), 0)
+      }
+
+      return {
+        ...c,
+        modules_count: modules?.length ?? 0,
+        lessons_count: lessonsCount,
+        total_minutes: totalMinutes,
+      } as CourseWithCounts
+    })
+  )
+
+  return withCounts
+}
+
 export async function getCourseById(id: string) {
   const db = getServiceClient()
   const { data, error } = await db

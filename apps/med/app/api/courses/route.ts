@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCourses, createCourse } from '@/lib/db/courses'
+import { getCourses, getCoursesWithCounts, createCourse } from '@/lib/db/courses'
 
 export async function GET(req: NextRequest) {
   try {
     const published = req.nextUrl.searchParams.get('published')
-    const courses = await getCourses(published === 'true' ? true : published === 'false' ? false : undefined)
+    const includeCounts = req.nextUrl.searchParams.get('includeCounts') === 'true'
+    const publishedFilter = published === 'true' ? true : published === 'false' ? false : undefined
+
+    const courses = includeCounts
+      ? await getCoursesWithCounts(publishedFilter)
+      : await getCourses(publishedFilter)
+
     return NextResponse.json({ data: courses })
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })
