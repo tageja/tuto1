@@ -1,9 +1,13 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Play, Pause, ChevronRight } from 'lucide-react'
+import { Play, Pause, ChevronRight, Languages } from 'lucide-react'
 import type { NursedLessonStep } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
+import TranslatableTranscript, {
+  getPhraseTranslationDefault,
+  setPhraseTranslationEnabled,
+} from '../TranslatableTranscript'
 
 interface Props {
   step: NursedLessonStep
@@ -23,6 +27,17 @@ export default function AudioShadowStep({ step, onComplete }: Props) {
 
   const audioUrl = step.config?.audioUrl as string | undefined
   const transcript = (step.config?.transcript ?? step.config?.transcriptEn ?? '') as string
+  const hasTranscriptSegments = Array.isArray(step.config?.transcriptSegments) && step.config.transcriptSegments.length > 0
+
+  const [translationEnabled, setTranslationEnabled] = useState(() =>
+    typeof window !== 'undefined' ? getPhraseTranslationDefault() : true
+  )
+
+  const toggleTranslation = () => {
+    const next = !translationEnabled
+    setTranslationEnabled(next)
+    setPhraseTranslationEnabled(next)
+  }
 
   const phases = [
     { key: 'listen' as const, icon: '👂', label: t.phaseListen },
@@ -67,8 +82,29 @@ export default function AudioShadowStep({ step, onComplete }: Props) {
       {/* Transcript */}
       {transcript ? (
         <div className="card p-4 bg-surface">
-          <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">{t.transcriptLabel}</p>
-          <p className="text-sm text-text leading-relaxed">{transcript}</p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">{t.transcriptLabel}</p>
+            {hasTranscriptSegments && (
+              <button
+                type="button"
+                onClick={toggleTranslation}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${
+                  translationEnabled
+                    ? 'bg-primary/10 text-primary border-primary/30 hover:bg-primary/20'
+                    : 'bg-bg text-text-muted border-border hover:bg-surface'
+                }`}
+                title={t.phraseTranslationToggle}
+              >
+                <Languages size={14} />
+                {translationEnabled ? t.phraseTranslationOn : t.phraseTranslationOff}
+              </button>
+            )}
+          </div>
+          <TranslatableTranscript
+            text={transcript}
+            segments={step.config?.transcriptSegments as { en: string; vi: string }[] | undefined}
+            enabled={translationEnabled}
+          />
         </div>
       ) : null}
 
