@@ -15,22 +15,49 @@ import { getServiceClient } from '../supabase'
 export async function seedModule5(courseId: string) {
   const db = getServiceClient()
 
-  // ─── Create the module ──────────────────────────────────────────────────────
-  const { data: module, error: moduleError } = await db
+  // ─── Find existing or create module (idempotent) ─────────────────────────────
+  const { data: existing } = await db
     .from('nursed_modules')
-    .insert({
-      course_id: courseId,
-      title: 'Communicating Patient Deterioration & Escalation Protocols',
-      description:
-        'Learn to recognise and report patient deterioration in English. Escalate urgent concerns with confidence using SBAR, vital sign language, and clinical urgency phrases across high-pressure emergency scenarios.',
-      order_index: 5,
-    })
-    .select()
-    .single()
+    .select('id')
+    .eq('course_id', courseId)
+    .eq('order_index', 5)
+    .maybeSingle()
 
-  if (moduleError || !module) throw new Error(moduleError?.message ?? 'Failed to create module 5')
+  let moduleId: string
+  if (existing?.id) {
+    moduleId = existing.id
+    const { data: lessons } = await db.from('nursed_lessons').select('id').eq('module_id', moduleId)
+    for (const l of lessons ?? []) {
+      await db.from('nursed_lesson_steps').delete().eq('lesson_id', l.id)
+    }
+    await db.from('nursed_lessons').delete().eq('module_id', moduleId)
+    await db
+      .from('nursed_modules')
+      .update({
+        title_vi: 'Giao tiếp Tình trạng Xấu đi & Quy trình Báo cáo Khẩn',
+        description_vi:
+          'Học cách nhận biết và báo cáo tình trạng xấu đi của bệnh nhân bằng tiếng Anh. Báo cáo khẩn tự tin với SBAR, ngôn ngữ sinh hiệu và cụm từ khẩn cấp lâm sàng.',
+      })
+      .eq('id', moduleId)
+  } else {
+    const { data: module, error: moduleError } = await db
+      .from('nursed_modules')
+      .insert({
+        course_id: courseId,
+        title: 'Communicating Patient Deterioration & Escalation Protocols',
+        title_vi: 'Giao tiếp Tình trạng Xấu đi & Quy trình Báo cáo Khẩn',
+        description:
+          'Learn to recognise and report patient deterioration in English. Escalate urgent concerns with confidence using SBAR, vital sign language, and clinical urgency phrases across high-pressure emergency scenarios.',
+        description_vi:
+          'Học cách nhận biết và báo cáo tình trạng xấu đi của bệnh nhân bằng tiếng Anh. Báo cáo khẩn tự tin với SBAR, ngôn ngữ sinh hiệu và cụm từ khẩn cấp lâm sàng.',
+        order_index: 5,
+      })
+      .select()
+      .single()
 
-  const moduleId = module.id
+    if (moduleError || !module) throw new Error(moduleError?.message ?? 'Failed to create module 5')
+    moduleId = module.id
+  }
 
   // ─── Lesson definitions ─────────────────────────────────────────────────────
 
@@ -40,7 +67,9 @@ export async function seedModule5(courseId: string) {
     // ══════════════════════════════════════════════════════════════════════════
     {
       title: "Vital Signs in Crisis — What the Numbers Mean",
+      title_vi: 'Sinh hiệu trong Khủng hoảng — Ý nghĩa Các con số',
       description: "A patient's numbers start changing. Recognise the language nurses use when vital signs deteriorate and the first escalation phrases that matter.",
+      description_vi: 'Sinh hiệu bệnh nhân bắt đầu thay đổi. Nhận biết ngôn ngữ điều dưỡng dùng khi sinh hiệu xấu đi và cụm từ báo cáo đầu tiên quan trọng.',
       stage: 'heads_up',
       order_index: 1,
       est_minutes: 12,
@@ -49,6 +78,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'scenario_intro',
           title: 'Emergency Ward — A Patient\'s Numbers Change',
+          title_vi: 'Khoa Cấp cứu — Sinh hiệu Bệnh nhân Thay đổi',
           order_index: 1,
           config: {
             audio_url: 'PLACEHOLDER',
@@ -69,6 +99,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'audio_shadow',
           title: 'Listen & Repeat: Vital Sign Escalation Language',
+          title_vi: 'Nghe & Lặp lại: Ngôn ngữ Báo cáo Sinh hiệu',
           order_index: 2,
           config: {
             audio_url: 'PLACEHOLDER',
@@ -80,6 +111,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'script_read',
           title: 'Read the Escalation Dialogue',
+          title_vi: 'Đọc Hội thoại Báo cáo',
           order_index: 3,
           config: {
             script: "Nurse: Charge Nurse, I need to report a concern about Mr. Davies in Bed 4.\nCharge Nurse: Go ahead.\nNurse: His blood pressure has dropped to 85 over 50. His heart rate is up to 115.\nCharge Nurse: How long ago did this change?\nNurse: About ten minutes ago. He is still conscious but looks very unwell.\nCharge Nurse: I am coming now. Stay with him.",
@@ -88,6 +120,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'quiz',
           title: 'Check Your Understanding',
+          title_vi: 'Kiểm tra Hiểu biết của Bạn',
           order_index: 4,
           config: {
             questions: [
@@ -147,7 +180,9 @@ export async function seedModule5(courseId: string) {
     // ══════════════════════════════════════════════════════════════════════════
     {
       title: 'Key Phrases in Action — Red Flags & Urgency',
+      title_vi: 'Cụm từ Chính trong Thực tế — Dấu hiệu Đỏ & Khẩn cấp',
       description: 'A new scenario. Practice the exact language used to describe clinical red flags and escalate concerns assertively.',
+      description_vi: 'Tình huống mới. Thực hành ngôn ngữ chính xác mô tả dấu hiệu đỏ lâm sàng và báo cáo quyết đoán.',
       stage: 'heads_up',
       order_index: 2,
       est_minutes: 12,
@@ -156,6 +191,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'audio_shadow',
           title: 'Listen: Reporting a Red Flag to the Doctor',
+          title_vi: 'Nghe: Báo cáo Dấu hiệu Đỏ cho Bác sĩ',
           order_index: 1,
           config: {
             audio_url: 'PLACEHOLDER',
@@ -167,6 +203,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'script_read',
           title: 'Read the SBAR Phone Call',
+          title_vi: 'Đọc Cuộc gọi SBAR',
           order_index: 2,
           config: {
             script: "Nurse: Doctor, I am calling about Ms. Tran in Room 6. I am concerned.\nDoctor: What is the issue?\nNurse: Her oxygen saturation has dropped to 88 percent. Her respiratory rate is 28. She is struggling to breathe.\nDoctor: Is she on oxygen now?\nNurse: Yes, I have started 4 litres. She is more comfortable.\nDoctor: I am on my way.",
@@ -175,6 +212,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'quiz',
           title: 'Recognition Check — Red Flag Language',
+          title_vi: 'Kiểm tra Nhận biết — Ngôn ngữ Dấu hiệu Đỏ',
           order_index: 3,
           config: {
             questions: [
@@ -234,7 +272,9 @@ export async function seedModule5(courseId: string) {
     // ══════════════════════════════════════════════════════════════════════════
     {
       title: 'Understanding the Situation — SBAR in Practice',
+      title_vi: 'Hiểu Tình huống — SBAR trong Thực hành',
       description: 'Listen to a full SBAR escalation call. Then complete a cloze exercise using the exact language from the call.',
+      description_vi: 'Nghe cuộc gọi báo cáo SBAR đầy đủ. Sau đó hoàn thành bài tập điền từ bằng ngôn ngữ chính xác từ cuộc gọi.',
       stage: 'heads_down',
       order_index: 3,
       est_minutes: 15,
@@ -243,6 +283,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'audio_shadow',
           title: 'Listen: A Full SBAR Report',
+          title_vi: 'Nghe: Báo cáo SBAR Đầy đủ',
           order_index: 1,
           config: {
             audio_url: 'PLACEHOLDER',
@@ -254,6 +295,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'cloze',
           title: 'Fill in the SBAR Report',
+          title_vi: 'Điền vào Báo cáo SBAR',
           order_index: 2,
           config: {
             cloze: "Nurse: Doctor, this is Nurse Lan. I am calling about Mr. Ahmed in Bed 7.\nThe ___ is that he has become suddenly ___ and unresponsive.\nHe is 67 years old, admitted with a urinary tract ___.\nHis temperature is ___, blood pressure ___ over 60, and his GCS has dropped to ___.\nI am worried about ___. I think he needs an urgent ___.",
@@ -263,6 +305,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'quiz',
           title: 'SBAR Structure Check',
+          title_vi: 'Kiểm tra Cấu trúc SBAR',
           order_index: 3,
           config: {
             questions: [
@@ -322,7 +365,9 @@ export async function seedModule5(courseId: string) {
     // ══════════════════════════════════════════════════════════════════════════
     {
       title: 'A Second Scenario — Respiratory Deterioration',
+      title_vi: 'Tình huống Thứ hai — Suy hô hấp',
       description: 'A new context: a post-surgery patient developing breathing difficulties. Same language skills, different clinical picture.',
+      description_vi: 'Bối cảnh mới: bệnh nhân hậu phẫu phát triển khó thở. Cùng kỹ năng ngôn ngữ, bức tranh lâm sàng khác.',
       stage: 'heads_down',
       order_index: 4,
       est_minutes: 15,
@@ -331,6 +376,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'scenario_intro',
           title: 'Post-Op Ward — Breathing Becomes Difficult',
+          title_vi: 'Khoa Hậu phẫu — Thở Trở nên Khó',
           order_index: 1,
           config: {
             audio_url: 'PLACEHOLDER',
@@ -351,6 +397,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'audio_shadow',
           title: 'Listen: Nurse Escalates Mrs. Park',
+          title_vi: 'Nghe: Điều dưỡng Báo cáo Bà Park',
           order_index: 2,
           config: {
             audio_url: 'PLACEHOLDER',
@@ -362,6 +409,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'script_read',
           title: 'Read the Escalation Call',
+          title_vi: 'Đọc Cuộc gọi Báo cáo',
           order_index: 3,
           config: {
             script: "Nurse: Doctor Singh, this is Nurse Mai from the surgical ward.\nI need to report a concern about Mrs. Park in Bed 2.\nHer respiratory rate is 24 and her SpO2 is 91 percent.\nShe reports chest tightness.\nDoctor: Is she on oxygen?\nNurse: Yes, I have started 2 litres via nasal cannula.\nDoctor: Okay. Get an ECG. I will be there in five minutes.",
@@ -370,6 +418,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'cloze',
           title: 'Complete the Escalation Call',
+          title_vi: 'Hoàn thành Cuộc gọi Báo cáo',
           order_index: 4,
           config: {
             cloze: "Nurse: Doctor Singh, this is Nurse Mai. I need to report a ___.\nMrs. Park in Bed 2 is having difficulty ___.\nHer ___ rate is 24 and her SpO2 is ___ percent.\nShe reports chest ___.\nDoctor: Is she on oxygen?\nNurse: Yes, I have started 2 litres via ___ cannula.",
@@ -384,7 +433,9 @@ export async function seedModule5(courseId: string) {
     // ══════════════════════════════════════════════════════════════════════════
     {
       title: 'Your Turn to Speak — Open Deterioration Scenario',
+      title_vi: 'Đến lượt Bạn Nói — Tình huống Xấu đi Mở',
       description: 'Now you lead. Listen to a deteriorating patient scenario, then speak the SBAR escalation call yourself — first with support, then from cue cards only.',
+      description_vi: 'Bây giờ bạn dẫn dắt. Nghe tình huống bệnh nhân xấu đi, sau đó tự nói cuộc gọi báo cáo SBAR — trước với hỗ trợ, sau chỉ từ thẻ gợi ý.',
       stage: 'heads_down',
       order_index: 5,
       est_minutes: 18,
@@ -393,6 +444,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'audio_shadow',
           title: 'Listen: Patient with Altered Consciousness',
+          title_vi: 'Nghe: Bệnh nhân Thay đổi Ý thức',
           order_index: 1,
           config: {
             audio_url: 'PLACEHOLDER',
@@ -404,6 +456,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'cloze',
           title: 'Build the SBAR Call',
+          title_vi: 'Xây dựng Cuộc gọi SBAR',
           order_index: 2,
           config: {
             cloze: "Nurse: Dr. Lee, this is Nurse Hoa from Ward 5. I am ___ about Mr. Nguyen in Bed 10.\nHe was ___ this morning. Now he is very drowsy and not ___ normally.\nTemperature 38.8, heart rate ___, blood pressure 100 over 65, GCS ___.\nI think he needs to be seen ___.",
@@ -413,6 +466,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'no_script',
           title: 'Speak It — No Script',
+          title_vi: 'Nói — Không Kịch bản',
           order_index: 3,
           config: {
             context: 'You are calling to escalate Mr. Nguyen, a patient who has become drowsy and unwell. Use the SBAR framework from memory.',
@@ -431,6 +485,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'recording_submit',
           title: 'Record Your SBAR Escalation',
+          title_vi: 'Ghi âm Báo cáo SBAR của Bạn',
           order_index: 4,
           config: {
             rubric: {
@@ -450,7 +505,9 @@ export async function seedModule5(courseId: string) {
     // ══════════════════════════════════════════════════════════════════════════
     {
       title: 'Pair Practice — Round 1: Structured SBAR Handover',
+      title_vi: 'Luyện tập Cặp — Vòng 1: Bàn giao SBAR Có cấu trúc',
       description: 'Work with a partner. One plays the escalating nurse, one plays the doctor receiving the call. Switch roles and practice across three rounds.',
+      description_vi: 'Làm việc với đối tác. Một người đóng vai điều dưỡng báo cáo, một người đóng vai bác sĩ nhận cuộc gọi. Đổi vai và thực hành ba vòng.',
       stage: 'heads_together',
       order_index: 6,
       est_minutes: 20,
@@ -459,6 +516,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'script_read',
           title: 'Full Script — Nurse to Doctor: Cardiac Concern',
+          title_vi: 'Kịch bản Đầy đủ — Điều dưỡng đến Bác sĩ: Lo ngại Tim',
           order_index: 1,
           config: {
             script: "Nurse: Dr. An, this is Nurse Binh from Cardiology. I am calling about Mr. Foster in Room 12.\nDoctor: Go ahead.\nNurse: The situation is that Mr. Foster has developed chest pain in the last 20 minutes.\nDoctor: Any radiation?\nNurse: Yes, he says the pain goes down his left arm. His ECG shows ST changes.\nDoctor: What are his vitals?\nNurse: Blood pressure 140 over 90, heart rate 98, and he is sweating.\nDoctor: This sounds like an ACS. Get cardiology and prep for the cath lab.\nNurse: Understood. I will call cardiology now. Should I give aspirin?\nDoctor: Yes, 300 milligrams. I am coming.",
@@ -467,6 +525,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'cloze',
           title: 'Round 2 — Partial Script',
+          title_vi: 'Vòng 2 — Kịch bản Một phần',
           order_index: 2,
           config: {
             cloze: "Nurse: Dr. An, this is Nurse Binh. I am calling about Mr. Foster in Room 12.\nHe has developed chest ___ in the last 20 minutes.\nThe pain goes down his ___ arm. His ECG shows ST ___.\nBlood pressure 140 over 90, heart rate ___, and he is sweating.\nDoctor: Get ___ and prep for the cath lab.\nNurse: Understood. Should I give ___?\nDoctor: Yes, 300 milligrams.",
@@ -476,6 +535,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'no_script',
           title: 'Round 3 — Cue Cards Only',
+          title_vi: 'Vòng 3 — Chỉ Thẻ Gợi ý',
           order_index: 3,
           config: {
             context: 'Nurse A: Play the nurse escalating the cardiac concern. Nurse B: Play the doctor receiving the call. Switch roles after one round.',
@@ -494,6 +554,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'recording_submit',
           title: 'Submit Your Best Round',
+          title_vi: 'Nộp Vòng Tốt nhất của Bạn',
           order_index: 4,
           config: {
             rubric: {
@@ -513,7 +574,9 @@ export async function seedModule5(courseId: string) {
     // ══════════════════════════════════════════════════════════════════════════
     {
       title: 'Pair Practice — Round 2: Responding to Family Anxiety',
+      title_vi: 'Luyện tập Cặp — Vòng 2: Phản hồi Lo lắng Gia đình',
       description: 'A new challenge: the family is at the bedside and asking why their relative has deteriorated. Practice communicating clinical urgency while keeping the family calm.',
+      description_vi: 'Thử thách mới: gia đình ở bên giường và hỏi tại sao người thân xấu đi. Thực hành truyền đạt khẩn cấp lâm sàng trong khi giữ gia đình bình tĩnh.',
       stage: 'heads_together',
       order_index: 7,
       est_minutes: 20,
@@ -522,6 +585,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'no_script',
           title: 'Scenario — Family at the Bedside',
+          title_vi: 'Tình huống — Gia đình bên Giường',
           order_index: 1,
           config: {
             context: 'You are the nurse. Mrs. Park\'s daughter has just arrived and is very upset. She is asking why her mother\'s condition has changed and why the doctor has been called. You need to communicate clearly, keep her calm, and explain what is happening without causing panic.',
@@ -540,6 +604,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'recording_submit',
           title: 'Record Your Family Communication',
+          title_vi: 'Ghi âm Giao tiếp Gia đình của Bạn',
           order_index: 2,
           config: {
             rubric: {
@@ -554,6 +619,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'mission',
           title: 'Real-World Mission',
+          title_vi: 'Nhiệm vụ Thực tế',
           order_index: 3,
           config: {
             mission_en: 'Before your next clinical shift, write out a short SBAR template on a card or phone note: Situation — Background — Assessment — Recommendation. Next time you observe a nurse escalate a concern (in English or Vietnamese), notice: Did they follow this structure? What phrases did they use? Bring one example to your next session.',
@@ -568,7 +634,9 @@ export async function seedModule5(courseId: string) {
     // ══════════════════════════════════════════════════════════════════════════
     {
       title: 'Module Assessment — Mixed Input & Self-Reflection',
+      title_vi: 'Kiểm tra Module — Đầu vào Hỗn hợp & Tự Phản ánh',
       description: 'A comprehensive assessment combining clinical decision-making, language recall, and your own escalation recording. Finish by reflecting on what you have learned.',
+      description_vi: 'Đánh giá toàn diện kết hợp ra quyết định lâm sàng, nhớ lại ngôn ngữ và ghi âm báo cáo của bạn. Kết thúc bằng phản ánh những gì bạn đã học.',
       stage: 'assessment',
       order_index: 8,
       est_minutes: 25,
@@ -577,6 +645,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'quiz',
           title: 'Module 5 Knowledge Check',
+          title_vi: 'Kiểm tra Kiến thức Module 5',
           order_index: 1,
           config: {
             questions: [
@@ -646,6 +715,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'cloze',
           title: 'Complete the Full SBAR Report',
+          title_vi: 'Hoàn thành Báo cáo SBAR Đầy đủ',
           order_index: 2,
           config: {
             cloze: "Nurse: Doctor, this is Nurse [Name] from Ward 2. I am ___ about Mr. Costa in Bed 6.\nThe ___ is that he has become suddenly confused and is not ___ to questions.\nHe is 71, admitted two days ago with pneumonia.\nHis temperature is 38.9, blood pressure 90 over 55, and his GCS has ___ to 11.\nI am worried this could be ___. I think he needs an urgent ___ and sepsis protocol.",
@@ -655,6 +725,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'recording_submit',
           title: 'Final Assessment Recording',
+          title_vi: 'Ghi âm Đánh giá Cuối cùng',
           order_index: 3,
           config: {
             rubric: {
@@ -669,6 +740,7 @@ export async function seedModule5(courseId: string) {
         {
           type: 'self_reflection',
           title: 'Module 5 Self-Reflection',
+          title_vi: 'Tự Phản ánh Module 5',
           order_index: 4,
           config: {
             prompts: [
@@ -712,7 +784,7 @@ export async function seedModule5(courseId: string) {
   // ─── Insert lessons and steps ────────────────────────────────────────────────
 
   for (const lessonData of lessons) {
-    const { steps, ...lessonFields } = lessonData
+    const { steps, description_vi: _dv, ...lessonFields } = lessonData
 
     const { data: lesson, error: lessonError } = await db
       .from('nursed_lessons')
@@ -727,6 +799,7 @@ export async function seedModule5(courseId: string) {
         lesson_id: lesson.id,
         type: stepData.type,
         title: stepData.title,
+        title_vi: (stepData as any).title_vi ?? null,
         order_index: stepData.order_index,
         config: stepData.config,
       })
@@ -735,5 +808,6 @@ export async function seedModule5(courseId: string) {
     }
   }
 
-  return module
+  const { data: module } = await db.from('nursed_modules').select().eq('id', moduleId).single()
+  return module!
 }

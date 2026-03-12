@@ -10,7 +10,7 @@ import type { NursedCourse } from '@/lib/supabase'
 
 export default function LessonPage() {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>()
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const [lesson, setLesson] = useState<any>(null)
   const [course, setCourse] = useState<NursedCourse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -83,8 +83,10 @@ export default function LessonPage() {
       {/* Lesson header */}
       <div>
         <h1 className="mb-1">{lesson.title_vi ?? lesson.title}</h1>
-        {lesson.description && (
-          <p className="text-sm text-text-muted">{lesson.description}</p>
+        {(lesson.description_vi ?? lesson.description) && (
+          <p className="text-sm text-text-muted">
+            {lang === 'vi' ? (lesson.description_vi ?? lesson.description) : lesson.description}
+          </p>
         )}
       </div>
 
