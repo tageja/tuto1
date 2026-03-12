@@ -84,6 +84,21 @@ export async function signUpWithEmail(email: string, password: string, metadata?
 }
 
 /**
+ * Sign in with Apple (native iOS only)
+ * Uses expo-apple-authentication + signInWithIdToken.
+ * Caller must pass the identityToken from AppleAuthentication.signInAsync().
+ */
+export async function signInWithApple(identityToken: string) {
+  const { data, error } = await supabase.auth.signInWithIdToken({
+    provider: 'apple',
+    token: identityToken,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+/**
  * Sign in with Google OAuth
  */
 export async function signInWithGoogle() {

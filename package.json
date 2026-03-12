@@ -93,6 +93,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^17.2.1",
     "expo": "~54.0.0",
+    "expo-apple-authentication": "~8.0.8",
     "expo-auth-session": "~6.0.1",
     "expo-av": "~16.0.7",
     "expo-blur": "~14.0.1",

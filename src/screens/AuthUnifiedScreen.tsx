@@ -15,9 +15,10 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useUser } from '../contexts/UserContext';
-import { supabase, signInWithEmail, signUpWithEmail, signInWithGoogle } from '../config/supabase';
+import { supabase, signInWithEmail, signUpWithEmail, signInWithGoogle, signInWithApple } from '../config/supabase';
 import Constants from 'expo-constants';
 import * as WebBrowser from 'expo-web-browser';
+import * as AppleAuthentication from 'expo-apple-authentication';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -263,6 +264,11 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
       fontSize: 14,
       color: colors.text.light,
     },
+    appleButtonContainer: {
+      height: 48,
+      borderRadius: 12,
+      overflow: 'hidden',
+    },
     googleButton: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -322,6 +328,14 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
   const [registerName, setRegisterName] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
+  const [appleAuthAvailable, setAppleAuthAvailable] = useState(false);
+
+  // Check if Sign in with Apple is available (iOS only)
+  useEffect(() => {
+    if (Platform.OS === 'ios') {
+      AppleAuthentication.isAvailableAsync().then(setAppleAuthAvailable);
+    }
+  }, []);
 
   // Debug: Log Supabase configuration on mount
   useEffect(() => {
@@ -348,6 +362,63 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
     setLanguage(language === 'en' ? 'vi' : 'en');
   };
 
+  /**
+   * Shared handler for post-auth: create/update profile, resolve role, set user data, navigate.
+   * Used by both Google OAuth callback and Sign in with Apple.
+   */
+  const handleAuthSuccessSession = async (session: { user: { id: string; email?: string | null; user_metadata?: Record<string, unknown> } }) => {
+    const user = session.user;
+    const normalizedEmail = (user.email || '').toLowerCase().trim();
+    console.log('✅ Auth successful:', user.email);
+
+    const { data: existingProfile } = await supabase
+      .from('users')
+      .select('*')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    const { data: schoolUserRole } = await supabase
+      .from('school_users')
+      .select('role, school_id')
+      .eq('user_id', existingProfile?.id || user.id)
+      .eq('role', 'admin')
+      .maybeSingle();
+
+    const { data: teacherRows } = await supabase
+      .from('school_teachers')
+      .select('id, email, status')
+      .ilike('email', normalizedEmail)
+      .limit(1);
+
+    const isTeacherInSchool = !!(teacherRows && teacherRows.length > 0);
+    const userRole = isTeacherInSchool ? 'teacher' : (schoolUserRole?.role || existingProfile?.role);
+    const profileData = {
+      auth_user_id: user.id,
+      email: user.email || `apple_${user.id.slice(0, 12)}@tuto.placeholder`,
+      name: (user.user_metadata?.full_name as string) || existingProfile?.name || user.email?.split('@')[0] || 'User',
+      ...(userRole && { role: userRole }),
+    };
+
+    const { data: userProfile, error: profileError } = await supabase
+      .from('users')
+      .upsert(profileData, { onConflict: 'auth_user_id' })
+      .select()
+      .single();
+
+    if (profileError) console.warn('⚠️ Profile error (non-fatal):', profileError);
+
+    const finalRole = userProfile?.role || userRole || 'parent';
+    const userData = {
+      id: userProfile?.id || user.id,
+      name: userProfile?.name || user.email?.split('@')[0] || 'User',
+      email: user.email || '',
+      type: finalRole as 'parent' | 'student' | 'teacher' | 'admin',
+    };
+
+    await setUserData(userData);
+    navigation.navigate('Welcome');
+  };
+
   const handleGoogleAuthCallback = async () => {
     setLoading(true);
     try {
@@ -370,89 +441,7 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
       }
       
       if (data.session) {
-        console.log('✅ Supabase sign-in successful:', data.session.user.email);
-        console.log('👤 User metadata:', data.session.user.user_metadata);
-        
-        // First, check if user already exists to get their existing role
-        console.log('🔍 Checking for existing user profile...');
-        const { data: existingProfile } = await supabase
-          .from('users')
-          .select('*')
-          .eq('auth_user_id', data.session.user.id)
-          .single();
-        
-        console.log('📋 Existing profile:', existingProfile ? {
-          id: existingProfile.id,
-          role: existingProfile.role,
-          email: existingProfile.email,
-        } : 'None found');
-        
-        // Check if user is a school admin (mobile app specific check)
-        console.log('🔍 Checking for school admin role in school_users...');
-        const { data: schoolUserRole } = await supabase
-          .from('school_users')
-          .select('role, school_id')
-          .eq('user_id', existingProfile?.id || data.session.user.id)
-          .eq('role', 'admin')
-          .maybeSingle();
-        
-        console.log('📋 School user role:', schoolUserRole ? {
-          role: schoolUserRole.role,
-          school_id: schoolUserRole.school_id,
-        } : 'None found');
-        
-        // Priority: school_users.role (if admin) > users.role
-        // For new users without existing profile, don't assign default role
-        const userRole = schoolUserRole?.role || existingProfile?.role;
-        console.log('👤 Final role determined:', userRole);
-        
-        // Create or update user profile in database
-        console.log('💾 Creating/updating user profile in database...');
-        const profileData = {
-          auth_user_id: data.session.user.id,
-          email: data.session.user.email!,
-          name: data.session.user.user_metadata?.full_name || existingProfile?.name || data.session.user.email?.split('@')[0] || 'User',
-          ...(userRole && { role: userRole }), // Only set role if we have one
-        };
-
-        const { data: userProfile, error: profileError } = await supabase
-          .from('users')
-          .upsert(profileData, { onConflict: 'auth_user_id' })
-          .select()
-          .single();
-        
-        console.log('💾 Profile result:', {
-          hasProfile: !!userProfile,
-          hasError: !!profileError,
-          profileId: userProfile?.id,
-        });
-        
-        if (profileError) {
-          console.warn('⚠️ Profile error (non-fatal):', profileError);
-        }
-        
-        const finalRole = userProfile?.role || userRole;
-        const userData = {
-          id: userProfile?.id || data.session.user.id,
-          name: userProfile?.name || data.session.user.email?.split('@')[0] || 'User',
-          email: data.session.user.email || '',
-          type: finalRole as UserType, // Will be null for new users without roles
-        };
-        
-        console.log('👤 Setting user data:', userData);
-        await setUserData(userData);
-        
-        console.log('🎉 Google auth successful, navigating to Welcome screen...');
-        
-        // After successful Google login, navigate to Welcome screen
-        // Welcome screen will check school associations and route accordingly
-        const navigationTarget = 'Welcome';
-        
-        console.log('🧭 Navigation: Navigating to Welcome screen');
-        
-        // Navigate directly without alert (clean UX)
-        console.log(`🧭 Navigating to ${navigationTarget}...`);
-        navigation.navigate(navigationTarget);
+        await handleAuthSuccessSession(data.session);
       } else {
         console.warn('⚠️ No session found after OAuth callback');
         Alert.alert(
@@ -594,6 +583,58 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
       );
     } finally {
       console.log('🏁 Google sign-in flow complete, resetting loading state');
+      setLoading(false);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    if (loading || !appleAuthAvailable) return;
+    setLoading(true);
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      if (!credential.identityToken) {
+        throw new Error('No identity token from Apple');
+      }
+
+      const { data, error } = await signInWithApple(credential.identityToken);
+      if (error) throw error;
+      if (!data.session) throw new Error('No session returned');
+
+      // Apple only provides full name on first sign-in - save to metadata
+      if (credential.fullName) {
+        const nameParts = [
+          credential.fullName.givenName,
+          credential.fullName.middleName,
+          credential.fullName.familyName,
+        ].filter(Boolean);
+        const fullName = nameParts.join(' ');
+        if (fullName) {
+          await supabase.auth.updateUser({
+            data: {
+              full_name: fullName,
+              given_name: credential.fullName.givenName ?? undefined,
+              family_name: credential.fullName.familyName ?? undefined,
+            },
+          });
+        }
+      }
+
+      await handleAuthSuccessSession(data.session);
+    } catch (e: unknown) {
+      const err = e as { code?: string };
+      if (err.code === 'ERR_REQUEST_CANCELED') {
+        console.log('User cancelled Apple sign-in');
+        return;
+      }
+      console.error('Apple sign-in error:', err);
+      Alert.alert(t('auth.loginError'), t('auth.appleSignInFailed'));
+    } finally {
       setLoading(false);
     }
   };
@@ -957,6 +998,19 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
                       <View style={styles.dividerLine} />
                     </View>
 
+                    {appleAuthAvailable && (
+                      <View style={styles.appleButtonContainer}>
+                        <AppleAuthentication.AppleAuthenticationButton
+                          buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+                          buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+                          cornerRadius={12}
+                          style={{ width: '100%', height: 48 }}
+                          onPress={handleAppleSignIn}
+                          disabled={loading}
+                        />
+                      </View>
+                    )}
+
                     <TouchableOpacity 
                       style={[styles.googleButton, loading && styles.buttonDisabled]} 
                       disabled={loading}
@@ -1070,6 +1124,19 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
                       <Text style={styles.dividerText}>{t('auth.or')}</Text>
                       <View style={styles.dividerLine} />
                     </View>
+
+                    {appleAuthAvailable && (
+                      <View style={styles.appleButtonContainer}>
+                        <AppleAuthentication.AppleAuthenticationButton
+                          buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_UP}
+                          buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+                          cornerRadius={12}
+                          style={{ width: '100%', height: 48 }}
+                          onPress={handleAppleSignIn}
+                          disabled={loading}
+                        />
+                      </View>
+                    )}
 
                     <TouchableOpacity 
                       style={[styles.googleButton, loading && styles.buttonDisabled]} 

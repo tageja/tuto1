@@ -16,6 +16,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.tutoapp.mobile",
+      "usesAppleSignIn": true,
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "We need access to your photo library to let you attach images to posts.",
         "NSCameraUsageDescription": "We need access to your camera to let you capture photos and videos for posts.",
@@ -44,6 +45,7 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "expo-apple-authentication",
       "expo-image-picker",
       [
         "expo-font",
