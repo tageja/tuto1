@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import type { NursedCourse, NursedModule, NursedLesson } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
-import { COURSE_ICONS } from '../page'
+import { CourseIcon } from '@/components/learn/CourseIcon'
 
 type CourseWithModules = NursedCourse & {
   nursed_modules: (NursedModule & { nursed_lessons: NursedLesson[] })[]
@@ -132,7 +132,6 @@ export default function CourseOverview() {
     return acc + (m.nursed_lessons ?? []).reduce((s, l) => s + (l.est_minutes ?? 0), 0)
   }, 0)
   const totalHours = Math.round(totalMinutes / 60 * 10) / 10
-  const icon = COURSE_ICONS[course.title] ?? '📖'
   const gradient = LEVEL_GRADIENTS[course.level] ?? 'from-gray-400 to-gray-500'
 
   return (
@@ -148,8 +147,8 @@ export default function CourseOverview() {
       <div className={`card overflow-hidden bg-gradient-to-br ${gradient}`}>
         <div className="p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-start sm:items-center">
           {/* Large icon */}
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/20 flex items-center justify-center text-5xl sm:text-6xl flex-shrink-0">
-            {icon}
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/20 flex items-center justify-center p-3 flex-shrink-0">
+            <CourseIcon courseTitle={course.title} size={72} isComingSoon={!course.published} />
           </div>
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-2 mb-2">

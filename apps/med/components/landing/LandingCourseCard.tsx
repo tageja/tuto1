@@ -3,15 +3,7 @@
 import Link from 'next/link'
 import { ArrowRight, Lock } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
-
-const COURSE_ICONS: Record<string, string> = {
-  'Foundations of Nursing English': '🩺',
-  'Emergency Nursing Communication': '🚨',
-  'Ward and Inpatient Communication': '🛏️',
-  'International Patient Communication': '🌍',
-  'Clinical Handover and Team Communication': '📋',
-  'Career English for Nurses': '💼',
-}
+import { CourseIcon } from '@/components/learn/CourseIcon'
 
 const LEVEL_BADGE: Record<string, string> = {
   A1: 'bg-green-100 text-green-700 border-green-200',
@@ -40,7 +32,6 @@ interface LandingCourseCardProps {
 export function LandingCourseCard({ course }: LandingCourseCardProps) {
   const { t } = useLang()
   const isDraft = !course.published
-  const icon = COURSE_ICONS[course.title] ?? '📖'
   const modulesCount = course.modules_count ?? 0
   const lessonsCount = course.lessons_count ?? 0
   const hours = Math.round((course.total_minutes ?? 0) / 60 * 10) / 10
@@ -48,7 +39,7 @@ export function LandingCourseCard({ course }: LandingCourseCardProps) {
   return (
     <div className="bg-white border border-[var(--border)] rounded-xl p-5 hover:shadow-lg transition-all duration-300 group">
       <div className="flex items-start justify-between mb-3">
-        <span className="text-4xl">{icon}</span>
+        <CourseIcon courseTitle={course.title} size={40} isComingSoon={isDraft} />
         <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${LEVEL_BADGE[course.level] ?? 'bg-surface text-text border-border'}`}>
           {course.level}
         </span>

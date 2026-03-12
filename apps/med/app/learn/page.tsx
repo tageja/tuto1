@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import type { NursedCourse } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
-import { COURSE_ICONS } from './courses/page'
+import { CourseIcon } from '@/components/learn/CourseIcon'
 
 const HOSP_LINK_KEY = 'nursed_hospital_link'
 
@@ -288,13 +288,12 @@ function ContinueLearningCard({
 }) {
   const { t } = useLang()
   const colors = course ? (COURSE_COLOR[course.title] ?? { bg: 'bg-primary-light', text: 'text-primary', ring: 'ring-primary/20' }) : { bg: 'bg-primary-light', text: 'text-primary', ring: 'ring-primary/20' }
-  const icon = course ? (COURSE_ICONS[course.title] ?? '📖') : '📖'
 
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-white p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
       {/* Icon */}
-      <div className={`w-14 h-14 rounded-2xl ${colors.bg} flex items-center justify-center text-3xl flex-shrink-0 ring-2 ${colors.ring}`}>
-        {icon}
+      <div className={`w-14 h-14 rounded-2xl ${colors.bg} flex items-center justify-center p-2 flex-shrink-0 ring-2 ${colors.ring}`}>
+        <CourseIcon courseTitle={course?.title ?? ''} size={40} />
       </div>
 
       {/* Info */}
@@ -349,7 +348,6 @@ function LearningPathRow({ courses }: { courses: NursedCourse[] }) {
 function PathStepCard({ course, index }: { course: NursedCourse; index: number }) {
   const { t } = useLang()
   const isActive = course.published
-  const icon = COURSE_ICONS[course.title] ?? '📖'
   const colors = COURSE_COLOR[course.title] ?? { bg: 'bg-surface', text: 'text-text-muted', ring: 'ring-border' }
 
   const inner = (
@@ -368,8 +366,8 @@ function PathStepCard({ course, index }: { course: NursedCourse; index: number }
       </div>
 
       {/* Icon */}
-      <div className={`w-14 h-14 rounded-2xl ${colors.bg} flex items-center justify-center text-3xl ring-2 ${colors.ring}`}>
-        {icon}
+      <div className={`w-14 h-14 rounded-2xl ${colors.bg} flex items-center justify-center p-2 ring-2 ${colors.ring}`}>
+        <CourseIcon courseTitle={course.title} size={40} isComingSoon={!isActive} />
       </div>
 
       {/* Title */}

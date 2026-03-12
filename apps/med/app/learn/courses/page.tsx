@@ -5,17 +5,9 @@ import Link from 'next/link'
 import { BookOpen, Lock, Clock } from 'lucide-react'
 import type { NursedCourse } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
+import { CourseIcon } from '@/components/learn/CourseIcon'
 
 type Level = 'all' | 'A1' | 'A2' | 'B1' | 'B2'
-
-export const COURSE_ICONS: Record<string, string> = {
-  'Foundations of Nursing English':           '🩺',
-  'Emergency Nursing Communication':          '🚨',
-  'Ward and Inpatient Communication':         '🛏️',
-  'International Patient Communication':      '🌍',
-  'Clinical Handover and Team Communication': '📋',
-  'Career English for Nurses':               '💼',
-}
 
 const COURSE_ORDER: string[] = [
   'Foundations of Nursing English',
@@ -159,7 +151,6 @@ export default function CourseCatalog() {
 
 function CourseCard({ course }: { course: NursedCourse }) {
   const { t } = useLang()
-  const icon = COURSE_ICONS[course.title] ?? '📖'
   const colors = COURSE_COLOR[course.title] ?? { icon: 'bg-surface ring-border', bar: 'from-primary/30 to-primary' }
   const isComingSoon = !course.published
 
@@ -176,8 +167,8 @@ function CourseCard({ course }: { course: NursedCourse }) {
       <div className="p-5 flex flex-col flex-1 gap-3">
         {/* Icon + level badge row */}
         <div className="flex items-start justify-between">
-          <div className={`w-14 h-14 rounded-2xl ${colors.icon} flex items-center justify-center text-3xl ring-2 ${isComingSoon ? 'grayscale opacity-60' : ''}`}>
-            {icon}
+          <div className={`w-14 h-14 rounded-2xl ${colors.icon} flex items-center justify-center p-2 ring-2 ${isComingSoon ? 'grayscale opacity-60' : ''}`}>
+            <CourseIcon courseTitle={course.title} size={40} isComingSoon={isComingSoon} />
           </div>
           <div className="flex flex-col items-end gap-1.5">
             <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${LEVEL_BADGE[course.level] ?? 'bg-surface text-text-muted'}`}>
