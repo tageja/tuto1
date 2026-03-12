@@ -189,11 +189,11 @@ export async function signUpWithEmail(email: string, password: string, metadata?
   };
 }
 
-// Database helpers
+// Database helpers — all accessors are lazy (no module-level supabase property reads)
 export const db = {
   from: (table: string) => supabase.from(table),
   rpc: (fn: string, params?: any) => supabase.rpc(fn, params),
-  storage: supabase.storage,
+  get storage() { return supabase.storage; },
 };
 
 export default supabase;
