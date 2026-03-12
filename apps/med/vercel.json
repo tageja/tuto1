@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "installCommand": "cd ../.. && npm install --legacy-peer-deps",
+  "buildCommand": "cd ../.. && npm run build -w @tuto/med",
+  "outputDirectory": ".next",
+  "cleanUrls": true,
+  "trailingSlash": false
+}
