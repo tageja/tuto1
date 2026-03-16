@@ -197,61 +197,64 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ navigation
   }); 
 
   const { language, t } = useLanguage();
-  const { userType } = useUser();
+  const { userType, userData: contextUser } = useUser();
   const [isEditing, setIsEditing] = useState(false);
   
-  // Get user data based on user type
+  // Get user data based on user type — real name/email from auth context
   const getUserData = (): UserData => {
+    const realName = contextUser?.name || '';
+    const realEmail = contextUser?.email || '';
+    const realId = contextUser?.id || '1';
     switch (userType) {
       case 'parent':
         return {
-          id: '1',
+          id: realId,
           type: 'parent',
-          name: 'Nguyễn Văn An',
-          email: 'parent@admin.com',
-          phone: '+84 912 345 678',
-          address: '123 Đường ABC, Quận 1, TP.HCM',
-          children: ['Nguyễn Thị Bình', 'Nguyễn Văn Cường'],
-          paymentMethod: 'Credit Card',
+          name: realName,
+          email: realEmail,
+          phone: '',
+          address: '',
+          children: [],
+          paymentMethod: '',
         };
       case 'student':
         return {
-          id: '2',
+          id: realId,
           type: 'student',
-          name: 'Nguyễn Thị Bình',
-          email: 'student@admin.com',
-          phone: '+84 912 345 679',
-          address: '123 Đường ABC, Quận 1, TP.HCM',
-          age: 15,
-          grade: 'Lớp 10',
-          studentSubjects: ['math', 'english', 'physics'],
-          learningPreferences: ['Visual', 'Interactive', 'Group Study'],
+          name: realName,
+          email: realEmail,
+          phone: '',
+          address: '',
+          age: undefined,
+          grade: '',
+          studentSubjects: [],
+          learningPreferences: [],
         };
       case 'teacher':
         return {
-          id: '3',
+          id: realId,
           type: 'teacher',
-          name: 'Trần Văn Minh',
-          email: 'teacher@admin.com',
-          phone: '+84 912 345 680',
-          address: '456 Đường XYZ, Quận 2, TP.HCM',
-          teacherSubjects: ['english', 'literature'],
-          experience: 7,
-          hourlyRate: 700000,
-          qualifications: ['TESOL Certificate', 'BA in English Literature'],
-          languages: ['Vietnamese', 'English', 'French'],
-          availability: 'Mon-Fri 18:00-21:00, Sat-Sun 09:00-17:00',
+          name: realName,
+          email: realEmail,
+          phone: '',
+          address: '',
+          teacherSubjects: [],
+          experience: 0,
+          hourlyRate: 0,
+          qualifications: [],
+          languages: [],
+          availability: '',
         };
       default:
         return {
-          id: '1',
+          id: realId,
           type: 'parent',
-          name: 'Nguyễn Văn An',
-          email: 'parent@admin.com',
-          phone: '+84 912 345 678',
-          address: '123 Đường ABC, Quận 1, TP.HCM',
-          children: ['Nguyễn Thị Bình', 'Nguyễn Văn Cường'],
-          paymentMethod: 'Credit Card',
+          name: realName,
+          email: realEmail,
+          phone: '',
+          address: '',
+          children: [],
+          paymentMethod: '',
         };
     }
   };

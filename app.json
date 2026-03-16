@@ -23,7 +23,7 @@
         "NSLocationWhenInUseUsageDescription": "We use your location to show nearby teachers and map distance.",
         "PHPhotoLibraryPreventAutomaticLimitedAccessAlert": false
       },
-      "buildNumber": "21"
+      "buildNumber": "22"
     },
     "android": {
       "adaptiveIcon": {

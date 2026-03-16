@@ -18,7 +18,7 @@
 
 /* Begin PBXFileReference section */
 		042184674269BD1B4C301DCA /* Pods-Tuto.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tuto.debug.xcconfig"; path = "Target Support Files/Pods-Tuto/Pods-Tuto.debug.xcconfig"; sourceTree = "<group>"; };
-		0C8576916BD3ABACCF6D62C9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = Tuto/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		0C8576916BD3ABACCF6D62C9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Tuto/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		132B416712ABBBAE19BE2F6F /* Pods-Tuto.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tuto.release.xcconfig"; path = "Target Support Files/Pods-Tuto/Pods-Tuto.release.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Tuto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tuto.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Tuto/Images.xcassets; sourceTree = "<group>"; };
@@ -103,7 +103,6 @@
 				042184674269BD1B4C301DCA /* Pods-Tuto.debug.xcconfig */,
 				132B416712ABBBAE19BE2F6F /* Pods-Tuto.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -385,6 +384,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Tuto/Tuto.entitlements;
 				CURRENT_PROJECT_VERSION = 21;
+				DEVELOPMENT_TEAM = AUB4258M77;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -421,6 +421,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Tuto/Tuto.entitlements;
 				CURRENT_PROJECT_VERSION = 21;
+				DEVELOPMENT_TEAM = AUB4258M77;
 				INFOPLIST_FILE = Tuto/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (

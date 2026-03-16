@@ -602,9 +602,8 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
         throw new Error('No identity token from Apple');
       }
 
-      const { data, error } = await signInWithApple(credential.identityToken);
-      if (error) throw error;
-      if (!data.session) throw new Error('No session returned');
+      const sessionData = await signInWithApple(credential.identityToken);
+      if (!sessionData.session) throw new Error('No session returned');
 
       // Apple only provides full name on first sign-in - save to metadata
       if (credential.fullName) {
@@ -625,7 +624,7 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
         }
       }
 
-      await handleAuthSuccessSession(data.session);
+      await handleAuthSuccessSession(sessionData.session);
     } catch (e: unknown) {
       const err = e as { code?: string };
       if (err.code === 'ERR_REQUEST_CANCELED') {
