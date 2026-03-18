@@ -11,11 +11,13 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 import { ensureSocialProfile }           from '../../services/social/auth.service';
 import { getFeedPosts }                  from '../../services/social/feed.service';
 import { reactToPost, removeReaction, savePost, unsavePost } from '../../services/social/interactions.service';
-import { PostCard, PostCardSkeleton, FeedHeader } from '../../components/social';
+import { PostCard, PostCardSkeleton, FeedHeader, CreatePostModal } from '../../components/social';
+import { sharePost } from '../../components/social';
 import type { SocialPost, ReactionType, SocialProfile } from '../../types/social';
 import type { FeedTab }                  from '../../services/social/feed.service';
 import type { SocialStackParamList }     from '../../navigation/SocialStack';
@@ -26,6 +28,7 @@ const SKELETON_COUNT = 5;
 
 export default function SocialFeedScreen() {
   const navigation = useNavigation<NavProp>();
+  const { t } = useLanguage();
 
   const [profile, setProfile]       = useState<SocialProfile | null>(null);
   const [activeTab, setActiveTab]   = useState<FeedTab>('school');
@@ -34,6 +37,7 @@ export default function SocialFeedScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore]       = useState(true);
+  const [createPostVisible, setCreatePostVisible] = useState(false);
   const cursorRef                   = useRef<string | null>(null);
 
   // ── Init: ensure profile exists ─────────────────────────────────────────
@@ -139,6 +143,11 @@ export default function SocialFeedScreen() {
   }, [posts, handleRefresh]);
 
   // ── Render helpers ───────────────────────────────────────────────────────
+  const handleNewPost = useCallback((post: SocialPost) => {
+    setPosts((prev) => [post, ...prev]);
+    setCreatePostVisible(false);
+  }, []);
+
   const renderItem = useCallback(
     ({ item }: { item: SocialPost }) => (
       <PostCard
@@ -147,7 +156,7 @@ export default function SocialFeedScreen() {
         onPress={() => navigation.navigate('PostDetail', { postId: item.id })}
         onReact={(type) => handleReact(item.id, type)}
         onComment={() => navigation.navigate('PostDetail', { postId: item.id })}
-        onShare={() => {}}
+        onShare={() => sharePost(item.id, item.content)}
         onSave={() => handleSave(item.id)}
       />
     ),
@@ -160,7 +169,7 @@ export default function SocialFeedScreen() {
       onTabChange={(tab) => setActiveTab(tab)}
       authorAvatarUrl={profile?.avatarUrl}
       authorInitial={profile?.displayName?.charAt(0).toUpperCase()}
-      onComposerPress={() => navigation.navigate('CreatePost')}
+      onComposerPress={() => setCreatePostVisible(true)}
     />
   );
 
@@ -175,6 +184,11 @@ export default function SocialFeedScreen() {
         {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
           <PostCardSkeleton key={i} />
         ))}
+        <CreatePostModal
+          visible={createPostVisible}
+          onClose={() => setCreatePostVisible(false)}
+          onSuccess={handleNewPost}
+        />
       </View>
     );
   }
@@ -187,7 +201,7 @@ export default function SocialFeedScreen() {
         renderItem={renderItem}
         ListHeaderComponent={renderHeader}
         ListFooterComponent={renderFooter}
-        ListEmptyComponent={<EmptyFeed />}
+        ListEmptyComponent={<EmptyFeed t={t} />}
         contentContainerStyle={styles.listContent}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#0B5FFF" />
@@ -199,20 +213,27 @@ export default function SocialFeedScreen() {
         windowSize={10}
       />
 
-      {/* FAB */}
+      {/* FAB — navigates to full-screen CreatePost for complex post types */}
       <Pressable style={styles.fab} onPress={() => navigation.navigate('CreatePost')}>
         <MaterialIcons name="add" size={28} color="#fff" />
       </Pressable>
+
+      {/* Quick compose modal (bottom sheet) */}
+      <CreatePostModal
+        visible={createPostVisible}
+        onClose={() => setCreatePostVisible(false)}
+        onSuccess={handleNewPost}
+      />
     </View>
   );
 }
 
-function EmptyFeed() {
+function EmptyFeed({ t }: { t: (key: string) => unknown }) {
   return (
     <View style={styles.empty}>
       <MaterialIcons name="people-outline" size={64} color="#D1D5DB" />
-      <Text style={styles.emptyText}>Chưa có bài viết nào</Text>
-      <Text style={styles.emptySubtext}>Hãy là người đầu tiên chia sẻ!</Text>
+      <Text style={styles.emptyText}>{t('community.feed.emptyTitle') as string}</Text>
+      <Text style={styles.emptySubtext}>{t('community.feed.emptySubtitle') as string}</Text>
     </View>
   );
 }

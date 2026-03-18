@@ -1,7 +1,9 @@
 import { createServerClient }  from '@supabase/ssr';
 import { cookies }              from 'next/headers';
 import { redirect }             from 'next/navigation';
+import { Suspense }             from 'react';
 import FeedContainer            from '../../../components/feed/FeedContainer';
+import FeedFilters              from '../../../components/feed/FeedFilters';
 import type { Metadata }        from 'next';
 
 export const metadata: Metadata = {
@@ -77,8 +79,13 @@ export default async function FeedPage() {
   });
 
   return (
-    <main className="max-w-xl mx-auto px-4 py-6">
-      <FeedContainer initialPosts={initialPosts as never} />
-    </main>
+    <>
+      <Suspense fallback={null}>
+        <FeedFilters />
+      </Suspense>
+      <main className="max-w-xl mx-auto px-4 py-6">
+        <FeedContainer initialPosts={initialPosts as never} />
+      </main>
+    </>
   );
 }

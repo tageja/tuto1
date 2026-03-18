@@ -1,22 +1,13 @@
-import { createServerClient }  from '@supabase/ssr';
-import { cookies }              from 'next/headers';
-import Link                     from 'next/link';
-import Image                    from 'next/image';
-import FeedPreviewCard          from './FeedPreviewCard';
+import { createClient }  from '@supabase/supabase-js';
+import Link              from 'next/link';
+import Image             from 'next/image';
+import FeedPreviewCard   from './FeedPreviewCard';
 
 export default async function FeedPreview() {
-  const cookieStore = cookies();
-
-  const supabase = createServerClient(
+  // Public posts only — no auth needed, use anon client directly
+  const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get:    (name) => cookieStore.get(name)?.value,
-        set:    ()     => {},
-        remove: ()     => {},
-      },
-    },
   );
 
   // Fetch 3 most recent public approved posts
