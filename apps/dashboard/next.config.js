@@ -28,6 +28,18 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'ui-avatars.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'static.kiddihub.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 's3.kiddihub.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.amazonaws.com',
+      },
     ],
   },
   // Ensure local workspace packages are transpiled for Next.js

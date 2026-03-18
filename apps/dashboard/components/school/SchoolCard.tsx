@@ -20,8 +20,11 @@ export default function SchoolCard({ school }: SchoolCardProps) {
     ? `${formatSchoolTuition(school.minTuition)} - ${formatSchoolTuition(school.maxTuition)}`
     : formatSchoolTuition(school.minTuition || 0);
 
+  // Use slug when available (readable URL), fall back to id (UUID for legacy listings)
+  const href = `/find-school/${school.slug || school.id}`;
+
   return (
-    <Link href={`/find-school/${school.id}`} className="group block h-full">
+    <Link href={href} className="group block h-full">
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-blue-900/5 hover:border-blue-500/20 transition-all duration-300 h-full flex flex-col overflow-hidden">
         {/* Image */}
         <div className="relative h-48 w-full bg-gray-100 overflow-hidden">
@@ -30,6 +33,7 @@ export default function SchoolCard({ school }: SchoolCardProps) {
               src={school.images[0]}
               alt={school.name}
               fill
+              unoptimized
               className="object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
@@ -46,10 +50,11 @@ export default function SchoolCard({ school }: SchoolCardProps) {
           </div>
 
           {/* Rating Badge */}
-          {school.rating > 0 && (
+          {school.rating > 0 && school.reviewCount > 0 && (
             <div className="absolute top-4 right-4 flex items-center gap-1 px-2 py-1 bg-white/90 backdrop-blur-md rounded-full shadow-sm">
               <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
               <span className="text-xs font-bold text-gray-900">{formatRating(school.rating)}</span>
+              <span className="text-xs text-gray-500">({school.reviewCount})</span>
             </div>
           )}
         </div>
