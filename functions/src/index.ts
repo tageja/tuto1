@@ -72,6 +72,8 @@ export {
   markAllNotificationsRead,
 } from './v1/notifications';
 
+export { deleteAccount } from './v1/user-account';
+
 // Initialize Firebase Admin only if not already initialized
 if (!admin.apps.length) {
   admin.initializeApp();

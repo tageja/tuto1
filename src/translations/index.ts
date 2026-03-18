@@ -170,7 +170,12 @@ export const translations = {
           description: 'Permanently delete your account and all data',
           warning: 'This action cannot be undone',
           warningDescription: 'All your data will be permanently deleted',
-          contactAdmin: 'Contact School Admin' 
+          contactAdmin: 'Contact School Admin',
+          confirmTitle: 'Delete Account',
+          confirmMessage: 'This will permanently delete your account and all associated data. This action cannot be undone.',
+          confirmButton: 'Delete My Account',
+          success: 'Your account has been permanently deleted.',
+          error: 'Failed to delete account. Please try again or contact support.'
         },
         legalDocuments: 'Legal Documents',
         privacyPolicy: 'Privacy Policy',
@@ -1710,7 +1715,12 @@ export const translations = {
           description: 'Xóa vĩnh viễn tài khoản và tất cả dữ liệu của bạn',
           warning: 'Hành động này không thể hoàn tác',
           warningDescription: 'Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn',
-          contactAdmin: 'Liên hệ quản trị trường' 
+          contactAdmin: 'Liên hệ quản trị trường',
+          confirmTitle: 'Xóa tài khoản',
+          confirmMessage: 'Điều này sẽ xóa vĩnh viễn tài khoản và tất cả dữ liệu liên quan của bạn. Hành động này không thể hoàn tác.',
+          confirmButton: 'Xóa tài khoản của tôi',
+          success: 'Tài khoản của bạn đã được xóa vĩnh viễn.',
+          error: 'Không thể xóa tài khoản. Vui lòng thử lại hoặc liên hệ hỗ trợ.'
         },
         legalDocuments: 'Tài liệu pháp lý',
         privacyPolicy: 'Chính sách bảo mật',

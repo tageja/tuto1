@@ -2,7 +2,7 @@
  * Privacy & Data Settings Screen
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -11,21 +11,32 @@ import {
   TouchableOpacity,
   Linking,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useUser } from '../../contexts/UserContext';
+import { supabase } from '../../config/supabase';
+import { firebaseConfig } from '../../config/firebase';
 
 const PRIVACY_POLICY_URL = 'https://www.tutoglobal.com/legal/privacy';
 const TERMS_URL = 'https://www.tutoglobal.com/legal/terms';
-const SUPPORT_EMAIL = 'support@tutoglobal.com';
+const FUNCTIONS_REGION = process.env.EXPO_PUBLIC_FUNCTIONS_REGION || 'asia-southeast1';
+
+const getDeleteAccountUrl = (): string => {
+  const project = firebaseConfig.projectId || process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || '';
+  return `https://${FUNCTIONS_REGION}-${project}.cloudfunctions.net/deleteAccount`;
+};
 
 export default function PrivacyDataSettingsScreen() {
   const { colors, spacing, typography, borderRadius, shadows } = useTheme();
   const navigation = useNavigation<any>();
   const { t } = useLanguage();
+  const { clearUser } = useUser();
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   const styles = StyleSheet.create({
     container: {
@@ -200,10 +211,57 @@ export default function PrivacyDataSettingsScreen() {
     });
   };
 
-  const handleContactAdmin = () => {
-    Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=Account Deletion Request`).catch(() => {
-      Alert.alert(t('common.error'), t('settings.privacy.mailtoError') || 'Could not open email client');
-    });
+  const performAccountDeletion = async () => {
+    setDeletingAccount(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        Alert.alert(t('common.error'), t('settings.privacy.deleteAccount.error') || 'Unable to authenticate. Please sign in again.');
+        return;
+      }
+
+      const response = await fetch(getDeleteAccountUrl(), {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body?.error || `Server error: ${response.status}`);
+      }
+
+      await supabase.auth.signOut();
+      await clearUser();
+
+      navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+    } catch (err: any) {
+      console.error('Account deletion error:', err);
+      Alert.alert(
+        t('common.error'),
+        t('settings.privacy.deleteAccount.error') || 'Failed to delete account. Please try again.',
+      );
+    } finally {
+      setDeletingAccount(false);
+    }
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      t('settings.privacy.deleteAccount.confirmTitle') || 'Delete Account',
+      t('settings.privacy.deleteAccount.confirmMessage') ||
+        'This will permanently delete your account and all associated data. This action cannot be undone.',
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('settings.privacy.deleteAccount.confirmButton') || 'Delete Account',
+          style: 'destructive',
+          onPress: performAccountDeletion,
+        },
+      ],
+    );
   };
 
   const handleExportData = () => {
@@ -285,10 +343,20 @@ export default function PrivacyDataSettingsScreen() {
               </Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.dangerButton} onPress={handleContactAdmin}>
-            <MaterialIcons name="email" size={24} color={colors.error} />
+          <TouchableOpacity
+            style={[styles.dangerButton, deletingAccount && { opacity: 0.6 }]}
+            onPress={handleDeleteAccount}
+            disabled={deletingAccount}
+          >
+            {deletingAccount ? (
+              <ActivityIndicator size="small" color={colors.error} />
+            ) : (
+              <MaterialIcons name="delete-forever" size={24} color={colors.error} />
+            )}
             <Text style={styles.dangerButtonText}>
-              {t('settings.privacy.deleteAccount.contactAdmin') || 'Contact School Admin'}
+              {deletingAccount
+                ? (t('common.loading') || 'Deleting...')
+                : (t('settings.privacy.deleteAccount.confirmButton') || 'Delete My Account')}
             </Text>
           </TouchableOpacity>
         </View>
