@@ -25,490 +25,6 @@
     "created": "Ngày tạo",
     "newest": "Mới nhất"
   },
-  "dashboard": "Bảng Điều Khiển",
-  "teachers": "Giáo Viên",
-  "classes": "Lớp Học",
-  "students": "Học Sinh",
-  "announcements": "Thông Báo",
-  "messages": "Tin Nhắn",
-  "attendance": "Điểm Danh",
-  "homework": "Bài Tập",
-  "progressReports": "Báo Cáo Tiến Độ",
-  "events": "Sự Kiện",
-  "photoAlbums": "Album Ảnh",
-  "healthRecords": "Hồ Sơ Sức Khỏe",
-  "medicine": "Thuốc",
-  "extracurricular": "Ngoại Khóa",
-  "payments": "Phí",
-  "feedback": "Phản Hồi",
-  "settings": {
-    "title": "Cài Đặt",
-    "subtitle": "Quản lý hồ sơ, tùy chọn và tích hợp của bạn",
-    "parentSubtitle": "Quản lý hồ sơ, tùy chọn và thông báo của bạn",
-    "lastSaved": "Lưu lần cuối",
-    "tabs": {
-      "profile": "Hồ Sơ",
-      "preferences": "Tùy Chọn",
-      "integrations": "Tích Hợp",
-      "notifications": "Thông Báo",
-      "privacy": "Quyền Riêng Tư"
-    },
-    "profile": {
-      "title": "Thông Tin Hồ Sơ",
-      "fullName": "Họ và Tên",
-      "fullNamePlaceholder": "Nhập họ và tên của bạn",
-      "email": "Email",
-      "emailManaged": "Email được quản lý bởi nhà cung cấp xác thực",
-      "phone": "Số Điện Thoại",
-      "bio": "Giới Thiệu",
-      "bioPlaceholder": "Hãy cho chúng tôi biết đôi chút về bạn...",
-      "avatarHint": "Nhấp để tải lên (tối đa 1.5MB)",
-      "invalidFileType": "Loại tệp không hợp lệ. Vui lòng tải lên ảnh JPEG, PNG hoặc WebP.",
-      "fileTooLarge": "Tệp quá lớn. Kích thước tối đa là 1.5MB.",
-      "uploadError": "Không thể tải lên ảnh đại diện",
-      "password": "Mật Khẩu",
-      "passwordHint": "Mật khẩu được quản lý bởi nhà cung cấp xác thực (Google)",
-      "resetPassword": "Đặt lại qua Tài khoản Google",
-      "editProfile": "Chỉnh Sửa Hồ Sơ",
-      "avatarPermissionDenied": "Vui lòng cho phép truy cập thư viện ảnh để tải lên ảnh đại diện.",
-      "avatarUploadSuccess": "Đã cập nhật ảnh đại diện thành công",
-      "updateSuccess": "Đã cập nhật hồ sơ thành công",
-      "phonePlaceholder": "+84...",
-      "twoFactor": "Xác Thực Hai Yếu Tố",
-      "twoFactorHint": "Thêm một lớp bảo mật cho tài khoản của bạn",
-      "enabled": "Đã Bật",
-      "disabled": "Đã Tắt"
-    },
-    "preferences": {
-      "title": "Tùy Chọn",
-      "language": "Ngôn Ngữ",
-      "theme": "Giao Diện",
-      "themeHint": "Hệ thống sẽ theo cài đặt thiết bị của bạn",
-      "system": "Hệ Thống",
-      "light": "Sáng",
-      "dark": "Tối",
-      "timezone": "Múi Giờ",
-      "themeUpdated": "Đã cập nhật giao diện",
-      "timezoneUpdated": "Đã cập nhật múi giờ"
-    },
-    "notifications": {
-      "title": "Tùy Chọn Thông Báo",
-      "description": "Chọn cách bạn muốn nhận thông báo về các loại cập nhật khác nhau",
-      "topic": "Chủ Đề",
-      "enablePush": "Bật Thông Báo Đẩy",
-      "pushEnabled": "Đã Bật Thông Báo Đẩy",
-      "pushError": "Không thể bật thông báo đẩy",
-      "pushDescription": "Thông báo đẩy đã được bật trên thiết bị này",
-      "topics": {
-        "announcements": "Thông Báo",
-        "homework": "Bài Tập",
-        "events": "Sự Kiện",
-        "payments": "Phí",
-        "messages": "Tin Nhắn",
-        "health": "Sức Khỏe"
-      },
-      "channels": {
-        "email": "Email",
-        "push": "Đẩy",
-        "sms": "SMS"
-      }
-    },
-    "devices": {
-      "title": "Phiên Hoạt Động",
-      "description": "Quản lý các thiết bị mà bạn đang đăng nhập",
-      "noDevices": "Không có phiên hoạt động",
-      "revoke": "Thu Hồi",
-      "revokeError": "Không thể thu hồi thiết bị",
-      "on": "trên",
-      "justNow": "Vừa xong",
-      "minutesAgo": "phút trước",
-      "hoursAgo": "giờ trước",
-      "daysAgo": "ngày trước"
-    },
-    "branding": {
-      "title": "Thương Hiệu Trường",
-      "preview": "Xem Trước",
-      "schoolName": "Tên Trường",
-      "tagline": "Giáo Dục Xuất Sắc",
-      "schoolInfo": "Thông Tin Trường Học",
-      "schoolNameLabel": "Tên Trường",
-      "schoolNamePlaceholder": "Nhập tên trường học",
-      "schoolEmail": "Email Trường",
-      "schoolPhone": "Số Điện Thoại Trường",
-      "schoolAddress": "Địa Chỉ Trường",
-      "schoolAddressPlaceholder": "Nhập địa chỉ trường học",
-      "logo": "Logo",
-      "logoHint": "Ảnh vuông, ít nhất 200x200px",
-      "fileTypes": "JPEG, PNG hoặc WebP",
-      "primaryColor": "Màu Chính",
-      "accentColor": "Màu Nhấn",
-      "headerImage": "Ảnh Tiêu Đề",
-      "headerHint": "Nhấp để tải lên ảnh tiêu đề",
-      "invalidFileType": "Loại tệp không hợp lệ",
-      "uploadError": "Không thể tải lên"
-    },
-    "integrations": {
-      "title": "Tích Hợp",
-      "description": "Kết nối các dịch vụ bên thứ ba để nâng cao khả năng của trường",
-      "selectProvider": "Chọn Nhà Cung Cấp",
-      "connect": "Kết Nối",
-      "connecting": "Đang kết nối...",
-      "disconnect": "Ngắt Kết Nối",
-      "connectError": "Không thể kết nối tích hợp",
-      "disconnectError": "Không thể ngắt kết nối tích hợp",
-      "connectedOn": "Kết nối ngày",
-      "testMode": "Chế Độ Thử Nghiệm",
-      "fromNumber": "Số Gửi",
-      "payments": "Phí",
-      "pushNotifications": "Thông Báo Đẩy",
-      "sms": "SMS",
-      "connected": "Đã Kết Nối",
-      "notConnected": "Chưa Kết Nối",
-      "paymentsDetail": {
-        "title": "Thanh Toán",
-        "description": "Nhận thanh toán từ phụ huynh qua Stripe hoặc MoMo"
-      },
-      "push": {
-        "title": "Thông Báo Đẩy",
-        "description": "Gửi thông báo đẩy đến thiết bị di động"
-      },
-      "sms": {
-        "title": "SMS",
-        "description": "Gửi thông báo SMS đến phụ huynh"
-      }
-    },
-    "privacy": {
-      "title": "Cài Đặt Quyền Riêng Tư",
-      "description": "Quản lý dữ liệu và tùy chọn quyền riêng tư của bạn",
-      "matters": "Quyền Riêng Tư Của Bạn Quan Trọng",
-      "dataVisibility": "Hiển Thị Dữ Liệu",
-      "dataVisibilityDescription": "Chọn ai có thể xem thông tin của bạn",
-      "schoolOnly": "Chỉ Trường",
-      "exportData": {
-        "title": "Xuất Dữ Liệu",
-        "description": "Tải xuống bản sao tất cả dữ liệu của bạn",
-        "button": "Xuất Dữ Liệu",
-        "comingSoon": "Tính năng xuất dữ liệu sắp ra mắt"
-      },
-      "deleteAccount": {
-        "title": "Xóa Tài Khoản",
-        "description": "Xóa vĩnh viễn tài khoản và tất cả dữ liệu",
-        "warning": "Hành động này không thể hoàn tác",
-        "warningDescription": "Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn",
-        "contactAdmin": "Liên Hệ Quản Trị Viên Trường"
-      },
-      "legalDocuments": "Tài Liệu Pháp Lý",
-      "privacyPolicy": "Chính Sách Bảo Mật",
-      "termsOfService": "Điều Khoản Dịch Vụ",
-      "dataRetentionPolicy": "Chính Sách Lưu Giữ Dữ Liệu",
-      "yourRights": "Quyền Riêng Tư Của Bạn",
-      "rightsDescription": "Bạn có quyền truy cập, sửa đổi hoặc xóa dữ liệu cá nhân của mình. Liên hệ với chúng tôi để được hỗ trợ.",
-      "openUrlError": "Không thể mở liên kết",
-      "mailtoError": "Không thể mở ứng dụng email"
-    },
-    "toasts": {
-      "saved": "Đã lưu cài đặt thành công",
-      "error": "Không thể lưu cài đặt. Vui lòng thử lại."
-    },
-    "role": {
-      "admin": "Quản Trị",
-      "parent": "Phụ Huynh"
-    },
-    "signOut": {
-      "title": "Đăng Xuất",
-      "message": "Bạn có chắc muốn đăng xuất?",
-      "confirm": "Đăng Xuất",
-      "button": "Đăng Xuất"
-    },
-    "device": {
-      "title": "Thiết Bị & Ứng Dụng",
-      "security": "Bảo Mật & Xác Thực",
-      "biometricHint": "Sử dụng Face ID hoặc vân tay để mở khóa ứng dụng",
-      "notifications": "Thông Báo & Cảnh Báo",
-      "pushNotifications": "Thông Báo Đẩy",
-      "pushDescription": "Nhận thông báo đẩy trên thiết bị này",
-      "soundAlerts": "Cảnh Báo Âm Thanh",
-      "soundDescription": "Phát âm thanh cho thông báo trong ứng dụng",
-      "vibrationAlerts": "Cảnh Báo Rung",
-      "vibrationDescription": "Rung cho thông báo trong ứng dụng",
-      "dataUsage": "Sử Dụng Dữ Liệu",
-      "dataSaver": "Tiết Kiệm Dữ Liệu",
-      "dataSaverDescription": "Tải hình ảnh độ phân giải thấp hơn để tiết kiệm dữ liệu",
-      "wifiOnly": "Chỉ Tải Qua Wi-Fi",
-      "wifiOnlyDescription": "Chỉ tải phương tiện nặng khi có Wi-Fi",
-      "dataUsageTip": "Các cài đặt này giúp bạn tiết kiệm dữ liệu và giảm việc sử dụng dữ liệu di động."
-    },
-    "about": {
-      "title": "Giới Thiệu & Pháp Lý",
-      "tagline": "Kết nối trường học, giáo viên và gia đình",
-      "appInfo": "Thông Tin Ứng Dụng",
-      "version": "Phiên Bản",
-      "buildNumber": "Số Bản Dựng",
-      "platform": "Nền Tảng",
-      "lastUpdated": "Cập Nhật Lần Cuối",
-      "legalDocuments": "Tài Liệu Pháp Lý",
-      "resources": "Tài Nguyên & Hỗ Trợ",
-      "helpCenter": "Trung Tâm Trợ Giúp",
-      "contactSupport": "Liên Hệ Hỗ Trợ",
-      "openSource": "Giấy Phép Mã Nguồn Mở",
-      "madeWith": "Được tạo bằng ❤️ cho giáo dục"
-    }
-  },
-  "dailyActivities": "Hoạt Động Hằng Ngày",
-  "totalStudents": "Tổng Số Học Sinh",
-  "activeTeachers": "Giáo Viên Hoạt Động",
-  "attendanceRate": "Tỷ Lệ Điểm Danh",
-  "upcomingEvents": "Sự Kiện Sắp Tới",
-  "feeCollection": "Thu Phí",
-  "averageRating": "Đánh Giá Trung Bình",
-  "recentAnnouncements": "Thông Báo Gần Đây",
-  "noAnnouncementsYet": "Chưa có thông báo",
-  "unreadMessages": "Tin Nhắn Chưa Đọc",
-  "noUnreadMessages": "Không có tin nhắn chưa đọc",
-  "upcomingHomework": "Bài Tập Sắp Tới",
-  "noUpcomingHomework": "Không có bài tập sắp tới",
-  "aiInsights": "Phân Tích AI",
-  "attendancePrediction": "Dự Đoán Điểm Danh",
-  "dashboard": {
-    "activities": {
-      "title": "Hoạt Động Hằng Ngày",
-      "subtitle": "Theo dõi hoạt động hằng ngày, bữa ăn và tiến trình học tập",
-      "loading": "Đang tải hoạt động...",
-      "filters": {
-        "date": "Ngày",
-        "class": "Lớp",
-        "type": "Loại",
-        "status": "Trạng Thái",
-        "search": "Tìm Kiếm",
-        "searchPlaceholder": "Tìm kiếm hoạt động...",
-        "clear": "Xóa Bộ Lọc"
-      },
-      "kpis": {
-        "total": "Tổng Hoạt Động",
-        "completed": "Hoàn Thành",
-        "inProgress": "Đang Thực Hiện",
-        "pending": "Chờ Xử Lý",
-        "lastUpdated": "Cập nhật lần cuối",
-        "justNow": "Vừa xong",
-        "minAgo": " phút trước",
-        "hourAgo": " giờ trước"
-      },
-      "add": {
-        "title": "Thêm Hoạt Động",
-        "editTitle": "Sửa Hoạt Động",
-        "date": "Ngày",
-        "time": "Giờ",
-        "class": "Lớp",
-        "grade": "Khối",
-        "type": "Loại",
-        "status": "Trạng Thái",
-        "description": "Mô Tả",
-        "menuDetails": "Chi Tiết Thực Đơn",
-        "outdoorDetail": "Chi Tiết Hoạt Động Ngoài Trời",
-        "save": "Lưu",
-        "cancel": "Hủy",
-        "create": "Tạo Hoạt Động",
-        "update": "Cập Nhật Hoạt Động",
-        "saving": "Đang lưu...",
-        "selectClass": "Chọn lớp",
-        "selectTeacher": "Chọn giáo viên (tùy chọn)",
-        "titlePlaceholder": "VD: Giờ Sinh Hoạt Buổi Sáng",
-        "descriptionPlaceholder": "Chi tiết hoạt động...",
-        "menuPlaceholder": "Thực đơn hôm nay?",
-        "outdoorPlaceholder": "Chi tiết hoạt động ngoài trời..."
-      },
-      "modal": {
-        "addTitle": "Thêm Hoạt Động",
-        "editTitle": "Sửa Hoạt Động",
-        "date": "Ngày",
-        "time": "Giờ",
-        "class": "Lớp",
-        "teacher": "Giáo Viên",
-        "grade": "Khối",
-        "title": "Tiêu Đề",
-        "type": "Loại",
-        "status": "Trạng Thái",
-        "description": "Mô Tả",
-        "menuDetails": "Chi Tiết Thực Đơn",
-        "outdoorDetail": "Chi Tiết Hoạt Động Ngoài Trời",
-        "save": "Lưu",
-        "cancel": "Hủy",
-        "create": "Tạo Hoạt Động",
-        "update": "Cập Nhật",
-        "saving": "Đang lưu...",
-        "selectClass": "Chọn lớp",
-        "selectTeacher": "Chọn giáo viên (tùy chọn)",
-        "titlePlaceholder": "VD: Giờ Sinh Hoạt Buổi Sáng",
-        "descriptionPlaceholder": "Chi tiết hoạt động...",
-        "menuPlaceholder": "Thực đơn hôm nay?",
-        "outdoorPlaceholder": "Chi tiết hoạt động ngoài trời..."
-      },
-      "drawer": {
-        "title": "Chi Tiết Hoạt Động",
-        "details": "Chi Tiết",
-        "edit": "Sửa",
-        "delete": "Xóa",
-        "close": "Đóng",
-        "date": "Ngày",
-        "time": "Giờ",
-        "class": "Lớp",
-        "teacher": "Giáo Viên",
-        "type": "Loại",
-        "menuDetails": "Chi Tiết Thực Đơn",
-        "outdoorDetail": "Chi Tiết Hoạt Động Ngoài Trời",
-        "attachments": "Tệp Đính Kèm",
-        "noAttachments": "Không có tệp đính kèm"
-      },
-      "toast": {
-        "created": "Đã tạo hoạt động thành công",
-        "updated": "Đã cập nhật hoạt động thành công",
-        "deleted": "Đã xóa hoạt động thành công",
-        "statusUpdated": "Đã cập nhật trạng thái thành công",
-        "bulkCreated": "Đã tạo nhiều hoạt động thành công",
-        "suggestSubmitted": "Đã gửi đề xuất thành công! Cảm ơn bạn.",
-        "error": "Đã xảy ra lỗi"
-      },
-      "empty": {
-        "noActivities": "Không có hoạt động được lên lịch",
-        "tryDifferentFilters": "Thử chọn ngày khác hoặc điều chỉnh bộ lọc"
-      },
-      "status": {
-        "label": "Trạng Thái",
-        "pending": "Chờ Xử Lý",
-        "inprogress": "Đang Thực Hiện",
-        "completed": "Hoàn Thành"
-      },
-      "type": {
-        "meal": "Bữa Ăn",
-        "learning": "Học Tập",
-        "play": "Vui Chơi",
-        "rest": "Nghỉ Ngơi"
-      },
-      "timeline": {
-        "class": "Lớp",
-        "teacher": "Giáo Viên",
-        "todaysTimeline": "Lịch Trình Hôm Nay"
-      },
-      "actions": {
-        "edit": "Sửa",
-        "duplicate": "Nhân Bản",
-        "delete": "Xóa",
-        "changeStatus": "Nhấp để thay đổi trạng thái"
-      },
-      "confirmDelete": "Bạn có chắc chắn muốn xóa hoạt động này?",
-      "buttons": {
-        "addActivity": "Thêm Hoạt Động",
-        "addDayActivities": "Thêm Lịch Ngày",
-        "addWeekActivities": "Thêm Lịch Tuần",
-        "suggestActivity": "Đề Xuất Hoạt Động"
-      },
-      "suggest": {
-        "title": "Đề Xuất Hoạt Động",
-        "description": "Chia sẻ ý tưởng của bạn",
-        "placeholder": "Mô tả hoạt động bạn muốn đề xuất...",
-        "submit": "Gửi Đề Xuất",
-        "success": "Đã gửi đề xuất thành công",
-        "thankYou": "Cảm ơn bạn đã đề xuất!",
-        "attachments": "Tệp Đính Kèm"
-      },
-      "dayModal": {
-        "title": "Thêm Lịch Hoạt Động Ngày",
-        "date": "Ngày",
-        "class": "Lớp",
-        "addRow": "Thêm Dòng",
-        "removeRow": "Xóa",
-        "duplicateRow": "Nhân Bản",
-        "save": "Tạo Hoạt Động",
-        "time": "Giờ",
-        "activityTitle": "Tiêu Đề",
-        "type": "Loại",
-        "status": "Trạng Thái",
-        "teacher": "Giáo Viên"
-      },
-      "weekModal": {
-        "title": "Thêm Lịch Tuần",
-        "weekStart": "Tuần Bắt Đầu (Thứ Hai)",
-        "class": "Lớp",
-        "addSlot": "Thêm Khung Giờ",
-        "save": "Tạo Lịch Tuần",
-        "monday": "Thứ Hai",
-        "tuesday": "Thứ Ba",
-        "wednesday": "Thứ Tư",
-        "thursday": "Thứ Năm",
-        "friday": "Thứ Sáu",
-        "saturday": "Thứ Bảy",
-        "sunday": "Chủ Nhật",
-        "time": "Giờ"
-      },
-      "validations": {
-        "required": "Trường này là bắt buộc",
-        "timeRequired": "Giờ là bắt buộc",
-        "titleRequired": "Tiêu đề là bắt buộc",
-        "classRequired": "Vui lòng chọn lớp",
-        "invalidTime": "Định dạng giờ không hợp lệ"
-      },
-      "error": {
-        "loadError": "Lỗi Tải Hoạt Động",
-        "fetchClasses": "Không thể tải danh sách lớp",
-        "fetchActivities": "Không thể tải hoạt động"
-      }
-    }
-  },
-  "web": {
-    "about": {"title": "Về Tuto", "lead": "Nền tảng kết nối giáo viên, phụ huynh và học sinh để học tập hiệu quả.\n"},
-    "trustSafety": {"title": "Tin cậy & An toàn", "lead": "Quy trình xác minh, tiêu chuẩn cộng đồng và bảo vệ dữ liệu."},
-    "howItWorks": {"title": "Cách hoạt động", "lead": "Tìm giáo viên phù hợp, đặt lịch, học tập và theo dõi tiến độ."},
-    "impact": {"title": "Tác động", "lead": "Cải thiện kết quả học tập và kết nối cộng đồng giáo dục."},
-    "newsroom": {"title": "Truyền thông", "lead": "Tin tức, thông cáo báo chí và cập nhật sản phẩm."},
-    "careers": {"title": "Cơ hội nghề nghiệp", "lead": "Gia nhập đội ngũ Tuto để xây dựng tương lai giáo dục."},
-    "investors": {"title": "Nhà đầu tư", "lead": "Tầm nhìn, số liệu chính và thông tin liên hệ."},
-    "contact": {"title": "Liên hệ", "lead": "Cần hỗ trợ? Hãy liên hệ đội ngũ Tuto."},
-
-    "findTeacher": {"title": "Tìm giáo viên", "lead": "Tìm giáo viên theo môn học, vị trí và đánh giá."},
-    "trial": {"title": "Buổi học thử", "lead": "Trải nghiệm miễn phí trước khi cam kết."},
-    "pricing": {"title": "Bảng giá", "lead": "Minh bạch học phí và gói linh hoạt."},
-    "ratingsPolicy": {"title": "Chính sách đánh giá", "lead": "Hướng dẫn đánh giá công bằng và hữu ích."},
-    "roadmaps": {"title": "Lộ trình học", "lead": "Kế hoạch học theo môn và cấp độ."},
-    "safeguarding": {"title": "An toàn học đường", "lead": "Chuẩn bảo vệ học sinh và môi trường học."},
-    "helpParents": {"title": "Trợ giúp cho phụ huynh", "lead": "Câu hỏi thường gặp và hướng dẫn nhanh."},
-    "download": {"title": "Tải ứng dụng", "lead": "Tải Tuto trên iOS và Android."},
-
-    "adaptiveHomework": {"title": "Bài tập thích ứng", "lead": "Nội dung cá nhân hóa theo mức độ."},
-    "practice": {"title": "Luyện tập", "lead": "Bài tập hằng ngày và theo chủ đề."},
-    "events": {"title": "Sự kiện", "lead": "Cuộc thi, hội thảo và hoạt động cộng đồng."},
-    "planner": {"title": "Kế hoạch học", "lead": "Quản lý lịch học và mục tiêu."},
-    "scholarships": {"title": "Học bổng", "lead": "Cơ hội hỗ trợ tài chính cho học sinh."},
-    "badges": {"title": "Huy hiệu", "lead": "Thành tích và động lực học tập."},
-    "helpStudents": {"title": "Trợ giúp cho học sinh", "lead": "Hướng dẫn sử dụng và mẹo học tốt."},
-    "codeOfConduct": {"title": "Quy tắc ứng xử", "lead": "Môi trường học tôn trọng và tích cực."},
-
-    "institutesPartner": {"title": "Đối tác", "lead": "Hợp tác cùng trung tâm/viện đào tạo."},
-    "institutesCrm": {"title": "CRM", "lead": "Quản lý khách hàng và liên hệ."},
-    "institutesScheduling": {"title": "Lịch", "lead": "Xếp lịch lớp và tài nguyên."},
-    "institutesAds": {"title": "Quảng cáo", "lead": "Chạy chiến dịch thu hút học viên."},
-    "institutesRecruit": {"title": "Tuyển dụng", "lead": "Quy trình tuyển giáo viên và cộng tác viên."},
-    "institutesReviews": {"title": "Đánh giá", "lead": "Quản lý phản hồi và uy tín."},
-    "institutesBilling": {"title": "Thanh toán", "lead": "Hóa đơn và đối soát cho tổ chức."},
-    "helpPartners": {"title": "Trợ giúp đối tác", "lead": "Tài liệu và hỗ trợ triển khai."},
-
-    "teachersApply": {"title": "Đăng ký giáo viên", "lead": "Gia nhập mạng lưới giáo viên Tuto."},
-    "teachersOnboarding": {"title": "Onboarding giáo viên", "lead": "Thiết lập hồ sơ và lịch dạy."},
-    "teachersPayments": {"title": "Thanh toán", "lead": "Theo dõi thu nhập và thanh toán."},
-    "teachersCalendar": {"title": "Lịch dạy", "lead": "Quản lý lịch và sắp xếp lớp."},
-    "teachersResources": {"title": "Tài nguyên", "lead": "Tài liệu giảng dạy và mẫu bài."},
-    "teachersCommunity": {"title": "Cộng đồng", "lead": "Kết nối và chia sẻ kinh nghiệm."},
-    "teachersQuality": {"title": "Chất lượng", "lead": "Chuẩn chất lượng và phản hồi."},
-    "helpTeachers": {"title": "Trợ giúp giáo viên", "lead": "Hướng dẫn và câu hỏi thường gặp."},
-
-    "help": {"title": "Trợ giúp", "lead": "Trung tâm hỗ trợ cho người dùng."},
-    "blog": {"title": "Blog", "lead": "Bài viết, mẹo học và câu chuyện."},
-    "developers": {"title": "Developers", "lead": "Tài liệu tích hợp và API."},
-    "status": {"title": "Trạng thái hệ thống", "lead": "Tình trạng dịch vụ hiện tại."},
-    "legalTerms": {"title": "Điều khoản", "lead": "Điều khoản sử dụng dịch vụ."},
-    "legalPrivacy": {"title": "Bảo mật", "lead": "Chính sách quyền riêng tư."},
-    "legalCookies": {"title": "Cookies", "lead": "Chính sách cookie."},
-    "sitemap": {"title": "Sơ đồ trang", "lead": "Tổng quan liên kết website."}
-  },
   "dashboard": {
     "teachers": {
       "title": "Giáo Viên",
@@ -1629,15 +1145,453 @@
       }
     }
   },
+  "teachers": "Giáo Viên",
+  "classes": "Lớp Học",
+  "students": "Học Sinh",
+  "announcements": "Thông Báo",
+  "messages": "Tin Nhắn",
+  "attendance": "Điểm Danh",
+  "homework": "Bài Tập",
+  "progressReports": "Báo Cáo Tiến Độ",
+  "events": "Sự Kiện",
+  "photoAlbums": "Album Ảnh",
+  "healthRecords": "Hồ Sơ Sức Khỏe",
+  "medicine": "Thuốc",
+  "extracurricular": "Ngoại Khóa",
+  "payments": "Phí",
+  "feedback": "Phản Hồi",
+  "settings": {
+    "title": "Cài Đặt",
+    "subtitle": "Quản lý hồ sơ, tùy chọn và tích hợp của bạn",
+    "parentSubtitle": "Quản lý hồ sơ, tùy chọn và thông báo của bạn",
+    "lastSaved": "Lưu lần cuối",
+    "tabs": {
+      "profile": "Hồ Sơ",
+      "preferences": "Tùy Chọn",
+      "integrations": "Tích Hợp",
+      "notifications": "Thông Báo",
+      "privacy": "Quyền Riêng Tư"
+    },
+    "profile": {
+      "title": "Thông Tin Hồ Sơ",
+      "fullName": "Họ và Tên",
+      "fullNamePlaceholder": "Nhập họ và tên của bạn",
+      "email": "Email",
+      "emailManaged": "Email được quản lý bởi nhà cung cấp xác thực",
+      "phone": "Số Điện Thoại",
+      "bio": "Giới Thiệu",
+      "bioPlaceholder": "Hãy cho chúng tôi biết đôi chút về bạn...",
+      "avatarHint": "Nhấp để tải lên (tối đa 1.5MB)",
+      "invalidFileType": "Loại tệp không hợp lệ. Vui lòng tải lên ảnh JPEG, PNG hoặc WebP.",
+      "fileTooLarge": "Tệp quá lớn. Kích thước tối đa là 1.5MB.",
+      "uploadError": "Không thể tải lên ảnh đại diện",
+      "password": "Mật Khẩu",
+      "passwordHint": "Mật khẩu được quản lý bởi nhà cung cấp xác thực (Google)",
+      "resetPassword": "Đặt lại qua Tài khoản Google",
+      "editProfile": "Chỉnh Sửa Hồ Sơ",
+      "avatarPermissionDenied": "Vui lòng cho phép truy cập thư viện ảnh để tải lên ảnh đại diện.",
+      "avatarUploadSuccess": "Đã cập nhật ảnh đại diện thành công",
+      "updateSuccess": "Đã cập nhật hồ sơ thành công",
+      "phonePlaceholder": "+84...",
+      "twoFactor": "Xác Thực Hai Yếu Tố",
+      "twoFactorHint": "Thêm một lớp bảo mật cho tài khoản của bạn",
+      "enabled": "Đã Bật",
+      "disabled": "Đã Tắt"
+    },
+    "preferences": {
+      "title": "Tùy Chọn",
+      "language": "Ngôn Ngữ",
+      "theme": "Giao Diện",
+      "themeHint": "Hệ thống sẽ theo cài đặt thiết bị của bạn",
+      "system": "Hệ Thống",
+      "light": "Sáng",
+      "dark": "Tối",
+      "timezone": "Múi Giờ",
+      "themeUpdated": "Đã cập nhật giao diện",
+      "timezoneUpdated": "Đã cập nhật múi giờ"
+    },
+    "notifications": {
+      "title": "Tùy Chọn Thông Báo",
+      "description": "Chọn cách bạn muốn nhận thông báo về các loại cập nhật khác nhau",
+      "topic": "Chủ Đề",
+      "enablePush": "Bật Thông Báo Đẩy",
+      "pushEnabled": "Đã Bật Thông Báo Đẩy",
+      "pushError": "Không thể bật thông báo đẩy",
+      "pushDescription": "Thông báo đẩy đã được bật trên thiết bị này",
+      "topics": {
+        "announcements": "Thông Báo",
+        "homework": "Bài Tập",
+        "events": "Sự Kiện",
+        "payments": "Phí",
+        "messages": "Tin Nhắn",
+        "health": "Sức Khỏe"
+      },
+      "channels": {
+        "email": "Email",
+        "push": "Đẩy",
+        "sms": "SMS"
+      }
+    },
+    "devices": {
+      "title": "Phiên Hoạt Động",
+      "description": "Quản lý các thiết bị mà bạn đang đăng nhập",
+      "noDevices": "Không có phiên hoạt động",
+      "revoke": "Thu Hồi",
+      "revokeError": "Không thể thu hồi thiết bị",
+      "on": "trên",
+      "justNow": "Vừa xong",
+      "minutesAgo": "phút trước",
+      "hoursAgo": "giờ trước",
+      "daysAgo": "ngày trước"
+    },
+    "branding": {
+      "title": "Thương Hiệu Trường",
+      "preview": "Xem Trước",
+      "schoolName": "Tên Trường",
+      "tagline": "Giáo Dục Xuất Sắc",
+      "schoolInfo": "Thông Tin Trường Học",
+      "schoolNameLabel": "Tên Trường",
+      "schoolNamePlaceholder": "Nhập tên trường học",
+      "schoolEmail": "Email Trường",
+      "schoolPhone": "Số Điện Thoại Trường",
+      "schoolAddress": "Địa Chỉ Trường",
+      "schoolAddressPlaceholder": "Nhập địa chỉ trường học",
+      "logo": "Logo",
+      "logoHint": "Ảnh vuông, ít nhất 200x200px",
+      "fileTypes": "JPEG, PNG hoặc WebP",
+      "primaryColor": "Màu Chính",
+      "accentColor": "Màu Nhấn",
+      "headerImage": "Ảnh Tiêu Đề",
+      "headerHint": "Nhấp để tải lên ảnh tiêu đề",
+      "invalidFileType": "Loại tệp không hợp lệ",
+      "uploadError": "Không thể tải lên"
+    },
+    "integrations": {
+      "title": "Tích Hợp",
+      "description": "Kết nối các dịch vụ bên thứ ba để nâng cao khả năng của trường",
+      "selectProvider": "Chọn Nhà Cung Cấp",
+      "connect": "Kết Nối",
+      "connecting": "Đang kết nối...",
+      "disconnect": "Ngắt Kết Nối",
+      "connectError": "Không thể kết nối tích hợp",
+      "disconnectError": "Không thể ngắt kết nối tích hợp",
+      "connectedOn": "Kết nối ngày",
+      "testMode": "Chế Độ Thử Nghiệm",
+      "fromNumber": "Số Gửi",
+      "payments": "Phí",
+      "pushNotifications": "Thông Báo Đẩy",
+      "sms": {
+        "title": "SMS",
+        "description": "Gửi thông báo SMS đến phụ huynh"
+      },
+      "connected": "Đã Kết Nối",
+      "notConnected": "Chưa Kết Nối",
+      "paymentsDetail": {
+        "title": "Thanh Toán",
+        "description": "Nhận thanh toán từ phụ huynh qua Stripe hoặc MoMo"
+      },
+      "push": {
+        "title": "Thông Báo Đẩy",
+        "description": "Gửi thông báo đẩy đến thiết bị di động"
+      }
+    },
+    "privacy": {
+      "title": "Cài Đặt Quyền Riêng Tư",
+      "description": "Quản lý dữ liệu và tùy chọn quyền riêng tư của bạn",
+      "matters": "Quyền Riêng Tư Của Bạn Quan Trọng",
+      "dataVisibility": "Hiển Thị Dữ Liệu",
+      "dataVisibilityDescription": "Chọn ai có thể xem thông tin của bạn",
+      "schoolOnly": "Chỉ Trường",
+      "exportData": {
+        "title": "Xuất Dữ Liệu",
+        "description": "Tải xuống bản sao tất cả dữ liệu của bạn",
+        "button": "Xuất Dữ Liệu",
+        "comingSoon": "Tính năng xuất dữ liệu sắp ra mắt"
+      },
+      "deleteAccount": {
+        "title": "Xóa Tài Khoản",
+        "description": "Xóa vĩnh viễn tài khoản và tất cả dữ liệu",
+        "warning": "Hành động này không thể hoàn tác",
+        "warningDescription": "Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn",
+        "contactAdmin": "Liên Hệ Quản Trị Viên Trường"
+      },
+      "legalDocuments": "Tài Liệu Pháp Lý",
+      "privacyPolicy": "Chính Sách Bảo Mật",
+      "termsOfService": "Điều Khoản Dịch Vụ",
+      "dataRetentionPolicy": "Chính Sách Lưu Giữ Dữ Liệu",
+      "yourRights": "Quyền Riêng Tư Của Bạn",
+      "rightsDescription": "Bạn có quyền truy cập, sửa đổi hoặc xóa dữ liệu cá nhân của mình. Liên hệ với chúng tôi để được hỗ trợ.",
+      "openUrlError": "Không thể mở liên kết",
+      "mailtoError": "Không thể mở ứng dụng email"
+    },
+    "toasts": {
+      "saved": "Đã lưu cài đặt thành công",
+      "error": "Không thể lưu cài đặt. Vui lòng thử lại."
+    },
+    "role": {
+      "admin": "Quản Trị",
+      "parent": "Phụ Huynh"
+    },
+    "signOut": {
+      "title": "Đăng Xuất",
+      "message": "Bạn có chắc muốn đăng xuất?",
+      "confirm": "Đăng Xuất",
+      "button": "Đăng Xuất"
+    },
+    "device": {
+      "title": "Thiết Bị & Ứng Dụng",
+      "security": "Bảo Mật & Xác Thực",
+      "biometricHint": "Sử dụng Face ID hoặc vân tay để mở khóa ứng dụng",
+      "notifications": "Thông Báo & Cảnh Báo",
+      "pushNotifications": "Thông Báo Đẩy",
+      "pushDescription": "Nhận thông báo đẩy trên thiết bị này",
+      "soundAlerts": "Cảnh Báo Âm Thanh",
+      "soundDescription": "Phát âm thanh cho thông báo trong ứng dụng",
+      "vibrationAlerts": "Cảnh Báo Rung",
+      "vibrationDescription": "Rung cho thông báo trong ứng dụng",
+      "dataUsage": "Sử Dụng Dữ Liệu",
+      "dataSaver": "Tiết Kiệm Dữ Liệu",
+      "dataSaverDescription": "Tải hình ảnh độ phân giải thấp hơn để tiết kiệm dữ liệu",
+      "wifiOnly": "Chỉ Tải Qua Wi-Fi",
+      "wifiOnlyDescription": "Chỉ tải phương tiện nặng khi có Wi-Fi",
+      "dataUsageTip": "Các cài đặt này giúp bạn tiết kiệm dữ liệu và giảm việc sử dụng dữ liệu di động."
+    },
+    "about": {
+      "title": "Giới Thiệu & Pháp Lý",
+      "tagline": "Kết nối trường học, giáo viên và gia đình",
+      "appInfo": "Thông Tin Ứng Dụng",
+      "version": "Phiên Bản",
+      "buildNumber": "Số Bản Dựng",
+      "platform": "Nền Tảng",
+      "lastUpdated": "Cập Nhật Lần Cuối",
+      "legalDocuments": "Tài Liệu Pháp Lý",
+      "resources": "Tài Nguyên & Hỗ Trợ",
+      "helpCenter": "Trung Tâm Trợ Giúp",
+      "contactSupport": "Liên Hệ Hỗ Trợ",
+      "openSource": "Giấy Phép Mã Nguồn Mở",
+      "madeWith": "Được tạo bằng ❤️ cho giáo dục"
+    }
+  },
+  "dailyActivities": "Hoạt Động Hằng Ngày",
+  "totalStudents": "Tổng Số Học Sinh",
+  "activeTeachers": "Giáo Viên Hoạt Động",
+  "attendanceRate": "Tỷ Lệ Điểm Danh",
+  "upcomingEvents": "Sự Kiện Sắp Tới",
+  "feeCollection": "Thu Phí",
+  "averageRating": "Đánh Giá Trung Bình",
+  "recentAnnouncements": "Thông Báo Gần Đây",
+  "noAnnouncementsYet": "Chưa có thông báo",
+  "unreadMessages": "Tin Nhắn Chưa Đọc",
+  "noUnreadMessages": "Không có tin nhắn chưa đọc",
+  "upcomingHomework": "Bài Tập Sắp Tới",
+  "noUpcomingHomework": "Không có bài tập sắp tới",
+  "aiInsights": "Phân Tích AI",
+  "attendancePrediction": "Dự Đoán Điểm Danh",
+  "web": {
+    "about": {
+      "title": "Về Tuto",
+      "lead": "Nền tảng kết nối giáo viên, phụ huynh và học sinh để học tập hiệu quả.\n"
+    },
+    "trustSafety": {
+      "title": "Tin cậy & An toàn",
+      "lead": "Quy trình xác minh, tiêu chuẩn cộng đồng và bảo vệ dữ liệu."
+    },
+    "howItWorks": {
+      "title": "Cách hoạt động",
+      "lead": "Tìm giáo viên phù hợp, đặt lịch, học tập và theo dõi tiến độ."
+    },
+    "impact": {
+      "title": "Tác động",
+      "lead": "Cải thiện kết quả học tập và kết nối cộng đồng giáo dục."
+    },
+    "newsroom": {
+      "title": "Truyền thông",
+      "lead": "Tin tức, thông cáo báo chí và cập nhật sản phẩm."
+    },
+    "careers": {
+      "title": "Cơ hội nghề nghiệp",
+      "lead": "Gia nhập đội ngũ Tuto để xây dựng tương lai giáo dục."
+    },
+    "investors": {
+      "title": "Nhà đầu tư",
+      "lead": "Tầm nhìn, số liệu chính và thông tin liên hệ."
+    },
+    "contact": {
+      "title": "Liên hệ",
+      "lead": "Cần hỗ trợ? Hãy liên hệ đội ngũ Tuto."
+    },
+    "findTeacher": {
+      "title": "Tìm giáo viên",
+      "lead": "Tìm giáo viên theo môn học, vị trí và đánh giá."
+    },
+    "trial": {
+      "title": "Buổi học thử",
+      "lead": "Trải nghiệm miễn phí trước khi cam kết."
+    },
+    "pricing": {
+      "title": "Bảng giá",
+      "lead": "Minh bạch học phí và gói linh hoạt."
+    },
+    "ratingsPolicy": {
+      "title": "Chính sách đánh giá",
+      "lead": "Hướng dẫn đánh giá công bằng và hữu ích."
+    },
+    "roadmaps": {
+      "title": "Lộ trình học",
+      "lead": "Kế hoạch học theo môn và cấp độ."
+    },
+    "safeguarding": {
+      "title": "An toàn học đường",
+      "lead": "Chuẩn bảo vệ học sinh và môi trường học."
+    },
+    "helpParents": {
+      "title": "Trợ giúp cho phụ huynh",
+      "lead": "Câu hỏi thường gặp và hướng dẫn nhanh."
+    },
+    "download": {
+      "title": "Tải ứng dụng",
+      "lead": "Tải Tuto trên iOS và Android."
+    },
+    "adaptiveHomework": {
+      "title": "Bài tập thích ứng",
+      "lead": "Nội dung cá nhân hóa theo mức độ."
+    },
+    "practice": {
+      "title": "Luyện tập",
+      "lead": "Bài tập hằng ngày và theo chủ đề."
+    },
+    "events": {
+      "title": "Sự kiện",
+      "lead": "Cuộc thi, hội thảo và hoạt động cộng đồng."
+    },
+    "planner": {
+      "title": "Kế hoạch học",
+      "lead": "Quản lý lịch học và mục tiêu."
+    },
+    "scholarships": {
+      "title": "Học bổng",
+      "lead": "Cơ hội hỗ trợ tài chính cho học sinh."
+    },
+    "badges": {
+      "title": "Huy hiệu",
+      "lead": "Thành tích và động lực học tập."
+    },
+    "helpStudents": {
+      "title": "Trợ giúp cho học sinh",
+      "lead": "Hướng dẫn sử dụng và mẹo học tốt."
+    },
+    "codeOfConduct": {
+      "title": "Quy tắc ứng xử",
+      "lead": "Môi trường học tôn trọng và tích cực."
+    },
+    "institutesPartner": {
+      "title": "Đối tác",
+      "lead": "Hợp tác cùng trung tâm/viện đào tạo."
+    },
+    "institutesCrm": {
+      "title": "CRM",
+      "lead": "Quản lý khách hàng và liên hệ."
+    },
+    "institutesScheduling": {
+      "title": "Lịch",
+      "lead": "Xếp lịch lớp và tài nguyên."
+    },
+    "institutesAds": {
+      "title": "Quảng cáo",
+      "lead": "Chạy chiến dịch thu hút học viên."
+    },
+    "institutesRecruit": {
+      "title": "Tuyển dụng",
+      "lead": "Quy trình tuyển giáo viên và cộng tác viên."
+    },
+    "institutesReviews": {
+      "title": "Đánh giá",
+      "lead": "Quản lý phản hồi và uy tín."
+    },
+    "institutesBilling": {
+      "title": "Thanh toán",
+      "lead": "Hóa đơn và đối soát cho tổ chức."
+    },
+    "helpPartners": {
+      "title": "Trợ giúp đối tác",
+      "lead": "Tài liệu và hỗ trợ triển khai."
+    },
+    "teachersApply": {
+      "title": "Đăng ký giáo viên",
+      "lead": "Gia nhập mạng lưới giáo viên Tuto."
+    },
+    "teachersOnboarding": {
+      "title": "Onboarding giáo viên",
+      "lead": "Thiết lập hồ sơ và lịch dạy."
+    },
+    "teachersPayments": {
+      "title": "Thanh toán",
+      "lead": "Theo dõi thu nhập và thanh toán."
+    },
+    "teachersCalendar": {
+      "title": "Lịch dạy",
+      "lead": "Quản lý lịch và sắp xếp lớp."
+    },
+    "teachersResources": {
+      "title": "Tài nguyên",
+      "lead": "Tài liệu giảng dạy và mẫu bài."
+    },
+    "teachersCommunity": {
+      "title": "Cộng đồng",
+      "lead": "Kết nối và chia sẻ kinh nghiệm."
+    },
+    "teachersQuality": {
+      "title": "Chất lượng",
+      "lead": "Chuẩn chất lượng và phản hồi."
+    },
+    "helpTeachers": {
+      "title": "Trợ giúp giáo viên",
+      "lead": "Hướng dẫn và câu hỏi thường gặp."
+    },
+    "help": {
+      "title": "Trợ giúp",
+      "lead": "Trung tâm hỗ trợ cho người dùng."
+    },
+    "blog": {
+      "title": "Blog",
+      "lead": "Bài viết, mẹo học và câu chuyện."
+    },
+    "developers": {
+      "title": "Developers",
+      "lead": "Tài liệu tích hợp và API."
+    },
+    "status": {
+      "title": "Trạng thái hệ thống",
+      "lead": "Tình trạng dịch vụ hiện tại."
+    },
+    "legalTerms": {
+      "title": "Điều khoản",
+      "lead": "Điều khoản sử dụng dịch vụ."
+    },
+    "legalPrivacy": {
+      "title": "Bảo mật",
+      "lead": "Chính sách quyền riêng tư."
+    },
+    "legalCookies": {
+      "title": "Cookies",
+      "lead": "Chính sách cookie."
+    },
+    "sitemap": {
+      "title": "Sơ đồ trang",
+      "lead": "Tổng quan liên kết website."
+    }
+  },
   "landing": {
     "nav": {
       "home": "Trang Chủ",
-      "findSchool": "Tìm Trường/Trung Tâm",
       "findTeacher": "Tìm Giáo Viên",
       "communityFeed": "Bảng Tin",
       "schoolDashboard": "Trường Học",
       "dashboard": "Bảng Điều Khiển",
-      "login": "Đăng Nhập"
+      "mySchedule": "Lịch Của Tôi",
+      "messages": "Tin Nhắn",
+      "login": "Đăng Nhập",
+      "community": "Cộng đồng"
     },
     "hero": {
       "title": "Nền tảng học tập cho Nhà trường, Giáo viên & Gia đình",
@@ -1734,16 +1688,6 @@
       "privacyPolicy": "Chính Sách Bảo Mật",
       "termsOfService": "Điều Khoản Dịch Vụ",
       "contactUs": "Liên Hệ"
-    },
-    "nav": {
-      "home": "Trang Chủ",
-      "findTeacher": "Tìm Giáo Viên",
-      "communityFeed": "Bảng Tin",
-      "schoolDashboard": "Trường Học",
-      "dashboard": "Bảng Điều Khiển",
-      "mySchedule": "Lịch Của Tôi",
-      "messages": "Tin Nhắn",
-      "login": "Đăng Nhập"
     }
   },
   "parentDashboard": {

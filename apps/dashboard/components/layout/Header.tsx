@@ -1,18 +1,36 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { useI18n } from '../../contexts/I18nContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
+
+const SOCIAL_URL = process.env.NEXT_PUBLIC_SOCIAL_URL ?? 'http://localhost:3001';
 
 export default function Header() {
   const { t, lang, setLang } = useI18n();
   const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const pathname = usePathname();
+  const pathname  = usePathname();
+  const router    = useRouter();
+
+  const handleCommunityClick = useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      router.push('/login?redirectTo=/community');
+      return;
+    }
+    const params = new URLSearchParams({
+      access_token:  session.access_token,
+      refresh_token: session.refresh_token,
+    });
+    window.location.href = `${SOCIAL_URL}/auth/sso?${params.toString()}`;
+  }, [router]);
 
   const isActive = (path: string) => {
     if (path === '/') return pathname === '/';
@@ -44,6 +62,14 @@ export default function Header() {
           <Link href="/feed" className={linkClass('/feed')}>
             {t('landing.nav.communityFeed')}
           </Link>
+          <a
+            href={`${SOCIAL_URL}/auth/sso`}
+            onClick={handleCommunityClick}
+            className="text-sm font-semibold transition-colors text-gray-600 hover:text-[#0B5FFF] flex items-center gap-1.5"
+          >
+            <span className="inline-block w-2 h-2 rounded-full bg-[#0B5FFF] animate-pulse" />
+            {t('landing.nav.community')}
+          </a>
           <Link href="/school" className={linkClass('/school')}>
             {t('landing.nav.schoolDashboard')}
           </Link>
@@ -101,6 +127,14 @@ export default function Header() {
             <Link href="/feed" className={linkClass('/feed')}>
               {t('landing.nav.communityFeed')}
             </Link>
+            <a
+              href={`${SOCIAL_URL}/auth/sso`}
+              onClick={handleCommunityClick}
+              className="text-sm font-semibold transition-colors text-gray-600 hover:text-[#0B5FFF] flex items-center gap-1.5"
+            >
+              <span className="inline-block w-2 h-2 rounded-full bg-[#0B5FFF]" />
+              {t('landing.nav.community')}
+            </a>
             <Link href="/school" className={linkClass('/school')}>
               {t('landing.nav.schoolDashboard')}
             </Link>

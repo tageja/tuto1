@@ -12,6 +12,8 @@ import AlbumDetailScreen from '../screens/school/AlbumDetailScreen';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNotifications } from '../hooks/useNotifications';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
+import { SocialStackNavigator } from './SocialStack';
 
 const Tab = createBottomTabNavigator();
 const AttendanceStack = createStackNavigator();
@@ -46,6 +48,7 @@ const PhotosStackNavigator = () => {
 export const ParentTabs = () => {
   const { colors, spacing, typography } = useTheme();
   const { unreadCount, urgentUnreadCount, hasUrgentUnread } = useNotifications();
+  const { t } = useLanguage();
 
   // Notification bell component with badge
   const NotificationBell = ({ color, size }: { color: string; size: number }) => {
@@ -106,6 +109,14 @@ export const ParentTabs = () => {
         name="PhotosTab"
         component={PhotosStackNavigator}
         options={{ tabBarIcon: ({ color, size }) => <MaterialIcons name="photo-album" color={color} size={size} />, title: 'Photos' }}
+      />
+      <Tab.Screen
+        name="CommunityTab"
+        component={SocialStackNavigator}
+        options={{
+          tabBarIcon: ({ color, size }) => <MaterialIcons name="people" color={color} size={size} />,
+          title: t('community.tab'),
+        }}
       />
       <Tab.Screen
         name="ProfileTab"

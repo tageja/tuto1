@@ -1,0 +1,304 @@
+---
+description: tuto.social — Social Community Feature Rules. Apply when working on anything in src/screens/social/, src/components/social/, src/services/social/, apps/social/, supabase/migrations/ (social tables), or supabase/functions/ (social-* functions).
+globs:
+  - "src/screens/social/**"
+  - "src/components/social/**"
+  - "src/services/social/**"
+  - "src/types/social/**"
+  - "apps/social/**"
+  - "supabase/migrations/*social*"
+  - "supabase/functions/social-*/**"
+---
+
+# tuto.social — Agent Rules & Project Context
+
+## MANDATORY: Read Before Starting Any Task
+
+You are working on the **Tuto Social Community** feature — an education-first social platform within the Tuto ecosystem.
+
+### Before touching any file, you MUST read:
+1. `docs/prd-specs/TUTO_SOCIAL_ASSET_MAP.csv` — Find every screenshot, design, code reference, and Figma prompt for this project. Always check here first before asking where something is.
+2. `docs/prd-specs/TUTO_SOCIAL_PROGRESS_TRACKER.csv` — Check the status of what you are about to build. Do NOT build something already marked "Complete". Update the Status column when you finish a feature.
+3. `docs/prd-specs/TUTO_SOCIAL_PRD.md` — Full product spec (read sections relevant to your task)
+4. `docs/prd-specs/TUTO_SOCIAL_CURSOR_RULES.md` — Architecture rules (non-negotiable)
+
+### After finishing any task, you MUST:
+- Update `TUTO_SOCIAL_PROGRESS_TRACKER.csv`: set Status to "Complete" and add a brief note in the Notes column
+- Update `TUTO_SOCIAL_ASSET_MAP.csv` if you saved, created, or received ANY new reference material (see rules below)
+
+---
+
+## ASSET MAP — Mandatory Update Rules
+
+The `docs/prd-specs/TUTO_SOCIAL_ASSET_MAP.csv` is the single source of truth for finding every design artifact, screenshot, code reference, and document related to this project.
+
+**You MUST add a new row to the Asset Map when ANY of the following happen:**
+
+| Trigger | What to add |
+|---------|-------------|
+| New Figma design output received (screenshots) | Row under "DESIGN SCREENSHOTS" with full path, screen name, what it shows, assessment, and when to use it |
+| New Figma code output saved | Row under "FIGMA CODE OUTPUTS" with full path and a note that it is NOT production code |
+| New Figma prompt created | Row under "FIGMA PROMPTS" with path and status (Pending / Done) |
+| New planning or strategy document created | Row under "STRATEGY & PLANNING" |
+| Any reference file moved or renamed | Update the Full Path column in existing row |
+| New screenshots received from user | Add row immediately before starting analysis |
+
+**Asset Map columns to fill:** Asset Type, Asset Name, Full Path, What It Contains, When To Use It, Last Updated, Added By
+
+**Never leave a new design artifact undocumented.** If you receive screenshots from the user, add them to the Asset Map BEFORE starting your review.
+
+---
+
+## Agent Roles — Match Your Role to Your Task
+
+Every agent working on tuto.social has a designated role. Your role determines your scope. **Do not work outside your role's scope.**
+
+| Role | Scope | Files You Touch |
+|------|-------|-----------------|
+| **React Native Engineer** | Mobile screens, components, navigation | `src/screens/social/` `src/components/social/` `src/navigation/SocialStack.tsx` |
+| **Supabase Engineer** | Database schema, RLS policies, indexes, Edge Functions | `supabase/migrations/` `supabase/functions/social-*` |
+| **Auth Engineer** | Authentication, account linking, SSO | `supabase/functions/social-auth/` `src/services/social/auth.service.ts` |
+| **Trust & Safety Engineer** | Moderation system, content screening, parental consent | `supabase/functions/social-moderation/` `src/components/social/Moderation*.tsx` |
+| **Integration Engineer** | Cross-posting, external APIs (Zalo, Facebook), webhooks | `supabase/functions/social-integrations/` |
+| **Design System Engineer** | Tokens, component library, i18n | `src/components/social/ui/` `config/theme.ts` `config/translations.ts` |
+| **Analytics Engineer** | Success metrics, event tracking | `src/services/social/analytics.service.ts` `supabase/functions/social-analytics/` |
+| **Next.js Engineer** | Web social platform (Phase 3 only) | `apps/social/` |
+
+---
+
+## Platform Structure — Where Code Lives
+
+```
+Phase 1 (Build Now): Mobile App Social Tab
+├── src/screens/social/          ← Mobile screens
+├── src/components/social/       ← Mobile components
+├── src/services/social/         ← API service layer
+├── src/types/social/            ← TypeScript types
+└── supabase/                    ← Shared backend
+
+Phase 2 (After Mobile MVP): Enhanced Social Features
+└── src/screens/social/ (Shorts, Explore, DMs added)
+
+Phase 3 (After Phase 2 Engagement Proven): Web Platform
+└── apps/social/                 ← Next.js standalone social website
+```
+
+**IMPORTANT:** We are in Phase 1. Do NOT build anything marked Phase 2 or Phase 3 in the tracker without explicit instruction.
+
+---
+
+## Tuto Brand Assets — Use Existing Assets Only
+
+**NEVER create a new Tuto logo. NEVER use a placeholder "T" circle as the logo in production code.**
+
+The real Tuto logo is already in the codebase and must be used everywhere:
+
+| Context | File Path | Usage |
+|---------|-----------|-------|
+| Mobile App (React Native) | `assets/images/tuto-logo.png` | Use with `<Image source={require('../../assets/images/tuto-logo.png')} />` |
+| Mobile Splash | `assets/splash-logo.png` | Already configured — do not modify |
+| Web (Next.js) | `apps/dashboard/public/images/tuto-logo.png` | Use with `<Image src="/images/tuto-logo.png" />` in Next.js |
+| Social Website | Copy from `apps/dashboard/public/images/tuto-logo.png` into `apps/social/public/` | Same logo, same asset |
+
+**For the Achievement Card gradient header:** The Figma prototype shows a white "T" circle — in the real implementation use the actual `tuto-logo.png` asset rendered in white tint instead.
+
+**If you are unsure whether a logo asset exists, check `assets/images/` and `apps/dashboard/public/images/` before creating anything.**
+
+---
+
+## Product Vision (Know This Cold)
+
+**What tuto.social is:**
+- Phase 1: A structured, intelligent replacement for school Zalo/WhatsApp groups — with the learning progress layer that Zalo cannot have
+- Phase 2: Adds Facebook-like social graph (follows, explore, public posts)
+- Phase 3: Adds YouTube-like content layer (Shorts/Study Clips) and standalone web
+
+**The single most important feature:** Achievement auto-posts. When a student completes a milestone in Tuto, an achievement post is auto-generated. No user action required. This seeds content from day 1.
+
+**Primary users (Phase 1):** Parents (consumption) + Teachers/School Admins (creation). Students are secondary.
+
+**Competitors being replaced:** Zalo school groups — NOT Facebook/Instagram.
+
+---
+
+## Moderation Rules (Non-Negotiable — Legal Compliance)
+
+**Every post type has a moderation gate. No post goes live without passing its gate.**
+
+| Post Author | Moderation Gate | Gate Keeper | Badge Shown |
+|-------------|----------------|-------------|-------------|
+| Student | Parent must click "Allow" | Parent account | 🔒 Parent Approved |
+| Parent | School admin reviews (school-scoped posts) | School admin | ✓ Admin Reviewed |
+| Teacher | AI screening + Tuto HQ human review | Tuto platform | ✓ AI Reviewed |
+| School Admin | Tuto HQ review for public posts | Tuto platform | ✓ Verified |
+
+**Every post card MUST display its moderation badge.** This is a legal requirement for operating in Vietnam with minors.
+
+---
+
+## Teacher Shields / Gamification
+
+Teachers earn "Shields" (points) based on their content contribution:
+
+| Action | Shields Earned |
+|--------|---------------|
+| Post educational content (tagged with subject + grade) | +5 shields |
+| Post non-educational content | +1 shield |
+| Each share of their post by another user | +2 shields |
+| Each comment received on their post | +1 shield |
+| Post reaches 100+ views | +3 shields |
+
+Shield totals determine teacher **rank** (Beginner → Bronze → Silver → Gold → Elite). Rank is displayed on their profile and in teacher discovery lists. Rank helps freelance teachers attract new students and apply for school positions.
+
+---
+
+## Privacy Rules (Hard Requirements)
+
+| Data Type | Who Can See It |
+|-----------|----------------|
+| Student grades / scores | NEVER public. Never on feed. Only in private Tuto app view. |
+| Student achievements (positive) | Public OK — with parent consent |
+| Homework completion streaks | Public OK — with parent consent (shown as "100% homework star" not actual score) |
+| Attendance record | Only positive (100% attendance badge) — never absence info |
+| Student photos | Requires explicit parent consent before each photo is shared |
+| Teacher content | Visible per audience setting (Public / School / Class / Followers) |
+| School announcements | Default: School-scoped. Admin can promote to Public for marketing. |
+
+---
+
+## Design System (Use These — No Exceptions)
+
+```typescript
+// Colors
+primary: '#0B5FFF'
+surface: '#F9FAFC'
+onSurface: '#333333'
+achievement: '#F59E0B'
+achievementGradient: ['#F59E0B', '#F97316']
+
+// Role badge colors
+student: '#0B5FFF'   // Blue
+parent: '#10B981'    // Green
+teacher: '#8B5CF6'   // Purple
+schoolAdmin: '#F97316' // Orange
+
+// Reaction colors
+like: '#FF3B5C'
+applaud: '#6366F1'
+curious: '#F59E0B'
+
+// Corner radii
+button: 12
+chip: 999
+card: 16
+modal: 24
+
+// Typography
+caption: 12
+body: 15
+subtitle: 17
+header: 22
+display: 28
+```
+
+---
+
+## Data Flow (Supabase Only — No Firebase)
+
+```
+Mobile (src/) ─────────────────────────────────────────┐
+                                                        │
+Web (apps/social/) ─────────────────────────────────────┼──► Supabase ──► PostgreSQL
+                                                        │      │
+                                                        │      ├──► Auth (shared)
+                                                        │      ├──► Storage (media)
+                                                        │      ├──► Realtime (live)
+                                                        │      └──► Edge Functions
+```
+
+**ALL social data lives in Supabase.** No Airtable for social features. No Firebase.
+
+---
+
+## Critical i18n Rule
+
+Every user-facing string must use the translation system. **No hardcoded Vietnamese or English strings in JSX.**
+
+```typescript
+// ✅ Correct
+const { t } = useLanguage();
+<Text>{t('community.feed.school_tab')}</Text>
+
+// ❌ Wrong
+<Text>Trường học</Text>
+<Text>School</Text>
+```
+
+---
+
+## Post Types Reference
+
+All 9 post types must be handled in every PostCard component:
+
+```typescript
+type PostType = 
+  | 'text'         // Basic text post
+  | 'photo'        // Image post (1-4 photos)
+  | 'video'        // Standard video (not Shorts)
+  | 'poll'         // Interactive poll (Phase 2)
+  | 'event'        // School event with RSVP
+  | 'assignment'   // Homework/task post
+  | 'achievement'  // Auto-generated milestone (MOST IMPORTANT)
+  | 'question'     // Parent/student question post
+  | 'announcement' // Official school announcement (pinned)
+```
+
+Achievement posts use a DIFFERENT visual treatment — gold gradient card, never a plain white card.
+
+---
+
+## Success Metrics (Build With These In Mind)
+
+The North Star metric is: **Weekly Active Posters per School**
+
+Track these events in every feature you build:
+- `community_post_created` (post_type, audience, author_role)
+- `community_post_viewed` (post_type, viewer_role)
+- `community_reaction_added` (reaction_type, post_type)
+- `community_comment_added` (post_type)
+- `community_achievement_generated` (subject, grade_level)
+- `community_teacher_shield_earned` (shield_type, shield_count)
+- `community_moderation_approved` (post_type, moderator_type)
+- `community_moderation_rejected` (post_type, reason)
+
+---
+
+## Reference Files (Figma Design Reference — Do Not Port Directly)
+
+The Figma output lives at: `~/Desktop/tutoSocialDesign1/`
+
+Use these for:
+- Visual reference and design inspiration (screenshots)
+- Type definitions reference (`src/lib/types.ts` in Figma code)
+- i18n keys reference (`src/lib/i18n.ts` in Figma code)
+- Mock data for development (`src/lib/mock-data.ts` in Figma code)
+
+**Do NOT copy-paste Figma code directly.** The Figma code uses React+Vite (wrong stack). Use it as reference only, then implement in React Native / Next.js following the monorepo architecture.
+
+---
+
+## Checklist Before Submitting Any Code
+
+- [ ] Checked `TUTO_SOCIAL_PROGRESS_TRACKER.csv` — feature status is "Not Started" or "In Progress"
+- [ ] TypeScript types defined (no `any`)
+- [ ] Colors from theme (no hardcoded hex)
+- [ ] Strings from `t()` (no hardcoded text)
+- [ ] Moderation badge logic implemented (if creating a post display component)
+- [ ] Privacy rules respected (student data guards in place)
+- [ ] RLS policies added (if creating database migration)
+- [ ] Indexes added (if creating database migration)
+- [ ] Loading state handled
+- [ ] Empty state handled
+- [ ] Error state handled
+- [ ] Haptic feedback on interactions (mobile)
+- [ ] Updated `TUTO_SOCIAL_PROGRESS_TRACKER.csv` with "Complete" status

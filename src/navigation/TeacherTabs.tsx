@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLanguage } from '../contexts/LanguageContext';
+import { SocialStackNavigator } from './SocialStack';
 import { UserProfileScreen } from '../screens/UserProfileScreen';
 import AdminPhotoAlbumsScreen from '../screens/school/AdminPhotoAlbumsScreen';
 import AdminCreateAlbumScreen from '../screens/school/AdminCreateAlbumScreen';
@@ -84,6 +85,14 @@ export const TeacherTabs = () => {
         options={{
           tabBarIcon: ({ color, size }) => <MaterialIcons name="photo-album" color={color} size={size} />,
           title: 'Photos',
+        }}
+      />
+      <Tab.Screen
+        name="CommunityTab"
+        component={SocialStackNavigator}
+        options={{
+          tabBarIcon: ({ color, size }) => <MaterialIcons name="people" color={color} size={size} />,
+          title: t('community.tab'),
         }}
       />
       <Tab.Screen
