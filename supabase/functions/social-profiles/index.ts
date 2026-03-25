@@ -7,7 +7,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const corsHeaders = {
   'Access-Control-Allow-Origin':  '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, OPTIONS',
 };
 
 Deno.serve(async (req: Request) => {
@@ -46,15 +46,30 @@ Deno.serve(async (req: Request) => {
     const url = new URL(req.url);
 
     // ----------------------------------------------------------------
+    // GET /social-profiles?q=<query>     — search users by display_name, username
     // GET /social-profiles?userId=<uuid>
-    //     /social-profiles?username=<str>
+    // GET /social-profiles?username=<str>
     // ----------------------------------------------------------------
     if (req.method === 'GET') {
+      const q        = url.searchParams.get('q');
       const userId   = url.searchParams.get('userId');
       const username = url.searchParams.get('username');
 
+      if (q) {
+        const term = q.trim();
+        if (!term) return jsonResponse(200, { success: true, data: [] });
+        const pattern = `%${term}%`;
+        const { data, error } = await authedClient
+          .from('social_profiles')
+          .select('*')
+          .or(`display_name.ilike.${pattern},username.ilike.${pattern}`)
+          .limit(30);
+        if (error) return errorResponse(500, error.message);
+        return jsonResponse(200, { success: true, data: data ?? [] });
+      }
+
       if (!userId && !username) {
-        return errorResponse(400, 'Provide userId or username query param');
+        return errorResponse(400, 'Provide userId, username, or q query param');
       }
 
       let query = authedClient.from('social_profiles').select('*');
@@ -71,9 +86,53 @@ Deno.serve(async (req: Request) => {
     }
 
     // ----------------------------------------------------------------
+    // POST /social-profiles?avatar=1 — upload avatar (multipart/form-data)
     // POST /social-profiles — create or upsert profile for current user
     // ----------------------------------------------------------------
     if (req.method === 'POST') {
+      if (url.searchParams.get('avatar') === '1') {
+        const contentType = req.headers.get('Content-Type') ?? '';
+        if (!contentType.includes('multipart/form-data')) {
+          return errorResponse(400, 'Expect multipart/form-data for avatar upload');
+        }
+        const formData = await req.formData();
+        const file = formData.get('file') ?? formData.get('avatar');
+        if (!file || !(file instanceof File)) {
+          return errorResponse(400, 'Missing file or avatar in form data');
+        }
+
+        const { data: profile } = await adminClient
+          .from('social_profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        if (!profile) return errorResponse(404, 'Profile not found');
+
+        const ext = file.name.split('.').pop() ?? 'jpg';
+        const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+
+        const { error: uploadErr } = await adminClient.storage
+          .from('social-media')
+          .upload(path, await file.arrayBuffer(), {
+            contentType: file.type || 'image/jpeg',
+            upsert: false,
+          });
+        if (uploadErr) return errorResponse(500, uploadErr.message);
+
+        const { data: urlData } = adminClient.storage.from('social-media').getPublicUrl(path);
+        const avatarUrl = urlData.publicUrl;
+
+        const { data: updated, error: updateErr } = await adminClient
+          .from('social_profiles')
+          .update({ avatar_url: avatarUrl })
+          .eq('id', profile.id)
+          .select()
+          .single();
+        if (updateErr) return errorResponse(500, updateErr.message);
+
+        return jsonResponse(200, { success: true, data: updated });
+      }
+
       const body = await req.json().catch(() => ({}));
 
       const {
@@ -158,6 +217,63 @@ Deno.serve(async (req: Request) => {
       }
 
       // Merge settings
+      if (body.settings && typeof body.settings === 'object') {
+        updateData.settings = { ...(existing.settings ?? {}), ...body.settings };
+      }
+
+      if (Object.keys(updateData).length === 0) {
+        return errorResponse(400, 'No valid fields to update');
+      }
+
+      const { data, error } = await adminClient
+        .from('social_profiles')
+        .update(updateData)
+        .eq('id', existing.id)
+        .select()
+        .single();
+
+      if (error) return errorResponse(500, error.message);
+
+      return jsonResponse(200, { success: true, data });
+    }
+
+    // ----------------------------------------------------------------
+    // PATCH /social-profiles — same as PUT, update own profile
+    // ----------------------------------------------------------------
+    if (req.method === 'PATCH') {
+      const body = await req.json().catch(() => ({}));
+
+      const { data: existing } = await adminClient
+        .from('social_profiles')
+        .select('id, settings')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (!existing) {
+        return errorResponse(404, 'Profile not found. Create it first.');
+      }
+
+      const allowed = [
+        'display_name', 'bio', 'avatar_url', 'cover_url', 'username',
+        'is_private', 'subjects',
+      ] as const;
+
+      const updateData: Record<string, unknown> = {};
+      for (const key of allowed) {
+        if (body[key] !== undefined) updateData[key] = body[key];
+      }
+
+      if (body.username !== undefined) {
+        const lower = (body.username as string).toLowerCase().trim();
+        const { count } = await adminClient
+          .from('social_profiles')
+          .select('id', { count: 'exact', head: true })
+          .ilike('username', lower)
+          .neq('id', existing.id);
+        if ((count ?? 0) > 0) return errorResponse(409, 'Username already taken');
+        updateData.username = lower;
+      }
+
       if (body.settings && typeof body.settings === 'object') {
         updateData.settings = { ...(existing.settings ?? {}), ...body.settings };
       }

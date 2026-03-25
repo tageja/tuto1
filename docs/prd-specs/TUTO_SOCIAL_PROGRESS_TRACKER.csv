@@ -8,23 +8,23 @@ Database Foundation,social_notifications table,1,Backend,P0,Complete,Supabase En
 Database Foundation,RLS Policies,1,Backend,P0,Complete,Supabase Engineer,All social tables,Not needed,051_social_rls_policies.sql — school-scoped isolation on social_posts / social_my_school_id() helper
 Database Foundation,Performance Indexes,1,Backend,P0,Complete,Supabase Engineer,All social tables,Not needed,052_social_indexes.sql — 20+ indexes incl. school_id/created_at composite
 Moderation System,social_moderation_queue table,1,Backend,P0,Complete,Trust & Safety Engineer,social_posts,Not needed,050_social_moderation.sql — auto-enqueue trigger + approval sync trigger
-Moderation System,AI content screening (text),1,Backend,P0,Not Started,Trust & Safety Engineer,social_moderation_queue,Not needed,OpenAI moderation API integration
+Moderation System,AI content screening (text),1,Backend,P0,Complete,Trust & Safety Engineer,social_moderation_queue,Not needed,Part 9: social-moderation Edge Function + OpenAI API; posts API + reels.service invoke screening
 Moderation System,AI content screening (image),1,Backend,P1,Not Started,Trust & Safety Engineer,social_moderation_queue,Not needed,Google Vision API for image safety
 Moderation System,Parent consent flow for student posts,1,Backend + Mobile,P0,Not Started,Trust & Safety Engineer,social_posts,Pending Figma 7.1,Parent must approve before student post goes live
-Moderation System,School admin moderation panel,1,Mobile + Backend,P0,Not Started,Trust & Safety Engineer,social_moderation_queue,Pending Figma 7.3,School admin approves/rejects school-scoped posts
+Moderation System,School admin moderation panel,1,Mobile + Backend,P0,Complete,Trust & Safety Engineer,social_moderation_queue,Pending Figma 7.3,Part 9: apps/dashboard admin/moderation page + ModerationQueue; social-moderation approve/reject
 Moderation System,Tuto HQ moderation (teacher posts),1,Backend,P0,Not Started,Trust & Safety Engineer,social_moderation_queue,Not needed,Human + AI review before teacher posts go public
-Moderation System,Moderation badge display on posts,1,Mobile,P0,Not Started,React Native Engineer,social_posts,Pending Figma 7.1,Show AI Reviewed / Pending / Parent Approved badges
+Moderation System,Moderation badge display on posts,1,Mobile,P0,Complete,React Native Engineer,social_posts,Pending Figma 7.1,ModerationBadge on PostCard; added rejected status (migration 078)
 Achievement System,Achievement auto-post trigger,1,Backend,P0,Complete,Supabase Engineer,social_posts + Tuto milestone system,Not needed,053_social_achievement_trigger.sql — create_achievement_post() RPC scaffold callable from mobile/backend; full trigger pending milestone table
-Achievement System,Achievement post card design,1,Mobile,P0,Not Started,React Native Engineer,social_posts,Pending Figma 7.2,Premium celebration card - most important visual in MVP
+Achievement System,Achievement post card design,1,Mobile,P0,Complete,React Native Engineer,social_posts,Pending Figma 7.2,AchievementCard.tsx — gradient header (5 types), emoji, author row, reaction bar, share CTA, compact variant for Creator Dashboard
 Achievement System,Achievement post shareable format,1,Mobile,P1,Not Started,React Native Engineer,Achievement post card,Pending Figma 7.2,Square image for sharing to Zalo/Facebook
-Achievement System,Achievement tab on profile,1,Mobile,P1,Not Started,React Native Engineer,social_profiles,Pending Figma 7.1,Shows earned badges and XP progress
-Achievement System,XP and Level system,1,Backend,P1,Not Started,Supabase Engineer,social_profiles,Not needed,Level 1-5 with XP accumulation
-Teacher Shields / Gamification,social_teacher_shields table,1,Backend,P1,Not Started,Supabase Engineer,social_profiles,Not needed,Shield count per teacher
-Teacher Shields / Gamification,Shield award logic (educational content),1,Backend,P1,Not Started,Supabase Engineer,social_posts social_teacher_shields,Not needed,Educational post type = 5 shields
+Achievement System,Achievement tab on profile,1,Mobile,P1,Complete,React Native Engineer,social_profiles,Pending Figma 7.1,Part 7: AchievementBadge (level+XP) + streak flame in ProfileStats
+Achievement System,XP and Level system,1,Backend,P1,Complete,Supabase Engineer,social_profiles,Not needed,075_social_xp_level_streak_triggers.sql — XP triggers + create_level_up_post (ai_reviewed) + level 1-5
+Teacher Shields / Gamification,social_teacher_shields table,1,Backend,P1,Complete,Supabase Engineer,social_profiles,Not needed,Part 8: shield_count + shield_rank on social_profiles (migration 080)
+Teacher Shields / Gamification,Shield award logic (educational content),1,Backend,P1,Complete,Supabase Engineer,social_posts social_teacher_shields,Not needed,Part 8: award_teacher_shields trigger — +5 educational +1 other ( migration 080)
 Teacher Shields / Gamification,Shield award logic (shares / reposts),1,Backend,P1,Not Started,Supabase Engineer,social_teacher_shields,Not needed,Each share of teacher content = shield
-Teacher Shields / Gamification,Shield award logic (comments received),1,Backend,P1,Not Started,Supabase Engineer,social_teacher_shields,Not needed,Each comment on teacher post = shield
-Teacher Shields / Gamification,Teacher ranking leaderboard,1,Mobile,P1,Not Started,React Native Engineer,social_teacher_shields,Pending Figma 7.4,Ranked teacher profiles by shield count + subject
-Teacher Shields / Gamification,Shield display on teacher profile,1,Mobile,P1,Not Started,React Native Engineer,social_profiles,Pending Figma 7.4,Shows shield count and rank level
+Teacher Shields / Gamification,Shield award logic (comments received),1,Backend,P1,Complete,Supabase Engineer,social_teacher_shields,Not needed,Part 8 cont: migration 081 award_shield_on_comment trigger
+Teacher Shields / Gamification,Teacher ranking leaderboard,1,Mobile,P1,Complete,React Native Engineer,social_teacher_shields,Pending Figma 7.4,Part 8 cont: LeaderboardScreen + getTeacherLeaderboard
+Teacher Shields / Gamification,Shield display on teacher profile,1,Mobile,P1,Complete,React Native Engineer,social_profiles,Pending Figma 7.4,Part 8: ProfileHeader shows shield icon + count + rank pill for teachers
 School Feed,School Feed tab,1,Mobile,P0,Complete,React Native Engineer,social_posts,Part 2 Done,SocialFeedScreen + FeedHeader with 3 tabs
 School Feed,Pinned Announcement banner,1,Mobile,P0,Complete,React Native Engineer,social_posts,Part 2 Done,getPinnedPosts() + isPinned filter in feed.service.ts
 School Feed,Feed tabs (School / For You / Following),1,Mobile,P0,Complete,React Native Engineer,social_posts,Part 2 Done,FeedHeader.tsx with animated tab indicator
@@ -47,27 +47,27 @@ Comments,Comment system (threaded),1,Mobile,P0,Complete,React Native Engineer,so
 Comments,Pinned teacher comment,1,Mobile,P1,Complete,React Native Engineer,social_comments,Part 2 Done,isPinned gold border in PostDetailScreen comment list
 Comments,Like a comment,1,Mobile,P1,Complete,React Native Engineer,social_comments + social_likes,Part 2 Done,likeComment() in interactions.service.ts
 Comments,Comment input bar (sticky),1,Mobile,P0,Complete,React Native Engineer,social_comments,Part 2 Done,Sticky inputBar in PostDetailScreen + CommentSection web
-Profile,Student profile page,1,Mobile,P0,Not Started,React Native Engineer,social_profiles,Pending Figma 7.1,See design spec in 7.1 and 7.4
-Profile,Parent profile page,1,Mobile,P0,Not Started,React Native Engineer,social_profiles,Pending Figma 7.4,Parent-specific design variation
-Profile,Teacher profile page,1,Mobile,P0,Not Started,React Native Engineer,social_profiles,Pending Figma 7.4,Verified badge + booking CTA + shields
-Profile,Profile post grid (3-column),1,Mobile,P0,Not Started,React Native Engineer,social_posts + social_profiles,Pending Figma 7.1,Instagram-style grid
-Profile,Achievements tab on profile,1,Mobile,P1,Not Started,React Native Engineer,Achievement System,Pending Figma 7.1,Earned badges + XP progress
-Profile,Edit profile (basic),1,Mobile,P1,Not Started,React Native Engineer,social_profiles,Pending later Figma,Not in MVP v1 - read-only in MVP
-Profile,Follow / Unfollow button,1,Mobile,P1,Not Started,React Native Engineer,social_follows,Pending Figma 7.1,Needed for Phase 1 social graph
+Profile,Student profile page,1,Mobile,P0,Complete,React Native Engineer,social_profiles,Pending Figma 7.1,See design spec in 7.1 and 7.4
+Profile,Parent profile page,1,Mobile,P0,Complete,React Native Engineer,social_profiles,Pending Figma 7.4,Parent-specific design variation
+Profile,Teacher profile page,1,Mobile,P0,Complete,React Native Engineer,social_profiles,Pending Figma 7.4,Verified badge + booking CTA + shields
+Profile,Profile post grid (3-column),1,Mobile,P0,Complete,React Native Engineer,social_posts + social_profiles,Pending Figma 7.1,Instagram-style grid
+Profile,Achievements tab on profile,1,Mobile,P1,Complete,React Native Engineer,Achievement System,Pending Figma 7.1,Earned badges + XP progress
+Profile,Edit profile (basic),1,Mobile,P1,Complete,React Native Engineer,social_profiles,Pending later Figma,Not in MVP v1 - read-only in MVP
+Profile,Follow / Unfollow button,1,Mobile,P1,Complete,React Native Engineer,social_follows,Pending Figma 7.1,Needed for Phase 1 social graph
 Accounts & Auth,Parent-child account linking,1,Mobile + Backend,P0,Not Started,Auth Engineer,Supabase Auth,Pending Figma 7.1,Parent links to child using school email / student ID
 Accounts & Auth,School account linking,1,Mobile + Backend,P0,Not Started,Auth Engineer,Supabase Auth,Pending Figma 7.3,School admin can link their school account
 Accounts & Auth,Role assignment on registration,1,Mobile + Backend,P0,Not Started,Auth Engineer,Supabase Auth,Pending Figma,Student / Parent / Teacher / School Admin role at signup
 Accounts & Auth,SSO with existing Tuto account,1,Mobile + Backend + Web,P0,Complete,Auth Engineer,Supabase Auth,Complete,Dashboard Header "Cộng đồng" link → /auth/sso route passes tokens → setSession → /feed. Login page redirects to tuto.asia.
-School Page,School profile page,1,Mobile,P0,Not Started,React Native Engineer,social_profiles,Pending Figma 7.3,Official school presence
-School Page,School announcements feed,1,Mobile,P0,Not Started,React Native Engineer,social_posts,Pending Figma 7.3,Admin-posted announcements with pinning
+School Page,School profile page,1,Mobile,P0,Complete,React Native Engineer,social_profiles,Pending Figma 7.3,SchoolProfileScreen — 3-tab layout (announcements/staff/achievements)
+School Page,School announcements feed,1,Mobile,P0,Complete,React Native Engineer,social_posts,Pending Figma 7.3,getSchoolAnnouncements() in profile.service — Admin-posted announcements with pinning
 School Page,School events calendar,1,Mobile,P1,Not Started,React Native Engineer,social_posts,Pending Figma 7.3,Upcoming events display
-School Page,Staff directory (teacher list),1,Mobile,P1,Not Started,React Native Engineer,social_profiles,Pending Figma 7.3,Teachers linked to school
-School Page,Achievement spotlights,1,Mobile,P1,Not Started,React Native Engineer,Achievement System,Pending Figma 7.3,Recent student achievements from school
+School Page,Staff directory (teacher list),1,Mobile,P1,Complete,React Native Engineer,social_profiles,Pending Figma 7.3,getSchoolStaff() — teachers linked to school, sorted by shield_count
+School Page,Achievement spotlights,1,Mobile,P1,Complete,React Native Engineer,Achievement System,Pending Figma 7.3,getSchoolAchievementSpotlights() — recent student achievements from school
 School Page,Auto-share consent popup,1,Mobile,P0,Not Started,React Native Engineer,Moderation System,Pending Figma 7.3,Admin sees "Share this to tuto.social?" popup for school events/photos
-Notifications,Push notification (school announcements),1,Mobile,P0,Not Started,React Native Engineer,Expo Push Notifications,Not needed,Priority: school announcements first
-Notifications,In-app notification center,1,Mobile,P0,Not Started,React Native Engineer,social_notifications,Pending Figma,Filter tabs: All / Social / Academic / Events
-Notifications,Achievement notification,1,Mobile,P0,Not Started,React Native Engineer,Achievement System + Push,Not needed,Triggered by achievement auto-post
-Notifications,Like / comment notifications,1,Mobile,P1,Not Started,React Native Engineer,social_notifications + Push,Not needed,Grouped (e.g. "45 people liked your post")
+Notifications,Push notification (school announcements),1,Mobile,P0,Complete,React Native Engineer,Expo Push Notifications,Not needed,Part 7: Expo Push for social (like/comment/follow/reel) via social-notify Edge Function
+Notifications,In-app notification center,1,Mobile,P0,Complete,React Native Engineer,social_notifications,Pending Figma,Part 7: SocialNotificationsScreen + NotificationItem + bell in Profile header
+Notifications,Achievement notification,1,Mobile,P0,Complete,React Native Engineer,Achievement System + Push,Not needed,Part 7: level_up type + push via social-notify
+Notifications,Like / comment notifications,1,Mobile,P1,Complete,React Native Engineer,social_notifications + Push,Not needed,Part 7: 074 triggers (like/comment/follow/reel_like) + in-app list + push
 Cross-Posting,Share TO Zalo from tuto.social,2,Mobile,P1,Not Started,Integration Engineer,Zalo Social SDK,Pending design,User manually shares post to Zalo via native share sheet
 Cross-Posting,Share TO Facebook from tuto.social,2,Mobile,P1,Not Started,Integration Engineer,Facebook Share API,Pending design,User manually shares post to Facebook via native share sheet
 Cross-Posting,Auto-share from school dashboard to tuto.social,2,Backend,P1,Not Started,Integration Engineer,School dashboard API + social_posts,Pending design,Webhook-triggered when school posts to their dashboard
@@ -75,7 +75,7 @@ Cross-Posting,Import posts from Facebook to tuto.social,3,Backend,P3,Not Started
 Educator Marketplace Connection,Teacher profile booking CTA,2,Mobile,P1,Not Started,React Native Engineer,social_profiles + Tuto marketplace API,Pending Figma 7.4,Book trial class button on teacher community profile
 Educator Marketplace Connection,School enrollment CTA on school page,2,Mobile,P1,Not Started,React Native Engineer,social_profiles + School dashboard,Pending Figma 7.3,Enroll / Contact school button
 Educator Marketplace Connection,Public posts drive bookings,2,Mobile + Backend,P1,Not Started,React Native Engineer,social_posts,Not needed,Public teacher posts visible to non-users → booking funnel
-Shorts / Study Clips,Shorts tab and vertical feed,2,Mobile,P1,Not Started,React Native Engineer,social_posts,Pending later Figma,Phase 2 - Not in MVP
+Shorts / Study Clips,Shorts tab and vertical feed,2,Mobile,P1,Complete,React Native Engineer,social_reels,Pending later Figma,Phase 2 complete — CreateReelScreen + social-reels storage bucket + createReel()
 Shorts / Study Clips,Subject + grade level tagging (required),2,Mobile + Backend,P1,Not Started,React Native Engineer,Shorts feed,Pending later Figma,Educational metadata required for all Shorts
 Shorts / Study Clips,Content type tag (Concept / Practice / Tip / Class),2,Mobile + Backend,P1,Not Started,React Native Engineer,Shorts feed,Pending later Figma,Distinguishes educational from casual content
 Shorts / Study Clips,Save to My Subjects,2,Mobile,P1,Not Started,React Native Engineer,Shorts feed + student study dashboard,Pending later Figma,Links Shorts to student's study profile
@@ -85,26 +85,38 @@ Explore / Discovery,Explore tab (Teachers / Schools / Topics),2,Mobile,P1,Not St
 Explore / Discovery,Teacher discovery by subject + location,2,Mobile,P1,Not Started,React Native Engineer,Explore tab,Pending later Figma,Parents find nearby tutors
 Explore / Discovery,Nearby schools discovery,2,Mobile,P1,Not Started,React Native Engineer,Explore tab,Pending later Figma,Location-based school discovery
 Explore / Discovery,Teacher ranked profiles (shield-based),2,Mobile,P1,Not Started,React Native Engineer,Teacher Shields + Explore,Pending Figma 7.4,Top teachers shown in explore by shield rank
-Direct Messaging,DM / Messaging tab,2,Mobile,P2,Not Started,React Native Engineer,social_profiles + Supabase Realtime,Pending later Figma,Phase 2 - not in MVP
-Direct Messaging,Parent-teacher direct message,2,Mobile,P2,Not Started,React Native Engineer,DM tab,Pending later Figma,Safe channel for parent-teacher communication
-Direct Messaging,Group chats (class group),2,Mobile,P2,Not Started,React Native Engineer,DM tab,Pending later Figma,Class-scoped group chats
+Direct Messaging,DM / Messaging tab,2,Mobile,P2,Complete,React Native Engineer,social_profiles + Supabase Realtime,Pending later Figma,Phase 2 — 1:1 + group chat + read receipts (✓/✓✓) in MessageBubble
+Direct Messaging,Parent-teacher direct message,2,Mobile,P2,In Progress,React Native Engineer,DM tab,Pending later Figma,Phase 1 — 1:1 works; parent-teacher flows same as 1:1
+Direct Messaging,Group chats (class group),2,Mobile,P2,Complete,React Native Engineer,DM tab,Pending later Figma,Phase 2 — NewGroupScreen, GroupChatInfoScreen, createGroupConversation, leaveConversation
 Web Platform (tuto.social),Social website (apps/social - Next.js),1,Web,P2,Complete,Next.js Engineer,Phase 1 mobile complete,Pending design,Scaffolded in Part 1 — layout/login/feed placeholder/auth callback/Header/Button/Avatar/Supabase clients
 Web Platform (tuto.social),Feed on web (tuto.social/),3,Web,P2,Complete,Next.js Engineer,apps/social app,Part 2 Done,FeedContainer + FeedPost + FeedSkeleton + PostInteractions + CommentSection + FeedFilters (URL-synced tabs) + CreatePostModal (fixed overlay) + ShareModal + /create page + post detail page
 Web Platform (tuto.social),Create Post on web,3,Web,P2,Complete,Next.js Engineer,apps/social app,Part 2 Done,CreatePostModal.tsx (fixed overlay; audience selector; subject tags; Supabase insert; pending state) + /create route (auth-gated)
 Web Platform (tuto.social),Share post on web,3,Web,P2,Complete,Next.js Engineer,apps/social app,Part 2 Done,ShareModal.tsx — copy link + navigator.share
-Web Platform (tuto.social),Teacher public profiles on web,3,Web,P2,Not Started,Next.js Engineer,apps/social app,Pending design,SEO-friendly teacher profiles
-Web Platform (tuto.social),School public pages on web,3,Web,P2,Not Started,Next.js Engineer,apps/social app,Pending design,SEO-friendly school pages
+Web Platform (tuto.social),Teacher public profiles on web,3,Web,P2,Complete,Next.js Engineer,apps/social app,Pending design,SEO-friendly teacher profiles
+Web Platform (tuto.social),Web search page,3,Web,P2,Complete,Next.js Engineer,apps/social app,Part 3 gap fix,/search page + UserGrid + SearchResults; users + posts tabs; 300ms debounce
+Web Platform (tuto.social),School public pages on web,3,Web,P1,Complete,Next.js Engineer,apps/social app,Not needed,/school/[schoolId] — 3-tab layout (announcements/staff/achievements); SEO metadata
+Web Platform (tuto.social),Notification page on web,3,Web,P1,Complete,Next.js Engineer,apps/social app,Not needed,/notifications — SSR initial load; mark-as-read on mount; unread bell dot in Header
+Web Platform (tuto.social),Rejected moderation badge on web,1,Web,P0,Complete,Next.js Engineer,apps/social app,Not needed,FeedPost.tsx MOD_BADGE + MOD_LABEL — added rejected case (bg-red-50 text-red-600)
+Web Platform (tuto.social),Leaderboard on web,2,Web,P1,Complete,Next.js Engineer,apps/social app,Not needed,/leaderboard — public page; top 3 podium + ranked list; shield info box; Header nav link
+Web Platform (tuto.social),Creator Dashboard on web,2,Web,P1,Complete,Next.js Engineer,apps/social app,Not needed,/dashboard — auth-gated; XP bar; stats row; top posts/reels tabs; shield section for teachers; Header dropdown link
+Web Platform (tuto.social),Messaging on web,2,Web,P1,Complete,Next.js Engineer,apps/social app,Not needed,/messages two-panel layout; /messages/[conversationId] chat with Realtime; start DM from profile; Header unread dot
+Web Platform (tuto.social),Settings page (blocked/muted) on web,1,Web,P1,Complete,Next.js Engineer,apps/social app,Not needed,/settings — blocked users tab + muted users tab; unblock/unmute actions; Header dropdown link
 Design System,Color tokens (light + dark),1,All,P0,Complete,Design System Engineer,None,Not needed,Defined in tailwind.config.js (apps/social) and rules.tuto-social.mdc
 Design System,Typography scale,1,All,P0,Complete,Design System Engineer,Color tokens,Not needed,Inter font + 4pt scale applied in globals.css and NativeWind
 Design System,Spacing scale,1,All,P0,Complete,Design System Engineer,Color tokens,Not needed,4pt grid defined in tailwind.config.js
-Design System,Component library (React Native),1,Mobile,P0,In Progress,Design System Engineer,Typography + Spacing,Pending Figma 7.1,Part 2 — SocialFeedScreen placeholder created; PostCard etc in Part 2
+Design System,Component library (React Native),1,Mobile,P0,Complete,Design System Engineer,Typography + Spacing,Pending Figma 7.1,Part 2 + Part 8: PostCard ReelCard ProfileHeader AchievementBadge CreatorDashboard etc
 Design System,i18n keys (VI/EN),1,All,P0,Complete,Design System Engineer,None,Not needed,community.* keys added to src/translations/index.ts (VI + EN) — 90+ keys incl. emptyTitle/emptySubtitle/submit/charCount/subjects/addSubjects/done/share.*
 Dashboard Integration,FeedPreview on dashboard homepage,1,Web,P1,Complete,Next.js Engineer,apps/dashboard + social_posts,Part 2 Done,FeedPreview.tsx rendered via (home)/layout.tsx server layout; shows 3 public approved posts
 Dashboard Integration,SocialCTA component,1,Web,P1,Complete,Next.js Engineer,apps/dashboard,Part 2 Done,SocialCTA.tsx — blue gradient banner with "Khám phá ngay →" CTA button
 Dashboard Integration,TrendingEducators component,1,Web,P1,Complete,Next.js Engineer,apps/dashboard + social_profiles,Part 2 Done,TrendingEducators.tsx — top 3 verified teachers by shield_count; profile cards with avatar + shield badge
 Mobile Sharing,Share post via native sheet (mobile),1,Mobile,P0,Complete,React Native Engineer,react-native Share API,Part 2 Done,ShareSheet.tsx — sharePost() wraps Share.share(); constructs tuto.social/post/{id} URL
-Success Metrics,Weekly Active Posters per School tracking,1,Backend,P0,Not Started,Analytics Engineer,social_posts + Analytics,Not needed,North Star metric
+Stories,social_stories table + RLS + storage bucket,1,Backend,P1,Complete,Supabase Engineer,social_profiles,Not needed,056_social_stories.sql — social_stories / social_story_views / social_story_reactions / social-stories bucket
+Stories,social-stories Edge Function,1,Backend,P1,Complete,Supabase Engineer,social_stories,Not needed,GET feed/author/viewers; POST create/view/react; DELETE own story
+Stories,social-expire-stories Edge Function,1,Backend,P1,Complete,Supabase Engineer,social_stories,Not needed,Delete expired stories; call via cron or dashboard
+Stories,StoryBar + StoryViewer + CreateStory (mobile),1,Mobile,P1,Complete,React Native Engineer,social_stories,Part 4 Done,StoryRing + StoryBar + StoryViewerScreen + CreateStoryScreen + StoryViewersScreen; StoryBar in SocialFeedScreen
+Stories,StoryBar + StoryViewerModal + CreateStoryModal (web),1,Web,P1,Complete,Next.js Engineer,social_stories,Part 4 Done,StoryBar + StoryViewerModal + CreateStoryModal; StoryBar above FeedContainer
+Success Metrics,Weekly Active Posters per School tracking,1,Backend,P0,In Progress,Analytics Engineer,social_posts + Analytics,Not needed,Part 8: view tracking wired in SocialFeedScreen + ReelsScreen
 Success Metrics,Schools posting at least 1x/week,1,Backend,P0,Not Started,Analytics Engineer,social_posts,Not needed,School health metric
-Success Metrics,Parent view rate per school post,1,Backend,P0,Not Started,Analytics Engineer,social_posts + view tracking,Not needed,Engagement quality metric
+Success Metrics,Parent view rate per school post,1,Backend,P0,In Progress,Analytics Engineer,social_posts + view tracking,Not needed,Part 8: increment_view_count RPC + view tracking in feeds
 Success Metrics,Achievement auto-posts per week,1,Backend,P0,Not Started,Analytics Engineer,Achievement System,Not needed,Platform vitality metric
 Success Metrics,Teacher shield accumulation rate,1,Backend,P1,Not Started,Analytics Engineer,Teacher Shields,Not needed,Creator health metric

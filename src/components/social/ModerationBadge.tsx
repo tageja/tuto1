@@ -8,12 +8,14 @@ const CONFIG: Record<ModerationStatus, { bg: string; icon: React.ComponentProps<
   ai_reviewed:     { bg: '#EFF6FF', icon: 'verified',      color: '#0B5FFF' },
   pending:         { bg: '#FFFBEB', icon: 'hourglass-top', color: '#D97706' },
   parent_approved: { bg: '#F0FDF4', icon: 'shield',        color: '#059669' },
+  rejected:        { bg: '#FEF2F2', icon: 'cancel',        color: '#DC2626' },
 };
 
 const LABEL_KEY: Record<ModerationStatus, string> = {
   ai_reviewed:     'community.moderation.aiReviewed',
   pending:         'community.moderation.pending',
   parent_approved: 'community.moderation.parentApproved',
+  rejected:        'community.moderation.rejected',
 };
 
 interface Props {

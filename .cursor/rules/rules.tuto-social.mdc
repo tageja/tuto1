@@ -26,6 +26,25 @@ You are working on the **Tuto Social Community** feature — an education-first 
 - Update `TUTO_SOCIAL_PROGRESS_TRACKER.csv`: set Status to "Complete" and add a brief note in the Notes column
 - Update `TUTO_SOCIAL_ASSET_MAP.csv` if you saved, created, or received ANY new reference material (see rules below)
 
+### Progress Tracker — Exact Update Protocol
+
+**BEFORE you start any feature:**
+1. Open `docs/prd-specs/TUTO_SOCIAL_PROGRESS_TRACKER.csv`
+2. Find the row(s) matching what you are about to build
+3. Set Status column → `In Progress`
+4. Set Agent Role column → your role (e.g. "React Native Engineer")
+5. Save the file — this signals to other agents that the work is claimed
+
+**WHILE building:**
+- If you discover a dependency is missing, add a new row for it with Status → `Blocked` and a note explaining what is needed
+
+**AFTER completing each feature (not just at the end of the session):**
+1. Set Status → `Complete`
+2. Add a short note in the Notes column (e.g. "Built — uses Supabase optimistic update, no expo-image-picker installed yet")
+3. Update the Design Status column if Figma designs were used or are still pending
+
+**Never finish a session without updating the tracker. If you run out of context before completing everything, set incomplete items to `In Progress` with a note describing exactly what is left.**
+
 ---
 
 ## ASSET MAP — Mandatory Update Rules

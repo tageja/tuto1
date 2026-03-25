@@ -2,6 +2,7 @@ import { createServerClient }  from '@supabase/ssr';
 import { cookies }              from 'next/headers';
 import { redirect }             from 'next/navigation';
 import FeedContainer            from '../../../components/feed/FeedContainer';
+import StoryBar                 from '../../../components/stories/StoryBar';
 import type { Metadata }        from 'next';
 
 export const metadata: Metadata = {
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 const POST_QUERY = `
   *,
   author:social_profiles!social_posts_author_id_fkey(
-    id, user_id, username, display_name, avatar_url, role, is_verified
+    id, user_id, username, display_name, avatar_url, role, is_verified, school_id
   )
 `;
 
@@ -63,10 +64,12 @@ export default async function FeedPage() {
       isPinned:      row.is_pinned      ?? false,
       author: {
         id:          a.id ?? '',
+        username:    a.username ?? '',
         displayName: a.display_name ?? 'Unknown',
         avatarUrl:   a.avatar_url,
         role:        a.role ?? 'guest',
         verified:    a.is_verified ?? false,
+        schoolId:    a.school_id as string | undefined,
       },
       event:       row.event,
       assignment:  row.assignment,
@@ -78,6 +81,7 @@ export default async function FeedPage() {
 
   return (
     <main className="max-w-xl mx-auto px-4 py-6">
+      <StoryBar />
       <FeedContainer initialPosts={initialPosts as never} />
     </main>
   );

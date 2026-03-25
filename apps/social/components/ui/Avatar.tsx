@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { cn, getInitials } from '@/lib/utils';
 
@@ -28,6 +30,7 @@ export default function Avatar({
 }: AvatarProps) {
   const { wh, text, px } = sizeMap[size];
   const initials = getInitials(name);
+  const [imgError, setImgError] = useState(false);
 
   return (
     <div
@@ -37,13 +40,14 @@ export default function Avatar({
         className,
       )}
     >
-      {src ? (
+      {src && !imgError ? (
         <Image
           src={src}
           alt={name || 'Avatar'}
           width={px}
           height={px}
           className="object-cover w-full h-full"
+          onError={() => setImgError(true)}
         />
       ) : (
         <div

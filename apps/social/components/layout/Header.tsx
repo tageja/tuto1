@@ -1,16 +1,83 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Avatar from '@/components/ui/Avatar';
+import { getSupabaseBrowserClient } from '@/lib/supabase';
 
 export default function Header() {
   const { user, profile, loading, signOut } = useAuth();
   const router = useRouter();
-  const [menuOpen, setMenuOpen] = React.useState(false);
+  const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
+
+  const fetchUnreadNotifications = useCallback(async () => {
+    if (!user) return;
+    const supabase = getSupabaseBrowserClient();
+    try {
+      const { count } = await supabase
+        .from('social_notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('recipient_id', user.id)
+        .eq('read', false);
+      setUnreadCount(count ?? 0);
+    } catch {
+      // Ignore notification count errors
+    }
+  }, [user]);
+
+  // Re-fetch on mount and whenever the user navigates (clears dot after visiting /notifications)
+  useEffect(() => {
+    void fetchUnreadNotifications();
+  }, [fetchUnreadNotifications, pathname]);
+
+  // Realtime: increment dot on new notification, clear on read
+  useEffect(() => {
+    if (!user) return;
+    const supabase = getSupabaseBrowserClient();
+    const channel = supabase
+      .channel(`notif-count:${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'social_notifications', filter: `recipient_id=eq.${user.id}` },
+        () => { setUnreadCount((prev) => prev + 1); },
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'social_notifications', filter: `recipient_id=eq.${user.id}` },
+        () => { void fetchUnreadNotifications(); },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user, fetchUnreadNotifications]);
+
+  useEffect(() => {
+    if (!profile?.id) return;
+    const supabase = getSupabaseBrowserClient();
+    void (async () => {
+      try {
+        const { data: unreadConvs } = await supabase
+          .from('social_conversation_participants')
+          .select('last_read_at, conversation:social_conversations(last_message_at)')
+          .eq('profile_id', profile.id);
+
+        const n = (unreadConvs ?? []).filter((r) => {
+          const conv = r.conversation as { last_message_at?: string | null } | null;
+          if (!conv?.last_message_at) return false;
+          if (!r.last_read_at) return true;
+          return new Date(conv.last_message_at) > new Date(r.last_read_at);
+        }).length;
+        setUnreadMessageCount(n);
+      } catch {
+        setUnreadMessageCount(0);
+      }
+    })();
+  }, [profile?.id]);
 
   async function handleSignOut() {
     await signOut();
@@ -44,8 +111,26 @@ export default function Header() {
           <Link href="/explore" className="hover:text-primary transition-colors">
             Khám phá
           </Link>
-          <Link href="/notifications" className="hover:text-primary transition-colors">
+          <Link href="/leaderboard" className="hover:text-primary transition-colors">
+            Bảng xếp hạng
+          </Link>
+          <Link href="/messages" className="relative hover:text-primary transition-colors">
+            Tin nhắn
+            {unreadMessageCount > 0 && (
+              <span
+                className="absolute -top-1 -right-2 w-2 h-2 rounded-full bg-red-500"
+                aria-label={`${unreadMessageCount} cuộc trò chuyện chưa đọc`}
+              />
+            )}
+          </Link>
+          <Link href="/notifications" className="relative hover:text-primary transition-colors">
             Thông báo
+            {unreadCount > 0 && (
+              <span
+                className="absolute -top-1 -right-2 w-2 h-2 rounded-full bg-red-500"
+                aria-label={`${unreadCount} thông báo chưa đọc`}
+              />
+            )}
           </Link>
         </nav>
 
@@ -71,6 +156,20 @@ export default function Header() {
 
                 {menuOpen && (
                   <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-card shadow-lg border border-gray-100 py-1 z-50">
+                    <Link
+                      href="/dashboard"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-text-primary hover:bg-surface transition-colors"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Tổng quan sáng tạo
+                    </Link>
+                    <Link
+                      href="/settings"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-text-primary hover:bg-surface transition-colors"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Cài đặt
+                    </Link>
                     <Link
                       href={`/profile/${profile.username}`}
                       className="flex items-center gap-2 px-4 py-2 text-sm text-text-primary hover:bg-surface transition-colors"

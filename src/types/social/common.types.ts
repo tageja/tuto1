@@ -30,12 +30,13 @@ export type PostType =
 
 export type ReactionType = 'like' | 'applaud' | 'curious';
 
-export type ModerationStatus = 'ai_reviewed' | 'pending' | 'parent_approved';
+export type ModerationStatus = 'ai_reviewed' | 'pending' | 'parent_approved' | 'rejected';
 
 export type NotificationType =
   | 'like'
   | 'applaud'
   | 'curious'
+  | 'reel_like'
   | 'comment'
   | 'comment_like'
   | 'follow'

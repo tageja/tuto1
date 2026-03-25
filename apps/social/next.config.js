@@ -12,6 +12,11 @@ const nextConfig = {
         hostname: '*.supabase.in',
         pathname: '/storage/v1/object/public/**',
       },
+      // Google profile pictures (OAuth sign-in via Google)
+      {
+        protocol: 'https',
+        hostname: '*.googleusercontent.com',
+      },
     ],
   },
   // Allow cross-origin requests from tuto.asia dashboard in dev

@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { getSupabaseBrowserClient } from '@/lib/supabase';
 
-type Visibility = 'school_only' | 'class_only' | 'followers' | 'public';
+// Values must exactly match the DB CHECK constraint on social_posts.visibility
+type Visibility = 'public' | 'schoolOnly' | 'classOnly' | 'followers' | 'private';
 
 const AUDIENCE_OPTIONS: { key: Visibility; label: string }[] = [
-  { key: 'school_only', label: 'Trường học' },
-  { key: 'class_only',  label: 'Lớp học'   },
-  { key: 'followers',   label: 'Người theo dõi' },
-  { key: 'public',      label: 'Công khai'  },
+  { key: 'schoolOnly', label: 'Trường học' },
+  { key: 'classOnly',  label: 'Lớp học'   },
+  { key: 'followers',  label: 'Người theo dõi' },
+  { key: 'public',     label: 'Công khai'  },
 ];
 
 const SUBJECTS = [
@@ -26,7 +26,7 @@ interface Props {
 
 export default function CreatePostModal({ open, onClose }: Props) {
   const [content,    setContent]    = useState('');
-  const [audience,   setAudience]   = useState<Visibility>('school_only');
+  const [audience,   setAudience]   = useState<Visibility>('schoolOnly');
   const [subjects,   setSubjects]   = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [success,    setSuccess]    = useState(false);
@@ -36,7 +36,7 @@ export default function CreatePostModal({ open, onClose }: Props) {
   useEffect(() => {
     if (open) {
       setContent('');
-      setAudience('school_only');
+      setAudience('schoolOnly');
       setSubjects([]);
       setSuccess(false);
       setError(null);
@@ -58,30 +58,18 @@ export default function CreatePostModal({ open, onClose }: Props) {
     setError(null);
 
     try {
-      const supabase = getSupabaseBrowserClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { data: profile } = await supabase
-        .from('social_profiles')
-        .select('id, school_id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!profile) throw new Error('Social profile not found');
-
-      const { error: insertError } = await supabase.from('social_posts').insert({
-        author_id:        profile.id,
-        school_id:        profile.school_id,
-        post_type:        'text',
-        content:          content.trim(),
-        visibility:       audience,
-        subjects,
-        moderation_status: 'pending',
-        media_urls:       [],
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: content.trim(), visibility: audience, subjects }),
+        credentials: 'include',
       });
 
-      if (insertError) throw insertError;
+      const json = await res.json() as { success?: boolean; error?: string };
+
+      if (!res.ok || !json.success) {
+        throw new Error(json.error ?? 'Đăng bài thất bại. Thử lại sau.');
+      }
 
       setSuccess(true);
       setTimeout(() => {
@@ -89,7 +77,9 @@ export default function CreatePostModal({ open, onClose }: Props) {
         onClose();
       }, 2000);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Đăng bài thất bại. Thử lại sau.');
+      const msg = err instanceof Error ? err.message : 'Đăng bài thất bại. Thử lại sau.';
+      console.error('[CreatePost] error:', err);
+      setError(msg);
     } finally {
       setSubmitting(false);
     }

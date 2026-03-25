@@ -4,6 +4,7 @@
 // the social profile layer. On first social login, creates a profile
 // if one doesn't exist yet.
 
+import Constants from 'expo-constants';
 import { socialSupabase, SOCIAL_TABLES } from './api.client';
 import type { User, Session } from '@supabase/supabase-js';
 import type { CreateSocialProfilePayload, SocialProfile } from '../../types/social';
@@ -60,7 +61,11 @@ export async function ensureSocialProfile(
     throw fetchError;
   }
 
-  if (existing) return mapDbProfileToType(existing);
+  if (existing) {
+    const profile = mapDbProfileToType(existing);
+    registerPushToken(user.id).catch(() => { /* ignore push reg errors */ });
+    return profile;
+  }
 
   // Create a new profile with sane defaults derived from auth metadata
   const metadata = user.user_metadata ?? {};
@@ -90,7 +95,47 @@ export async function ensureSocialProfile(
     throw createError;
   }
 
+  registerPushToken(user.id).catch(() => { /* ignore push reg errors */ });
   return mapDbProfileToType(created);
+}
+
+/**
+ * Register Expo Push token for the current user. Called on login / ensureSocialProfile.
+ * Stores token in social_profiles.push_token for the social-notify Edge Function.
+ */
+export async function registerPushToken(userId: string): Promise<void> {
+  try {
+    const { default: Notifications } = await import('expo-notifications');
+    const { default: Device } = await import('expo-device');
+
+    if (!Device.isDevice) return;
+
+    const { status: existing } = await Notifications.getPermissionsAsync();
+    let permission = existing;
+    if (existing !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      permission = status;
+    }
+    if (permission !== 'granted') return;
+
+    const projectId = (Constants.expoConfig?.extra as { eas?: { projectId?: string } })?.eas?.projectId;
+    const tokenData = await Notifications.getExpoPushTokenAsync(
+      projectId ? { projectId } : undefined
+    );
+    const token = tokenData?.data;
+    if (!token) return;
+
+    const { error } = await socialSupabase
+      .from(SOCIAL_TABLES.profiles)
+      .update({ push_token: token })
+      .eq('user_id', userId);
+
+    if (error) {
+      console.warn('[social/auth] Push token update failed:', error.message);
+    }
+  } catch (e) {
+    console.warn('[social/auth] Push registration skipped:', e);
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -149,7 +194,9 @@ export function mapDbProfileToType(row: Record<string, unknown>): SocialProfile 
     schoolId:       row.school_id as string | undefined,
     xp:             (row.xp as number) ?? 0,
     level:          (row.level as number) ?? 1,
+    streakCount:    (row.streak_count as number) ?? 0,
     shieldCount:    (row.shield_count as number) ?? 0,
+    shieldRank:     (row.shield_rank as SocialProfile['shieldRank']) ?? 'beginner',
     linkedTutoId:   row.linked_tuto_id as string | undefined,
     subjects:       (row.subjects as string[]) ?? [],
     settings:       (row.settings as SocialProfile['settings']) ?? defaultSettings(),

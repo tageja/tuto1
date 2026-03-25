@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Image                                from 'next/image';
-import { createBrowserClient }              from '@supabase/ssr';
+import { getSupabaseBrowserClient }         from '@/lib/supabase';
+import { useFeedInvalidation }              from '@/contexts/FeedInvalidationContext';
 
 interface Comment {
   id:        string;
@@ -18,9 +19,6 @@ interface Comment {
   };
 }
 
-const SUPABASE_URL  = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
 function formatRelative(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60_000);
@@ -32,7 +30,10 @@ function formatRelative(iso: string): string {
 }
 
 export default function CommentSection({ postId }: { postId: string }) {
-  const supabase = createBrowserClient(SUPABASE_URL, SUPABASE_ANON);
+  // Use singleton to avoid re-creating the client on every render (which would
+  // cause useEffect to fire in an infinite loop due to referential inequality).
+  const supabase        = getSupabaseBrowserClient();
+  const { invalidateFeed } = useFeedInvalidation();
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading,  setLoading]  = useState(true);
@@ -40,19 +41,23 @@ export default function CommentSection({ postId }: { postId: string }) {
   const [sending,  setSending]  = useState(false);
 
   useEffect(() => {
-    supabase
-      .from('social_comments')
-      .select(`
-        *,
-        author:social_profiles!social_comments_author_id_fkey(
-          id, display_name, avatar_url, role
-        )
-      `)
-      .eq('post_id', postId)
-      .is('parent_id', null)
-      .order('is_pinned',   { ascending: false })
-      .order('created_at',  { ascending: true })
-      .then(({ data }) => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from('social_comments')
+          .select(`
+            *,
+            author:social_profiles!social_comments_author_id_fkey(
+              id, display_name, avatar_url, role
+            )
+          `)
+          .eq('post_id', postId)
+          .is('parent_id', null)
+          .order('is_pinned',   { ascending: false })
+          .order('created_at',  { ascending: true });
+
+        if (cancelled) return;
         const mapped = (data ?? []).map((row) => {
           const a = row.author as Record<string, unknown> ?? {};
           return {
@@ -70,9 +75,14 @@ export default function CommentSection({ postId }: { postId: string }) {
           };
         });
         setComments(mapped);
-      })
-      .finally(() => setLoading(false));
-  }, [postId, supabase]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+    // supabase is a stable singleton — intentionally excluded from deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postId]);
 
   const handleSend = useCallback(async () => {
     const trimmed = text.trim();
@@ -115,12 +125,39 @@ export default function CommentSection({ postId }: { postId: string }) {
       };
 
       setComments((prev) => [...prev, newComment]);
+
+      // Increment comments_count on the parent post. Supabase RPC builders do not
+      // expose .catch() — await and destructure error instead.
+      const { error: rpcError } = await supabase.rpc('increment_comments_count', { post_id: postId });
+      if (rpcError) {
+        // Fallback: direct update if RPC doesn't exist yet in this environment
+        const { data: postData } = await supabase
+          .from('social_posts')
+          .select('comments_count')
+          .eq('id', postId)
+          .single();
+        const current = (postData?.comments_count as number) ?? 0;
+        await supabase
+          .from('social_posts')
+          .update({ comments_count: current + 1 })
+          .eq('id', postId);
+      }
+
+      // Fix A: bump feedVersion so FeedContainer refetches on browser-back
+      // (context stays alive across client-side navigation within (main) layout).
+      invalidateFeed();
+      // Fix B: sessionStorage flag so FeedContainer also refetches on direct
+      // URL navigation to /feed (fresh React tree resets context to feedVersion=0).
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('feedNeedsRefresh', '1');
+      }
     } catch (err) {
       console.error('Comment error', err);
     } finally {
       setSending(false);
     }
-  }, [text, sending, postId, supabase]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text, sending, postId]);
 
   return (
     <div>

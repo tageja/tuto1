@@ -27,6 +27,11 @@ interface Props {
   onSave?:        () => void;
   onDeletePost?:  () => void;
   onEditPost?:    () => void;
+  onReport?:      () => void;
+  onBlockUser?:   () => void;
+  onMuteUser?:    () => void;
+  onAuthorPress?: () => void;
+  onSchoolPress?: (schoolId: string) => void;
 }
 
 // --------------------------------------------------------------------------
@@ -146,6 +151,11 @@ export default function PostCard({
   onSave,
   onDeletePost,
   onEditPost,
+  onReport,
+  onBlockUser,
+  onMuteUser,
+  onAuthorPress,
+  onSchoolPress,
 }: Props) {
   const { t } = useLanguage();
 
@@ -172,40 +182,60 @@ export default function PostCard({
       {/* ── Header ── */}
       <View style={styles.header}>
         <View style={styles.authorRow}>
-          {post.author.avatarUrl ? (
-            <Image source={{ uri: post.author.avatarUrl }} style={styles.avatar} />
-          ) : (
-            <View style={styles.avatarFallback}>
-              <Text style={styles.avatarInitial}>
-                {post.author.displayName.charAt(0).toUpperCase()}
-              </Text>
+          <Pressable
+            style={styles.authorRowInner}
+            onPress={onAuthorPress}
+          >
+            {post.author.avatarUrl ? (
+              <Image source={{ uri: post.author.avatarUrl }} style={styles.avatar} />
+            ) : (
+              <View style={styles.avatarFallback}>
+                <Text style={styles.avatarInitial}>
+                  {post.author.displayName.charAt(0).toUpperCase()}
+                </Text>
+              </View>
+            )}
+            <View style={styles.authorInfo}>
+              <View style={styles.nameRow}>
+                <Text style={styles.authorName} numberOfLines={1}>
+                  {post.author.displayName}
+                </Text>
+                {!(post.author.role === 'school_admin' && post.schoolId && onSchoolPress) && (
+                  <RoleBadge role={post.author.role} isVerified={post.author.verified} compact />
+                )}
+              </View>
+              <View style={styles.metaRow}>
+                <Text style={styles.timestamp}>{timeAgo}</Text>
+                {post.audienceLabel && (
+                  <>
+                    <Text style={styles.dot}>·</Text>
+                    <Text style={styles.audienceLabel}>{post.audienceLabel}</Text>
+                  </>
+                )}
+              </View>
             </View>
-          )}
-          <View style={styles.authorInfo}>
-            <View style={styles.nameRow}>
-              <Text style={styles.authorName} numberOfLines={1}>
-                {post.author.displayName}
-              </Text>
+          </Pressable>
+          {post.author.role === 'school_admin' && post.schoolId && onSchoolPress ? (
+            <Pressable
+              onPress={() => onSchoolPress(post.schoolId!)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
               <RoleBadge role={post.author.role} isVerified={post.author.verified} compact />
-            </View>
-            <View style={styles.metaRow}>
-              <Text style={styles.timestamp}>{timeAgo}</Text>
-              {post.audienceLabel && (
-                <>
-                  <Text style={styles.dot}>·</Text>
-                  <Text style={styles.audienceLabel}>{post.audienceLabel}</Text>
-                </>
-              )}
-            </View>
-          </View>
+            </Pressable>
+          ) : null}
         </View>
         <View style={styles.headerRight}>
           <ModerationBadge status={post.moderationStatus} />
           <PostOptionsMenu
             postId={post.id}
             isOwnPost={isOwn}
+            authorId={post.author.id}
+            authorName={post.author.displayName}
             onEdit={onEditPost}
             onDelete={onDeletePost}
+            onReport={onReport}
+            onBlockUser={onBlockUser}
+            onMuteUser={onMuteUser}
           />
         </View>
       </View>
@@ -293,6 +323,12 @@ const styles = StyleSheet.create({
     marginBottom:   10,
   },
   authorRow: {
+    flexDirection: 'row',
+    alignItems:    'center',
+    flex:          1,
+    gap:           10,
+  },
+  authorRowInner: {
     flexDirection: 'row',
     alignItems:    'center',
     flex:          1,

@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useLanguage } from '../../contexts/LanguageContext';
 import type { FeedTab } from '../../services/social/feed.service';
 
@@ -16,6 +17,9 @@ interface Props {
   authorAvatarUrl?: string;
   authorInitial?:   string;
   onComposerPress?: () => void;
+  onAvatarPress?:   () => void;
+  onSearchPress?:   () => void;
+  onBackPress?:     () => void;
 }
 
 const TABS: { key: FeedTab; labelKey: string }[] = [
@@ -30,6 +34,9 @@ export default function FeedHeader({
   authorAvatarUrl,
   authorInitial,
   onComposerPress,
+  onAvatarPress,
+  onSearchPress,
+  onBackPress,
 }: Props) {
   const { t } = useLanguage();
   const indicatorX = useRef(new Animated.Value(0)).current;
@@ -52,8 +59,15 @@ export default function FeedHeader({
 
   return (
     <View style={styles.container}>
-      {/* Tabs */}
-      <View
+      {onBackPress && (
+        <Pressable style={styles.backBtn} onPress={onBackPress}>
+          <MaterialIcons name="arrow-back-ios" size={16} color="#6B7280" />
+          <Text style={styles.backBtnText}>Tuto</Text>
+        </Pressable>
+      )}
+      <View style={styles.topRow}>
+        {/* Tabs */}
+        <View
         style={styles.tabs}
         onLayout={(e) => {
           tabWidth.current = e.nativeEvent.layout.width / TABS.length;
@@ -84,23 +98,36 @@ export default function FeedHeader({
             },
           ]}
         />
+        </View>
+        {onSearchPress && (
+          <Pressable style={styles.searchBtn} onPress={onSearchPress}>
+            <MaterialIcons name="search" size={24} color="#6B7280" />
+          </Pressable>
+        )}
       </View>
 
       {/* Composer trigger */}
       {onComposerPress && (
         <Pressable style={styles.composer} onPress={onComposerPress}>
-          {authorAvatarUrl ? (
-            <Image source={{ uri: authorAvatarUrl }} style={styles.composerAvatar} />
-          ) : (
-            <View style={styles.composerAvatarFallback}>
-              <Text style={styles.composerInitial}>{authorInitial ?? '?'}</Text>
-            </View>
-          )}
-          <View style={styles.composerInput}>
+          <Pressable
+            onPress={(e) => {
+              e.stopPropagation();
+              onAvatarPress?.();
+            }}
+          >
+            {authorAvatarUrl ? (
+              <Image source={{ uri: authorAvatarUrl }} style={styles.composerAvatar} />
+            ) : (
+              <View style={styles.composerAvatarFallback}>
+                <Text style={styles.composerInitial}>{authorInitial ?? '?'}</Text>
+              </View>
+            )}
+          </Pressable>
+          <Pressable style={styles.composerInput} onPress={onComposerPress}>
             <Text style={styles.composerPlaceholder}>
               {t('community.composer.placeholder') as string}
             </Text>
-          </View>
+          </Pressable>
         </Pressable>
       )}
     </View>
@@ -114,7 +141,24 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F3F4F6',
     marginBottom: 8,
   },
+  backBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  backBtnText: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '500',
+    marginLeft: 2,
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   tabs: {
+    flex: 1,
     flexDirection: 'row',
     position:      'relative',
   },
@@ -131,6 +175,9 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color:      '#0B5FFF',
     fontWeight: '700',
+  },
+  searchBtn: {
+    padding: 8,
   },
   indicator: {
     position:        'absolute',

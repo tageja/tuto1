@@ -12,6 +12,7 @@ export interface FeedOptions {
   tab: FeedTab;
   schoolId?: string;
   currentProfileId?: string;
+  excludeAuthorIds?: string[]; // Blocked + muted profile IDs
   limit?: number;
   cursor?: string; // ISO timestamp — fetch posts older than this
 }
@@ -27,7 +28,7 @@ export interface FeedResult {
 // --------------------------------------------------------------------------
 
 export async function getFeedPosts(options: FeedOptions): Promise<FeedResult> {
-  const { tab, schoolId, currentProfileId, limit = 20, cursor } = options;
+  const { tab, schoolId, currentProfileId, excludeAuthorIds, limit = 20, cursor } = options;
 
   let query = socialSupabase
     .from(SOCIAL_TABLES.posts)
@@ -41,6 +42,10 @@ export async function getFeedPosts(options: FeedOptions): Promise<FeedResult> {
     .in('moderation_status', ['ai_reviewed', 'parent_approved'])
     .order('created_at', { ascending: false })
     .limit(limit + 1); // fetch one extra to detect hasMore
+
+  if (excludeAuthorIds && excludeAuthorIds.length > 0) {
+    query = query.not('author_id', 'in', `(${excludeAuthorIds.join(',')})`);
+  }
 
   // Tab-specific filters
   if (tab === 'school' && schoolId) {
@@ -108,6 +113,71 @@ export async function getFeedPosts(options: FeedOptions): Promise<FeedResult> {
 
   const posts = slice.map((row) => mapDbPostToType(row, userReactions, savedPostIds));
 
+  return { posts, hasMore, nextCursor };
+}
+
+// --------------------------------------------------------------------------
+// Posts by author (profile page)
+// --------------------------------------------------------------------------
+
+export async function getPostsByAuthorId(
+  authorProfileId: string,
+  limit = 30,
+  cursor?: string,
+): Promise<FeedResult> {
+  let query = socialSupabase
+    .from(SOCIAL_TABLES.posts)
+    .select(`
+      *,
+      author:social_profiles!social_posts_author_id_fkey(
+        id, user_id, username, display_name, avatar_url, role, is_verified,
+        school_id, shield_count
+      )
+    `)
+    .eq('author_id', authorProfileId)
+    .in('moderation_status', ['ai_reviewed', 'parent_approved'])
+    .order('created_at', { ascending: false })
+    .limit(limit + 1);
+
+  if (cursor) {
+    query = query.lt('created_at', cursor);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+
+  const rows = data ?? [];
+  const hasMore = rows.length > limit;
+  const slice = hasMore ? rows.slice(0, limit) : rows;
+  const nextCursor = hasMore ? (slice[slice.length - 1].created_at as string) : null;
+
+  let userReactions: Record<string, ReactionType> = {};
+  let savedPostIds: Set<string> = new Set();
+
+  const { data: { user } } = await socialSupabase.auth.getUser();
+  if (user && slice.length > 0) {
+    const postIds = slice.map((r) => r.id as string);
+    const [reactionsRes, savesRes] = await Promise.all([
+      socialSupabase
+        .from(SOCIAL_TABLES.likes)
+        .select('post_id, reaction_type')
+        .eq('user_id', user.id)
+        .in('post_id', postIds),
+      socialSupabase
+        .from(SOCIAL_TABLES.saves)
+        .select('post_id')
+        .eq('user_id', user.id)
+        .in('post_id', postIds),
+    ]);
+    (reactionsRes.data ?? []).forEach((r) => {
+      userReactions[r.post_id as string] = r.reaction_type as ReactionType;
+    });
+    (savesRes.data ?? []).forEach((r) => {
+      savedPostIds.add(r.post_id as string);
+    });
+  }
+
+  const posts = slice.map((row) => mapDbPostToType(row, userReactions, savedPostIds));
   return { posts, hasMore, nextCursor };
 }
 

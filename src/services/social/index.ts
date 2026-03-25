@@ -9,6 +9,7 @@ export {
   signOutSocial,
   ensureSocialProfile,
   mapDbProfileToType,
+  registerPushToken,
 } from './auth.service';
 
 export {
@@ -18,6 +19,8 @@ export {
   getSchoolProfiles,
   createProfile,
   updateProfile,
+  uploadAvatar,
+  uploadCoverPhoto,
   followProfile,
   unfollowProfile,
   isFollowing,
@@ -25,7 +28,17 @@ export {
   getFollowing,
 } from './profile.service';
 
-export { getFeedPosts, getPinnedPosts, mapDbPostToType } from './feed.service';
+export {
+  followUser,
+  unfollowUser,
+  getFollowersProfiles,
+  getFollowingProfiles,
+  getFollowStatus,
+} from './follows.service';
+
+export { searchUsers, searchPosts } from './search.service';
+
+export { getFeedPosts, getPinnedPosts, getPostsByAuthorId, mapDbPostToType } from './feed.service';
 export type { FeedTab, FeedOptions, FeedResult } from './feed.service';
 
 export { createPost, getPostById, deletePost } from './posts.service';
@@ -41,5 +54,51 @@ export {
   likeComment,
 } from './interactions.service';
 
+export {
+  reportContent,
+  reportUser,
+  getBlockedUsers,
+  blockUser,
+  unblockUser,
+  isBlocked,
+  getMutedUsers,
+  muteUser,
+  unmuteUser,
+} from './moderation.service';
+export type { ReportTargetType, ReportReason, CreateReportInput } from './moderation.service';
+
 export { pickImages, uploadToStorage, getMediaUrl, uploadImages } from './media.service';
 export type { PickedImage } from './media.service';
+
+export {
+  incrementViewCount,
+  getCreatorStats,
+  getTeacherLeaderboard,
+} from './analytics.service';
+export type { CreatorStats, PostSummary, ReelSummary, LeaderboardEntry } from './analytics.service';
+
+export {
+  getReelsFeed,
+  getReelById,
+  getReelsByAuthorId,
+  toggleReelLike,
+} from './reels.service';
+export type { Reel } from './reels.service';
+
+export {
+  getConversations,
+  getMessages,
+  sendMessage,
+  markConversationRead,
+  startConversation,
+  mapMessage,
+  fetchSenderProfile,
+} from './conversations.service';
+export type { ConversationPreview, Message } from './conversations.service';
+
+export {
+  getNotifications,
+  getUnreadCount,
+  markAsRead,
+  markAllAsRead,
+} from './notifications.service';

@@ -2,12 +2,43 @@
 
 import { socialSupabase, SOCIAL_TABLES } from './api.client';
 import { mapDbProfileToType } from './auth.service';
+import { mapDbPostToType } from './feed.service';
+import { uploadToStorage } from './media.service';
 import type {
   SocialProfile,
+  SocialPost,
   CreateSocialProfilePayload,
   UpdateSocialProfilePayload,
   SocialFollow,
 } from '../../types/social';
+import type { ReactionType } from '../../types/social';
+
+// --------------------------------------------------------------------------
+// School profile types
+// --------------------------------------------------------------------------
+
+export interface SchoolProfile {
+  id: string;
+  username: string;
+  displayName: string;
+  bio: string | null;
+  avatarUrl: string | null;
+  coverUrl: string | null;
+  isVerified: boolean;
+  followerCount: number;
+  postCount: number;
+  schoolId: string;
+}
+
+export interface StaffMember {
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl: string | null;
+  shieldCount: number;
+  shieldRank: string;
+  isVerified: boolean;
+}
 
 // --------------------------------------------------------------------------
 // Read
@@ -69,6 +100,134 @@ export async function getSchoolProfiles(
   return (data ?? []).map(mapDbProfileToType);
 }
 
+/** Fetch the school admin profile for a given school_id */
+export async function getSchoolProfile(schoolId: string): Promise<SchoolProfile | null> {
+  const { data, error } = await socialSupabase
+    .from(SOCIAL_TABLES.profiles)
+    .select('id, username, display_name, bio, avatar_url, cover_url, is_verified, follower_count, post_count, school_id')
+    .eq('school_id', schoolId)
+    .eq('role', 'school_admin')
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return null;
+
+  return {
+    id: data.id as string,
+    username: (data.username as string) ?? '',
+    displayName: (data.display_name as string) ?? '',
+    bio: data.bio as string | null,
+    avatarUrl: data.avatar_url as string | null,
+    coverUrl: data.cover_url as string | null,
+    isVerified: (data.is_verified as boolean) ?? false,
+    followerCount: (data.follower_count as number) ?? 0,
+    postCount: (data.post_count as number) ?? 0,
+    schoolId: data.school_id as string,
+  };
+}
+
+/** Fetch teachers belonging to this school — sorted by shield_count DESC */
+export async function getSchoolStaff(schoolId: string): Promise<StaffMember[]> {
+  const { data, error } = await socialSupabase
+    .from(SOCIAL_TABLES.profiles)
+    .select('id, username, display_name, avatar_url, shield_count, shield_rank, is_verified')
+    .eq('school_id', schoolId)
+    .eq('role', 'teacher')
+    .order('shield_count', { ascending: false })
+    .limit(20);
+
+  if (error) throw error;
+
+  return (data ?? []).map((p) => ({
+    id: p.id as string,
+    username: (p.username as string) ?? '',
+    displayName: (p.display_name as string) ?? '',
+    avatarUrl: p.avatar_url as string | null,
+    shieldCount: (p.shield_count as number) ?? 0,
+    shieldRank: (p.shield_rank as string) ?? 'beginner',
+    isVerified: (p.is_verified as boolean) ?? false,
+  }));
+}
+
+/** Fetch pinned + recent announcements for this school */
+export async function getSchoolAnnouncements(schoolId: string, limit = 20): Promise<SocialPost[]> {
+  const { data, error } = await socialSupabase
+    .from(SOCIAL_TABLES.posts)
+    .select(`
+      *,
+      author:social_profiles!social_posts_author_id_fkey(
+        id, user_id, username, display_name, avatar_url, role, is_verified,
+        school_id, shield_count
+      )
+    `)
+    .eq('school_id', schoolId)
+    .eq('post_type', 'announcement')
+    .in('moderation_status', ['ai_reviewed', 'parent_approved'])
+    .order('is_pinned', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+
+  const rows = data ?? [];
+  let userReactions: Record<string, ReactionType> = {};
+  const savedPostIds = new Set<string>();
+
+  const { data: { user } } = await socialSupabase.auth.getUser();
+  if (user && rows.length > 0) {
+    const postIds = rows.map((r) => r.id as string);
+    const { data: reactionsData } = await socialSupabase
+      .from(SOCIAL_TABLES.likes)
+      .select('post_id, reaction_type')
+      .eq('user_id', user.id)
+      .in('post_id', postIds);
+    (reactionsData ?? []).forEach((r: { post_id: string; reaction_type: string }) => {
+      userReactions[r.post_id] = r.reaction_type as ReactionType;
+    });
+  }
+
+  return rows.map((row) => mapDbPostToType(row, userReactions, savedPostIds));
+}
+
+/** Fetch recent achievement posts from this school (for spotlight section) */
+export async function getSchoolAchievementSpotlights(schoolId: string, limit = 6): Promise<SocialPost[]> {
+  const { data, error } = await socialSupabase
+    .from(SOCIAL_TABLES.posts)
+    .select(`
+      *,
+      author:social_profiles!social_posts_author_id_fkey(
+        id, user_id, username, display_name, avatar_url, role, is_verified,
+        school_id, shield_count
+      )
+    `)
+    .eq('school_id', schoolId)
+    .eq('post_type', 'achievement')
+    .in('moderation_status', ['ai_reviewed', 'parent_approved'])
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+
+  const rows = data ?? [];
+  const userReactions: Record<string, ReactionType> = {};
+  const savedPostIds = new Set<string>();
+
+  const { data: { user } } = await socialSupabase.auth.getUser();
+  if (user && rows.length > 0) {
+    const postIds = rows.map((r) => r.id as string);
+    const { data: reactionsData } = await socialSupabase
+      .from(SOCIAL_TABLES.likes)
+      .select('post_id, reaction_type')
+      .eq('user_id', user.id)
+      .in('post_id', postIds);
+    (reactionsData ?? []).forEach((r: { post_id: string; reaction_type: string }) => {
+      userReactions[r.post_id] = r.reaction_type as ReactionType;
+    });
+  }
+
+  return rows.map((row) => mapDbPostToType(row, userReactions, savedPostIds));
+}
+
 // --------------------------------------------------------------------------
 // Write
 // --------------------------------------------------------------------------
@@ -109,6 +268,16 @@ export async function updateProfile(
   const updateData: Record<string, unknown> = {};
 
   if (payload.displayName !== undefined) updateData.display_name = payload.displayName;
+  if (payload.username !== undefined) {
+    const lower = payload.username.toLowerCase().trim();
+    const { count } = await socialSupabase
+      .from(SOCIAL_TABLES.profiles)
+      .select('id', { count: 'exact', head: true })
+      .ilike('username', lower)
+      .neq('id', profileId);
+    if ((count ?? 0) > 0) throw new Error('Username already taken');
+    updateData.username = lower;
+  }
   if (payload.bio         !== undefined) updateData.bio          = payload.bio;
   if (payload.avatarUrl   !== undefined) updateData.avatar_url   = payload.avatarUrl;
   if (payload.coverUrl    !== undefined) updateData.cover_url    = payload.coverUrl;
@@ -192,7 +361,7 @@ export async function isFollowing(
   return (count ?? 0) > 0;
 }
 
-/** Get followers of a profile */
+/** Get followers of a profile (raw follow records) */
 export async function getFollowers(
   profileId: string,
   limit = 20,
@@ -234,4 +403,54 @@ export async function getFollowing(
     followingId: row.following_id as string,
     createdAt:   row.created_at as string,
   }));
+}
+
+// --------------------------------------------------------------------------
+// Avatar & cover upload
+// --------------------------------------------------------------------------
+
+/** Upload avatar image and return public URL. Updates profile. */
+export async function uploadAvatar(uri: string): Promise<string> {
+  const url = await uploadToStorage(uri);
+  const { data: { user } } = await socialSupabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+  const { data: profile } = await socialSupabase
+    .from(SOCIAL_TABLES.profiles)
+    .select('id')
+    .eq('user_id', user.id)
+    .single();
+  if (!profile) throw new Error('Profile not found');
+  await updateProfile(profile.id, { avatarUrl: url });
+  return url;
+}
+
+/** Upload cover photo and return public URL. Updates profile. */
+export async function uploadCoverPhoto(uri: string): Promise<string> {
+  const url = await uploadToStorage(uri);
+  const { data: { user } } = await socialSupabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+  const { data: profile } = await socialSupabase
+    .from(SOCIAL_TABLES.profiles)
+    .select('id')
+    .eq('user_id', user.id)
+    .single();
+  if (!profile) throw new Error('Profile not found');
+  await updateProfile(profile.id, { coverUrl: url });
+  return url;
+}
+
+/** Search users by display name or username. */
+export async function searchUsers(query: string): Promise<SocialProfile[]> {
+  const q = query.trim();
+  if (!q) return [];
+
+  const term = `%${q}%`;
+  const { data, error } = await socialSupabase
+    .from(SOCIAL_TABLES.profiles)
+    .select('*')
+    .or(`display_name.ilike.${term},username.ilike.${term}`)
+    .limit(30);
+
+  if (error) throw error;
+  return (data ?? []).map(mapDbProfileToType);
 }

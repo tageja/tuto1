@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getSupabaseBrowserClient }                  from '@/lib/supabase';
-import FeedPost    from './FeedPost';
+import { useFeedInvalidation }                       from '@/contexts/FeedInvalidationContext';
+import FeedPost     from './FeedPost';
 import FeedSkeleton from './FeedSkeleton';
 
 type FeedTab = 'school' | 'forYou' | 'following';
@@ -21,10 +22,12 @@ interface Post {
   isPinned:         boolean;
   author: {
     id:          string;
+    username?:   string;
     displayName: string;
     avatarUrl?:  string;
     role:        string;
     verified:    boolean;
+    schoolId?:   string;
   };
   event?:       { title: string; date: string; location?: string; rsvpCount: number } | null;
   assignment?:  { subject: string; dueDate: string } | null;
@@ -59,10 +62,12 @@ function mapRow(row: Record<string, unknown>): Post {
     isPinned:      (row.is_pinned as boolean) ?? false,
     author: {
       id:          (a.id as string) ?? '',
+      username:    (a.username as string) ?? '',
       displayName: (a.display_name as string) ?? 'Unknown',
       avatarUrl:   a.avatar_url as string | undefined,
       role:        (a.role as string) ?? 'guest',
       verified:    (a.is_verified as boolean) ?? false,
+      schoolId:    a.school_id as string | undefined,
     },
     event:       row.event as Post['event'],
     assignment:  row.assignment as Post['assignment'],
@@ -72,35 +77,83 @@ function mapRow(row: Record<string, unknown>): Post {
   };
 }
 
-export default function FeedContainer({ initialPosts }: { initialPosts: Post[] }) {
-  const supabase    = getSupabaseBrowserClient();
-  const [activeTab, setActiveTab] = useState<FeedTab>('school');
-  const [posts,     setPosts]     = useState<Post[]>(initialPosts);
-  const [loading,   setLoading]   = useState(false);
-  const [hasMore,   setHasMore]   = useState(true);
-  const [feedError, setFeedError] = useState<string | null>(null);
-  // Track whether we've done the initial client-side load so we don't override
-  // server-hydrated initialPosts on the very first mount if they already exist.
-  const didInitialLoad = useRef(false);
-  const cursorRef = useRef<string | null>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
+interface UserProfile {
+  id:       string;
+  schoolId: string | null;
+}
 
-  const loadPosts = useCallback(async (tab: FeedTab, reset = false) => {
+export default function FeedContainer({ initialPosts }: { initialPosts: Post[] }) {
+  const supabase                    = getSupabaseBrowserClient();
+  const { feedVersion }             = useFeedInvalidation();
+  const [activeTab,    setActiveTab]    = useState<FeedTab>('school');
+  const [posts,        setPosts]        = useState<Post[]>(initialPosts);
+  const [loading,      setLoading]      = useState(false);
+  const [hasMore,      setHasMore]      = useState(true);
+  const [feedError,    setFeedError]    = useState<string | null>(null);
+  const [userProfile,  setUserProfile]  = useState<UserProfile | null>(null);
+
+  const didInitialLoad = useRef(false);
+  const cursorRef      = useRef<string | null>(null);
+  const observerRef    = useRef<IntersectionObserver | null>(null);
+  const sentinelRef    = useRef<HTMLDivElement | null>(null);
+
+  // Fetch the current user's social profile once on mount
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from('social_profiles')
+        .select('id, school_id')
+        .eq('user_id', user.id)
+        .single();
+      if (data) {
+        setUserProfile({ id: data.id as string, schoolId: data.school_id as string | null });
+      }
+    })();
+  }, [supabase]);
+
+  const loadPosts = useCallback(async (tab: FeedTab, reset = false, profile?: UserProfile | null) => {
     setLoading(true);
     if (reset) setFeedError(null);
     try {
+      const activeProfile = profile ?? userProfile;
+
+      // For 'following' tab, fetch the list of followed profile IDs first
+      let followedIds: string[] = [];
+      if (tab === 'following' && activeProfile) {
+        const { data: follows } = await supabase
+          .from('social_follows')
+          .select('following_id')
+          .eq('follower_id', activeProfile.id);
+        followedIds = (follows ?? []).map((f: { following_id: string }) => f.following_id);
+      }
+
       let query = supabase
         .from('social_posts')
         .select(`
           *,
           author:social_profiles!social_posts_author_id_fkey(
-            id, user_id, username, display_name, avatar_url, role, is_verified
+            id, user_id, username, display_name, avatar_url, role, is_verified, school_id
           )
         `)
         .in('moderation_status', ['ai_reviewed', 'parent_approved'])
         .order('created_at', { ascending: false })
         .limit(21);
+
+      // Tab-specific filters
+      if (tab === 'school' && activeProfile?.schoolId) {
+        query = query.eq('school_id', activeProfile.schoolId);
+      } else if (tab === 'following') {
+        if (followedIds.length === 0) {
+          // No follows yet — return empty
+          if (reset) setPosts([]);
+          setHasMore(false);
+          return;
+        }
+        query = query.in('author_id', followedIds);
+      }
+      // 'forYou' — no additional filter (all approved posts)
 
       if (!reset && cursorRef.current) {
         query = query.lt('created_at', cursorRef.current);
@@ -132,22 +185,39 @@ export default function FeedContainer({ initialPosts }: { initialPosts: Post[] }
     } finally {
       setLoading(false);
     }
-  }, [supabase]);
+  }, [supabase, userProfile]);
 
-  // Tab change — skip the very first mount if server already hydrated posts
+  // Refetch when tab changes OR feedVersion bumps (comment posted on detail page).
+  // Guard: only skip the initial client fetch when feedVersion is still 0 (no
+  // invalidation has occurred yet). If feedVersion > 0 on mount it means the
+  // user browser-backed after posting a comment — force a fresh fetch regardless
+  // of whether server already hydrated initialPosts.
   useEffect(() => {
-    if (!didInitialLoad.current && initialPosts.length > 0) {
+    if (!didInitialLoad.current && initialPosts.length > 0 && feedVersion === 0) {
       didInitialLoad.current = true;
-      // Set cursor so infinite scroll knows where to continue
-      if (initialPosts.length > 0) {
-        cursorRef.current = initialPosts[initialPosts.length - 1].createdAt;
-      }
+      cursorRef.current = initialPosts[initialPosts.length - 1].createdAt;
       return;
     }
     didInitialLoad.current = true;
     cursorRef.current = null;
     loadPosts(activeTab, true);
-  }, [activeTab]);
+  }, [activeTab, feedVersion]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fix B — sessionStorage fallback for direct URL navigation to /feed.
+  // React Context resets on a full page load (fresh React tree), so feedVersion
+  // goes back to 0 and the dep-array change never fires. sessionStorage survives
+  // within the same browser tab across page loads.
+  // CommentSection writes 'feedNeedsRefresh' = '1' after a successful insert.
+  // This effect runs once on mount, reads the flag, clears it, and triggers a
+  // fresh fetch — guaranteeing staleness is resolved even on direct URL nav.
+  useEffect(() => {
+    if (typeof sessionStorage !== 'undefined' &&
+        sessionStorage.getItem('feedNeedsRefresh') === '1') {
+      sessionStorage.removeItem('feedNeedsRefresh');
+      cursorRef.current = null;
+      loadPosts(activeTab, true);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Infinite scroll via IntersectionObserver
   useEffect(() => {
@@ -220,7 +290,14 @@ export default function FeedContainer({ initialPosts }: { initialPosts: Post[] }
             <p className="text-sm text-gray-400">Hãy là người đầu tiên chia sẻ trong cộng đồng!</p>
           </div>
         ) : (
-          posts.map((post) => <FeedPost key={post.id} post={post as never} />)
+          posts.map((post) => (
+            <FeedPost
+              key={post.id}
+              post={post as never}
+              currentProfileId={userProfile?.id}
+              onBlockAuthor={(authorId) => setPosts((prev) => prev.filter((p) => p.author.id !== authorId))}
+            />
+          ))
         )}
       </div>
 

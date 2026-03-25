@@ -160,8 +160,10 @@ export interface SocialNotification {
   recipientId: string;
   actor?: SocialUser;
   type: NotificationType;
+  postId?: string;
   post?: Pick<SocialPost, 'id' | 'postType' | 'content' | 'mediaUrls'>;
   commentId?: string;
+  reelId?: string;
   data: Record<string, unknown>;   // flexible payload
   read: boolean;
   createdAt: string;

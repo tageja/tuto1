@@ -1,6 +1,7 @@
 import Link            from 'next/link';
 import Image           from 'next/image';
 import PostInteractions from './PostInteractions';
+import PostOptionsDropdown from './PostOptionsDropdown';
 import { cn }          from '../../lib/utils';
 
 // Mirrors the SocialPost mobile type (subset used in web)
@@ -25,6 +26,7 @@ interface FeedPostData {
     role:        string;
     verified:    boolean;
     username?:   string;
+    schoolId?:  string;
   };
   event?:       { title: string; date: string; location?: string; rsvpCount: number } | null;
   assignment?:  { subject: string; dueDate: string } | null;
@@ -39,6 +41,7 @@ const ROLE_COLOR: Record<string, string> = {
   teacher:     'bg-violet-500 text-white',
   coach:       'bg-cyan-500 text-white',
   schoolAdmin: 'bg-orange-500 text-white',
+  school_admin:'bg-orange-500 text-white',
   institute:   'bg-pink-500 text-white',
   guest:       'bg-gray-400 text-white',
 };
@@ -49,19 +52,24 @@ const ROLE_LABEL: Record<string, string> = {
   teacher:     'Giáo viên',
   coach:       'Huấn luyện',
   schoolAdmin: 'Trường',
+  school_admin:'Trường',
   institute:   'Trung tâm',
   guest:       'Khách',
 };
+
+const isSchoolAdmin = (role: string) => role === 'school_admin' || role === 'schoolAdmin';
 
 const MOD_BADGE: Record<string, string> = {
   ai_reviewed:     'bg-blue-50 text-blue-600',
   pending:         'bg-amber-50 text-amber-600',
   parent_approved: 'bg-green-50 text-green-600',
+  rejected:        'bg-red-50 text-red-600',
 };
 const MOD_LABEL: Record<string, string> = {
   ai_reviewed:     '✓ AI Reviewed',
   pending:         '⏳ Pending',
   parent_approved: '🛡 Parent Approved',
+  rejected:        '✕ Rejected',
 };
 
 function formatTimeAgo(iso: string): string {
@@ -118,7 +126,13 @@ function AchievementHeader({ achievement }: { achievement: NonNullable<FeedPostD
 // Main component
 // --------------------------------------------------------------------------
 
-export default function FeedPost({ post }: { post: FeedPostData }) {
+interface FeedPostProps {
+  post: FeedPostData;
+  currentProfileId?: string;
+  onBlockAuthor?: (authorId: string) => void;
+}
+
+export default function FeedPost({ post, currentProfileId, onBlockAuthor }: FeedPostProps) {
   const initials = post.author.displayName.charAt(0).toUpperCase();
 
   return (
@@ -126,34 +140,86 @@ export default function FeedPost({ post }: { post: FeedPostData }) {
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
-          {post.author.avatarUrl ? (
-            <Image
-              src={post.author.avatarUrl}
-              alt={post.author.displayName}
-              width={44}
-              height={44}
-              className="rounded-full object-cover"
-            />
+          {/* Avatar — links to profile if username available */}
+          {post.author.username ? (
+            <Link href={`/profile/${encodeURIComponent(post.author.username)}`} className="flex-shrink-0 hover:opacity-90">
+              {post.author.avatarUrl ? (
+                <Image
+                  src={post.author.avatarUrl}
+                  alt={post.author.displayName}
+                  width={44}
+                  height={44}
+                  className="rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-11 h-11 rounded-full bg-gray-200 flex items-center justify-center text-base font-bold text-gray-600">
+                  {initials}
+                </div>
+              )}
+            </Link>
           ) : (
-            <div className="w-11 h-11 rounded-full bg-gray-200 flex items-center justify-center text-base font-bold text-gray-600">
-              {initials}
+            <div className="flex-shrink-0">
+              {post.author.avatarUrl ? (
+                <Image
+                  src={post.author.avatarUrl}
+                  alt={post.author.displayName}
+                  width={44}
+                  height={44}
+                  className="rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-11 h-11 rounded-full bg-gray-200 flex items-center justify-center text-base font-bold text-gray-600">
+                  {initials}
+                </div>
+              )}
             </div>
           )}
+
+          {/* Name row + role chip + timestamp — each link is a sibling, never nested */}
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-gray-900">{post.author.displayName}</span>
-              <span className={cn('role-badge', ROLE_COLOR[post.author.role])}>
-                {ROLE_LABEL[post.author.role] ?? post.author.role}
-                {post.author.verified && ' ✓'}
-              </span>
+              {post.author.username ? (
+                <Link
+                  href={`/profile/${encodeURIComponent(post.author.username)}`}
+                  className="font-semibold text-gray-900 hover:underline"
+                >
+                  {post.author.displayName}
+                </Link>
+              ) : (
+                <span className="font-semibold text-gray-900">{post.author.displayName}</span>
+              )}
+
+              {isSchoolAdmin(post.author.role) && post.author.schoolId ? (
+                <Link
+                  href={`/school/${post.author.schoolId}`}
+                  className={cn('role-badge', ROLE_COLOR[post.author.role])}
+                >
+                  {ROLE_LABEL[post.author.role] ?? post.author.role}
+                  {post.author.verified && ' ✓'}
+                </Link>
+              ) : (
+                <span className={cn('role-badge', ROLE_COLOR[post.author.role])}>
+                  {ROLE_LABEL[post.author.role] ?? post.author.role}
+                  {post.author.verified && ' ✓'}
+                </span>
+              )}
             </div>
             <p className="text-xs text-gray-400">{formatTimeAgo(post.createdAt)}</p>
           </div>
         </div>
 
-        <span className={cn('mod-badge', MOD_BADGE[post.moderationStatus])}>
-          {MOD_LABEL[post.moderationStatus]}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={cn('mod-badge', MOD_BADGE[post.moderationStatus])}>
+            {MOD_LABEL[post.moderationStatus]}
+          </span>
+          <PostOptionsDropdown
+            postId={post.id}
+            authorId={post.author.id}
+            authorName={post.author.displayName}
+            isOwnPost={currentProfileId === post.author.id}
+            onBlock={() => onBlockAuthor?.(post.author.id)}
+          />
+        </div>
       </div>
 
       {/* Achievement header */}
@@ -243,6 +309,7 @@ export default function FeedPost({ post }: { post: FeedPostData }) {
         postId={post.id}
         initialCounts={post.reactions}
         commentsCount={post.commentsCount}
+        preview={post.content}
         userReaction={post.userReaction}
         saved={post.saved}
       />

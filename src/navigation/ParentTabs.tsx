@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { HomeScreen } from '../screens/HomeScreen';
 import { NotificationsScreen } from '../screens/NotificationsScreen';
@@ -45,6 +46,19 @@ const PhotosStackNavigator = () => {
   );
 };
 
+// Hides the tab bar entirely when the Community (social) section is active.
+// This is the most reliable cross-device approach — a custom tabBar renderer
+// that simply returns null for CommunityTab instead of relying on tabBarStyle options.
+function ParentTabBar(props: BottomTabBarProps) {
+  const activeRouteName = props.state.routes[props.state.index]?.name;
+  // BUG-042: returning null is unreliable on some RN/device combos; zero-height
+  // view is more explicit. 16e still shows both bars — deferred for modal refactor.
+  if (activeRouteName === 'CommunityTab') {
+    return <View style={{ height: 0, overflow: 'hidden' }} />;
+  }
+  return <BottomTabBar {...props} />;
+}
+
 export const ParentTabs = () => {
   const { colors, spacing, typography } = useTheme();
   const { unreadCount, urgentUnreadCount, hasUrgentUnread } = useNotifications();
@@ -81,7 +95,7 @@ export const ParentTabs = () => {
   };
 
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
+    <Tab.Navigator screenOptions={{ headerShown: false }} tabBar={(props) => <ParentTabBar {...props} />}>
       <Tab.Screen
         name="HomeTab"
         component={HomeScreen}

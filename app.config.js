@@ -44,7 +44,18 @@ module.exports = {
     web: {
       favicon: './assets/favicon.png',
     },
-    plugins: ['expo-image-picker', 'expo-web-browser'],
+    plugins: [
+      'expo-image-picker',
+      'expo-web-browser',
+      [
+        'expo-notifications',
+        {
+          icon: './assets/icon.png',
+          color: '#0B5FFF',
+          sounds: [],
+        },
+      ],
+    ],
     extra: {
       // EAS Project ID
       eas: {

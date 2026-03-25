@@ -1,6 +1,8 @@
 import Link  from 'next/link';
 import Image from 'next/image';
 
+const SOCIAL_URL = process.env.NEXT_PUBLIC_SOCIAL_URL ?? 'http://localhost:3001';
+
 const ROLE_COLOR: Record<string, string> = {
   student:     'bg-blue-500',
   parent:      'bg-emerald-500',
@@ -42,7 +44,7 @@ export default function FeedPreviewCard({ post }: { post: PostPreview }) {
   const isAchievement  = post.postType === 'achievement' && post.achievement;
 
   return (
-    <Link href={`https://tuto.social/post/${post.id}`} target="_blank" rel="noopener">
+    <Link href={`${SOCIAL_URL}/post/${post.id}`} target="_blank" rel="noopener">
       <div className="rounded-xl border border-gray-100 bg-white hover:shadow-md transition-shadow p-4 group">
         {/* Achievement badge */}
         {isAchievement && (

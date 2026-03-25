@@ -34,7 +34,9 @@ export interface SocialProfile {
   schoolName?: string;         // denormalised for display
   xp: number;
   level: number;               // 1–10
+  streakCount: number;         // post/reel streak (days)
   shieldCount: number;         // teachers only
+  shieldRank?: 'beginner' | 'bronze' | 'silver' | 'gold' | 'elite';
   linkedTutoId?: string;
   subjects?: string[];         // for teachers/students
   settings: SocialProfileSettings;
@@ -63,6 +65,7 @@ export interface CreateSocialProfilePayload {
 /** Payload for updating a social profile */
 export interface UpdateSocialProfilePayload {
   displayName?: string;
+  username?: string;
   bio?: string;
   avatarUrl?: string;
   coverUrl?: string;

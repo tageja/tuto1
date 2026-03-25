@@ -1,16 +1,15 @@
-import { createClient }  from '@supabase/supabase-js';
-import Link              from 'next/link';
-import Image             from 'next/image';
-import FeedPreviewCard   from './FeedPreviewCard';
+import { createClient }        from '@supabase/supabase-js';
+import Image                   from 'next/image';
+import FeedPreviewCard          from './FeedPreviewCard';
+import { FeedPreviewViewAll, FeedPreviewJoinCTA } from './FeedPreviewCTA';
 
 export default async function FeedPreview() {
-  // Public posts only — no auth needed, use anon client directly
+  // Public posts only — anon client, no user credentials needed
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
 
-  // Fetch 3 most recent public approved posts
   const { data: rows } = await supabase
     .from('social_posts')
     .select(`
@@ -28,9 +27,9 @@ export default async function FeedPreview() {
   const posts = (rows ?? []).map((row) => {
     const a = row.author as Record<string, unknown> ?? {};
     return {
-      id:      row.id as string,
-      postType: row.post_type as string,
-      content: row.content as string ?? '',
+      id:           row.id as string,
+      postType:     row.post_type as string,
+      content:      (row.content as string) ?? '',
       reactions: {
         like:    (row.like_count    as number) ?? 0,
         applaud: (row.applaud_count as number) ?? 0,
@@ -67,14 +66,7 @@ export default async function FeedPreview() {
               <p className="text-sm text-gray-500">Chia sẻ từ phụ huynh, giáo viên và học sinh</p>
             </div>
           </div>
-          <Link
-            href="https://tuto.social"
-            target="_blank"
-            rel="noopener"
-            className="text-sm font-semibold text-primary hover:underline"
-          >
-            Xem thêm →
-          </Link>
+          <FeedPreviewViewAll />
         </div>
 
         {/* Post cards */}
@@ -86,15 +78,7 @@ export default async function FeedPreview() {
 
         {/* CTA */}
         <div className="text-center">
-          <Link
-            href="https://tuto.social"
-            target="_blank"
-            rel="noopener"
-            className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-semibold text-sm hover:bg-blue-700 transition-colors"
-          >
-            Tham gia tuto.social
-            <span>→</span>
-          </Link>
+          <FeedPreviewJoinCTA />
         </div>
       </div>
     </section>
