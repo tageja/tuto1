@@ -5,12 +5,23 @@
  *   parent  : Home | Attendance | Photos     | Find Tutor
  *   teacher : Home | Attendance | Classes    | Students
  *   admin   : Home | School     | Students   | Announcements
+ *
+ * Icons: Phosphor (Bold weight when active, Regular when inactive)
  */
 
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { MaterialIcons } from '@expo/vector-icons';
+import {
+  House,
+  CheckSquare,
+  Images,
+  MagnifyingGlass,
+  Books,
+  Users,
+  Buildings,
+  Megaphone,
+} from 'phosphor-react-native';
 import { useUser } from '../contexts/UserContext';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -63,23 +74,35 @@ const TeacherStudentsStackNavigator = () => (
   </TeacherStudentsStack.Navigator>
 );
 
-// ----- Icon helper -----
-const Icon = (name: keyof typeof MaterialIcons.glyphMap) =>
-  ({ color, size }: { color: string; size: number }) =>
-    <MaterialIcons name={name} color={color} size={size} />;
+// ----- Icon factory: Bold when active, Regular when inactive -----
+type PhosphorIcon = React.ComponentType<{ size: number; color: string; weight: 'bold' | 'regular' }>;
+
+const PhosphorTabIcon =
+  (IconComponent: PhosphorIcon, activeTint: string, inactiveTint: string) =>
+  ({ color, focused }: { color: string; size: number; focused: boolean }) =>
+    (
+      <IconComponent
+        size={24}
+        color={focused ? activeTint : inactiveTint}
+        weight={focused ? 'bold' : 'regular'}
+      />
+    );
 
 // ----- Main navigator -----
 export const MainTabs: React.FC = () => {
   const { userType } = useUser();
   const { colors, typography } = useTheme();
 
-  const tabBarOptions = {
+  const ACTIVE   = colors.primary;       // #0B5FFF
+  const INACTIVE = '#93B4FF';            // soft blue
+
+  const screenOptions = {
     headerShown: false,
     tabBarStyle: {
       borderTopWidth: 1,
       borderTopColor: colors.border?.light ?? '#E5E7EB',
       backgroundColor: colors.background?.primary ?? '#FFFFFF',
-      height: 60,
+      height: 62,
       paddingBottom: 8,
       paddingTop: 6,
     },
@@ -87,33 +110,45 @@ export const MainTabs: React.FC = () => {
       fontSize: 10,
       fontFamily: typography.fontFamily.medium,
     },
-    tabBarActiveTintColor: colors.primary,
-    tabBarInactiveTintColor: '#93B4FF',
+    tabBarActiveTintColor: ACTIVE,
+    tabBarInactiveTintColor: INACTIVE,
   };
 
   // ---- TEACHER tabs ----
   if (userType === 'teacher') {
     return (
-      <Tab.Navigator screenOptions={tabBarOptions}>
+      <Tab.Navigator screenOptions={screenOptions}>
         <Tab.Screen
           name="HomeTab"
           component={HomeScreen}
-          options={{ title: 'Home', tabBarIcon: Icon('home') }}
+          options={{
+            title: 'Home',
+            tabBarIcon: PhosphorTabIcon(House, ACTIVE, INACTIVE),
+          }}
         />
         <Tab.Screen
           name="AttendanceTab"
           component={TeacherAttendanceScreen}
-          options={{ title: 'Attendance', tabBarIcon: Icon('fact-check') }}
+          options={{
+            title: 'Attendance',
+            tabBarIcon: PhosphorTabIcon(CheckSquare, ACTIVE, INACTIVE),
+          }}
         />
         <Tab.Screen
           name="ClassesTab"
           component={TeacherClassesStackNavigator}
-          options={{ title: 'Classes', tabBarIcon: Icon('auto-stories') }}
+          options={{
+            title: 'Classes',
+            tabBarIcon: PhosphorTabIcon(Books, ACTIVE, INACTIVE),
+          }}
         />
         <Tab.Screen
           name="StudentsTab"
           component={TeacherStudentsStackNavigator}
-          options={{ title: 'Students', tabBarIcon: Icon('people') }}
+          options={{
+            title: 'Students',
+            tabBarIcon: PhosphorTabIcon(Users, ACTIVE, INACTIVE),
+          }}
         />
       </Tab.Navigator>
     );
@@ -122,26 +157,38 @@ export const MainTabs: React.FC = () => {
   // ---- ADMIN tabs ----
   if (userType === 'admin') {
     return (
-      <Tab.Navigator screenOptions={tabBarOptions}>
+      <Tab.Navigator screenOptions={screenOptions}>
         <Tab.Screen
           name="HomeTab"
           component={HomeScreen}
-          options={{ title: 'Home', tabBarIcon: Icon('home') }}
+          options={{
+            title: 'Home',
+            tabBarIcon: PhosphorTabIcon(House, ACTIVE, INACTIVE),
+          }}
         />
         <Tab.Screen
           name="SchoolTab"
           component={SchoolDashboardScreen}
-          options={{ title: 'School', tabBarIcon: Icon('corporate-fare') }}
+          options={{
+            title: 'School',
+            tabBarIcon: PhosphorTabIcon(Buildings, ACTIVE, INACTIVE),
+          }}
         />
         <Tab.Screen
           name="StudentsTab"
           component={StudentsScreen}
-          options={{ title: 'Students', tabBarIcon: Icon('people') }}
+          options={{
+            title: 'Students',
+            tabBarIcon: PhosphorTabIcon(Users, ACTIVE, INACTIVE),
+          }}
         />
         <Tab.Screen
           name="AnnouncementsTab"
           component={AdminAnnouncementsScreen}
-          options={{ title: 'Announce', tabBarIcon: Icon('campaign') }}
+          options={{
+            title: 'Announce',
+            tabBarIcon: PhosphorTabIcon(Megaphone, ACTIVE, INACTIVE),
+          }}
         />
       </Tab.Navigator>
     );
@@ -149,26 +196,38 @@ export const MainTabs: React.FC = () => {
 
   // ---- PARENT tabs (default) ----
   return (
-    <Tab.Navigator screenOptions={tabBarOptions}>
+    <Tab.Navigator screenOptions={screenOptions}>
       <Tab.Screen
         name="HomeTab"
         component={HomeScreen}
-        options={{ title: 'Home', tabBarIcon: Icon('home') }}
+        options={{
+          title: 'Home',
+          tabBarIcon: PhosphorTabIcon(House, ACTIVE, INACTIVE),
+        }}
       />
       <Tab.Screen
         name="AttendanceTab"
         component={ParentAttendanceScreen}
-        options={{ title: 'Attendance', tabBarIcon: Icon('fact-check') }}
+        options={{
+          title: 'Attendance',
+          tabBarIcon: PhosphorTabIcon(CheckSquare, ACTIVE, INACTIVE),
+        }}
       />
       <Tab.Screen
         name="PhotosTab"
         component={PhotosStackNavigator}
-        options={{ title: 'Photos', tabBarIcon: Icon('collections') }}
+        options={{
+          title: 'Photos',
+          tabBarIcon: PhosphorTabIcon(Images, ACTIVE, INACTIVE),
+        }}
       />
       <Tab.Screen
         name="FindTutorTab"
         component={AllSubjectsScreen}
-        options={{ title: 'Find Tutor', tabBarIcon: Icon('person-search') }}
+        options={{
+          title: 'Find Tutor',
+          tabBarIcon: PhosphorTabIcon(MagnifyingGlass, ACTIVE, INACTIVE),
+        }}
       />
     </Tab.Navigator>
   );

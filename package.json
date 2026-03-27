@@ -115,6 +115,7 @@
     "lucide-react": "^0.546.0",
     "nativewind": "^4.0.36",
     "next": "^15.1.6",
+    "phosphor-react-native": "^3.0.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-error-boundary": "^4.0.13",
