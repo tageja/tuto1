@@ -1,129 +1,84 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
-import { useUser } from '../../contexts/UserContext';
 
 interface CTASectionProps {
   navigation: any;
 }
 
+const EXPLORE_ITEMS = [
+  {
+    key: 'tutors',
+    icon: 'search' as const,
+    iconBg: '#F5F3FF',
+    iconColor: '#7C3AED',
+    title: 'Find a Tutor',
+    subtitle: 'Browse expert teachers near you',
+    screen: 'AllSubjects',
+  },
+  {
+    key: 'social',
+    icon: 'dynamic-feed' as const,
+    iconBg: '#FFF0F6',
+    iconColor: '#DB2777',
+    title: 'Tuto Social',
+    subtitle: 'Community feed & updates',
+    screen: 'Feed',
+  },
+];
+
 export const CTASection: React.FC<CTASectionProps> = ({ navigation }) => {
-  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+  const { colors, spacing, typography } = useTheme();
 
   const styles = StyleSheet.create({
-    container: {
-      padding: spacing.lg,
-      paddingBottom: spacing.xxl,
-    },
-    card: {
-      backgroundColor: colors.primary,
-      borderRadius: 24,
-      padding: spacing.xl,
-      alignItems: 'center',
-      ...shadows.lg,
-      shadowColor: '#000',
-      shadowOpacity: 0.2,
-    },
-    title: {
-      fontSize: 28,
-      fontFamily: typography.fontFamily.bold,
-      color: colors.background.primary,
-      textAlign: 'center',
+    container: { paddingTop: spacing.md, paddingBottom: spacing.xxl },
+    header: {
+      paddingHorizontal: spacing.md,
       marginBottom: spacing.sm,
     },
-    subtitle: {
-      fontSize: typography.fontSize.md,
-      color: 'rgba(255, 255, 255, 0.9)',
-      textAlign: 'center',
-      marginBottom: spacing.xl,
-      lineHeight: 24,
-    },
-    buttonContainer: {
-      width: '100%',
-      gap: spacing.md,
-    },
-    primaryButton: {
+    sectionTitle: { fontSize: 14, fontFamily: typography.fontFamily.bold, color: colors.text.primary },
+    list: { paddingHorizontal: spacing.md, gap: 8 },
+    item: {
       backgroundColor: colors.background.primary,
-      borderRadius: 12,
-      paddingVertical: 16,
+      borderRadius: 14,
+      padding: 14,
+      flexDirection: 'row',
       alignItems: 'center',
-      width: '100%',
-    },
-    primaryButtonText: {
-      fontSize: typography.fontSize.md,
-      fontFamily: typography.fontFamily.bold,
-      color: colors.primary,
-    },
-    secondaryButton: {
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      borderRadius: 12,
-      paddingVertical: 16,
-      alignItems: 'center',
-      width: '100%',
+      gap: 12,
       borderWidth: 1,
-      borderColor: 'rgba(255, 255, 255, 0.2)',
+      borderColor: colors.border.light,
     },
-    secondaryButtonText: {
-      fontSize: typography.fontSize.md,
-      fontFamily: typography.fontFamily.semiBold,
-      color: colors.background.primary,
-    },
+    iconWrap: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+    body: { flex: 1 },
+    itemTitle: { fontSize: 13, fontFamily: typography.fontFamily.semiBold, color: colors.text.primary },
+    itemSub: { fontSize: 11, color: colors.text.secondary, marginTop: 1 },
   });
-
-  const { t } = useLanguage();
-  const { user } = useUser();
-
-  const handlePrimaryPress = () => {
-    if (user) {
-      // If logged in, maybe go to dashboard or role selection
-      navigation.navigate('RoleSelection');
-    } else {
-      navigation.navigate('Register');
-    }
-  };
-
-  const handleSecondaryPress = () => {
-    Linking.openURL('https://tutoglobal.com/contact').catch(err => 
-      console.error("Couldn't load page", err)
-    );
-  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>
-          {t('landing.cta.title') || 'Ready to transform your school?'}
-        </Text>
-        <Text style={styles.subtitle}>
-          {t('landing.cta.subtitle') || 'Join thousands of schools, teachers, and parents using tuto. today.'}
-        </Text>
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.primaryButton} onPress={handlePrimaryPress}>
-            <Text style={styles.primaryButtonText}>
-              {user ? (t('common.continue') || 'Continue') : (t('auth.createAccount') || 'Get Started')}
-            </Text>
+      <View style={styles.header}>
+        <Text style={styles.sectionTitle}>Explore Tuto</Text>
+      </View>
+      <View style={styles.list}>
+        {EXPLORE_ITEMS.map((item) => (
+          <TouchableOpacity
+            key={item.key}
+            style={styles.item}
+            onPress={() => navigation.navigate(item.screen)}
+            activeOpacity={0.7}
+          >
+            <View style={[styles.iconWrap, { backgroundColor: item.iconBg }]}>
+              <MaterialIcons name={item.icon} size={22} color={item.iconColor} />
+            </View>
+            <View style={styles.body}>
+              <Text style={styles.itemTitle}>{item.title}</Text>
+              <Text style={styles.itemSub}>{item.subtitle}</Text>
+            </View>
+            <MaterialIcons name="chevron-right" size={20} color={colors.text.light} />
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.secondaryButton} onPress={handleSecondaryPress}>
-            <Text style={styles.secondaryButtonText}>
-              {t('landing.cta.contactSales') || 'Contact Sales'}
-            </Text>
-          </TouchableOpacity>
-        </View>
+        ))}
       </View>
     </View>
   );
 };
-
-
-
-
-
-
-
-
-
-
-

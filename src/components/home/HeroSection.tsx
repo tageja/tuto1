@@ -1,124 +1,152 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { useUser } from '../../contexts/UserContext';
+import { useSchool } from '../../contexts/SchoolContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { fetchAdminHomeStats, type AdminHomeStats } from '../../services/home-dashboard';
+import { fetchTeacherStats, type TeacherStats } from '../../services/teacher-dashboard';
 
-interface HeroSectionProps {
-  navigation: any;
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function formatDate(): string {
+  const d = new Date();
+  return `${DAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ navigation }) => {
-  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+function getFirstName(fullName: string | null | undefined): string {
+  if (!fullName) return 'there';
+  return fullName.split(' ')[0];
+}
+
+interface StatTile {
+  value: string;
+  label: string;
+}
+
+export const HeroSection: React.FC = () => {
+  const { userType, userData } = useUser();
+  const { currentSchool } = useSchool();
+  const { colors, spacing, typography } = useTheme();
+
+  const [stats, setStats] = useState<StatTile[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!currentSchool?.id) return;
+    setLoading(true);
+
+    const load = async () => {
+      try {
+        if (userType === 'admin') {
+          const s: AdminHomeStats = await fetchAdminHomeStats(currentSchool.id);
+          setStats([
+            { value: String(s.studentsCount), label: 'Students' },
+            { value: s.attendanceRate !== null ? `${s.attendanceRate}%` : '—', label: 'Attendance' },
+            { value: String(s.teachersCount), label: 'Teachers' },
+          ]);
+        } else if (userType === 'teacher') {
+          const s: TeacherStats = await fetchTeacherStats(currentSchool.id);
+          setStats([
+            { value: String(s.classesCount), label: 'Classes' },
+            { value: String(s.studentsCount), label: 'Students' },
+            { value: s.homeworkPending > 0 ? String(s.homeworkPending) : '0', label: 'HW Due' },
+          ]);
+        }
+      } catch {
+        // silently fail — stats just won't show
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [currentSchool?.id, userType]);
+
+  const rolePillConfig = {
+    admin: { label: 'School Admin', icon: 'admin-panel-settings' as const },
+    teacher: { label: 'Teacher', icon: 'school' as const },
+    parent: { label: 'Parent', icon: 'family-restroom' as const },
+    student: { label: 'Student', icon: 'person' as const },
+  };
+
+  const pill = rolePillConfig[userType as keyof typeof rolePillConfig] ?? rolePillConfig.parent;
+  const firstName = getFirstName(userData?.name);
+  const showStats = stats.length > 0;
 
   const styles = StyleSheet.create({
-    container: {
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.xl,
-      alignItems: 'center',
-    },
-    title: {
-      fontSize: 32, // Mobile friendly large size
-      fontFamily: typography.fontFamily.bold,
-      color: colors.text.primary,
-      textAlign: 'center',
-      marginBottom: spacing.md,
-      lineHeight: 40,
-    },
-    subtitle: {
-      fontSize: typography.fontSize.md,
-      fontFamily: typography.fontFamily.regular,
-      color: colors.text.secondary,
-      textAlign: 'center',
-      marginBottom: spacing.xl,
-      lineHeight: 24,
-    },
-    buttonContainer: {
-      flexDirection: 'row',
-      gap: spacing.md,
-      flexWrap: 'wrap',
-      justifyContent: 'center',
-      width: '100%',
-    },
-    primaryButton: {
-      backgroundColor: colors.primary,
-      borderRadius: 12,
-      paddingVertical: 14,
-      paddingHorizontal: 20,
+    wrapper: { paddingHorizontal: spacing.md, paddingTop: spacing.md, paddingBottom: spacing.xs },
+    card: { borderRadius: 24, padding: spacing.lg, overflow: 'hidden' },
+    rolePill: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'center',
-      ...shadows.md,
-      shadowColor: '#000',
+      gap: 5,
+      alignSelf: 'flex-start',
+      backgroundColor: 'rgba(255,255,255,0.15)',
+      borderRadius: 100,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      marginBottom: spacing.sm,
     },
-    primaryButtonText: {
-      fontSize: typography.fontSize.md,
-      fontFamily: typography.fontFamily.semiBold,
-      color: colors.background.primary,
-      marginRight: spacing.sm,
-    },
-    secondaryButton: {
-      backgroundColor: colors.background.tertiary, // Light gray from Login/Register tabs
-      borderRadius: 12,
-      paddingVertical: 14,
-      paddingHorizontal: 20,
-      flexDirection: 'row',
+    rolePillText: { color: 'rgba(255,255,255,0.85)', fontSize: 10, fontFamily: typography.fontFamily.semiBold, letterSpacing: 0.5, textTransform: 'uppercase' },
+    dateText: { color: 'rgba(255,255,255,0.55)', fontSize: 11, marginBottom: 2 },
+    greetingText: { color: '#fff', fontSize: 22, fontFamily: typography.fontFamily.bold, marginBottom: spacing.md },
+    schoolText: { color: 'rgba(255,255,255,0.65)', fontSize: 11, marginBottom: spacing.md },
+    statsRow: { flexDirection: 'row', gap: spacing.sm },
+    statTile: {
+      flex: 1,
+      backgroundColor: 'rgba(255,255,255,0.12)',
+      borderRadius: 14,
+      paddingVertical: 10,
+      paddingHorizontal: 8,
       alignItems: 'center',
-      justifyContent: 'center',
-      borderWidth: 1,
-      borderColor: colors.border.light,
     },
-    secondaryButtonText: {
-      fontSize: typography.fontSize.md,
-      fontFamily: typography.fontFamily.semiBold,
-      color: colors.text.secondary,
-    },
+    statValue: { color: '#fff', fontSize: 18, fontFamily: typography.fontFamily.bold },
+    statLabel: { color: 'rgba(255,255,255,0.55)', fontSize: 9, marginTop: 2, letterSpacing: 0.3 },
+    noSchoolText: { color: 'rgba(255,255,255,0.7)', fontSize: 13, textAlign: 'center', marginTop: spacing.sm, lineHeight: 20 },
   });
 
-  const { t } = useLanguage();
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>
-        {t('landing.hero.title') || 'The Learning Platform for Schools, Teachers & Families'}
-      </Text>
-      <Text style={styles.subtitle}>
-        {t('landing.hero.subtitle') || 'Connect with expert teachers, manage school activities, and track student progress all in one place.'}
-      </Text>
+    <View style={styles.wrapper}>
+      <LinearGradient
+        colors={['#0B1F50', '#0B5FFF']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.card}
+      >
+        {/* Role pill */}
+        <View style={styles.rolePill}>
+          <MaterialIcons name={pill.icon} size={12} color="rgba(255,255,255,0.85)" />
+          <Text style={styles.rolePillText}>{pill.label}</Text>
+        </View>
 
-      <View style={styles.buttonContainer}>
-        {/* Find Teachers Button */}
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={() => navigation.navigate('AllSubjects')}
-        >
-          <Text style={styles.primaryButtonText}>
-            {t('landing.cta.findTeachers') || 'Find Teachers'}
-          </Text>
-          <MaterialIcons name="search" size={20} color="#FFFFFF" />
-        </TouchableOpacity>
+        {/* Date + greeting */}
+        <Text style={styles.dateText}>{formatDate()}</Text>
+        <Text style={styles.greetingText}>Hello, {firstName} 👋</Text>
 
-        {/* Explore Feed Button */}
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() => navigation.navigate('Feed')}
-        >
-          <Text style={styles.secondaryButtonText}>
-            {t('landing.cta.exploreFeed') || 'Explore Feed'}
-          </Text>
-        </TouchableOpacity>
-      </View>
+        {/* School name if available */}
+        {currentSchool?.name && (
+          <Text style={styles.schoolText}>🏫 {currentSchool.name}</Text>
+        )}
+
+        {/* Stats tiles */}
+        {loading ? (
+          <ActivityIndicator color="rgba(255,255,255,0.7)" size="small" style={{ marginTop: 4 }} />
+        ) : showStats ? (
+          <View style={styles.statsRow}>
+            {stats.map((s) => (
+              <View key={s.label} style={styles.statTile}>
+                <Text style={styles.statValue}>{s.value}</Text>
+                <Text style={styles.statLabel}>{s.label}</Text>
+              </View>
+            ))}
+          </View>
+        ) : !currentSchool ? (
+          <Text style={styles.noSchoolText}>Join a school to see your dashboard</Text>
+        ) : null}
+      </LinearGradient>
     </View>
   );
 };
-
-
-
-
-
-
-
-
-
-
-

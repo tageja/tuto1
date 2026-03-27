@@ -147,7 +147,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       if (profile && profile.role) {
-        const role = profile.role as UserType;
+        // school_admin in the DB maps to 'admin' in the app's UserType
+        const rawRole = profile.role as string;
+        const role = (rawRole === 'school_admin' ? 'admin' : rawRole) as UserType;
         if (['parent', 'student', 'teacher', 'admin'].includes(role)) {
           console.log('👤 UserProvider: Server role resolved to:', role);
           await AsyncStorage.setItem('userType', role);

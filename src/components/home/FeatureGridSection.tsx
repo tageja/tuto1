@@ -1,108 +1,115 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { useSchool } from '../../contexts/SchoolContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { fetchRecentActivity, type ActivityItem } from '../../services/home-dashboard';
 
-export const FeatureGridSection: React.FC = () => {
-  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
+interface FeatureGridSectionProps {
+  navigation?: any;
+}
+
+export const FeatureGridSection: React.FC<FeatureGridSectionProps> = ({ navigation }) => {
+  const { currentSchool } = useSchool();
+  const { colors, spacing, typography } = useTheme();
+  const [items, setItems] = useState<ActivityItem[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!currentSchool?.id) return;
+    setLoading(true);
+    fetchRecentActivity(currentSchool.id)
+      .then(setItems)
+      .catch(() => setItems([]))
+      .finally(() => setLoading(false));
+  }, [currentSchool?.id]);
 
   const styles = StyleSheet.create({
-    container: {
-      paddingVertical: spacing.xl,
-      paddingHorizontal: spacing.lg,
-      backgroundColor: colors.background.secondary, // surface
-    },
+    container: { paddingTop: spacing.md },
     header: {
-      marginBottom: spacing.xl,
-      alignItems: 'center',
-    },
-    sectionTitle: {
-      fontSize: typography.fontSize.xl,
-      fontFamily: typography.fontFamily.bold,
-      color: colors.text.primary,
-      marginBottom: spacing.xs,
-      textAlign: 'center',
-    },
-    sectionSubtitle: {
-      fontSize: typography.fontSize.md,
-      color: colors.text.secondary,
-      textAlign: 'center',
-    },
-    grid: {
       flexDirection: 'row',
-      flexWrap: 'wrap',
       justifyContent: 'space-between',
-      gap: spacing.md,
-    },
-    featureItem: {
-      width: '47%', // roughly 2 columns with gap
-      backgroundColor: colors.background.primary,
-      borderRadius: 16,
-      padding: spacing.md,
       alignItems: 'center',
+      paddingHorizontal: spacing.md,
       marginBottom: spacing.sm,
-      ...shadows.sm,
+    },
+    sectionTitle: { fontSize: 14, fontFamily: typography.fontFamily.bold, color: colors.text.primary },
+    seeAll: { fontSize: 12, color: colors.primary, fontFamily: typography.fontFamily.semiBold },
+    list: { paddingHorizontal: spacing.md, gap: 8 },
+    item: {
+      backgroundColor: colors.background.primary,
+      borderRadius: 14,
+      padding: 12,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 11,
       borderWidth: 1,
       borderColor: colors.border.light,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.04,
+      shadowRadius: 3,
+      elevation: 1,
     },
-    iconContainer: {
-      width: 56,
-      height: 56,
-      borderRadius: 16,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: spacing.sm,
-    },
-    featureLabel: {
-      fontSize: typography.fontSize.sm,
-      fontFamily: typography.fontFamily.semiBold,
-      color: colors.text.primary,
-      textAlign: 'center',
-    },
+    iconWrap: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+    body: { flex: 1, minWidth: 0 },
+    itemTitle: { fontSize: 12, fontFamily: typography.fontFamily.semiBold, color: colors.text.primary, marginBottom: 1 },
+    itemSub: { fontSize: 10, color: colors.text.secondary },
+    tag: { fontSize: 9, fontFamily: typography.fontFamily.semiBold, paddingHorizontal: 7, paddingVertical: 2, borderRadius: 100, marginTop: 4, alignSelf: 'flex-start' },
+    timeText: { fontSize: 9, color: colors.text.light },
+    emptyWrap: { paddingHorizontal: spacing.md, paddingVertical: spacing.lg, alignItems: 'center' },
+    emptyText: { fontSize: 13, color: colors.text.secondary, textAlign: 'center', lineHeight: 20 },
   });
 
-  const { t } = useLanguage();
-
-  const features = [
-    { id: 'attendance', icon: 'calendar-today', label: t('landing.features.attendance') || 'Attendance', color: '#3B82F6', bg: '#EFF6FF' },
-    { id: 'homework', icon: 'menu-book', label: t('landing.features.homework') || 'Homework', color: '#6366F1', bg: '#EEF2FF' },
-    { id: 'events', icon: 'emoji-events', label: t('landing.features.events') || 'Events', color: '#F59E0B', bg: '#FFFBEB' },
-    { id: 'progress', icon: 'trending-up', label: t('landing.features.progress') || 'Progress', color: '#A855F7', bg: '#FAF5FF' },
-    { id: 'health', icon: 'favorite', label: t('landing.features.health') || 'Health', color: '#F43F5E', bg: '#FFF1F2' },
-    { id: 'medicine', icon: 'medication', label: t('landing.features.medicine') || 'Medicine', color: '#EC4899', bg: '#FDF2F8' },
-    { id: 'photos', icon: 'image', label: t('landing.features.photos') || 'Photos', color: '#06B6D4', bg: '#ECFEFF' },
-    { id: 'payments', icon: 'credit-card', label: t('landing.features.payments') || 'Payments', color: '#10B981', bg: '#ECFDF5' },
-  ];
+  if (!currentSchool) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.sectionTitle}>Recent Activity</Text>
+        </View>
+        <View style={styles.emptyWrap}>
+          <Text style={styles.emptyText}>Join a school to see recent activity</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.sectionTitle}>{t('landing.features.title') || 'Platform Features'}</Text>
-        <Text style={styles.sectionSubtitle}>{t('landing.features.subtitle') || 'Everything you need in one place'}</Text>
+        <Text style={styles.sectionTitle}>Recent Activity</Text>
+        {navigation && items.length > 0 && (
+          <TouchableOpacity onPress={() => navigation.navigate('SchoolDashboard')}>
+            <Text style={styles.seeAll}>See all</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
-      <View style={styles.grid}>
-        {features.map((feature) => (
-          <View key={feature.id} style={styles.featureItem}>
-            <View style={[styles.iconContainer, { backgroundColor: feature.bg }]}>
-              <MaterialIcons name={feature.icon as any} size={28} color={feature.color} />
+      {loading ? (
+        <ActivityIndicator color={colors.primary} style={{ marginVertical: spacing.lg }} />
+      ) : items.length === 0 ? (
+        <View style={styles.emptyWrap}>
+          <Text style={styles.emptyText}>No recent activity yet</Text>
+        </View>
+      ) : (
+        <View style={styles.list}>
+          {items.map((item) => (
+            <View key={item.id} style={styles.item}>
+              <View style={[styles.iconWrap, { backgroundColor: item.iconBg }]}>
+                <MaterialIcons name={item.iconName as any} size={18} color={item.tagColor} />
+              </View>
+              <View style={styles.body}>
+                <Text style={styles.itemTitle} numberOfLines={1}>{item.title}</Text>
+                <Text style={styles.itemSub} numberOfLines={1}>{item.subtitle}</Text>
+                <Text style={[styles.tag, { backgroundColor: item.tagBg, color: item.tagColor }]}>
+                  {item.tag}
+                </Text>
+              </View>
+              <Text style={styles.timeText}>{item.timeAgo}</Text>
             </View>
-            <Text style={styles.featureLabel}>{feature.label}</Text>
-          </View>
-        ))}
-      </View>
+          ))}
+        </View>
+      )}
     </View>
   );
 };
-
-
-
-
-
-
-
-
-
-
-

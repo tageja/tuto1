@@ -726,10 +726,19 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
       // #endregion
 
       const isTeacherInSchool = !!(teacherRows && teacherRows.length > 0);
+      const usersTableRole = userProfile.data?.role;
+      const isSchoolAdmin = usersTableRole === 'school_admin' || usersTableRole === 'admin' || schoolUserRole?.role === 'admin';
 
-      // Priority: school_teachers (teacher) > school_users.role (if admin) > users.role > 'parent'
-      // If user is found in school_teachers, they should always get teacher role
-      const finalRole = isTeacherInSchool ? 'teacher' : (schoolUserRole?.role || userProfile.data?.role || 'parent');
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/233de770-f886-4fc3-bb3a-6a4bde299f3d',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1d6eec'},body:JSON.stringify({sessionId:'1d6eec',location:'AuthUnifiedScreen.tsx:finalRole',message:'role resolution inputs',data:{email:normalizedEmail,usersTableRole,isTeacherInSchool,isSchoolAdmin,schoolUserAdminRow:!!schoolUserRole},hypothesisId:'teacher-override',timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+
+      // school_admin ALWAYS wins over teacher-table membership
+      const finalRole = isSchoolAdmin ? 'admin' : isTeacherInSchool ? 'teacher' : (schoolUserRole?.role || usersTableRole || 'parent');
+
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/233de770-f886-4fc3-bb3a-6a4bde299f3d',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1d6eec'},body:JSON.stringify({sessionId:'1d6eec',location:'AuthUnifiedScreen.tsx:finalRole',message:'final role assigned',data:{finalRole},hypothesisId:'teacher-override',timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       console.log('👤 Final role determined:', finalRole);
 
       // #region agent log

@@ -29,8 +29,7 @@ import { PaymentsScreen } from '../screens/PaymentsScreen';
 import { BookingsScreen } from '../screens/BookingsScreen';
 import { FeedScreen } from '../screens/FeedScreen';
 import { CommentsScreen } from '../screens/CommentsScreen';
-import { ParentTabs } from './ParentTabs';
-import { TeacherTabs } from './TeacherTabs';
+import { MainTabs } from './MainTabs';
 import { useUser } from '../contexts/UserContext';
 import { useSchool } from '../contexts/SchoolContext';
 import SchoolInvitationScreen from '../screens/SchoolInvitationScreen';
@@ -246,11 +245,8 @@ const RoleGate: React.FC = () => {
     return <RoleSelectionScreen navigation={undefined as any} />;
   }
   
-  // Always show the appropriate tabs based on user type
-  // Users will navigate to school features from within the app
   console.log('🚪 RoleGate: Showing tabs for', userType);
-  if (userType === 'teacher') return <TeacherTabs />;
-  return <ParentTabs />;
+  return <MainTabs />;
 };
 
 /** Access gate: redirect to Welcome if parent has no access to current school */

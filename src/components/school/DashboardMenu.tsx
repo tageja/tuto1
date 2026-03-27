@@ -258,13 +258,7 @@ export const DashboardMenu: React.FC<DashboardMenuProps> = ({
               style={styles.menuItem}
               onPress={() => {
                 onClose();
-                // Teachers live inside TeacherTabs (at root 'Home'), so navigate to 'Welcome'
-                // Admin/Parent are at SchoolDashboard, so navigate to 'Home' (ParentTabs)
-                if (userRole === 'teacher') {
-                  navigation.navigate('Welcome' as never);
-                } else {
-                  navigation.navigate('Home' as never);
-                }
+                navigation.navigate('Home' as never);
               }}
             >
               <MaterialIcons name="home" size={24} color={colors.text.secondary} />

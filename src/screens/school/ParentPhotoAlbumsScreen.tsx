@@ -65,34 +65,20 @@ export default function ParentPhotoAlbumsScreen() {
     },
     headerCard: {
       backgroundColor: colors.background.primary,
-      padding: spacing.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
       margin: spacing.md,
+      marginBottom: spacing.sm,
       borderRadius: borderRadius.lg,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
       ...shadows.sm,
     },
     headerTitle: {
       fontSize: typography.fontSize.xl,
       fontFamily: typography.fontFamily.bold,
       color: colors.text.primary,
-      marginBottom: spacing.xs,
-    },
-    headerSubtitle: {
-      fontSize: typography.fontSize.sm,
-      fontFamily: typography.fontFamily.regular,
-      color: colors.text.secondary,
-      marginBottom: spacing.sm,
-    },
-    childInfoRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      marginTop: spacing.sm,
-    },
-    childInfoText: {
-      fontSize: typography.fontSize.sm,
-      fontFamily: typography.fontFamily.regular,
-      color: colors.text.secondary,
-      flex: 1,
     },
     childSelectorButton: {
       flexDirection: 'row',
@@ -104,11 +90,13 @@ export default function ParentPhotoAlbumsScreen() {
       borderWidth: 1,
       borderColor: colors.border.light,
       gap: spacing.xs,
+      maxWidth: 160,
     },
     childSelectorText: {
       fontSize: typography.fontSize.sm,
       fontFamily: typography.fontFamily.medium,
       color: colors.text.primary,
+      flexShrink: 1,
     },
     searchContainer: {
       flexDirection: 'row',
@@ -394,38 +382,23 @@ export default function ParentPhotoAlbumsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={[]}>
       <SchoolHeader />
 
-      {/* Header Card */}
+      {/* Header Card — compact single row */}
       <View style={styles.headerCard}>
         <Text style={styles.headerTitle}>
           {t('school.photoAlbums.title')}
         </Text>
-        <Text style={styles.headerSubtitle}>
-          {t('school.photoAlbums.subtitleParent')}
-        </Text>
-        {selectedChild && (
-          <View style={styles.childInfoRow}>
-            <Text style={styles.childInfoText}>
-              {t('school.photoAlbums.showingAlbumsFor')} {selectedChild.fullName}
-              {selectedChild.className && ` - ${selectedChild.className}`}
-            </Text>
-            <TouchableOpacity
-              style={styles.childSelectorButton}
-              onPress={() => setChildSelectorVisible(true)}
-            >
-              <Text style={styles.childSelectorText}>
-                {t('school.photoAlbums.selectChild')}
-              </Text>
-              <MaterialIcons
-                name="arrow-drop-down"
-                size={20}
-                color={colors.text.primary}
-              />
-            </TouchableOpacity>
-          </View>
-        )}
+        <TouchableOpacity
+          style={styles.childSelectorButton}
+          onPress={() => setChildSelectorVisible(true)}
+        >
+          <Text style={styles.childSelectorText} numberOfLines={1}>
+            {selectedChild ? selectedChild.fullName : t('school.photoAlbums.selectChild')}
+          </Text>
+          <MaterialIcons name="arrow-drop-down" size={20} color={colors.text.primary} />
+        </TouchableOpacity>
       </View>
 
       {/* Search Bar */}

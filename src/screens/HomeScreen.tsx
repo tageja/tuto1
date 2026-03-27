@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -7,24 +7,18 @@ import {
   TouchableOpacity,
   Image,
   StatusBar,
-  Platform,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLanguage } from '../contexts/LanguageContext';
 import { useUser } from '../contexts/UserContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { useSchool } from '../contexts/SchoolContext';
-import { LanguageToggle } from '../components/LanguageToggle';
 import { useNotifications } from '../hooks/useNotifications';
+import { useNetwork } from '../hooks/network';
 
-// New Home Components
 import { HeroSection } from '../components/home/HeroSection';
 import { RoleGatewaySection } from '../components/home/RoleGatewaySection';
 import { FeatureGridSection } from '../components/home/FeatureGridSection';
-import { LiveKpisSection } from '../components/home/LiveKpisSection';
 import { CTASection } from '../components/home/CTASection';
-import { useNetwork } from '../hooks/network';
 
 interface HomeScreenProps {
   navigation: any;
@@ -32,190 +26,123 @@ interface HomeScreenProps {
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { colors, spacing, typography, isDark } = useTheme();
-  const { currentSchool } = useSchool();
+  const { userData } = useUser();
+  const { isOffline, retryNow } = useNetwork();
+  const { unreadCount, hasUrgentUnread } = useNotifications();
 
   const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background.primary,
-    },
+    container: { flex: 1, backgroundColor: colors.background.secondary },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
       paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.md,
+      paddingVertical: spacing.sm,
       backgroundColor: colors.background.primary,
       borderBottomWidth: 1,
       borderBottomColor: colors.border.light,
-      zIndex: 10,
     },
-    headerLeft: {
-      flex: 1,
-    },
-    headerRight: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.sm,
-    },
-    logo: {
-      width: 80,
-      height: 32,
-      tintColor: isDark ? '#FFFFFF' : undefined,
-    },
-    iconButton: {
-      padding: 4,
-      position: 'relative',
-    },
-    notificationBadge: {
-      position: 'absolute',
-      top: 0,
-      right: 0,
+    logo: { width: 72, height: 30, tintColor: isDark ? '#FFFFFF' : undefined },
+    headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    iconBtn: { padding: 4, position: 'relative' },
+    badge: {
+      position: 'absolute', top: 0, right: 0,
       backgroundColor: colors.status.error,
-      borderRadius: 8,
-      minWidth: 16,
-      height: 16,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderWidth: 1.5,
-      borderColor: colors.background.primary,
+      borderRadius: 8, minWidth: 16, height: 16,
+      alignItems: 'center', justifyContent: 'center',
+      borderWidth: 1.5, borderColor: colors.background.primary,
     },
-    notificationBadgeText: {
-      color: colors.background.primary,
-      fontSize: 10,
-      fontWeight: 'bold',
+    badgeText: { color: colors.background.primary, fontSize: 10, fontWeight: 'bold' },
+    avatarCircle: {
+      width: 32, height: 32, borderRadius: 16,
+      backgroundColor: colors.primary,
+      alignItems: 'center', justifyContent: 'center',
     },
-    content: {
-      flex: 1,
-      backgroundColor: colors.background.primary,
-    },
-    scrollContent: {
-      paddingBottom: spacing.xxl,
-    },
+    avatarText: { color: '#fff', fontSize: 13, fontFamily: typography.fontFamily.bold },
+    content: { flex: 1 },
+    scrollContent: { paddingBottom: spacing.xxl },
     offlineBanner: {
       backgroundColor: colors.disabled,
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.xs,
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.sm,
+      flexDirection: 'row', alignItems: 'center', gap: spacing.xs,
+      paddingHorizontal: spacing.lg, paddingVertical: spacing.sm,
     },
-    offlineText: {
-      color: colors.background.primary,
-      flex: 1,
-      fontSize: 13,
-    },
+    offlineText: { color: colors.background.primary, flex: 1, fontSize: 13 },
     offlineRetry: {
       backgroundColor: colors.background.primary,
-      paddingHorizontal: spacing.md,
-      paddingVertical: 4,
-      borderRadius: 8,
+      paddingHorizontal: spacing.md, paddingVertical: 4, borderRadius: 8,
     },
-    offlineRetryText: {
-      color: colors.primary,
-      fontFamily: typography.fontFamily.medium,
-      fontSize: 12,
-    },
+    offlineRetryText: { color: colors.primary, fontFamily: typography.fontFamily.medium, fontSize: 12 },
+    divider: { height: 8 },
   });
 
-  const { t, language } = useLanguage();
-  const { clearUser } = useUser();
-  const { isOffline, retryNow } = useNetwork();
-  const { unreadCount, hasUrgentUnread } = useNotifications();
-
-  const handleLogout = async () => {
-    await clearUser();
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Login' }],
-    });
-  };
+  const initials = userData?.name
+    ? userData.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
+    : '?';
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={colors.background.primary} />
-      
-      {/* Header */}
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.background.primary} />
+
+      {/* Header — tuto logo + notification bell + avatar */}
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Image
-            source={require('../../assets/images/tuto-logo.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-        </View>
+        <Image
+          source={require('../../assets/images/tuto-logo.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
         <View style={styles.headerRight}>
-          <TouchableOpacity 
-            style={styles.iconButton}
-            onPress={() => navigation.navigate('Notifications')}
-          >
-            <MaterialIcons 
-              name="notifications-none" 
-              size={26} 
-              color={hasUrgentUnread ? colors.status.error : unreadCount > 0 ? colors.primary : colors.text.primary} 
+          <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.navigate('Notifications')}>
+            <MaterialIcons
+              name="notifications-none"
+              size={26}
+              color={hasUrgentUnread ? colors.status.error : unreadCount > 0 ? colors.primary : colors.text.primary}
             />
             {unreadCount > 0 && (
-              <View style={[styles.notificationBadge, { backgroundColor: hasUrgentUnread ? colors.status.error : colors.primary }]}>
-                <Text style={styles.notificationBadgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+              <View style={[styles.badge, { backgroundColor: hasUrgentUnread ? colors.status.error : colors.primary }]}>
+                <Text style={styles.badgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
               </View>
             )}
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.iconButton}
-            onPress={() => navigation.navigate('UserProfile')}
-          >
-            <MaterialIcons name="person-outline" size={26} color={colors.text.primary} />
-          </TouchableOpacity>
 
-          <LanguageToggle />
-          
-          <TouchableOpacity 
-            style={[styles.iconButton, { marginLeft: 4 }]}
-            onPress={handleLogout}
-          >
-            <MaterialIcons name="logout" size={24} color={colors.text.secondary} />
+          <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.navigate('UserProfile')}>
+            <View style={styles.avatarCircle}>
+              <Text style={styles.avatarText}>{initials}</Text>
+            </View>
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Offline Banner */}
+      {/* Offline banner */}
       {isOffline && (
         <View style={styles.offlineBanner}>
           <MaterialIcons name="cloud-off" size={20} color={colors.background.primary} />
-          <Text style={styles.offlineText}>{t('common.offline') || 'You are offline. Showing cached data.'}</Text>
+          <Text style={styles.offlineText}>You are offline. Showing cached data.</Text>
           <TouchableOpacity style={styles.offlineRetry} onPress={retryNow}>
-            <Text style={styles.offlineRetryText}>{t('common.tryAgain') || 'Retry'}</Text>
+            <Text style={styles.offlineRetryText}>Retry</Text>
           </TouchableOpacity>
         </View>
       )}
 
-      <ScrollView 
-        style={styles.content} 
+      <ScrollView
+        style={styles.content}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Back to School Dashboard banner — shown when user is associated with a school */}
-        {currentSchool && (
-          <TouchableOpacity
-            style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.primary, borderRadius: 12, padding: spacing.md, margin: spacing.md, marginBottom: 0 }}
-            onPress={() => navigation.navigate('SchoolDashboard')}
-            activeOpacity={0.85}
-          >
-            <MaterialIcons name="arrow-back" size={20} color="#fff" />
-            <Text style={{ color: '#fff', fontWeight: '600', fontSize: 15, marginLeft: 8, flex: 1 }}>
-              {language === 'vi' ? `Quay lại: ${currentSchool.name}` : `Back to: ${currentSchool.name}`}
-            </Text>
-            <MaterialIcons name="chevron-right" size={20} color="#fff" />
-          </TouchableOpacity>
-        )}
-        <HeroSection navigation={navigation} />
+        {/* Role-smart hero card */}
+        <HeroSection />
+
+        {/* Horizontal quick-access strip */}
+        <View style={styles.divider} />
         <RoleGatewaySection navigation={navigation} />
-        <FeatureGridSection />
-        <LiveKpisSection />
+
+        {/* Recent activity from Supabase */}
+        <View style={styles.divider} />
+        <FeatureGridSection navigation={navigation} />
+
+        {/* Explore tuto */}
+        <View style={styles.divider} />
         <CTASection navigation={navigation} />
       </ScrollView>
     </SafeAreaView>
   );
 };
-

@@ -4,11 +4,18 @@ module.exports = {
   expo: {
     name: 'Tuto',
     slug: 'tuto',
-    version: '1.0.1',
+    version: '2.1.1',
     orientation: 'portrait',
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
-    newArchEnabled: true,
+    newArchEnabled: false,
+    runtimeVersion: '2.1.1',
+    updates: {
+      enabled: true,
+      checkAutomatically: 'ON_LOAD',
+      fallbackToCacheTimeout: 0,
+      url: 'https://u.expo.dev/733e177d-32fa-4332-8f08-c29d11955816',
+    },
     splash: {
       image: './assets/splash-logo.png',
       resizeMode: 'contain',
@@ -17,7 +24,8 @@ module.exports = {
     ios: {
       supportsTablet: false,
       bundleIdentifier: 'com.tutoapp.mobile',
-      buildNumber: '18',
+      buildNumber: '23',
+      usesAppleSignIn: true,
       infoPlist: {
         NSPhotoLibraryUsageDescription: 'We need access to your photo library to let you attach images to posts.',
         NSCameraUsageDescription: 'We need access to your camera to let you capture photos and videos for posts.',
@@ -44,7 +52,23 @@ module.exports = {
     web: {
       favicon: './assets/favicon.png',
     },
-    plugins: ['expo-image-picker', 'expo-web-browser'],
+    plugins: [
+      'expo-updates',
+      'expo-apple-authentication',
+      'expo-image-picker',
+      'expo-web-browser',
+      [
+        'expo-font',
+        {
+          fonts: [
+            './assets/fonts/Inter_400Regular.ttf',
+            './assets/fonts/Inter_500Medium.ttf',
+            './assets/fonts/Inter_600SemiBold.ttf',
+            './assets/fonts/Inter_700Bold.ttf',
+          ],
+        },
+      ],
+    ],
     extra: {
       // EAS Project ID
       eas: {

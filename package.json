@@ -106,6 +106,7 @@
     "expo-media-library": "~18.2.1",
     "expo-splash-screen": "^31.0.13",
     "expo-status-bar": "~3.0.8",
+    "expo-updates": "~29.0.16",
     "expo-web-browser": "~15.0.10",
     "firebase": "^10.14.1",
     "framer-motion": "^12.23.24",

@@ -4,6 +4,13 @@
     "slug": "tuto",
     "version": "2.1.1",
     "orientation": "portrait",
+    "runtimeVersion": "2.1.1",
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/733e177d-32fa-4332-8f08-c29d11955816"
+    },
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": false,
@@ -44,7 +51,13 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "extra": {
+      "eas": {
+        "projectId": "733e177d-32fa-4332-8f08-c29d11955816"
+      }
+    },
     "plugins": [
+      "expo-updates",
       "expo-apple-authentication",
       "expo-image-picker",
       [

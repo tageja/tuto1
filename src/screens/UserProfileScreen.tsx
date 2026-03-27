@@ -8,569 +8,350 @@ import {
   Image,
   TextInput,
   Alert,
-  ViewStyle,
-  TextStyle,
-  ImageStyle,
+  ActivityIndicator,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useUser } from '../contexts/UserContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { supabase } from '../config/supabase';
 
 interface UserProfileScreenProps {
   navigation: any;
 }
 
-type UserType = 'parent' | 'student' | 'teacher';
-
-interface UserData {
+interface ProfileData {
   id: string;
-  type: UserType;
   name: string;
   email: string;
   phone: string;
-  avatar?: string;
-  address: string;
-  // Parent specific
-  children?: string[];
-  paymentMethod?: string;
-  // Student specific
-  age?: number;
-  grade?: string;
-  studentSubjects?: string[];
-  learningPreferences?: string[];
-  // Teacher specific
-  teacherSubjects?: string[];
-  experience?: number;
-  hourlyRate?: number;
-  qualifications?: string[];
-  languages?: string[];
-  availability?: string;
-  description?: string;
+  avatar: string | null;
+  role: string;
+}
+
+const EMPTY_PROFILE: ProfileData = { id: '', name: '', email: '', phone: '', avatar: null, role: 'parent' };
+
+function roleBadgeLabel(role: string): string {
+  switch (role) {
+    case 'admin':
+    case 'school_admin': return 'School Admin';
+    case 'teacher': return 'Teacher';
+    case 'parent': return 'Parent';
+    case 'student': return 'Student';
+    default: return role;
+  }
 }
 
 export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ navigation }) => {
-  const { colors, spacing, typography, borderRadius, shadows } = useTheme();
-
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background.primary,
-    },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.md,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border.light,
-    },
-    backButton: {
-      padding: spacing.xs,
-    },
-    headerTitle: {
-      fontSize: typography.fontSize.lg,
-      fontFamily: typography.fontFamily.semiBold,
-      color: colors.text.primary,
-    },
-    headerRight: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    settingsButton: {
-      padding: spacing.xs,
-      marginRight: spacing.xs,
-    },
-    editButton: {
-      padding: spacing.xs,
-    },
-    content: {
-      flex: 1,
-    },
-    photoSection: {
-      alignItems: 'center',
-      paddingVertical: spacing.xl,
-      position: 'relative',
-    },
-    profilePhoto: {
-      width: 120,
-      height: 120,
-      borderRadius: 60,
-    },
-    changePhotoButton: {
-      position: 'absolute',
-      bottom: 0,
-      right: '50%',
-      marginRight: -20,
-      backgroundColor: colors.background.primary,
-      borderRadius: 20,
-      padding: spacing.xs,
-      borderWidth: 2,
-      borderColor: colors.primary,
-    },
-    userTypeContainer: {
-      alignItems: 'center',
-      marginBottom: spacing.lg,
-    },
-    userTypeBadge: {
-      backgroundColor: colors.primary,
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.xs,
-      borderRadius: 20,
-    },
-    userTypeText: {
-      color: colors.background.primary,
-      fontSize: typography.fontSize.sm,
-      fontFamily: typography.fontFamily.medium,
-      textTransform: 'uppercase',
-    },
-    section: {
-      paddingHorizontal: spacing.lg,
-      marginBottom: spacing.xl,
-    },
-    sectionTitle: {
-      fontSize: typography.fontSize.lg,
-      fontFamily: typography.fontFamily.bold,
-      color: colors.text.primary,
-      marginBottom: spacing.md,
-    },
-    fieldContainer: {
-      marginBottom: spacing.md,
-    },
-    fieldLabel: {
-      fontSize: typography.fontSize.sm,
-      fontFamily: typography.fontFamily.medium,
-      color: colors.text.secondary,
-      marginBottom: spacing.xs,
-    },
-    fieldValue: {
-      fontSize: typography.fontSize.md,
-      fontFamily: typography.fontFamily.regular,
-      color: colors.text.primary,
-      paddingVertical: spacing.xs,
-    },
-    textInput: {
-      fontSize: typography.fontSize.md,
-      fontFamily: typography.fontFamily.regular,
-      color: colors.text.primary,
-      borderWidth: 1,
-      borderColor: colors.border.medium,
-      borderRadius: 8,
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      backgroundColor: colors.background.secondary,
-    },
-    actionButtons: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.lg,
-      gap: spacing.md,
-    },
-    cancelButton: {
-      flex: 1,
-      backgroundColor: colors.background.secondary,
-      paddingVertical: spacing.md,
-      borderRadius: 8,
-      alignItems: 'center',
-    },
-    cancelButtonText: {
-      fontSize: typography.fontSize.md,
-      fontFamily: typography.fontFamily.medium,
-      color: colors.text.primary,
-    },
-    saveButton: {
-      flex: 1,
-      backgroundColor: colors.primary,
-      paddingVertical: spacing.md,
-      borderRadius: 8,
-      alignItems: 'center',
-    },
-    saveButtonText: {
-      fontSize: typography.fontSize.md,
-      fontFamily: typography.fontFamily.medium,
-      color: colors.background.primary,
-    },
-  }); 
-
-  const { language, t } = useLanguage();
+  const { colors, spacing, typography } = useTheme();
+  const { t } = useLanguage();
   const { userType, userData: contextUser } = useUser();
+
+  const [profile, setProfile] = useState<ProfileData>(EMPTY_PROFILE);
+  const [editedProfile, setEditedProfile] = useState<ProfileData>(EMPTY_PROFILE);
   const [isEditing, setIsEditing] = useState(false);
-  
-  // Get user data based on user type — real name/email from auth context
-  const getUserData = (): UserData => {
-    const realName = contextUser?.name || '';
-    const realEmail = contextUser?.email || '';
-    const realId = contextUser?.id || '1';
-    switch (userType) {
-      case 'parent':
-        return {
-          id: realId,
-          type: 'parent',
-          name: realName,
-          email: realEmail,
-          phone: '',
-          address: '',
-          children: [],
-          paymentMethod: '',
-        };
-      case 'student':
-        return {
-          id: realId,
-          type: 'student',
-          name: realName,
-          email: realEmail,
-          phone: '',
-          address: '',
-          age: undefined,
-          grade: '',
-          studentSubjects: [],
-          learningPreferences: [],
-        };
-      case 'teacher':
-        return {
-          id: realId,
-          type: 'teacher',
-          name: realName,
-          email: realEmail,
-          phone: '',
-          address: '',
-          teacherSubjects: [],
-          experience: 0,
-          hourlyRate: 0,
-          qualifications: [],
-          languages: [],
-          availability: '',
-        };
-      default:
-        return {
-          id: realId,
-          type: 'parent',
-          name: realName,
-          email: realEmail,
-          phone: '',
-          address: '',
-          children: [],
-          paymentMethod: '',
-        };
-    }
-  };
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  const [userData, setUserData] = useState<UserData>(getUserData());
-
-  const [editedData, setEditedData] = useState<UserData>(userData);
-
+  // ---------------------------------------------------------------------------
+  // Load real profile from Supabase
+  // ---------------------------------------------------------------------------
   useEffect(() => {
-    // Load user data from auth context or storage
-    // For now using dummy data
+    const loadProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from('users')
+          .select('id, name, email, phone, avatar, role')
+          .eq('auth_user_id', user.id)
+          .single();
+
+        if (!error && data) {
+          const loaded: ProfileData = {
+            id: data.id,
+            name: data.name || contextUser?.name || '',
+            email: data.email || contextUser?.email || '',
+            phone: data.phone || '',
+            avatar: data.avatar || null,
+            role: data.role || userType || 'parent',
+          };
+          setProfile(loaded);
+          setEditedProfile(loaded);
+        }
+      } catch {
+        // fallback to context values
+        const fallback: ProfileData = {
+          id: contextUser?.id || '',
+          name: contextUser?.name || '',
+          email: contextUser?.email || '',
+          phone: '',
+          avatar: null,
+          role: userType || 'parent',
+        };
+        setProfile(fallback);
+        setEditedProfile(fallback);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProfile();
   }, []);
 
-  const handleSave = () => {
-    setUserData(editedData);
-    setIsEditing(false);
-    Alert.alert(
-      t('profile.saveSuccess'),
-      t('profile.profileUpdated'),
-      [{ text: t('common.ok') }]
-    );
+  // ---------------------------------------------------------------------------
+  // Save
+  // ---------------------------------------------------------------------------
+  const handleSave = async () => {
+    if (!profile.id) return;
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ name: editedProfile.name, phone: editedProfile.phone, updated_at: new Date().toISOString() })
+        .eq('id', profile.id);
+
+      if (error) throw error;
+      setProfile(editedProfile);
+      setIsEditing(false);
+      Alert.alert('Saved', 'Your profile has been updated.');
+    } catch {
+      Alert.alert('Error', 'Could not save your profile. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
-    setEditedData(userData);
+    setEditedProfile(profile);
     setIsEditing(false);
   };
 
-  const renderParentProfile = () => (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{t('profile.personalInfo')}</Text>
-      
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.fullName')}</Text>
-        {isEditing ? (
-          <TextInput
-            style={styles.textInput}
-            value={editedData.name}
-            onChangeText={(text) => setEditedData({...editedData, name: text})}
-            placeholder={t('profile.fullNamePlaceholder')}
-          />
+  // ---------------------------------------------------------------------------
+  // Styles
+  // ---------------------------------------------------------------------------
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background.secondary },
+    header: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
+      backgroundColor: colors.background.primary,
+      borderBottomWidth: 1, borderBottomColor: colors.border.light,
+    },
+    headerTitle: { fontSize: typography.fontSize.lg, fontFamily: typography.fontFamily.semiBold, color: colors.text.primary },
+    headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    iconBtn: { padding: spacing.xs },
+    loadingWrap: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+
+    // Avatar section
+    avatarSection: { alignItems: 'center', paddingVertical: spacing.xl, backgroundColor: colors.background.primary },
+    avatarWrap: { position: 'relative' },
+    avatar: { width: 96, height: 96, borderRadius: 48, backgroundColor: colors.background.tertiary },
+    avatarFallback: {
+      width: 96, height: 96, borderRadius: 48,
+      backgroundColor: colors.primary,
+      alignItems: 'center', justifyContent: 'center',
+    },
+    avatarFallbackText: { color: '#fff', fontSize: 32, fontFamily: typography.fontFamily.bold },
+    cameraBtn: {
+      position: 'absolute', bottom: 0, right: 0,
+      width: 28, height: 28, borderRadius: 14,
+      backgroundColor: colors.primary,
+      alignItems: 'center', justifyContent: 'center',
+      borderWidth: 2, borderColor: colors.background.primary,
+    },
+    roleBadge: {
+      marginTop: spacing.md,
+      backgroundColor: colors.primary,
+      paddingHorizontal: spacing.md, paddingVertical: 5,
+      borderRadius: 100,
+    },
+    roleBadgeText: { color: '#fff', fontSize: 11, fontFamily: typography.fontFamily.semiBold, textTransform: 'uppercase', letterSpacing: 0.5 },
+
+    // Sections
+    section: { backgroundColor: colors.background.primary, borderRadius: 16, marginHorizontal: spacing.md, marginTop: spacing.md, padding: spacing.lg },
+    sectionTitle: { fontSize: 13, fontFamily: typography.fontFamily.bold, color: colors.text.secondary, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: spacing.md },
+    field: { marginBottom: spacing.md },
+    fieldLabel: { fontSize: 11, fontFamily: typography.fontFamily.medium, color: colors.text.secondary, marginBottom: 4 },
+    fieldValue: { fontSize: 15, fontFamily: typography.fontFamily.regular, color: colors.text.primary, paddingVertical: 4 },
+    fieldInput: {
+      fontSize: 15, fontFamily: typography.fontFamily.regular, color: colors.text.primary,
+      borderWidth: 1, borderColor: colors.border.medium, borderRadius: 10,
+      paddingHorizontal: spacing.md, paddingVertical: spacing.sm,
+      backgroundColor: colors.background.secondary,
+    },
+    emptyValue: { color: colors.text.light, fontStyle: 'italic', fontSize: 14 },
+
+    // Action buttons
+    actionRow: { flexDirection: 'row', paddingHorizontal: spacing.md, paddingVertical: spacing.lg, gap: spacing.md },
+    cancelBtn: { flex: 1, backgroundColor: colors.background.secondary, paddingVertical: 14, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: colors.border.light },
+    cancelBtnText: { fontSize: 15, fontFamily: typography.fontFamily.semiBold, color: colors.text.primary },
+    saveBtn: { flex: 1, backgroundColor: colors.primary, paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
+    saveBtnText: { fontSize: 15, fontFamily: typography.fontFamily.semiBold, color: '#fff' },
+
+    // Settings / logout row
+    settingsSection: { backgroundColor: colors.background.primary, borderRadius: 16, marginHorizontal: spacing.md, marginTop: spacing.md, overflow: 'hidden' },
+    settingsRow: {
+      flexDirection: 'row', alignItems: 'center', padding: spacing.md,
+      borderBottomWidth: 1, borderBottomColor: colors.border.light,
+    },
+    settingsRowLast: { flexDirection: 'row', alignItems: 'center', padding: spacing.md },
+    settingsLabel: { flex: 1, fontSize: 15, color: colors.text.primary, marginLeft: spacing.md },
+    logoutLabel: { flex: 1, fontSize: 15, color: colors.status.error, marginLeft: spacing.md },
+  });
+
+  // ---------------------------------------------------------------------------
+  // Avatar renderer
+  // ---------------------------------------------------------------------------
+  const renderAvatar = () => {
+    const initials = profile.name
+      ? profile.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
+      : '?';
+
+    return (
+      <View style={styles.avatarWrap}>
+        {profile.avatar ? (
+          <Image source={{ uri: profile.avatar }} style={styles.avatar} />
         ) : (
-          <Text style={styles.fieldValue}>{userData.name}</Text>
+          <View style={styles.avatarFallback}>
+            <Text style={styles.avatarFallbackText}>{initials}</Text>
+          </View>
+        )}
+        {isEditing && (
+          <TouchableOpacity style={styles.cameraBtn}>
+            <MaterialIcons name="camera-alt" size={14} color="#fff" />
+          </TouchableOpacity>
         )}
       </View>
-
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.email')}</Text>
-        {isEditing ? (
-          <TextInput
-            style={styles.textInput}
-            value={editedData.email}
-            onChangeText={(text) => setEditedData({...editedData, email: text.toLowerCase()})}
-            placeholder={t('profile.emailPlaceholder')}
-            keyboardType="email-address"
-          />
-        ) : (
-          <Text style={styles.fieldValue}>{userData.email}</Text>
-        )}
-      </View>
-
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.phone')}</Text>
-        {isEditing ? (
-          <TextInput
-            style={styles.textInput}
-            value={editedData.phone}
-            onChangeText={(text) => setEditedData({...editedData, phone: text})}
-            placeholder={t('profile.phonePlaceholder')}
-            keyboardType="phone-pad"
-          />
-        ) : (
-          <Text style={styles.fieldValue}>{userData.phone}</Text>
-        )}
-      </View>
-
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.address')}</Text>
-        {isEditing ? (
-          <TextInput
-            style={styles.textInput}
-            value={editedData.address}
-            onChangeText={(text) => setEditedData({...editedData, address: text})}
-            placeholder={t('profile.addressPlaceholder')}
-            multiline
-          />
-        ) : (
-          <Text style={styles.fieldValue}>{userData.address}</Text>
-        )}
-      </View>
-
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.children')}</Text>
-        <Text style={styles.fieldValue}>
-          {userData.children?.join(', ')}
-        </Text>
-      </View>
-
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.paymentMethod')}</Text>
-        <Text style={styles.fieldValue}>{userData.paymentMethod}</Text>
-      </View>
-    </View>
-  );
-
-  const renderStudentProfile = () => (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{t('profile.academicInfo')}</Text>
-      
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.fullName')}</Text>
-        {isEditing ? (
-          <TextInput
-            style={styles.textInput}
-            value={editedData.name}
-            onChangeText={(text) => setEditedData({...editedData, name: text})}
-            placeholder={t('profile.fullNamePlaceholder')}
-          />
-        ) : (
-          <Text style={styles.fieldValue}>{userData.name}</Text>
-        )}
-      </View>
-
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.age')}</Text>
-        {isEditing ? (
-          <TextInput
-            style={styles.textInput}
-            value={editedData.age?.toString() || ''}
-            onChangeText={(text) => setEditedData({...editedData, age: parseInt(text) || 0})}
-            placeholder={t('profile.agePlaceholder')}
-            keyboardType="numeric"
-          />
-        ) : (
-          <Text style={styles.fieldValue}>{userData.age} {t('profile.years')}</Text>
-        )}
-      </View>
-
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.grade')}</Text>
-        {isEditing ? (
-          <TextInput
-            style={styles.textInput}
-            value={editedData.grade || ''}
-            onChangeText={(text) => setEditedData({...editedData, grade: text})}
-            placeholder={t('profile.gradePlaceholder')}
-          />
-        ) : (
-          <Text style={styles.fieldValue}>{userData.grade}</Text>
-        )}
-      </View>
-
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.subjects')}</Text>
-        <Text style={styles.fieldValue}>
-          {userData.studentSubjects?.join(', ')}
-        </Text>
-      </View>
-
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.learningPreferences')}</Text>
-        <Text style={styles.fieldValue}>
-          {userData.learningPreferences?.join(', ')}
-        </Text>
-      </View>
-    </View>
-  );
-
-  const renderTeacherProfile = () => (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{t('profile.professionalInfo')}</Text>
-      
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.fullName')}</Text>
-        {isEditing ? (
-          <TextInput
-            style={styles.textInput}
-            value={editedData.name}
-            onChangeText={(text) => setEditedData({...editedData, name: text})}
-            placeholder={t('profile.fullNamePlaceholder')}
-          />
-        ) : (
-          <Text style={styles.fieldValue}>{userData.name}</Text>
-        )}
-      </View>
-
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.subjects')}</Text>
-        <Text style={styles.fieldValue}>
-          {userData.teacherSubjects?.join(', ')}
-        </Text>
-      </View>
-
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.experience')}</Text>
-        <Text style={styles.fieldValue}>
-          {userData.experience} {t('profile.years')}
-        </Text>
-      </View>
-
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.hourlyRate')}</Text>
-        <Text style={styles.fieldValue}>
-          ${userData.hourlyRate?.toLocaleString()}/hour
-        </Text>
-      </View>
-
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.qualifications')}</Text>
-        <Text style={styles.fieldValue}>
-          {userData.qualifications?.join(', ')}
-        </Text>
-      </View>
-
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.languages')}</Text>
-        <Text style={styles.fieldValue}>
-          {userData.languages?.join(', ')}
-        </Text>
-      </View>
-
-      <View style={styles.fieldContainer}>
-        <Text style={styles.fieldLabel}>{t('profile.availability')}</Text>
-        <Text style={styles.fieldValue}>{userData.availability}</Text>
-      </View>
-    </View>
-  );
-
-  const renderProfileContent = () => {
-    switch (userData.type) {
-      case 'parent':
-        return renderParentProfile();
-      case 'student':
-        return renderStudentProfile();
-      case 'teacher':
-        return renderTeacherProfile();
-      default:
-        return renderParentProfile();
-    }
+    );
   };
 
+  // ---------------------------------------------------------------------------
+  // Field renderer
+  // ---------------------------------------------------------------------------
+  const renderField = (label: string, field: keyof ProfileData, editable = true) => (
+    <View style={styles.field} key={field}>
+      <Text style={styles.fieldLabel}>{label}</Text>
+      {isEditing && editable ? (
+        <TextInput
+          style={styles.fieldInput}
+          value={String(editedProfile[field] ?? '')}
+          onChangeText={(v) => setEditedProfile((p) => ({ ...p, [field]: v }))}
+          autoCapitalize="none"
+        />
+      ) : (
+        <Text style={[styles.fieldValue, !profile[field] && styles.emptyValue]}>
+          {String(profile[field] || '—')}
+        </Text>
+      )}
+    </View>
+  );
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.goBack()}>
+            <MaterialIcons name="arrow-back" size={24} color={colors.text.primary} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Profile</Text>
+          <View style={{ width: 32 }} />
+        </View>
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.goBack()}>
           <MaterialIcons name="arrow-back" size={24} color={colors.text.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('profile.title')}</Text>
+        <Text style={styles.headerTitle}>Profile</Text>
         <View style={styles.headerRight}>
-          <TouchableOpacity 
-            style={styles.settingsButton}
-            onPress={() => navigation.navigate('SettingsStack' as never)}
-          >
+          <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.navigate('SettingsStack' as never)}>
             <MaterialIcons name="settings" size={24} color={colors.primary} />
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.editButton}
-            onPress={() => setIsEditing(!isEditing)}
-          >
-            <MaterialIcons 
-              name={isEditing ? "close" : "edit"} 
-              size={24} 
-              color={colors.primary} 
-            />
+          <TouchableOpacity style={styles.iconBtn} onPress={() => setIsEditing(!isEditing)}>
+            <MaterialIcons name={isEditing ? 'close' : 'edit'} size={24} color={colors.primary} />
           </TouchableOpacity>
         </View>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Profile Photo */}
-        <View style={styles.photoSection}>
-          <Image
-            source={
-              userData.avatar 
-                ? { uri: userData.avatar }
-                : require('../../assets/images/default-teacher.png.png')
-            }
-            style={styles.profilePhoto}
-          />
-          {isEditing && (
-            <TouchableOpacity style={styles.changePhotoButton}>
-              <MaterialIcons name="camera-alt" size={20} color={colors.primary} />
-            </TouchableOpacity>
-          )}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: spacing.xxl }}>
+        {/* Avatar + role badge */}
+        <View style={styles.avatarSection}>
+          {renderAvatar()}
+          <View style={styles.roleBadge}>
+            <Text style={styles.roleBadgeText}>{roleBadgeLabel(profile.role)}</Text>
+          </View>
         </View>
 
-        {/* User Type Badge */}
-        <View style={styles.userTypeContainer}>
-          <View style={styles.userTypeBadge}>
-            <Text style={styles.userTypeText}>
-              {t(`profile.${userData.type}`)}
+        {/* Personal info */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Personal Info</Text>
+          {renderField('Full Name', 'name')}
+          {renderField('Email', 'email', false)}
+          {renderField('Phone', 'phone')}
+        </View>
+
+        {/* Account info (read-only) */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Account</Text>
+          <View style={styles.field}>
+            <Text style={styles.fieldLabel}>Role</Text>
+            <Text style={styles.fieldValue}>{roleBadgeLabel(profile.role)}</Text>
+          </View>
+          <View style={styles.field}>
+            <Text style={styles.fieldLabel}>User ID</Text>
+            <Text style={[styles.fieldValue, { fontSize: 12, color: colors.text.secondary }]} numberOfLines={1}>
+              {profile.id || '—'}
             </Text>
           </View>
         </View>
 
-        {/* Profile Content */}
-        {renderProfileContent()}
-
-        {/* Action Buttons */}
-        {isEditing && (
-          <View style={styles.actionButtons}>
-            <TouchableOpacity 
-              style={styles.cancelButton}
-              onPress={handleCancel}
-            >
-              <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
+        {/* Settings & logout shortcuts (only shown when not editing) */}
+        {!isEditing && (
+          <View style={styles.settingsSection}>
+            <TouchableOpacity style={styles.settingsRow} onPress={() => navigation.navigate('SettingsStack' as never)}>
+              <MaterialIcons name="settings" size={20} color={colors.text.secondary} />
+              <Text style={styles.settingsLabel}>Settings</Text>
+              <MaterialIcons name="chevron-right" size={20} color={colors.text.light} />
             </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.saveButton}
-              onPress={handleSave}
+            <TouchableOpacity
+              style={styles.settingsRowLast}
+              onPress={async () => {
+                await supabase.auth.signOut();
+                navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+              }}
             >
-              <Text style={styles.saveButtonText}>{t('common.save')}</Text>
+              <MaterialIcons name="logout" size={20} color={colors.status.error} />
+              <Text style={styles.logoutLabel}>Sign Out</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Save / cancel row */}
+        {isEditing && (
+          <View style={styles.actionRow}>
+            <TouchableOpacity style={styles.cancelBtn} onPress={handleCancel}>
+              <Text style={styles.cancelBtnText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={saving}>
+              {saving ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <Text style={styles.saveBtnText}>Save</Text>
+              )}
             </TouchableOpacity>
           </View>
         )}
