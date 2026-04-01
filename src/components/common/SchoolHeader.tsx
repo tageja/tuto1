@@ -6,13 +6,15 @@ import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useSchool } from '../../contexts/SchoolContext';
 import { DashboardMenu } from '../school/DashboardMenu';
+import { useSchoolBranding } from '../../hooks/settings/useSchoolBranding';
 
 export const SchoolHeader: React.FC = () => {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
-  const { leaveSchool } = useSchool();
+  const { leaveSchool, currentSchool } = useSchool();
   const [menuVisible, setMenuVisible] = useState(false);
+  const { branding } = useSchoolBranding(currentSchool?.id ?? null, null);
 
   const handleLeaveSchool = () => {
     Alert.alert(
@@ -39,7 +41,7 @@ export const SchoolHeader: React.FC = () => {
     container: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'flex-start',
+      justifyContent: 'space-between',
       paddingTop: insets.top + 12,
       paddingBottom: 12,
       paddingHorizontal: 16,
@@ -47,32 +49,61 @@ export const SchoolHeader: React.FC = () => {
       borderBottomWidth: 1,
       borderBottomColor: colors.border.light,
     },
+    left: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
     menuButton: {
-      marginRight: 12,
       padding: 4,
     },
-    logo: {
-      height: 20,
-      width: 59,
+    tutoLogo: {
+      height: 18,
+      width: 53,
       tintColor: colors.text.primary,
+    },
+    divider: {
+      width: 1,
+      height: 20,
+      backgroundColor: colors.border.light,
+    },
+    schoolLogo: {
+      height: 32,
+      width: 32,
+      borderRadius: 6,
     },
   });
 
   return (
     <>
       <View style={styles.container}>
-        <TouchableOpacity
-          style={styles.menuButton}
-          onPress={() => setMenuVisible(true)}
-          accessibilityLabel="Open menu"
-        >
-          <MaterialIcons name="menu" size={24} color={colors.text.primary} />
-        </TouchableOpacity>
-        <Image
-          source={require('../../../assets/images/tuto-logo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        {/* Left: hamburger + tuto logo */}
+        <View style={styles.left}>
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => setMenuVisible(true)}
+            accessibilityLabel="Open menu"
+          >
+            <MaterialIcons name="menu" size={24} color={colors.text.primary} />
+          </TouchableOpacity>
+          <Image
+            source={require('../../../assets/images/tuto-logo.png')}
+            style={styles.tutoLogo}
+            resizeMode="contain"
+          />
+        </View>
+
+        {/* Right: school logo (when available) */}
+        {branding?.logo_url ? (
+          <>
+            <View style={styles.divider} />
+            <Image
+              source={{ uri: branding.logo_url }}
+              style={styles.schoolLogo}
+              resizeMode="contain"
+            />
+          </>
+        ) : null}
       </View>
       <DashboardMenu
         visible={menuVisible}

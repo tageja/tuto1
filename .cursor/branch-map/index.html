@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tuto — Branch Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --blue: #0B5FFF;
+    --blue-light: #EEF3FF;
+    --blue-mid: #93B4FF;
+    --green: #00C48C;
+    --green-light: #E6FAF5;
+    --amber: #F5A623;
+    --amber-light: #FFF7E6;
+    --purple: #7C3AED;
+    --purple-light: #F5F3FF;
+    --grey: #8492A6;
+    --grey-light: #F4F6FA;
+    --ink: #1A202C;
+    --card: #FFFFFF;
+    --bg: #F0F4FF;
+    --border: #E2E8F4;
+    --track: #CBD5E8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 40px 32px 80px;
+  }
+  .header { display: flex; align-items: center; gap: 16px; margin-bottom: 36px; }
+  .logo { font-size: 28px; font-weight: 700; letter-spacing: -1px; }
+  .logo span { color: var(--blue); }
+  .header-meta {
+    margin-left: auto; font-size: 12px; color: var(--grey);
+    font-family: 'JetBrains Mono', monospace;
+    background: white; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+  }
+  .stats-bar { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+  .stat-pill {
+    background: white; border: 1px solid var(--border); border-radius: 12px;
+    padding: 10px 18px; display: flex; align-items: center; gap: 10px;
+  }
+  .stat-num { font-size: 22px; font-weight: 700; color: var(--ink); }
+  .stat-label { font-size: 11px; color: var(--grey); font-weight: 500; line-height: 1.3; }
+  .stat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--grey); margin-bottom: 14px; padding-left: 4px;
+  }
+  .timeline { position: relative; padding-left: 36px; margin-bottom: 48px; }
+  .timeline::before {
+    content: ''; position: absolute; left: 12px; top: 10px; bottom: 10px;
+    width: 2px; background: linear-gradient(to bottom, var(--blue), var(--blue-mid), var(--border)); border-radius: 2px;
+  }
+  .branch {
+    position: relative; background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px 20px; margin-bottom: 12px;
+    transition: box-shadow .2s, transform .2s;
+  }
+  .branch:hover { box-shadow: 0 8px 28px rgba(11,95,255,.10); transform: translateX(2px); }
+  .branch::before {
+    content: ''; position: absolute; left: -30px; top: 22px;
+    width: 12px; height: 12px; border-radius: 50%; border: 2.5px solid var(--card);
+  }
+  .branch.active::before   { background: var(--blue);   box-shadow: 0 0 0 3px var(--blue-mid); }
+  .branch.watch::before    { background: var(--amber);  box-shadow: 0 0 0 3px #FDECC8; }
+  .branch.merged::before   { background: var(--green);  box-shadow: 0 0 0 3px #B3F0DC; }
+  .branch.parked::before   { background: var(--purple); box-shadow: 0 0 0 3px #DDD6FE; }
+  .branch.nurseed::before  { background: var(--grey);   box-shadow: 0 0 0 2px var(--border); }
+  .branch-top { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .branch-name {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600;
+    padding: 3px 10px; border-radius: 6px; flex-shrink: 0;
+  }
+  .branch-name.blue   { color: var(--blue);   background: var(--blue-light); }
+  .branch-name.amber  { color: #B45309;        background: var(--amber-light); }
+  .branch-name.green  { color: #047857;        background: var(--green-light); }
+  .branch-name.purple { color: #5B21B6;        background: var(--purple-light); }
+  .branch-name.grey   { color: var(--grey);    background: var(--grey-light); }
+  .badge {
+    font-size: 10px; font-weight: 700; letter-spacing: .6px;
+    padding: 3px 9px; border-radius: 20px; text-transform: uppercase; flex-shrink: 0;
+  }
+  .badge.current   { background: var(--blue);   color: white; }
+  .badge.watchme   { background: var(--amber);  color: white; }
+  .badge.done      { background: var(--green);  color: white; }
+  .badge.parked    { background: var(--purple); color: white; }
+  .badge.submitted { background: #059669;       color: white; }
+  .badge.nurseed   { background: #6B7280;       color: white; }
+  .badge.verify    { background: #D97706;       color: white; }
+  .branch-date { margin-left: auto; font-size: 11px; color: var(--grey); font-family: 'JetBrains Mono', monospace; white-space: nowrap; flex-shrink: 0; }
+  .branch-title { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .branch-desc  { font-size: 13px; color: #4A5568; line-height: 1.55; margin-bottom: 8px; }
+  .branch-commits { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .commit-tag {
+    font-size: 11px; font-family: 'JetBrains Mono', monospace;
+    background: var(--grey-light); color: #4A5568;
+    border: 1px solid var(--border); padding: 2px 8px; border-radius: 5px;
+  }
+  .watch-panel {
+    background: linear-gradient(135deg, #FFFBEB, #FFF7E0);
+    border: 1.5px solid #F5D96B; border-radius: 16px; padding: 24px; margin-bottom: 48px;
+  }
+  .watch-panel h3 { font-size: 14px; font-weight: 700; color: #92400E; margin-bottom: 16px; }
+  .watch-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .watch-item { background: white; border-radius: 10px; padding: 14px; border: 1px solid #FDE68A; }
+  .watch-item-title { font-size: 12px; font-weight: 700; color: #92400E; margin-bottom: 4px; }
+  .watch-item-desc  { font-size: 12px; color: #78350F; line-height: 1.5; }
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 32px; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--grey); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .divider { height: 1px; background: var(--border); margin: 32px 0; }
+  .clean-banner {
+    background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+    border: 1.5px solid #6EE7B7; border-radius: 12px; padding: 14px 20px; margin-bottom: 32px;
+    display: flex; align-items: center; gap: 12px; font-size: 13px; color: #065F46; font-weight: 500;
+  }
+  code { background: #F3F4F6; padding: 1px 5px; border-radius: 4px; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">tuto<span>.</span></div>
+  <div style="font-size:13px;color:var(--grey);font-weight:500;">GitHub Branch Map</div>
+  <div class="header-meta">Updated: 27 Mar 2026 · 11 branches</div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-pill">
+    <div class="stat-dot" style="background:var(--blue)"></div>
+    <div><div class="stat-num">1</div><div class="stat-label">Active /<br>In-progress</div></div>
+  </div>
+  <div class="stat-pill">
+    <div class="stat-dot" style="background:var(--amber)"></div>
+    <div><div class="stat-num">2</div><div class="stat-label">Watch /<br>Needs merge</div></div>
+  </div>
+  <div class="stat-pill">
+    <div class="stat-dot" style="background:var(--green)"></div>
+    <div><div class="stat-num">2</div><div class="stat-label">Production /<br>App Store ✓</div></div>
+  </div>
+  <div class="stat-pill">
+    <div class="stat-dot" style="background:var(--purple)"></div>
+    <div><div class="stat-num">2</div><div class="stat-label">Parked /<br>Awaiting decision</div></div>
+  </div>
+  <div class="stat-pill">
+    <div class="stat-dot" style="background:var(--grey)"></div>
+    <div><div class="stat-num">4</div><div class="stat-label">NurseEd<br>sub-project</div></div>
+  </div>
+</div>
+
+<div class="clean-banner">
+  ✅ <span><strong>Housekeeping done — 27 Mar 2026:</strong> 19 stale branches deleted (date-named checkpoints, old backups, Vercel CVE auto-PRs, merged features). Went from 26 → 11 branches.</span>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div> Active</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div> Watch / Needs merge</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> Shipped / Production</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div> Parked — awaiting decision</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--grey)"></div> NurseEd sub-project</div>
+</div>
+
+<div class="watch-panel">
+  <h3>⚠️ Things to Keep an Eye On</h3>
+  <div class="watch-grid">
+    <div class="watch-item">
+      <div class="watch-item-title">🚀 AppleLogin+homeRedesign → needs a build</div>
+      <div class="watch-item-desc">All new UI work lives here. QA all 3 roles (admin, teacher, parent) on simulator before submitting to Apple.</div>
+    </div>
+    <div class="watch-item">
+      <div class="watch-item-title">🌐 tutoSocial1 — not merged to main</div>
+      <div class="watch-item-desc">Social feed is ahead of main. Merge before the next production release or those features will be lost.</div>
+    </div>
+    <div class="watch-item">
+      <div class="watch-item-title">🔒 feat/backend-security — parked</div>
+      <div class="watch-item-desc">API auth hardening (requires auth for /tables writes). Valuable — worth merging when hardening the backend.</div>
+    </div>
+    <div class="watch-item">
+      <div class="watch-item-title">⚖️ feat/legal-compliance — parked</div>
+      <div class="watch-item-desc">Data retention & deletion policies. May be needed for GDPR / App Store data deletion compliance.</div>
+    </div>
+  </div>
+</div>
+
+<div class="section-label">Mobile App — Tuto (newest first)</div>
+<div class="timeline">
+
+  <div class="branch active">
+    <div class="branch-top">
+      <div class="branch-name blue">AppleLogin+homeRedesign</div>
+      <span class="badge current">Current Work</span>
+      <div class="branch-date">27 Mar 2026</div>
+    </div>
+    <div class="branch-title">Home Redesign · Role Nav Bar · Profile · OTA · Phosphor Icons</div>
+    <div class="branch-desc">
+      Full UI overhaul: role-smart home screen with live stats, Quick Access strip, Recent Activity feed. Replaced 6-tab nav bar with a role-adaptive 4-tab MainTabs (parent / teacher / admin). Upgraded to Phosphor Icons with bold/regular active/inactive states and blue tint. Compacted Photo Albums header. Fixed admin-over-teacher role priority. Rebuilt UserProfileScreen with real Supabase data. Configured expo-updates for OTA deploys.
+    </div>
+    <div class="branch-commits">
+      <span class="commit-tag">MainTabs.tsx</span>
+      <span class="commit-tag">Phosphor Icons</span>
+      <span class="commit-tag">HeroSection.tsx</span>
+      <span class="commit-tag">home-dashboard.ts</span>
+      <span class="commit-tag">UserProfileScreen</span>
+      <span class="commit-tag">OTA config</span>
+      <span class="commit-tag">Role priority fix</span>
+    </div>
+  </div>
+
+  <div class="branch watch">
+    <div class="branch-top">
+      <div class="branch-name amber">tutoSocial1</div>
+      <span class="badge watchme">Needs merge</span>
+      <div class="branch-date">25 Mar 2026</div>
+    </div>
+    <div class="branch-title">Tuto Social — Community Feed</div>
+    <div class="branch-desc">
+      Full community feed (Parts 1 & 2): posts, comments, anonymous RLS policies, notification bell in feed header, TutoAdmin moderation page, tutoadmin redirect fix. Lives in the web dashboard. Currently ahead of main.
+    </div>
+    <div class="branch-commits">
+      <span class="commit-tag">FeedScreen</span>
+      <span class="commit-tag">CommentsScreen</span>
+      <span class="commit-tag">Anon RLS policies</span>
+      <span class="commit-tag">TutoAdmin moderation</span>
+    </div>
+  </div>
+
+  <div class="branch merged">
+    <div class="branch-top">
+      <div class="branch-name green">main</div>
+      <span class="badge done">Production</span>
+      <div class="branch-date">23 Mar 2026</div>
+    </div>
+    <div class="branch-title">Production Baseline</div>
+    <div class="branch-desc">
+      Latest stable production state. Has the tutoadmin redirect fix, full legal pages, CVE patches. Missing: tutoSocial1 feed features and all homeRedesign changes — those are in feature branches awaiting merge.
+    </div>
+    <div class="branch-commits">
+      <span class="commit-tag">tutoadmin fix</span>
+      <span class="commit-tag">Legal pages</span>
+      <span class="commit-tag">CVE patches</span>
+    </div>
+  </div>
+
+  <div class="branch merged">
+    <div class="branch-top">
+      <div class="branch-name green">AppleLogInFeature</div>
+      <span class="badge submitted">App Store ✓</span>
+      <div class="branch-date">18 Mar 2026</div>
+    </div>
+    <div class="branch-title">Sign in with Apple · Account Deletion (Apple 5.1.1)</div>
+    <div class="branch-desc">
+      Apple Sign-In end-to-end (App Store guideline 4.8) and in-app account deletion (guideline 5.1.1v). Build submitted, reviewed, and approved by Apple. This is your safe recovery point — keep it clean and untouched.
+    </div>
+    <div class="branch-commits">
+      <span class="commit-tag">expo-apple-authentication</span>
+      <span class="commit-tag">Account deletion flow</span>
+      <span class="commit-tag">build v2.1.1 (22)</span>
+    </div>
+  </div>
+
+  <div class="branch watch">
+    <div class="branch-top">
+      <div class="branch-name amber">schoolData1</div>
+      <span class="badge verify">Verify merged</span>
+      <div class="branch-date">18 Mar 2026</div>
+    </div>
+    <div class="branch-title">Kindergarten Directory + Contact Enrichment</div>
+    <div class="branch-desc">
+      Added a kindergarten school directory with enriched contact data. Likely a data/seeding branch. Confirm whether this content was merged into main before cleaning up.
+    </div>
+  </div>
+
+</div>
+
+<div class="divider"></div>
+
+<div class="section-label">Parked — Awaiting Decision</div>
+<div class="timeline">
+
+  <div class="branch parked">
+    <div class="branch-top">
+      <div class="branch-name purple">feat/backend-security/secrets-handling</div>
+      <span class="badge parked">Parked</span>
+      <div class="branch-date">Mar 2026</div>
+    </div>
+    <div class="branch-title">API Auth Hardening</div>
+    <div class="branch-desc">
+      Requires authentication for <code>/tables</code> write endpoints and adds deprecation headers. A meaningful security improvement — never merged. Merge when ready to harden the backend API.
+    </div>
+    <div class="branch-commits">
+      <span class="commit-tag">Auth required for /tables writes</span>
+      <span class="commit-tag">Deprecation headers</span>
+    </div>
+  </div>
+
+  <div class="branch parked">
+    <div class="branch-top">
+      <div class="branch-name purple">feat/legal-compliance/data-retention-deletion</div>
+      <span class="badge parked">Parked</span>
+      <div class="branch-date">Mar 2026</div>
+    </div>
+    <div class="branch-title">Data Retention & Deletion Policies</div>
+    <div class="branch-desc">
+      GDPR-style data retention rules and user data deletion flows. May be needed for App Store compliance and EU user coverage. Merge when addressing data privacy requirements.
+    </div>
+    <div class="branch-commits">
+      <span class="commit-tag">Data retention policies</span>
+      <span class="commit-tag">Deletion flow</span>
+      <span class="commit-tag">Role-based signup</span>
+    </div>
+  </div>
+
+</div>
+
+<div class="divider"></div>
+
+<div class="section-label">NurseEd / NurseMed — Separate Sub-Project</div>
+<div class="timeline">
+
+  <div class="branch nurseed">
+    <div class="branch-top">
+      <div class="branch-name grey">newIcons · nursemed · module5 · newUI1</div>
+      <span class="badge nurseed">NurseEd</span>
+      <div class="branch-date">Mar 2026</div>
+    </div>
+    <div class="branch-title">Nursing Education Web App (apps/med)</div>
+    <div class="branch-desc">
+      A separate nursing education app living in <code>apps/med</code>. <strong>newUI1</strong> — homepage colours/fonts. <strong>module5</strong> — Modules 10–12 content (Emergency, Trauma, Family Communication). <strong>nursemed</strong> — Vercel deploy fix. <strong>newIcons</strong> — custom Canva icons replacing emoji. Consider moving to a separate repo when the project matures.
+    </div>
+    <div class="branch-commits">
+      <span class="commit-tag">newUI1 — theme</span>
+      <span class="commit-tag">module5 — content</span>
+      <span class="commit-tag">nursemed — deploy fix</span>
+      <span class="commit-tag">newIcons — Canva icons</span>
+    </div>
+  </div>
+
+</div>
+
+<div style="text-align:center;color:var(--grey);font-size:12px;margin-top:24px;">
+  tuto. branch map · updated 27 Mar 2026 · 26 → 11 branches after housekeeping
+</div>
+
+</body>
+</html>

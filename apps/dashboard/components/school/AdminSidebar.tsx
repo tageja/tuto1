@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useI18n } from '../../contexts/I18nContext';
 import { useSchool } from '../../contexts/SchoolContext';
+import { SchoolLogo } from './SchoolLogo';
 import {
   LayoutDashboard,
   Users,
@@ -66,15 +67,25 @@ export function AdminSidebar() {
   return (
     <div className="w-64 bg-card border-r border-border min-h-screen flex flex-col">
       {/* Logo/Brand */}
-      <div className="p-6 border-b border-border">
-        <Link href="/home" className="block">
-          <img 
-            src="/images/tuto-logo.png" 
-            alt="tuto." 
-            className="h-10 w-auto mb-2"
-          />
+      <div className="p-6 border-b border-border space-y-3">
+        {/* School branding */}
+        <Link href="/home" className="flex items-center gap-2">
+          <SchoolLogo schoolId={schoolId || null} size="md" />
+          {selectedSchool?.name && (
+            <span className="text-sm font-semibold text-text truncate leading-tight">
+              {selectedSchool.name}
+            </span>
+          )}
         </Link>
-        <p className="text-xs text-text-muted">learn • connect • grow</p>
+        {/* Tuto co-branding */}
+        <div className="flex items-center gap-1.5 pt-1 border-t border-border">
+          <span className="text-[10px] text-text-muted">powered by</span>
+          <img
+            src="/images/tuto-logo.png"
+            alt="tuto."
+            className="h-3.5 w-auto opacity-60"
+          />
+        </div>
       </div>
 
       {/* Navigation Menu */}

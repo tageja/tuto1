@@ -24,7 +24,7 @@ module.exports = {
     ios: {
       supportsTablet: false,
       bundleIdentifier: 'com.tutoapp.mobile',
-      buildNumber: '23',
+      buildNumber: '24',
       usesAppleSignIn: true,
       infoPlist: {
         NSPhotoLibraryUsageDescription: 'We need access to your photo library to let you attach images to posts.',
