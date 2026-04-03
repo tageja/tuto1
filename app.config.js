@@ -4,7 +4,7 @@ module.exports = {
   expo: {
     name: 'Tuto',
     slug: 'tuto',
-    version: '2.1.1',
+    version: '2.2.0',
     orientation: 'portrait',
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
