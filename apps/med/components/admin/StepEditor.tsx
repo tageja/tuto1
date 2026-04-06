@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Upload, Plus, Trash2 } from 'lucide-react'
 import type { NursedLessonStep, StepType } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
+import GenerateAudioButton from './GenerateAudioButton'
 
 interface StepEditorProps {
   step: NursedLessonStep
@@ -130,6 +131,13 @@ function AudioShadowEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
         <label className="label text-xs">{t.labelTranscript}</label>
         <textarea className="input resize-none text-sm" rows={4} value={transcript} onChange={(e) => setTranscript(e.target.value)} placeholder="Nurse: Good morning...\nPatient: Good morning..." />
       </div>
+      {transcript && (
+        <GenerateAudioButton
+          stepId={step.id}
+          fields={[{ text: transcript, voice: 'nurse', field: 'audioUrl', label: 'Full transcript' }]}
+          onGenerated={(_, url) => setAudioUrl(url)}
+        />
+      )}
       <EditorActions saving={saving} onCancel={onCancel} onSave={() => onSubmit({ audio_url: audioUrl, speed, transcript })} />
     </div>
   )
@@ -140,6 +148,17 @@ function ScriptEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
   const cfg = step.config as { script?: string }
   const [script, setScript] = useState(cfg.script ?? '')
 
+  const audioFields = script
+    .split('\n')
+    .map((line, i) => {
+      const match = line.match(/^(Nurse|Patient|Doctor|Family):\s*(.+)/)
+      if (!match) return null
+      const roleRaw = match[1].toLowerCase() as 'nurse' | 'patient' | 'doctor'
+      const voice = roleRaw === 'family' ? 'patient' : roleRaw
+      return { text: match[2], voice, field: `line_${i}_audioUrl`, label: `Line ${i + 1} — ${match[1]}` }
+    })
+    .filter(Boolean) as { text: string; voice: 'nurse' | 'patient' | 'doctor'; field: string; label: string }[]
+
   return (
     <div className="space-y-3">
       <div>
@@ -147,6 +166,9 @@ function ScriptEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
         <textarea className="input resize-none text-sm font-mono" rows={8} value={script} onChange={(e) => setScript(e.target.value)} placeholder={"Nurse: Good morning, how can I help you?\nPatient: I have a headache."} />
         <p className="text-xs text-text-muted mt-1">{t.scriptFormatHint}</p>
       </div>
+      {audioFields.length > 0 && (
+        <GenerateAudioButton stepId={step.id} fields={audioFields} />
+      )}
       <EditorActions saving={saving} onCancel={onCancel} onSave={() => onSubmit({ script })} />
     </div>
   )

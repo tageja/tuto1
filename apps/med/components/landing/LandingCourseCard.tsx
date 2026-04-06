@@ -43,32 +43,58 @@ export function LandingCourseCard({ course }: LandingCourseCardProps) {
   const icon = COURSE_ICONS[course.title] ?? '📖'
   const modulesCount = course.modules_count ?? 0
   const lessonsCount = course.lessons_count ?? 0
-  const hours = Math.round((course.total_minutes ?? 0) / 60 * 10) / 10
+  const isReady = lessonsCount > 0
 
   return (
-    <div className="bg-white border border-[var(--border)] rounded-xl p-5 hover:shadow-lg transition-all duration-300 group">
-      <div className="flex items-start justify-between mb-3">
-        <span className="text-4xl">{icon}</span>
-        <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${LEVEL_BADGE[course.level] ?? 'bg-surface text-text border-border'}`}>
+    <div className={`relative bg-white border rounded-2xl p-5 transition-all duration-300 group overflow-hidden flex flex-col ${
+      isDraft
+        ? 'border-[var(--border)] opacity-70'
+        : 'border-[var(--border)] hover:border-[var(--primary)]/30 hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-0.5'
+    }`}>
+      {/* Ready badge */}
+      {!isDraft && isReady && (
+        <div className="absolute top-4 right-4 flex items-center gap-1 px-2 py-0.5 bg-green-50 border border-green-200 rounded-full">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+          <span className="text-[10px] font-semibold text-green-700">Ready</span>
+        </div>
+      )}
+      {isDraft && (
+        <div className="absolute top-4 right-4 flex items-center gap-1 px-2 py-0.5 bg-[var(--surface)] border border-[var(--border)] rounded-full">
+          <Lock className="w-2.5 h-2.5 text-[var(--text-muted)]" />
+          <span className="text-[10px] font-semibold text-[var(--text-muted)]">Soon</span>
+        </div>
+      )}
+
+      {/* Icon + level */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-12 h-12 rounded-xl bg-[var(--primary-light)] flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">
+          {icon}
+        </div>
+        <span className={`px-2 py-0.5 rounded-md text-xs font-semibold border ${LEVEL_BADGE[course.level] ?? 'bg-surface text-text-muted border-border'}`}>
           {course.level}
         </span>
       </div>
 
-      <h3 className="font-semibold text-lg mb-2 line-clamp-2">
+      <h3 className="font-semibold text-base mb-1.5 line-clamp-2 leading-snug">
         {course.title_vi ?? course.title}
       </h3>
-      <p className="text-sm text-[var(--text-muted)] mb-4 line-clamp-2">
+      <p className="text-xs text-[var(--text-muted)] mb-4 line-clamp-2 leading-relaxed flex-1">
         {course.description_vi ?? course.description ?? ''}
       </p>
 
-      <div className="flex items-center gap-4 text-xs text-[var(--text-muted)] mb-4">
-        <span>{modulesCount} modules</span>
-        <span>•</span>
-        <span>{lessonsCount} lessons</span>
-        {hours > 0 && (
+      {/* Stats row */}
+      <div className="flex items-center gap-3 text-xs text-[var(--text-muted)] mb-4 pb-4 border-b border-[var(--border)]">
+        <span className="flex items-center gap-1">
+          <span className="font-semibold text-[var(--text)]">{modulesCount}</span> modules
+        </span>
+        <span className="text-[var(--border)]">·</span>
+        <span className="flex items-center gap-1">
+          <span className="font-semibold text-[var(--text)]">{lessonsCount}</span> lessons
+        </span>
+        {!isReady && lessonsCount === 0 && (
           <>
-            <span>•</span>
-            <span>{hours}h</span>
+            <span className="text-[var(--border)]">·</span>
+            <span className="text-amber-600 font-medium">Content coming</span>
           </>
         )}
       </div>
@@ -76,18 +102,18 @@ export function LandingCourseCard({ course }: LandingCourseCardProps) {
       {isDraft ? (
         <button
           disabled
-          className="w-full py-2.5 px-4 rounded-lg bg-[var(--surface)] text-[var(--text-muted)] font-medium text-sm flex items-center justify-center gap-2"
+          className="w-full py-2.5 px-4 rounded-xl bg-[var(--surface)] text-[var(--text-muted)] font-medium text-sm flex items-center justify-center gap-2 cursor-not-allowed"
         >
-          <Lock className="w-4 h-4" />
+          <Lock className="w-3.5 h-3.5" />
           {t.courseComingSoonBadge}
         </button>
       ) : (
         <Link
           href={`/learn/courses/${course.id}`}
-          className="w-full py-2.5 px-4 rounded-lg bg-[var(--primary)] text-white font-medium text-sm flex items-center justify-center gap-2 hover:bg-[var(--primary-dark)] transition-colors group-hover:gap-3"
+          className="w-full py-2.5 px-4 rounded-xl bg-[var(--primary)] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-[var(--primary-dark)] transition-all group-hover:gap-3"
         >
           {t.btnStartCourse}
-          <ArrowRight className="w-4 h-4" />
+          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
         </Link>
       )}
     </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useCallback } from 'react'
+import { useLang } from '@/contexts/LanguageContext'
 
 export interface TranscriptSegment {
   en: string
@@ -82,7 +83,10 @@ export function setPhraseTranslationEnabled(enabled: boolean) {
   }
 }
 
-export default function TranslatableTranscript({ text, segments, enabled = true }: Props) {
+export default function TranslatableTranscript({ text, segments, enabled: enabledProp }: Props) {
+  const { phraseTranslationEnabled } = useLang()
+  const enabled = enabledProp !== undefined ? enabledProp : phraseTranslationEnabled
+
   const [hovered, setHovered] = useState<string | null>(null)
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null)
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import type { NursedLesson, NursedLessonStep, LessonStage } from '@/lib/supabase'
@@ -49,6 +49,7 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
   const params = useParams<{ courseId?: string }>()
   const resolvedCourseId = courseId ?? params?.courseId ?? ''
   const { t, lang } = useLang()
+  const stepKey = useRef(0)
 
   const STEP_TYPE_LABELS: Record<string, string> = {
     video: t.stepTypeVideoLabel,
@@ -91,6 +92,7 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
     if (currentIdx + 1 >= steps.length) {
       setCompleted(true)
     } else {
+      stepKey.current += 1
       setCurrentIdx(currentIdx + 1)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
@@ -98,18 +100,19 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
 
   if (completed) {
     return (
-      <div className="card p-12 text-center space-y-4">
-        <div className="text-7xl mb-2 animate-bounce">🎉</div>
-        <h2 className="text-2xl font-bold text-text">{t.completedTitle}</h2>
-        <p className="text-text-muted">{t.completedDesc}</p>
+      <div className="card p-12 text-center space-y-5">
+        <div className="text-7xl mb-2 confetti-burst">🎉</div>
+        <h2 className="text-2xl font-bold text-text animate-step-enter">{t.completedTitle}</h2>
+        <p className="text-text-muted animate-stagger-1">{t.completedDesc}</p>
 
-        {/* XP animation */}
-        <div className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-yellow-50 border border-yellow-200">
-          <span className="text-2xl">⭐</span>
-          <span className="text-xl font-bold text-yellow-700">+{steps.length * 10} XP</span>
+        <div className="animate-stagger-2">
+          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-yellow-50 border border-yellow-200">
+            <span className="text-2xl">⭐</span>
+            <span className="text-xl font-bold text-yellow-700 animate-count-up">+{steps.length * 10} XP</span>
+          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 animate-stagger-3">
           {resolvedCourseId && (
             <Link href={`/learn/courses/${resolvedCourseId}`} className="btn-secondary justify-center">
               {t.btnBackToCourse}
@@ -164,22 +167,22 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
     <div className="space-y-4">
       {/* Lesson stage banner */}
       {stageConfig && (
-        <div className={`flex items-center justify-between px-4 py-2.5 rounded-xl border text-sm font-medium ${stageConfig.color}`}>
-          <span>
+        <div className={`stage-bar flex items-center justify-between px-4 py-2.5 rounded-xl border text-sm font-medium ${stageConfig.color}`}>
+          <span className="font-semibold">
             {lang === 'vi' ? stageConfig.label_vi : stageConfig.label_en}
           </span>
           {lesson.objective && (
-            <span className="text-xs font-normal opacity-80 max-w-[60%] text-right truncate">
+            <span className="text-xs font-normal opacity-70 max-w-[60%] text-right truncate">
               {lesson.objective}
             </span>
           )}
         </div>
       )}
 
-      {/* Progress bar */}
-      <div className="card p-4 space-y-2">
+      {/* Progress */}
+      <div className="card p-4 space-y-3">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-text-muted">
+          <span className="text-text-muted font-medium">
             {t.progressLabel
               .replace('{current}', String(currentIdx + 1))
               .replace('{total}', String(steps.length))}
@@ -187,12 +190,12 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
           <span className="badge badge-blue">{stepLabel}</span>
         </div>
 
-        {/* Step dots */}
-        <div className="flex gap-1.5">
+        {/* Animated step segments */}
+        <div className="flex gap-1">
           {steps.map((_, idx) => (
             <div
               key={idx}
-              className={`flex-1 h-2 rounded-full transition-all duration-300 ${
+              className={`flex-1 h-1.5 rounded-full transition-all duration-500 ${
                 idx < currentIdx
                   ? 'bg-success'
                   : idx === currentIdx
@@ -203,7 +206,6 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
           ))}
         </div>
 
-        {/* Step title */}
         {(currentStep.title_vi ?? currentStep.title) && (
           <p className="text-xs text-text-muted">
             {lang === 'vi' ? (currentStep.title_vi ?? currentStep.title) : currentStep.title}
@@ -211,8 +213,8 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
         )}
       </div>
 
-      {/* Step content */}
-      <div className="card p-6">
+      {/* Step content — re-mounts with animation on each step */}
+      <div key={stepKey.current} className="card p-6 step-enter">
         {renderStep()}
       </div>
     </div>

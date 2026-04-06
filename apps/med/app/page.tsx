@@ -58,56 +58,109 @@ export default function Home() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--primary)]/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-white" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[var(--primary)]/6 rounded-full blur-3xl -translate-y-1/3 translate-x-1/4" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/6 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4" />
 
-        <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-24">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-block px-4 py-2 bg-[var(--primary-light)] border border-[var(--primary)]/20 rounded-full text-sm font-medium text-[var(--primary)] mb-6">
-              {t.heroBadge}
+        <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-28">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            {/* Left — text */}
+            <div className="text-left">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary-light)] border border-[var(--primary)]/20 rounded-full text-sm font-semibold text-[var(--primary)] mb-6 animate-fade-in">
+                <span className="w-2 h-2 rounded-full bg-[var(--primary)] animate-pulse" />
+                {t.heroBadge}
+              </div>
+
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-[1.1] tracking-tight animate-slide-up">
+                {t.heroTitleLine1}
+                <span className="block bg-gradient-to-r from-[var(--primary)] via-blue-500 to-purple-600 bg-clip-text text-transparent mt-1">
+                  {t.heroTitleLine2}
+                </span>
+              </h1>
+
+              <p className="text-lg md:text-xl text-[var(--text-muted)] mb-8 leading-relaxed max-w-lg animate-stagger-1">
+                {t.heroSubtitle}
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-3 animate-stagger-2">
+                <Link
+                  href="/learn/courses"
+                  className="px-8 py-4 bg-[var(--primary)] text-white rounded-xl font-semibold text-base hover:bg-[var(--primary-dark)] transition-all hover:scale-105 shadow-lg shadow-[var(--primary)]/25 flex items-center justify-center gap-2"
+                >
+                  {t.heroCtaExplore}
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+                <Link
+                  href="/admin"
+                  className="px-8 py-4 bg-white border-2 border-[var(--border)] rounded-xl font-semibold text-base hover:border-[var(--primary)] hover:text-[var(--primary)] transition-all flex items-center justify-center gap-2"
+                >
+                  {t.heroCtaAdmin}
+                </Link>
+              </div>
+
+              {/* Stats row */}
+              <div className="flex items-center gap-8 mt-10 pt-8 border-t border-[var(--border)] animate-stagger-3">
+                <div>
+                  <div className="text-2xl font-bold text-[var(--primary)]">{STATS.activeNurses}+</div>
+                  <div className="text-xs text-[var(--text-muted)] mt-0.5">{t.statsActiveNurses}</div>
+                </div>
+                <div className="w-px h-8 bg-[var(--border)]" />
+                <div>
+                  <div className="text-2xl font-bold text-[var(--primary)]">{STATS.courses}</div>
+                  <div className="text-xs text-[var(--text-muted)] mt-0.5">{t.statsCourses}</div>
+                </div>
+                <div className="w-px h-8 bg-[var(--border)]" />
+                <div>
+                  <div className="text-2xl font-bold text-[var(--primary)]">{STATS.lessonsCompleted.toLocaleString()}</div>
+                  <div className="text-xs text-[var(--text-muted)] mt-0.5">{t.statsLessonsCompleted}</div>
+                </div>
+              </div>
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              {t.heroTitleLine1}
-              <span className="block bg-gradient-to-r from-[var(--primary)] to-purple-600 bg-clip-text text-transparent">
-                {t.heroTitleLine2}
-              </span>
-            </h1>
-
-            <p className="text-lg md:text-xl text-[var(--text-muted)] mb-8 max-w-2xl mx-auto">
-              {t.heroSubtitle}
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/learn/courses"
-                className="px-8 py-4 bg-[var(--primary)] text-white rounded-xl font-semibold text-lg hover:bg-[var(--primary-dark)] transition-all hover:scale-105 shadow-lg shadow-[var(--primary)]/20 flex items-center justify-center gap-2"
-              >
-                {t.heroCtaExplore}
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-              <Link
-                href="/admin"
-                className="px-8 py-4 bg-white border-2 border-[var(--border)] rounded-xl font-semibold text-lg hover:border-[var(--primary)] transition-colors flex items-center justify-center gap-2"
-              >
-                {t.heroCtaAdmin}
-              </Link>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 mt-16 max-w-2xl mx-auto">
-              <div>
-                <div className="text-3xl md:text-4xl font-bold text-[var(--primary)] mb-1">{STATS.activeNurses}+</div>
-                <div className="text-sm text-[var(--text-muted)]">{t.statsActiveNurses}</div>
-              </div>
-              <div>
-                <div className="text-3xl md:text-4xl font-bold text-[var(--primary)] mb-1">{STATS.courses}</div>
-                <div className="text-sm text-[var(--text-muted)]">{t.statsCourses}</div>
-              </div>
-              <div>
-                <div className="text-3xl md:text-4xl font-bold text-[var(--primary)] mb-1">{STATS.lessonsCompleted.toLocaleString()}</div>
-                <div className="text-sm text-[var(--text-muted)]">{t.statsLessonsCompleted}</div>
+            {/* Right — visual card stack */}
+            <div className="hidden md:flex items-center justify-center animate-stagger-2">
+              <div className="relative w-full max-w-sm">
+                {/* Background cards for depth */}
+                <div className="absolute inset-0 translate-x-4 translate-y-4 bg-purple-100 rounded-2xl opacity-40" />
+                <div className="absolute inset-0 translate-x-2 translate-y-2 bg-blue-100 rounded-2xl opacity-50" />
+                {/* Main card */}
+                <div className="relative bg-white rounded-2xl shadow-xl border border-[var(--border)] p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-[var(--primary-light)] flex items-center justify-center">
+                      <span className="text-xl">🚨</span>
+                    </div>
+                    <div>
+                      <div className="font-semibold text-sm text-[var(--text)]">Emergency Nursing</div>
+                      <div className="text-xs text-[var(--text-muted)]">12 modules · 96 lessons</div>
+                    </div>
+                    <div className="ml-auto px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">Live</div>
+                  </div>
+                  {/* Fake progress */}
+                  <div className="space-y-2 mb-4">
+                    {['First Contact', 'Triage Intake', 'Immediate Instructions'].map((label, i) => (
+                      <div key={label} className="flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${i < 2 ? 'bg-[var(--primary)] text-white' : 'bg-[var(--surface)] border border-[var(--border)]'}`}>
+                          {i < 2 ? '✓' : ''}
+                        </div>
+                        <span className="text-xs text-[var(--text-muted)] flex-1">{label}</span>
+                        {i < 2 && <span className="text-xs text-[var(--primary)] font-medium">Done</span>}
+                      </div>
+                    ))}
+                  </div>
+                  {/* Fake audio player */}
+                  <div className="bg-[var(--surface)] rounded-xl p-3 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center">
+                      <Volume2 className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-xs font-medium text-[var(--text)] mb-1">Listen & Repeat</div>
+                      <div className="h-1.5 bg-[var(--border)] rounded-full overflow-hidden">
+                        <div className="h-full w-3/5 bg-[var(--primary)] rounded-full" />
+                      </div>
+                    </div>
+                    <div className="text-xs text-[var(--text-muted)]">0.75x</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -117,22 +170,29 @@ export default function Home() {
       {/* Features */}
       <section className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t.featuresSectionTitle}</h2>
+          <div className="text-center mb-14">
+            <div className="inline-block px-3 py-1 bg-[var(--surface)] border border-[var(--border)] rounded-full text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-4">
+              How It Works
+            </div>
+            <h2 className="text-3xl md:text-4xl font-extrabold mb-4 tracking-tight">{t.featuresSectionTitle}</h2>
             <p className="text-lg text-[var(--text-muted)] max-w-2xl mx-auto">{t.featuresSectionSubtitle}</p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {FEATURES.map(({ icon: Icon, key, descKey }) => (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {FEATURES.map(({ icon: Icon, key, descKey }, i) => (
               <div
                 key={key}
-                className="bg-gradient-to-br from-white to-[var(--surface)] border border-[var(--border)] rounded-2xl p-8 hover:shadow-xl transition-all hover:-translate-y-1 group"
+                className="relative bg-white border border-[var(--border)] rounded-2xl p-7 hover:shadow-[var(--shadow-card-hover)] transition-all duration-300 hover:-translate-y-1 group overflow-hidden"
+                style={{ animationDelay: `${i * 60}ms` }}
               >
-                <div className="w-14 h-14 rounded-xl bg-[var(--primary-light)] text-[var(--primary)] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Icon className="w-7 h-7" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/3 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative">
+                  <div className="w-12 h-12 rounded-xl bg-[var(--primary-light)] text-[var(--primary)] flex items-center justify-center mb-5 group-hover:scale-110 group-hover:bg-[var(--primary)] group-hover:text-white transition-all duration-300">
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-base font-semibold mb-2 text-[var(--text)]">{t[key]}</h3>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed">{t[descKey]}</p>
                 </div>
-                <h3 className="text-xl font-semibold mb-3">{t[key]}</h3>
-                <p className="text-[var(--text-muted)] leading-relaxed">{t[descKey]}</p>
               </div>
             ))}
           </div>

@@ -3,11 +3,15 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { translations, Lang, T } from '@/lib/i18n/translations'
 
+const PHRASE_TRANSLATION_KEY = 'nursed_phrase_translation_enabled'
+
 interface LanguageContextType {
   lang: Lang
   setLang: (l: Lang) => void
   t: T
   toggleLang: () => void
+  phraseTranslationEnabled: boolean
+  togglePhraseTranslation: () => void
 }
 
 const LanguageContext = createContext<LanguageContextType>({
@@ -15,16 +19,20 @@ const LanguageContext = createContext<LanguageContextType>({
   setLang: () => {},
   t: translations.vi,
   toggleLang: () => {},
+  phraseTranslationEnabled: true,
+  togglePhraseTranslation: () => {},
 })
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  // Always start with 'vi' on both server and client to avoid hydration mismatch.
-  // After mount, read localStorage and switch if a preference is saved.
   const [lang, setLangState] = useState<Lang>('vi')
+  const [phraseTranslationEnabled, setPhraseTranslationEnabled] = useState(true)
 
   useEffect(() => {
-    const saved = localStorage.getItem('nursed_lang')
-    if (saved === 'en' || saved === 'vi') setLangState(saved)
+    const savedLang = localStorage.getItem('nursed_lang')
+    if (savedLang === 'en' || savedLang === 'vi') setLangState(savedLang)
+
+    const savedPhrase = localStorage.getItem(PHRASE_TRANSLATION_KEY)
+    if (savedPhrase === 'false') setPhraseTranslationEnabled(false)
   }, [])
 
   const setLang = (l: Lang) => {
@@ -34,8 +42,17 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const toggleLang = () => setLang(lang === 'en' ? 'vi' : 'en')
 
+  const togglePhraseTranslation = () => {
+    const next = !phraseTranslationEnabled
+    setPhraseTranslationEnabled(next)
+    localStorage.setItem(PHRASE_TRANSLATION_KEY, String(next))
+  }
+
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t: translations[lang], toggleLang }}>
+    <LanguageContext.Provider value={{
+      lang, setLang, t: translations[lang], toggleLang,
+      phraseTranslationEnabled, togglePhraseTranslation,
+    }}>
       {children}
     </LanguageContext.Provider>
   )

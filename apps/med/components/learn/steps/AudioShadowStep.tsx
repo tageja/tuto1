@@ -4,10 +4,7 @@ import { useState, useRef } from 'react'
 import { Play, Pause, ChevronRight, Languages } from 'lucide-react'
 import type { NursedLessonStep } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
-import TranslatableTranscript, {
-  getPhraseTranslationDefault,
-  setPhraseTranslationEnabled,
-} from '../TranslatableTranscript'
+import TranslatableTranscript from '../TranslatableTranscript'
 
 interface Props {
   step: NursedLessonStep
@@ -29,15 +26,7 @@ export default function AudioShadowStep({ step, onComplete }: Props) {
   const transcript = (step.config?.transcript ?? step.config?.transcriptEn ?? '') as string
   const hasTranscriptSegments = Array.isArray(step.config?.transcriptSegments) && step.config.transcriptSegments.length > 0
 
-  const [translationEnabled, setTranslationEnabled] = useState(() =>
-    typeof window !== 'undefined' ? getPhraseTranslationDefault() : true
-  )
-
-  const toggleTranslation = () => {
-    const next = !translationEnabled
-    setTranslationEnabled(next)
-    setPhraseTranslationEnabled(next)
-  }
+  const { phraseTranslationEnabled: translationEnabled, togglePhraseTranslation: toggleTranslation } = useLang()
 
   const phases = [
     { key: 'listen' as const, icon: '👂', label: t.phaseListen },
