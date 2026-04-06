@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useLang } from '@/contexts/LanguageContext'
 
 export interface TranscriptSegment {
@@ -83,74 +84,81 @@ export function setPhraseTranslationEnabled(enabled: boolean) {
   }
 }
 
+interface TooltipState { x: number; y: number; above: boolean; text: string }
+
 export default function TranslatableTranscript({ text, segments, enabled: enabledProp }: Props) {
   const { phraseTranslationEnabled } = useLang()
   const enabled = enabledProp !== undefined ? enabledProp : phraseTranslationEnabled
+  const [mounted, setMounted] = useState(false)
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null)
 
-  const [hovered, setHovered] = useState<string | null>(null)
-  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null)
+  useEffect(() => { setMounted(true) }, [])
 
   const parts = useMemo(() => parseTextWithSegments(text, enabled ? segments ?? [] : []), [text, segments, enabled])
   const hasSegments = parts.some((p) => p.type === 'segment')
 
-  const handleMouseEnter = useCallback(
-    (e: React.MouseEvent<HTMLSpanElement>, vi: string) => {
-      setHovered(vi)
-      const rect = (e.target as HTMLElement).getBoundingClientRect()
-      setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top })
-    },
-    []
-  )
-
-  const handleMouseLeave = useCallback(() => {
-    setHovered(null)
-    setTooltipPos(null)
+  const showTooltip = useCallback((e: React.MouseEvent<HTMLSpanElement>, vi: string) => {
+    const rect = (e.target as HTMLElement).getBoundingClientRect()
+    const cx = rect.left + rect.width / 2
+    const above = rect.top > 60
+    setTooltip({ x: cx, y: above ? rect.top : rect.bottom, above, text: vi })
   }, [])
 
-  const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLSpanElement>, vi: string) => {
-      e.preventDefault()
-      setHovered((prev) => (prev === vi ? null : vi))
+  const hideTooltip = useCallback(() => setTooltip(null), [])
+
+  const toggleTooltip = useCallback((e: React.MouseEvent<HTMLSpanElement>, vi: string) => {
+    e.preventDefault()
+    setTooltip((prev) => {
+      if (prev?.text === vi) return null
       const rect = (e.target as HTMLElement).getBoundingClientRect()
-      setTooltipPos({ x: rect.left + rect.width / 2, y: rect.top })
-    },
-    []
-  )
+      const cx = rect.left + rect.width / 2
+      const above = rect.top > 60
+      return { x: cx, y: above ? rect.top : rect.bottom, above, text: vi }
+    })
+  }, [])
 
   if (!hasSegments) {
     return <p className="text-sm text-text leading-relaxed">{text}</p>
   }
 
+  const tooltipEl = tooltip && mounted && createPortal(
+    <span
+      className="fixed z-[9999] px-3 py-2 text-xs font-medium bg-gray-900 text-white rounded-xl shadow-2xl whitespace-nowrap pointer-events-none flex items-center gap-1.5"
+      style={{
+        left: tooltip.x,
+        transform: 'translateX(-50%)',
+        ...(tooltip.above ? { top: tooltip.y - 44 } : { top: tooltip.y + 8 }),
+      }}
+    >
+      <span className="text-base leading-none">🇻🇳</span>
+      <span>{tooltip.text}</span>
+      {tooltip.above
+        ? <span className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-gray-900" />
+        : <span className="absolute bottom-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-b-gray-900" />
+      }
+    </span>,
+    document.body
+  )
+
   return (
-    <p className="text-sm text-text leading-relaxed relative">
-      {parts.map((part, i) => {
-        if (part.type === 'plain') {
-          return <span key={i}>{part.text}</span>
-        }
-        return (
-          <span
-            key={i}
-            onMouseEnter={(e) => handleMouseEnter(e, part.vi)}
-            onMouseLeave={handleMouseLeave}
-            onClick={(e) => handleClick(e, part.vi)}
-            className="cursor-help border-b border-dashed border-primary/50 hover:bg-primary/10 rounded px-0.5 transition-colors"
-          >
-            {part.text}
-          </span>
-        )
-      })}
-      {hovered && tooltipPos && (
-        <span
-          className="fixed z-50 px-2 py-1.5 text-xs font-medium bg-text text-bg rounded-lg shadow-lg whitespace-nowrap pointer-events-none"
-          style={{
-            left: tooltipPos.x,
-            top: tooltipPos.y - 36,
-            transform: 'translateX(-50%)',
-          }}
-        >
-          {hovered}
-        </span>
-      )}
-    </p>
+    <>
+      <p className="text-sm text-text leading-relaxed">
+        {parts.map((part, i) => {
+          if (part.type === 'plain') return <span key={i}>{part.text}</span>
+          return (
+            <span
+              key={i}
+              onMouseEnter={(e) => showTooltip(e, part.vi)}
+              onMouseLeave={hideTooltip}
+              onClick={(e) => toggleTooltip(e, part.vi)}
+              className="cursor-help border-b border-dashed border-primary/50 hover:bg-primary/10 rounded px-0.5 transition-colors"
+            >
+              {part.text}
+            </span>
+          )
+        })}
+      </p>
+      {tooltipEl}
+    </>
   )
 }

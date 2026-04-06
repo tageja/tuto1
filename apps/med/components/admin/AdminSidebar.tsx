@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, BookOpen, Building2, Users, BarChart3, Activity, X } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Building2, Users, BarChart3, Activity, X, Mic } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
 
 interface Props {
@@ -21,6 +21,7 @@ export function AdminSidebar({ isOpen = false, onClose }: Props) {
     { label: t.navHospitalDashboard ?? 'Hospital Dashboard', href: '/admin/hospital', icon: Activity },
     { label: t.navStudents, href: '/admin/students', icon: Users },
     { label: t.navAnalytics, href: '/admin/analytics', icon: BarChart3 },
+    { label: 'Audio Generation', href: '/admin/audio', icon: Mic },
   ]
 
   const isActive = (href: string) => {

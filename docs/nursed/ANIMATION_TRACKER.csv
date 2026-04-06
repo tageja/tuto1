@@ -1,6 +1,6 @@
 Batch,Module,ModuleTitle,Lesson,LessonTitle,StepNum,StepTitle,StepType,AnimationType,Characters,SceneSetting,Status,HeyGenVideo,Notes
-1,1,First Contact in an Emergency,1,"What's happening? First words in an emergency",1,Scenario: Emergency Room,scenario_intro,SCENE_CARD,—,Emergency department triage desk,Pending,No,
-1,1,First Contact in an Emergency,1,"What's happening? First words in an emergency",3,Read the dialogue aloud,script_read,CONVO_2,Nurse+Patient,Triage desk,Pending,No,
+1,1,First Contact in an Emergency,1,"What's happening? First words in an emergency",1,Scenario: Emergency Room,scenario_intro,SCENE_CARD,—,Emergency department triage desk,Done,No,ScenarioIntroStep already implemented
+1,1,First Contact in an Emergency,1,"What's happening? First words in an emergency",2,Watch: Real emergency encounter,video,HEYGEN_VIDEO,Nurse Linh+Patient Dave,Triage desk,Done,Yes,"HeyGen video uploaded to Supabase (module1-triage-dialogue.mp4); step 3a90dbfd inserted at order_index 2"
 1,1,First Contact in an Emergency,4,"A second scenario — new context, same language",1,Scenario: Patient fainting in the entrance,scenario_intro,SCENE_CARD,—,Hospital entrance,Pending,No,
 2,1,First Contact in an Emergency,4,"A second scenario — new context, same language",3,Read the three-person dialogue,script_read,CONVO_3,Nurse+Patient+Family,Hospital entrance,Pending,No,
 2,1,First Contact in an Emergency,2,Key phrases in action,2,Read along: Identify the key phrases,script_read,CONVO_2,Nurse+Patient,A&E bay,Pending,No,

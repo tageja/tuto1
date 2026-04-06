@@ -4,10 +4,12 @@ import { useState } from 'react'
 import { CheckCircle, XCircle, ChevronRight, RotateCcw } from 'lucide-react'
 import type { NursedLessonStep, NursedQuizQuestion } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
+import AudioReplayBar from '@/components/learn/AudioReplayBar'
 
 interface Props {
   step: NursedLessonStep
   onComplete: () => void
+  contextAudio?: { url: string; transcript: string }
 }
 
 const EXAMPLE_QUESTIONS: NursedQuizQuestion[] = [
@@ -53,7 +55,7 @@ const EXAMPLE_QUESTIONS: NursedQuizQuestion[] = [
   },
 ]
 
-export default function QuizStep({ step, onComplete }: Props) {
+export default function QuizStep({ step, onComplete, contextAudio }: Props) {
   const { t } = useLang()
   const rawQ = step.config?.questions as NursedQuizQuestion[] | undefined
   const questions = rawQ && rawQ.length > 0 ? rawQ : EXAMPLE_QUESTIONS
@@ -87,6 +89,13 @@ export default function QuizStep({ step, onComplete }: Props) {
 
   return (
     <div className="space-y-6">
+      {contextAudio?.url && (
+        <AudioReplayBar
+          audioUrl={contextAudio.url}
+          transcript={contextAudio.transcript}
+          label="Replay audio from previous step"
+        />
+      )}
       <div>
         <h3 className="text-base font-semibold text-text">🧠 {step.title ?? t.quizTitleFallback}</h3>
         <p className="text-sm text-text-muted mt-1">{t.quizSubtitle.replace('{n}', String(questions.length))}</p>

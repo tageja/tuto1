@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { CheckCircle, XCircle, ChevronRight } from 'lucide-react'
 import type { NursedLessonStep } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
+import AudioReplayBar from '@/components/learn/AudioReplayBar'
 
 interface ClozeToken {
   text: string
@@ -14,6 +15,7 @@ interface ClozeToken {
 interface Props {
   step: NursedLessonStep
   onComplete: () => void
+  contextAudio?: { url: string; transcript: string }
 }
 
 function parseClozeText(text: string): ClozeToken[] {
@@ -28,7 +30,7 @@ function parseClozeText(text: string): ClozeToken[] {
 const EXAMPLE_TEXT =
   "Hello, I'm [Nurse Lan]. How can I [help] you today? Please take a [seat] and I'll be right with you."
 
-export default function ClozeStep({ step, onComplete }: Props) {
+export default function ClozeStep({ step, onComplete, contextAudio }: Props) {
   const { t } = useLang()
   const rawText = step.config?.clozeText as string | undefined
   const tokens = parseClozeText(rawText ?? EXAMPLE_TEXT)
@@ -63,6 +65,15 @@ export default function ClozeStep({ step, onComplete }: Props) {
 
   return (
     <div className="space-y-5">
+      {/* Replay bar from prior audio step */}
+      {contextAudio?.url && (
+        <AudioReplayBar
+          audioUrl={contextAudio.url}
+          transcript={contextAudio.transcript}
+          label="Replay audio from previous step"
+        />
+      )}
+
       <div>
         <h3 className="text-base font-semibold text-text">✏️ {step.title ?? t.clozeTitleFallback}</h3>
         <p className="text-sm text-text-muted mt-1">{t.clozeSubtitle}</p>

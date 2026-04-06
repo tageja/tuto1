@@ -4,15 +4,17 @@ import { useState, useEffect, useRef } from 'react'
 import { Timer, ChevronRight } from 'lucide-react'
 import type { NursedLessonStep } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
+import AudioReplayBar from '@/components/learn/AudioReplayBar'
 
 interface Props {
   step: NursedLessonStep
   onComplete: () => void
+  contextAudio?: { url: string; transcript: string }
 }
 
 const TIMER_SECONDS = 60
 
-export default function NoScriptStep({ step, onComplete }: Props) {
+export default function NoScriptStep({ step, onComplete, contextAudio }: Props) {
   const { t } = useLang()
 
   const EXAMPLE_CUES = [t.exampleCue1, t.exampleCue2, t.exampleCue3, t.exampleCue4, t.exampleCue5]
@@ -62,6 +64,13 @@ export default function NoScriptStep({ step, onComplete }: Props) {
 
   return (
     <div className="space-y-6">
+      {contextAudio?.url && (
+        <AudioReplayBar
+          audioUrl={contextAudio.url}
+          transcript={contextAudio.transcript}
+          label="Replay audio from previous step"
+        />
+      )}
       <div>
         <h3 className="text-base font-semibold text-text">🎯 {step.title ?? t.noScriptTitleFallback}</h3>
         <p className="text-sm text-text-muted mt-1">{t.noScriptSubtitle}</p>

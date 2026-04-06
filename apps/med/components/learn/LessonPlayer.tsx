@@ -72,6 +72,8 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
 
   const [currentIdx, setCurrentIdx] = useState(0)
   const [completed, setCompleted] = useState(false)
+  // Track the most recent audio_shadow URL+transcript for replay in subsequent practice steps
+  const [contextAudio, setContextAudio] = useState<{ url: string; transcript: string } | null>(null)
 
   if (steps.length === 0) {
     return (
@@ -89,6 +91,14 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
   }
 
   const handleStepComplete = () => {
+    // Capture audio context from audio_shadow steps for downstream replay
+    const finishedStep = steps[currentIdx]
+    if (finishedStep.type === 'audio_shadow') {
+      const url = finishedStep.config?.audioUrl as string | undefined
+      const transcript = (finishedStep.config?.transcript ?? finishedStep.config?.transcriptEn ?? '') as string
+      if (url) setContextAudio({ url, transcript })
+    }
+
     if (currentIdx + 1 >= steps.length) {
       setCompleted(true)
     } else {
@@ -138,13 +148,13 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
       case 'script_read':
         return <ScriptReadStep step={currentStep} onComplete={handleStepComplete} />
       case 'cloze':
-        return <ClozeStep step={currentStep} onComplete={handleStepComplete} />
+        return <ClozeStep step={currentStep} onComplete={handleStepComplete} contextAudio={contextAudio ?? undefined} />
       case 'no_script':
-        return <NoScriptStep step={currentStep} onComplete={handleStepComplete} />
+        return <NoScriptStep step={currentStep} onComplete={handleStepComplete} contextAudio={contextAudio ?? undefined} />
       case 'recording_submit':
         return <RecordingStep step={currentStep} onComplete={handleStepComplete} />
       case 'quiz':
-        return <QuizStep step={currentStep} onComplete={handleStepComplete} />
+        return <QuizStep step={currentStep} onComplete={handleStepComplete} contextAudio={contextAudio ?? undefined} />
       case 'mission':
         return <MissionStep step={currentStep} onComplete={handleStepComplete} />
       case 'scenario_intro':
