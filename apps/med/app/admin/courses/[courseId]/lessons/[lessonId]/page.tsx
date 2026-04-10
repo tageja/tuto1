@@ -20,6 +20,7 @@ const TYPE_BADGE: Record<StepType, string> = {
   mission: 'badge-green',
   scenario_intro: 'badge-red',
   self_reflection: 'badge-green',
+  conversation_animation: 'badge-blue',
 }
 
 const STAGE_COLORS: Record<string, string> = {
@@ -80,6 +81,7 @@ export default function LessonBuilderPage() {
     mission: t.stepTypeMission,
     scenario_intro: t.stepTypeScenarioIntro,
     self_reflection: t.stepTypeSelfReflection,
+    conversation_animation: '🎬 Animation',
   }
 
   useEffect(() => {

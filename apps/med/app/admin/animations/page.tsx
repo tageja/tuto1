@@ -1,14 +1,15 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Wand2, Play, Loader2, CheckCircle, AlertCircle, Plus, Trash2, ChevronDown } from 'lucide-react'
+import { Wand2, Play, Loader2, CheckCircle, AlertCircle, Plus, Trash2, ChevronDown, Sparkles } from 'lucide-react'
 import ConversationAnimator from '@/components/animations/ConversationAnimator'
 import type { AnimationSegment, AnimationManifest, Speaker } from '@/components/animations/types'
+import { findScript } from '@/data/animation-scripts'
 
 // ── Types ─────────────────────────────────────────────────────────
 
 interface Course { id: string; title: string }
-interface Lesson { id: string; title: string; order_index: number }
+interface Lesson { id: string; title: string; order_index: number; _module_order?: number }
 interface Step   { id: string; title: string; type: string; order_index: number; config: Record<string, unknown> | null }
 
 const SPEAKERS: Speaker[] = ['nurse', 'patient', 'doctor', 'family']
@@ -18,6 +19,38 @@ const SPEAKER_COLORS: Record<Speaker, string> = {
   patient: 'bg-green-100 text-green-800 border-green-200',
   doctor:  'bg-purple-100 text-purple-800 border-purple-200',
   family:  'bg-amber-100 text-amber-800 border-amber-200',
+}
+
+// ── Extract script from step config (script_read steps) ──────────
+
+interface StepConfigLine { role: string; text: string; text_vi?: string }
+
+function extractScriptFromConfig(config: Record<string, unknown> | null): string | null {
+  if (!config) return null
+
+  // Format 1: config.lines is an array of {role, text, text_vi}
+  const lines = config.lines as StepConfigLine[] | undefined
+  if (Array.isArray(lines) && lines.length > 0) {
+    return lines
+      .map(l => `${l.role}: ${l.text}`)
+      .join('\n')
+  }
+
+  // Format 2: config.script is a raw string "Role: text\n..."
+  if (typeof config.script === 'string' && config.script.trim()) {
+    return config.script.trim()
+  }
+
+  return null
+}
+
+function extractViFromConfig(config: Record<string, unknown> | null): Record<number, string> {
+  if (!config) return {}
+  const lines = config.lines as StepConfigLine[] | undefined
+  if (!Array.isArray(lines)) return {}
+  const map: Record<number, string> = {}
+  lines.forEach((l, i) => { if (l.text_vi) map[i] = l.text_vi })
+  return map
 }
 
 // ── Parse pasted script ───────────────────────────────────────────
@@ -51,6 +84,7 @@ export default function AnimationsAdminPage() {
   const [sceneSetting, setSceneSetting] = useState('Hospital')
   const [segments, setSegments] = useState<AnimationSegment[]>([])
   const [previewManifest, setPreviewManifest] = useState<AnimationManifest | null>(null)
+  const [scriptSource, setScriptSource] = useState<'manifest' | 'step-config' | 'library' | null>(null)
 
   const [genStatus, setGenStatus] = useState<'idle' | 'running' | 'done' | 'error'>('idle')
   const [genResult, setGenResult] = useState<{ generated: number; total: number } | null>(null)
@@ -67,7 +101,7 @@ export default function AnimationsAdminPage() {
     if (!selectedCourse) { setLessons([]); setSteps([]); return }
     fetch(`/api/lessons?courseId=${selectedCourse}`)
       .then(r => r.json())
-      .then(j => setLessons((j.data ?? []).sort((a: Lesson, b: Lesson) => a.order_index - b.order_index)))
+      .then(j => setLessons(j.data ?? []))
     setSelectedLesson('')
     setSelectedStep('')
   }, [selectedCourse])
@@ -81,19 +115,57 @@ export default function AnimationsAdminPage() {
     setSelectedStep('')
   }, [selectedLesson])
 
-  // Load existing manifest when step selected
+  // Auto-load script when step selected
   useEffect(() => {
     if (!selectedStep) return
     const step = steps.find(s => s.id === selectedStep)
-    const manifest = step?.config?.animation_manifest as AnimationManifest | undefined
-    if (manifest) {
+    if (!step) return
+
+    setPreviewManifest(null)
+    setShowPreview(false)
+    setScriptSource(null)
+
+    // Priority 1: existing animation manifest
+    const manifest = step.config?.animation_manifest as AnimationManifest | undefined
+    if (manifest?.segments?.length) {
       setSceneSetting(manifest.scene_setting)
       setSegments(manifest.segments)
       setScriptText(manifest.segments.map(s => `${s.speaker}: ${s.text}`).join('\n'))
       setPreviewManifest(manifest)
       setShowPreview(true)
+      setScriptSource('manifest')
+      return
     }
-  }, [selectedStep, steps])
+
+    // Priority 2: extract from step config (script_read steps have lines/script)
+    const extracted = extractScriptFromConfig(step.config)
+    if (extracted) {
+      const parsed = parseScript(extracted)
+      const viMap = extractViFromConfig(step.config)
+      const withVi = parsed.map((seg, i) => ({ ...seg, vi_text: viMap[i] ?? '' }))
+      setScriptText(extracted)
+      setSegments(withVi)
+      setScriptSource('step-config')
+      return
+    }
+
+    // Priority 3: look up in pre-written scripts library
+    const lesson = lessons.find(l => l.id === selectedLesson)
+    if (lesson) {
+      const found = findScript(lesson.title, step.title ?? '')
+      if (found) {
+        setScriptText(found.script)
+        setSceneSetting(found.sceneSetting)
+        setSegments(parseScript(found.script))
+        setScriptSource('library')
+        return
+      }
+    }
+
+    // No script found — clear and let user write
+    setScriptText('')
+    setSegments([])
+  }, [selectedStep, steps, lessons, selectedLesson])
 
   const handleParseScript = () => {
     const parsed = parseScript(scriptText)
@@ -223,10 +295,22 @@ export default function AnimationsAdminPage() {
               </div>
             </div>
           </div>
-          {hasExistingManifest && (
+          {scriptSource === 'manifest' && (
             <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 px-3 py-2 rounded-xl">
               <CheckCircle size={14} />
-              This step already has an animation manifest — editing will overwrite it.
+              Loaded existing animation manifest — editing will regenerate audio and overwrite it.
+            </div>
+          )}
+          {scriptSource === 'step-config' && (
+            <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-3 py-2 rounded-xl">
+              <Sparkles size={14} />
+              Script auto-loaded from step dialogue lines — review and generate animation.
+            </div>
+          )}
+          {scriptSource === 'library' && (
+            <div className="flex items-center gap-2 text-sm text-purple-700 bg-purple-50 px-3 py-2 rounded-xl">
+              <Sparkles size={14} />
+              Script auto-loaded from pre-written scripts library — review before generating.
             </div>
           )}
         </div>
@@ -263,7 +347,7 @@ export default function AnimationsAdminPage() {
             onClick={handleParseScript}
             className="px-4 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 transition-colors"
           >
-            Parse Script →
+            {scriptSource ? 'Re-parse Script →' : 'Parse Script →'}
           </button>
         </div>
 
