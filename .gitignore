@@ -79,3 +79,4 @@ functions/lib/
 # Temporary files
 *.log
 *.tmp
+.vercel

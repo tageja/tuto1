@@ -113,6 +113,7 @@ export type StepType =
   | 'mission'
   | 'scenario_intro'
   | 'self_reflection'
+  | 'conversation_animation'
 
 export type LessonStage = 'heads_up' | 'heads_down' | 'heads_together' | 'assessment'
 
