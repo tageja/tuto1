@@ -1,24 +1,31 @@
 'use client'
 
 import { useCallback, useRef, useState } from 'react'
-import { Upload, CheckCircle, AlertCircle, Loader2, Film, X } from 'lucide-react'
+import { Upload, CheckCircle, AlertCircle, Loader2, Film, X, Sparkles, BookOpen, Subtitles } from 'lucide-react'
+import type { AnimationSegment } from '@/components/animations/types'
 
 interface Props {
   stepId: string
   stepTitle: string
+  segments?: AnimationSegment[]
   onUploaded: (videoUrl: string) => void
 }
 
 type UploadState = 'idle' | 'uploading' | 'done' | 'error'
+type PracticeState = 'idle' | 'generating' | 'done' | 'error'
 
-export default function VideoUploader({ stepId, stepTitle, onUploaded }: Props) {
+export default function VideoUploader({ stepId, stepTitle, segments = [], onUploaded }: Props) {
   const [uploadState, setUploadState] = useState<UploadState>('idle')
+  const [practiceState, setPracticeState] = useState<PracticeState>('idle')
   const [progress, setProgress] = useState(0)
   const [videoUrl, setVideoUrl] = useState<string | null>(null)
   const [fileMeta, setFileMeta] = useState<{ name: string; sizeMb: string } | null>(null)
   const [error, setError] = useState('')
+  const [practiceError, setPracticeError] = useState('')
   const [updateType, setUpdateType] = useState(true)
   const [dragOver, setDragOver] = useState(false)
+  const [uploadMeta, setUploadMeta] = useState<{ vttGenerated: boolean; segmentsUsed: number } | null>(null)
+  const [practiceResult, setPracticeResult] = useState<{ quizQuestions: number; clozeLines: number } | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleFile = useCallback(async (file: File) => {
@@ -40,8 +47,10 @@ export default function VideoUploader({ stepId, stepTitle, onUploaded }: Props) 
     form.append('file', file)
     form.append('stepId', stepId)
     form.append('updateStepType', String(updateType))
+    if (segments.length) {
+      form.append('segments', JSON.stringify(segments))
+    }
 
-    // Fake incremental progress while uploading (XHR gives real progress, fetch doesn't)
     const ticker = setInterval(() => {
       setProgress(p => Math.min(p + 3, 88))
     }, 400)
@@ -61,13 +70,41 @@ export default function VideoUploader({ stepId, stepTitle, onUploaded }: Props) 
 
       setUploadState('done')
       setVideoUrl(data.videoUrl)
+      setUploadMeta({ vttGenerated: data.vttGenerated, segmentsUsed: data.segmentsUsed ?? 0 })
       onUploaded(data.videoUrl)
     } catch (e) {
       clearInterval(ticker)
       setUploadState('error')
       setError(e instanceof Error ? e.message : 'Upload failed')
     }
-  }, [stepId, updateType, onUploaded])
+  }, [stepId, updateType, segments, onUploaded])
+
+  const handleGeneratePractice = async () => {
+    if (!segments.length) return
+    setPracticeState('generating')
+    setPracticeError('')
+
+    try {
+      const res = await fetch('/api/steps/generate-practice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stepId, segments }),
+      })
+      const data = await res.json()
+
+      if (!res.ok || data.error) {
+        setPracticeState('error')
+        setPracticeError(data.error ?? 'Generation failed')
+        return
+      }
+
+      setPracticeState('done')
+      setPracticeResult({ quizQuestions: data.quizQuestions, clozeLines: data.clozeLines })
+    } catch (e) {
+      setPracticeState('error')
+      setPracticeError(e instanceof Error ? e.message : 'Generation failed')
+    }
+  }
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -82,6 +119,9 @@ export default function VideoUploader({ stepId, stepTitle, onUploaded }: Props) 
     setVideoUrl(null)
     setFileMeta(null)
     setError('')
+    setUploadMeta(null)
+    setPracticeState('idle')
+    setPracticeResult(null)
     if (inputRef.current) inputRef.current.value = ''
   }
 
@@ -124,6 +164,11 @@ export default function VideoUploader({ stepId, stepTitle, onUploaded }: Props) 
           <p className="text-xs text-gray-400 mt-1">
             Will upload to Supabase and link to: <span className="font-mono text-gray-500 truncate">{stepTitle}</span>
           </p>
+          {segments.length > 0 && (
+            <p className="text-xs text-purple-500 mt-2">
+              ✓ {segments.length} script segments ready — VTT subtitles + practice steps will auto-generate
+            </p>
+          )}
           <input
             ref={inputRef}
             type="file"
@@ -156,24 +201,92 @@ export default function VideoUploader({ stepId, stepTitle, onUploaded }: Props) 
 
       {/* Done */}
       {uploadState === 'done' && videoUrl && (
-        <div className="border border-green-200 bg-green-50 rounded-xl p-4 space-y-3">
-          <div className="flex items-start gap-3">
-            <CheckCircle size={18} className="text-green-600 shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-green-800">Video uploaded successfully!</p>
-              <p className="text-xs text-green-700 mt-0.5">{fileMeta?.name} · {fileMeta?.sizeMb} MB</p>
-              <p className="text-xs text-gray-500 mt-1 truncate font-mono">{videoUrl}</p>
+        <div className="space-y-3">
+          <div className="border border-green-200 bg-green-50 rounded-xl p-4 space-y-3">
+            <div className="flex items-start gap-3">
+              <CheckCircle size={18} className="text-green-600 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-green-800">Video uploaded successfully!</p>
+                <p className="text-xs text-green-700 mt-0.5">{fileMeta?.name} · {fileMeta?.sizeMb} MB</p>
+
+                {/* VTT indicator */}
+                {uploadMeta && (
+                  <div className="flex items-center gap-1.5 mt-1.5">
+                    <Subtitles size={12} className={uploadMeta.vttGenerated ? 'text-blue-500' : 'text-gray-400'} />
+                    <span className={`text-xs ${uploadMeta.vttGenerated ? 'text-blue-600' : 'text-gray-400'}`}>
+                      {uploadMeta.vttGenerated
+                        ? `Vietnamese subtitles auto-generated (${uploadMeta.segmentsUsed} lines)`
+                        : 'No script segments — VTT not generated'}
+                    </span>
+                  </div>
+                )}
+
+                <p className="text-xs text-gray-400 mt-1 truncate font-mono">{videoUrl}</p>
+              </div>
+              <button onClick={reset} className="text-gray-400 hover:text-gray-600">
+                <X size={16} />
+              </button>
             </div>
-            <button onClick={reset} className="text-gray-400 hover:text-gray-600">
-              <X size={16} />
-            </button>
+
+            {/* Mini player */}
+            <video src={videoUrl} controls className="w-full rounded-lg max-h-48 bg-black" />
           </div>
-          {/* Mini player */}
-          <video
-            src={videoUrl}
-            controls
-            className="w-full rounded-lg max-h-48 bg-black"
-          />
+
+          {/* Generate Practice Steps */}
+          {segments.length > 0 && (
+            <div className="border border-blue-200 bg-blue-50 rounded-xl p-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <BookOpen size={16} className="text-blue-500 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-blue-800">Add Practice Activities</p>
+                  <p className="text-xs text-blue-700 mt-0.5">
+                    Auto-generate a phrase-matching quiz and fill-in-the-blank exercise from the dialogue script.
+                    Both will be added as new steps right after this video.
+                  </p>
+                </div>
+              </div>
+
+              {practiceState === 'idle' && (
+                <button
+                  onClick={handleGeneratePractice}
+                  className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  <Sparkles size={14} />
+                  Generate Practice Steps
+                </button>
+              )}
+
+              {practiceState === 'generating' && (
+                <div className="flex items-center gap-2 text-blue-700 text-sm justify-center py-1">
+                  <Loader2 size={14} className="animate-spin" />
+                  Generating quiz + cloze steps…
+                </div>
+              )}
+
+              {practiceState === 'done' && practiceResult && (
+                <div className="flex items-center gap-2 text-green-700 text-sm">
+                  <CheckCircle size={14} />
+                  <span>
+                    Created: quiz ({practiceResult.quizQuestions} questions) + cloze ({practiceResult.clozeLines} blanks).
+                    Reload the lesson steps page to see them.
+                  </span>
+                </div>
+              )}
+
+              {practiceState === 'error' && (
+                <div className="flex items-center gap-2 text-red-700 text-sm">
+                  <AlertCircle size={14} />
+                  <span>{practiceError}</span>
+                  <button
+                    onClick={() => setPracticeState('idle')}
+                    className="ml-auto text-xs underline"
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 

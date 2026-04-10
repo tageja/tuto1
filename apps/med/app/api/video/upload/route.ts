@@ -1,15 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServiceClient } from '@/lib/supabase'
+import type { AnimationSegment } from '@/components/animations/types'
 
 const BUCKET = 'nursed-assets'
 const MAX_SIZE_BYTES = 200 * 1024 * 1024 // 200 MB
 
+// ── VTT helpers ──────────────────────────────────────────────────
+
+function toVttTime(seconds: number): string {
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const wholeS = Math.floor(seconds % 60)
+  const ms = Math.round((seconds % 1) * 1000)
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(wholeS).padStart(2, '0')}.${String(ms).padStart(3, '0')}`
+}
+
+function buildViVtt(segments: AnimationSegment[]): string {
+  const lines: string[] = ['WEBVTT', '']
+  let t = 0.5 // 0.5 s lead-in
+
+  segments.forEach((seg) => {
+    const words = seg.text.split(/\s+/).length
+    const dur = Math.max(1.8, words * 0.38)
+
+    if (seg.vi_text) {
+      lines.push(`${toVttTime(t)} --> ${toVttTime(t + dur)}`)
+      lines.push(seg.vi_text)
+      lines.push('')
+    }
+    t += dur + 0.35 // gap between lines
+  })
+
+  return lines.join('\n')
+}
+
 /**
  * POST /api/video/upload
  * multipart/form-data:
- *   file     — video file (mp4 / webm)
- *   stepId   — nursed_lesson_steps.id to attach to
- *   stepType — optional: if 'video', update step type too (default keeps existing type)
+ *   file        — video file (mp4 / webm / mov)
+ *   stepId      — nursed_lesson_steps.id to attach to
+ *   updateStepType — 'true' → change step type to 'video'
+ *   segments    — optional JSON string: AnimationSegment[] for auto VTT
  */
 export async function POST(req: NextRequest) {
   try {
@@ -17,6 +48,7 @@ export async function POST(req: NextRequest) {
     const file = formData.get('file') as File | null
     const stepId = formData.get('stepId') as string | null
     const updateStepType = formData.get('updateStepType') === 'true'
+    const segmentsJson = formData.get('segments') as string | null
 
     if (!file || !stepId) {
       return NextResponse.json({ error: 'file and stepId are required' }, { status: 400 })
@@ -68,12 +100,26 @@ export async function POST(req: NextRequest) {
     const { data: urlData } = db.storage.from(BUCKET).getPublicUrl(storagePath)
     const videoUrl = urlData.publicUrl
 
+    // Parse segments for VTT generation (from form data or existing manifest)
+    let segments: AnimationSegment[] = []
+    if (segmentsJson) {
+      try { segments = JSON.parse(segmentsJson) } catch { /* ignore parse errors */ }
+    }
+    if (!segments.length) {
+      // Fall back to segments already stored in the step's animation_manifest
+      const manifest = (step.config as Record<string, unknown> | null)?.animation_manifest as { segments?: AnimationSegment[] } | undefined
+      if (manifest?.segments?.length) segments = manifest.segments
+    }
+
+    const viVtt = segments.length ? buildViVtt(segments) : null
+
     // Merge videoUrl into step config
-    const updatedConfig = {
+    const updatedConfig: Record<string, unknown> = {
       ...(step.config as Record<string, unknown> ?? {}),
       videoUrl,
       heygen_video: true,
     }
+    if (viVtt) updatedConfig.subtitle_vtt_vi = viVtt
 
     const updatePayload: Record<string, unknown> = { config: updatedConfig }
     if (updateStepType) updatePayload.type = 'video'
@@ -95,6 +141,8 @@ export async function POST(req: NextRequest) {
       videoUrl,
       fileSizeMb: (file.size / 1024 / 1024).toFixed(2),
       stepId,
+      vttGenerated: !!viVtt,
+      segmentsUsed: segments.length,
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
