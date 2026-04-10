@@ -16,6 +16,7 @@ import QuizStep from './steps/QuizStep'
 import MissionStep from './steps/MissionStep'
 import ScenarioIntroStep from './steps/ScenarioIntroStep'
 import SelfReflectionStep from './steps/SelfReflectionStep'
+import ConversationAnimationStep from './steps/ConversationAnimationStep'
 
 interface Props {
   lesson: NursedLesson & { nursed_lesson_steps?: NursedLessonStep[] }
@@ -62,6 +63,7 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
     mission: t.stepTypeMissionLabel,
     scenario_intro: t.stepTypeScenarioIntroLabel,
     self_reflection: t.stepTypeSelfReflectionLabel,
+    conversation_animation: '🎬 Animation',
   }
 
   const stage = lesson?.stage as LessonStage | null
@@ -161,6 +163,8 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
         return <ScenarioIntroStep step={currentStep} onComplete={handleStepComplete} />
       case 'self_reflection':
         return <SelfReflectionStep step={currentStep} onComplete={handleStepComplete} />
+      case 'conversation_animation':
+        return <ConversationAnimationStep step={currentStep} onComplete={handleStepComplete} />
       default:
         return (
           <div className="card p-8 text-center text-text-muted">
