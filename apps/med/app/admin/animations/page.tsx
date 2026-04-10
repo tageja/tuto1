@@ -1,8 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Wand2, Play, Loader2, CheckCircle, AlertCircle, Plus, Trash2, ChevronDown, Sparkles } from 'lucide-react'
+import { Wand2, Play, Loader2, CheckCircle, AlertCircle, Plus, Trash2, ChevronDown, Sparkles, Film } from 'lucide-react'
 import ConversationAnimator from '@/components/animations/ConversationAnimator'
+import HeyGenPrompt from '@/components/admin/HeyGenPrompt'
+import VideoUploader from '@/components/admin/VideoUploader'
 import type { AnimationSegment, AnimationManifest, Speaker } from '@/components/animations/types'
 import { findScript } from '@/data/animation-scripts'
 
@@ -90,6 +92,9 @@ export default function AnimationsAdminPage() {
   const [genResult, setGenResult] = useState<{ generated: number; total: number } | null>(null)
   const [genError, setGenError] = useState('')
   const [showPreview, setShowPreview] = useState(false)
+
+  // Mode: 'custom' = Fish Audio + SVG avatars, 'heygen' = HeyGen prompt + video upload
+  const [mode, setMode] = useState<'custom' | 'heygen'>('custom')
 
   // Load courses
   useEffect(() => {
@@ -235,15 +240,41 @@ export default function AnimationsAdminPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
 
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Wand2 className="text-primary" size={24} />
-            Animation Builder
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Create synced conversation animations with Fish Audio voice generation
-          </p>
+        {/* Header + Mode Toggle */}
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <Wand2 className="text-primary" size={24} />
+              Animation Builder
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              {mode === 'custom'
+                ? 'Custom animated avatars with Fish Audio voice generation'
+                : 'Generate a HeyGen prompt and upload the finished video'}
+            </p>
+          </div>
+
+          {/* Mode toggle */}
+          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl shrink-0">
+            <button
+              onClick={() => setMode('custom')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                mode === 'custom' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <Wand2 size={15} />
+              Custom Animation
+            </button>
+            <button
+              onClick={() => setMode('heygen')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                mode === 'heygen' ? 'bg-white shadow text-purple-700' : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <Film size={15} />
+              HeyGen Video
+            </button>
+          </div>
         </div>
 
         {/* ── Step Selector ── */}
@@ -415,8 +446,8 @@ export default function AnimationsAdminPage() {
           </div>
         )}
 
-        {/* ── Actions ── */}
-        {segments.length > 0 && (
+        {/* ── Custom mode: Actions ── */}
+        {mode === 'custom' && segments.length > 0 && (
           <div className="flex flex-wrap gap-3">
             <button
               onClick={handlePreviewOnly}
@@ -443,21 +474,21 @@ export default function AnimationsAdminPage() {
         )}
 
         {/* Generation status */}
-        {genStatus === 'done' && genResult && (
+        {mode === 'custom' && genStatus === 'done' && genResult && (
           <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 px-4 py-3 rounded-xl border border-green-200">
             <CheckCircle size={16} />
             Generated {genResult.generated}/{genResult.total} audio clips and saved manifest to step config.
           </div>
         )}
-        {genStatus === 'error' && (
+        {mode === 'custom' && genStatus === 'error' && (
           <div className="flex items-center gap-2 text-sm text-red-700 bg-red-50 px-4 py-3 rounded-xl border border-red-200">
             <AlertCircle size={16} />
             {genError}
           </div>
         )}
 
-        {/* ── Preview ── */}
-        {showPreview && previewManifest && (
+        {/* ── Custom mode: Preview ── */}
+        {mode === 'custom' && showPreview && previewManifest && (
           <div className="space-y-3">
             <h2 className="font-semibold text-gray-800">Preview</h2>
             <ConversationAnimator
@@ -466,6 +497,67 @@ export default function AnimationsAdminPage() {
             />
           </div>
         )}
+
+        {/* ── HeyGen mode ── */}
+        {mode === 'heygen' && segments.length > 0 && (() => {
+          const lesson = lessons.find(l => l.id === selectedLesson)
+          const step = steps.find(s => s.id === selectedStep)
+          return (
+            <>
+              {/* Prompt generator */}
+              <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
+                <div>
+                  <h2 className="font-semibold text-gray-800 flex items-center gap-2">
+                    <Film size={16} className="text-purple-500" />
+                    3. HeyGen Prompt
+                  </h2>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Copy this prompt into HeyGen, generate your video, then upload it below.
+                  </p>
+                </div>
+                <HeyGenPrompt
+                  lessonTitle={lesson?.title ?? ''}
+                  stepTitle={step?.title ?? ''}
+                  sceneSetting={sceneSetting}
+                  segments={segments}
+                />
+              </div>
+
+              {/* Video uploader */}
+              {selectedStep && (
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
+                  <div>
+                    <h2 className="font-semibold text-gray-800">4. Upload HeyGen Video</h2>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Upload the finished MP4 — it will be compressed, stored in Supabase, and linked to this step automatically.
+                    </p>
+                  </div>
+                  <VideoUploader
+                    stepId={selectedStep}
+                    stepTitle={step?.title ?? selectedStep}
+                    onUploaded={(url) => {
+                      // Show success inline
+                      console.log('Video linked to step:', url)
+                    }}
+                  />
+                </div>
+              )}
+            </>
+          )
+        })()}
+
+        {mode === 'heygen' && !selectedStep && (
+          <div className="bg-purple-50 border border-purple-200 rounded-2xl p-6 text-center text-purple-700 text-sm">
+            Select a course, lesson, and step above to generate a HeyGen prompt.
+          </div>
+        )}
+
+        {mode === 'heygen' && selectedStep && segments.length === 0 && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center text-amber-700 text-sm">
+            Parse the script (step 2) first — the HeyGen prompt will be generated from it.
+          </div>
+        )}
+
       </div>
     </div>
   )
