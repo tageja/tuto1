@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, BookOpen, Users, X } from 'lucide-react'
+import { Home, BookOpen, Users, X, LogOut } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface Props {
   isOpen?: boolean
@@ -19,6 +20,7 @@ const NAV_HREFS = [
 export default function LearnerSidebar({ isOpen = false, onClose }: Props) {
   const pathname = usePathname()
   const { t, lang, toggleLang } = useLang()
+  const { profile, signOut } = useAuth()
 
   const isActive = (href: string) => {
     if (href === '/learn') return pathname === '/learn'
@@ -52,7 +54,9 @@ export default function LearnerSidebar({ isOpen = false, onClose }: Props) {
 
       {/* User greeting */}
       <div className="px-4 py-4 border-b border-border">
-        <p className="text-sm font-medium text-text">{t.greeting}</p>
+        <p className="text-sm font-medium text-text">
+          {profile?.full_name ? `Xin chào, ${profile.full_name.split(' ').pop()}` : t.greeting}
+        </p>
         <p className="text-xs text-text-muted mt-0.5">{t.greetingSub}</p>
       </div>
 
@@ -86,7 +90,7 @@ export default function LearnerSidebar({ isOpen = false, onClose }: Props) {
         </div>
       </div>
 
-      {/* Partner logo + language toggle */}
+      {/* Partner logo + language toggle + logout */}
       <div className="px-4 py-4 border-t border-border space-y-3">
         <div className="rounded-lg bg-white border border-border px-3 py-3 flex flex-col items-center gap-1">
           <span className="text-[10px] text-text-muted tracking-widest uppercase font-semibold">In partnership with</span>
@@ -96,6 +100,13 @@ export default function LearnerSidebar({ isOpen = false, onClose }: Props) {
           <span className={lang === 'en' ? 'text-primary font-bold' : ''}>{t.langToggleEn}</span>
           <span className="text-border mx-1">|</span>
           <span className={lang === 'vi' ? 'text-primary font-bold' : ''}>{t.langToggleVi}</span>
+        </button>
+        <button
+          onClick={signOut}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border text-xs font-medium text-text-muted hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all w-full justify-center"
+        >
+          <LogOut size={13} />
+          Đăng xuất / Sign out
         </button>
       </div>
     </aside>

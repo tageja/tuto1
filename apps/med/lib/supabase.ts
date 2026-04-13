@@ -27,6 +27,7 @@ export function getAnonClient() {
 export type Database = {
   public: {
     Tables: {
+      nursed_profiles: { Row: NursedProfile; Insert: Omit<NursedProfile, 'created_at'>; Update: Partial<NursedProfile> }
       nursed_hospitals: { Row: NursedHospital; Insert: Omit<NursedHospital, 'id' | 'created_at'>; Update: Partial<NursedHospital> }
       nursed_courses: { Row: NursedCourse; Insert: Omit<NursedCourse, 'id' | 'created_at' | 'updated_at'>; Update: Partial<NursedCourse> }
       nursed_modules: { Row: NursedModule; Insert: Omit<NursedModule, 'id' | 'created_at'>; Update: Partial<NursedModule> }
@@ -41,6 +42,17 @@ export type Database = {
       nursed_pair_sessions: { Row: NursedPairSession; Insert: Omit<NursedPairSession, 'id' | 'created_at'>; Update: Partial<NursedPairSession> }
     }
   }
+}
+
+export type UserRole = 'learner' | 'teacher' | 'hospital_admin' | 'super_admin'
+
+export type NursedProfile = {
+  id: string
+  full_name: string | null
+  hospital_id: string | null
+  role: UserRole
+  avatar_url: string | null
+  created_at: string
 }
 
 export type NursedHospital = {
