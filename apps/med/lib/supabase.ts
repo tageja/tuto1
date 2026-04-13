@@ -114,6 +114,21 @@ export type StepType =
   | 'scenario_intro'
   | 'self_reflection'
   | 'conversation_animation'
+  | 'matching'
+  | 'drag_order'
+  | 'flash_card'
+
+/**
+ * Config shapes for the three new interactive step types.
+ * These are used in NursedLessonStep.config (Record<string, unknown>).
+ *
+ * matching:   config.pairs    — [{ en: string; vi: string }]
+ * drag_order: config.lines    — string[] in correct order; player shuffles on render
+ * flash_card: config.cards    — [{ front_en: string; back_vi: string; audio_url?: string }]
+ * cloze (enhanced): config.wordBank — boolean; true = chip-tap mode instead of typed input
+ */
+export type MatchingPair = { en: string; vi: string }
+export type FlashCard = { front_en: string; back_vi: string; audio_url?: string }
 
 export type LessonStage = 'heads_up' | 'heads_down' | 'heads_together' | 'assessment'
 

@@ -17,6 +17,9 @@ import MissionStep from './steps/MissionStep'
 import ScenarioIntroStep from './steps/ScenarioIntroStep'
 import SelfReflectionStep from './steps/SelfReflectionStep'
 import ConversationAnimationStep from './steps/ConversationAnimationStep'
+import MatchingStep from './steps/MatchingStep'
+import DragOrderStep from './steps/DragOrderStep'
+import FlashCardStep from './steps/FlashCardStep'
 
 interface Props {
   lesson: NursedLesson & { nursed_lesson_steps?: NursedLessonStep[] }
@@ -64,6 +67,9 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
     scenario_intro: t.stepTypeScenarioIntroLabel,
     self_reflection: t.stepTypeSelfReflectionLabel,
     conversation_animation: '🎬 Animation',
+    matching: t.stepTypeMatchingLabel,
+    drag_order: t.stepTypeDragOrderLabel,
+    flash_card: t.stepTypeFlashCardLabel,
   }
 
   const stage = lesson?.stage as LessonStage | null
@@ -165,6 +171,12 @@ export default function LessonPlayer({ lesson, courseId }: Props) {
         return <SelfReflectionStep step={currentStep} onComplete={handleStepComplete} />
       case 'conversation_animation':
         return <ConversationAnimationStep step={currentStep} onComplete={handleStepComplete} />
+      case 'matching':
+        return <MatchingStep step={currentStep} onComplete={handleStepComplete} />
+      case 'drag_order':
+        return <DragOrderStep step={currentStep} onComplete={handleStepComplete} />
+      case 'flash_card':
+        return <FlashCardStep step={currentStep} onComplete={handleStepComplete} />
       default:
         return (
           <div className="card p-8 text-center text-text-muted">

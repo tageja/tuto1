@@ -535,6 +535,35 @@ const en = {
   // ─── New step type labels (lesson player) ─────────────────────
   stepTypeScenarioIntroLabel: '🏥 Scenario',
   stepTypeSelfReflectionLabel: '💭 Reflect',
+  stepTypeMatchingLabel: '🔗 Matching',
+  stepTypeDragOrderLabel: '↕️ Order',
+  stepTypeFlashCardLabel: '🃏 Flash Cards',
+
+  // ─── Matching Step ─────────────────────────────────────────────
+  matchingTitleFallback: 'Match the Phrases',
+  matchingSubtitle: 'Match each English phrase to its Vietnamese meaning.',
+  matchingComingSoon: '🚧 Interactive matching coming soon — review the pairs below to prepare.',
+  matchingEditorHint: 'One pair per line: English phrase | Vietnamese meaning',
+
+  // ─── Drag Order Step ───────────────────────────────────────────
+  dragOrderTitleFallback: 'Put It in Order',
+  dragOrderSubtitle: 'Arrange the dialogue lines into the correct sequence.',
+  dragOrderComingSoon: '🚧 Drag-to-order exercise coming soon — read the correct sequence below to prepare.',
+  dragOrderEditorHint: 'One line per row in the correct order. The player will shuffle them for the learner.',
+
+  // ─── Flash Card Step ───────────────────────────────────────────
+  flashCardTitleFallback: 'Flash Cards',
+  flashCardSubtitle: 'Tap a card to reveal its Vietnamese translation.',
+  flashCardComingSoon: '🚧 Animated flip cards coming soon — tap to preview the translation now.',
+  flashCardTapToFlip: 'Tap to reveal Vietnamese',
+  flashCardTapToFlipBack: 'Tap to see English again',
+  flashCardEditorHint: 'One card per line: English front | Vietnamese back',
+
+  // ─── Shared exercise navigation ────────────────────────────────
+  btnSkipExercise: 'Skip exercise',
+  btnNext: 'Next',
+  btnPrev: 'Previous',
+  btnFinish: 'Finish',
 
   // ─── Hospital Dashboard (Admin) ────────────────────────────────
   navHospitalDashboard: 'Hospital Dashboard',
@@ -1199,6 +1228,35 @@ const vi = {
   // ─── New step type labels (lesson player) ─────────────────────
   stepTypeScenarioIntroLabel: '🏥 Tình huống',
   stepTypeSelfReflectionLabel: '💭 Suy ngẫm',
+  stepTypeMatchingLabel: '🔗 Ghép từ',
+  stepTypeDragOrderLabel: '↕️ Sắp xếp',
+  stepTypeFlashCardLabel: '🃏 Thẻ học',
+
+  // ─── Matching Step ─────────────────────────────────────────────
+  matchingTitleFallback: 'Ghép cụm từ',
+  matchingSubtitle: 'Ghép mỗi cụm từ tiếng Anh với nghĩa tiếng Việt tương ứng.',
+  matchingComingSoon: '🚧 Bài tập ghép từ tương tác sắp ra mắt — xem lại các cặp từ bên dưới để chuẩn bị.',
+  matchingEditorHint: 'Mỗi dòng một cặp: Cụm từ tiếng Anh | Nghĩa tiếng Việt',
+
+  // ─── Drag Order Step ───────────────────────────────────────────
+  dragOrderTitleFallback: 'Sắp xếp thứ tự',
+  dragOrderSubtitle: 'Sắp xếp các câu thoại theo đúng thứ tự.',
+  dragOrderComingSoon: '🚧 Bài tập kéo-thả sắp xếp sắp ra mắt — đọc thứ tự đúng bên dưới để chuẩn bị.',
+  dragOrderEditorHint: 'Mỗi dòng một câu thoại theo thứ tự đúng. Hệ thống sẽ xáo trộn thứ tự cho học viên.',
+
+  // ─── Flash Card Step ───────────────────────────────────────────
+  flashCardTitleFallback: 'Thẻ học',
+  flashCardSubtitle: 'Nhấn vào thẻ để xem bản dịch tiếng Việt.',
+  flashCardComingSoon: '🚧 Thẻ học có hiệu ứng lật sắp ra mắt — nhấn để xem trước bản dịch.',
+  flashCardTapToFlip: 'Nhấn để xem tiếng Việt',
+  flashCardTapToFlipBack: 'Nhấn để xem lại tiếng Anh',
+  flashCardEditorHint: 'Mỗi dòng một thẻ: Mặt tiếng Anh | Mặt tiếng Việt',
+
+  // ─── Shared exercise navigation ────────────────────────────────
+  btnSkipExercise: 'Bỏ qua bài tập',
+  btnNext: 'Tiếp theo',
+  btnPrev: 'Quay lại',
+  btnFinish: 'Hoàn thành',
 
   // ─── Hospital Dashboard (Admin) ────────────────────────────────
   navHospitalDashboard: 'Dashboard Bệnh viện',

@@ -38,6 +38,9 @@ export function StepEditor({ step, onSave, onCancel }: StepEditorProps) {
     case 'mission': return <MissionEditor {...editorProps} />
     case 'scenario_intro': return <ScenarioIntroEditor {...editorProps} />
     case 'self_reflection': return <SelfReflectionEditor {...editorProps} />
+    case 'matching': return <MatchingEditor {...editorProps} />
+    case 'drag_order': return <DragOrderEditor {...editorProps} />
+    case 'flash_card': return <FlashCardEditor {...editorProps} />
     default: return <p className="text-sm text-text-muted">{t.unsupportedStepType}</p>
   }
 }
@@ -481,6 +484,106 @@ function SelfReflectionEditor({ step, onSubmit, saving, onCancel }: EditorProps)
         <Plus size={13} /> {t.btnAddPrompt}
       </button>
       <EditorActions saving={saving} onCancel={onCancel} onSave={() => onSubmit({ prompts })} />
+    </div>
+  )
+}
+
+// ─── Matching Editor ────────────────────────────────────────────────────────
+// Each line: "English phrase | Tiếng Việt"
+function MatchingEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
+  const { t } = useLang()
+  const existing = (step.config?.pairs as { en: string; vi: string }[] | undefined) ?? []
+  const [raw, setRaw] = useState(existing.map((p) => `${p.en} | ${p.vi}`).join('\n'))
+
+  function handleSave() {
+    const pairs = raw
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const [en, vi] = line.split('|').map((s) => s.trim())
+        return { en: en ?? '', vi: vi ?? '' }
+      })
+      .filter((p) => p.en && p.vi)
+    onSubmit({ pairs })
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-text-muted">{t.matchingEditorHint}</p>
+      <textarea
+        className="input resize-none text-sm font-mono"
+        rows={8}
+        value={raw}
+        onChange={(e) => setRaw(e.target.value)}
+        placeholder={"Good morning, how can I help you? | Chào buổi sáng, tôi có thể giúp gì cho bạn?\nPlease take a seat. | Mời bạn ngồi xuống."}
+      />
+      <EditorActions saving={saving} onCancel={onCancel} onSave={handleSave} />
+    </div>
+  )
+}
+
+// ─── Drag Order Editor ───────────────────────────────────────────────────────
+// One dialogue line per row — stored in correct order; player shuffles on render
+function DragOrderEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
+  const { t } = useLang()
+  const existing = (step.config?.lines as string[] | undefined) ?? []
+  const [raw, setRaw] = useState(existing.join('\n'))
+
+  function handleSave() {
+    const lines = raw
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean)
+    onSubmit({ lines })
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-text-muted">{t.dragOrderEditorHint}</p>
+      <textarea
+        className="input resize-none text-sm font-mono"
+        rows={8}
+        value={raw}
+        onChange={(e) => setRaw(e.target.value)}
+        placeholder={"Nurse: Good morning. How can I help you?\nPatient: I have a headache.\nNurse: How long have you had this?"}
+      />
+      <EditorActions saving={saving} onCancel={onCancel} onSave={handleSave} />
+    </div>
+  )
+}
+
+// ─── Flash Card Editor ───────────────────────────────────────────────────────
+// Each line: "English front | Vietnamese back"  (audio_url optional, not editable here yet)
+function FlashCardEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
+  const { t } = useLang()
+  const existing = (step.config?.cards as { front_en: string; back_vi: string; audio_url?: string }[] | undefined) ?? []
+  const [raw, setRaw] = useState(existing.map((c) => `${c.front_en} | ${c.back_vi}`).join('\n'))
+
+  function handleSave() {
+    const cards = raw
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const [front_en, back_vi] = line.split('|').map((s) => s.trim())
+        return { front_en: front_en ?? '', back_vi: back_vi ?? '' }
+      })
+      .filter((c) => c.front_en && c.back_vi)
+    onSubmit({ cards })
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-text-muted">{t.flashCardEditorHint}</p>
+      <textarea
+        className="input resize-none text-sm font-mono"
+        rows={8}
+        value={raw}
+        onChange={(e) => setRaw(e.target.value)}
+        placeholder={"Good morning, how can I help you? | Chào buổi sáng, tôi có thể giúp gì cho bạn?\nPlease take a seat. | Mời bạn ngồi xuống."}
+      />
+      <EditorActions saving={saving} onCancel={onCancel} onSave={handleSave} />
     </div>
   )
 }

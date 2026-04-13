@@ -21,6 +21,9 @@ const TYPE_BADGE: Record<StepType, string> = {
   scenario_intro: 'badge-red',
   self_reflection: 'badge-green',
   conversation_animation: 'badge-blue',
+  matching: 'badge-blue',
+  drag_order: 'badge-yellow',
+  flash_card: 'badge-green',
 }
 
 const STAGE_COLORS: Record<string, string> = {
@@ -68,6 +71,9 @@ export default function LessonBuilderPage() {
     { value: 'mission', label: t.stepTypeMission },
     { value: 'self_reflection', label: t.stepTypeSelfReflection },
     { value: 'video', label: t.stepTypeVideo },
+    { value: 'matching', label: t.stepTypeMatchingLabel },
+    { value: 'drag_order', label: t.stepTypeDragOrderLabel },
+    { value: 'flash_card', label: t.stepTypeFlashCardLabel },
   ]
 
   const TYPE_LABEL: Record<StepType, string> = {
@@ -82,6 +88,9 @@ export default function LessonBuilderPage() {
     scenario_intro: t.stepTypeScenarioIntro,
     self_reflection: t.stepTypeSelfReflection,
     conversation_animation: '🎬 Animation',
+    matching: t.stepTypeMatchingLabel,
+    drag_order: t.stepTypeDragOrderLabel,
+    flash_card: t.stepTypeFlashCardLabel,
   }
 
   useEffect(() => {
