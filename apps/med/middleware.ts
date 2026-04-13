@@ -4,6 +4,13 @@ import { NextResponse, type NextRequest } from 'next/server'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
+/**
+ * Set NEXT_PUBLIC_AUTH_DISABLED=true in .env.local to bypass all auth checks.
+ * Useful for local testing / QA without a live Supabase session.
+ * Never set this in production.
+ */
+const AUTH_DISABLED = process.env.NEXT_PUBLIC_AUTH_DISABLED === 'true'
+
 /** Routes that require authentication */
 const PROTECTED_PREFIXES = ['/learn', '/admin']
 
@@ -12,6 +19,12 @@ const AUTH_PREFIXES = ['/auth/login', '/auth/register']
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
+
+  // ── Dev/test bypass ────────────────────────────────────────────────────────
+  // When AUTH_DISABLED is true all routes are open; session is still refreshed
+  // so auth pages themselves continue to work for auth feature testing.
+  if (AUTH_DISABLED) return supabaseResponse
+  // ──────────────────────────────────────────────────────────────────────────
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {

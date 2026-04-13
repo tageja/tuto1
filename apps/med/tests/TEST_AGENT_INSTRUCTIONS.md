@@ -31,20 +31,44 @@ Wait for `Ready in Xms` — server is on **http://localhost:3001**.
 
 ## Step 2 — One-Time Setup
 
-### Create a test learner account
-1. Navigate to http://localhost:3001/auth/register
-2. Register with: **Full name:** Test Nurse | **Email:** any valid email | **Password:** testpass123
-3. Check the email inbox and click the confirmation link
-4. You are now logged in as a **learner**
+### Required: create `apps/med/.env.local`
 
-### Promote to super_admin for admin tests
-Run this in Supabase SQL Editor (or via the Supabase dashboard > Table Editor > nursed_profiles):
+Create (or update) the file `apps/med/.env.local` with these values:
+
+```env
+# Supabase — get these from the Vercel dashboard or Supabase project settings
+NEXT_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
+
+# Optional — only needed for write operations (create/update/delete in admin)
+# Without this key, all READ API routes still work via the anon key fallback
+SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
+
+# ── TESTING BYPASS ──────────────────────────────────────────────────────────
+# Set this to 'true' to skip all authentication checks.
+# /learn/** and /admin/** are accessible without login.
+# Remove or set to 'false' before deploying to production.
+NEXT_PUBLIC_AUTH_DISABLED=true
+```
+
+With `NEXT_PUBLIC_AUTH_DISABLED=true`:
+- All `/learn/**` and `/admin/**` pages load without needing a session
+- Auth pages (`/auth/login`, `/auth/register`, `/auth/verify`) still work for testing auth features
+- Admin role guard is bypassed — admin pages render directly
+
+### Optional: create a test learner account (for auth feature tests T009–T025)
+1. Set `NEXT_PUBLIC_AUTH_DISABLED=false` (or remove it) temporarily
+2. Navigate to http://localhost:3001/auth/register
+3. Register with: **Full name:** Test Nurse | **Email:** any valid email | **Password:** testpass123
+4. Verify via the email link from Supabase
+5. Re-enable `NEXT_PUBLIC_AUTH_DISABLED=true` for the rest of testing
+
+### Optional: promote to super_admin (for role guard tests T026–T031 only)
 ```sql
 UPDATE nursed_profiles 
 SET role = 'super_admin' 
 WHERE id = '<your-user-id>';
 ```
-Get your user ID from: Supabase dashboard → Authentication → Users
 
 ### Create test step data for interactive exercise tests
 For tests T062–T091 you need steps of type `matching`, `drag_order`, `flash_card`, and a `cloze` step with `wordBank: true` in its config. Create these via:

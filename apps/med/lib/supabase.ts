@@ -3,16 +3,21 @@ import { createBrowserClient } from '@supabase/ssr'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 /** Browser client — use in client components */
 export function getBrowserClient() {
   return createBrowserClient(supabaseUrl, supabaseAnonKey)
 }
 
-/** Service-role client — use ONLY in API routes / server components */
+/**
+ * Service-role client — bypasses RLS. Use ONLY in API routes / server components.
+ * Falls back to the anon key when SUPABASE_SERVICE_ROLE_KEY is not set (local dev/testing).
+ * RLS is currently open on all tables, so anon reads work fine in both environments.
+ */
 export function getServiceClient() {
-  return createClient(supabaseUrl, supabaseServiceKey, {
+  const key = supabaseServiceKey ?? supabaseAnonKey
+  return createClient(supabaseUrl, key, {
     auth: { persistSession: false },
   })
 }
