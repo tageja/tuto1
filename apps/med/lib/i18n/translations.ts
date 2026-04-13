@@ -565,6 +565,25 @@ const en = {
   btnPrev: 'Previous',
   btnFinish: 'Finish',
 
+  // ─── Matching Step — Phase 2 ───────────────────────────────────
+  matchingHint: 'Tap an English phrase, then tap its Vietnamese match.',
+  matchingAllMatched: 'All matched! Well done.',
+  matchingScore: '{matched} / {total} pairs matched',
+
+  // ─── Drag Order Step — Phase 2 ────────────────────────────────
+  dragOrderCheckBtn: 'Check Order',
+  dragOrderScore: '{correct} / {total} lines in the right place',
+
+  // ─── Flash Card Step — Phase 2 ────────────────────────────────
+  flashCardGotIt: 'Got it',
+  flashCardStillLearning: 'Still learning',
+  flashCardSummary: '{got} / {total} cards mastered',
+
+  // ─── Cloze Word Bank — Phase 2 ────────────────────────────────
+  clozeWordBankLabel: 'Word bank — tap to fill',
+  clozeWordBankSubtitle: 'Tap a word to place it. Tap a placed word to return it to the bank.',
+  clozeWordBankEmpty: 'All words placed',
+
   // ─── Hospital Dashboard (Admin) ────────────────────────────────
   navHospitalDashboard: 'Hospital Dashboard',
   hospDashTitle: 'Hospital Dashboard',
@@ -1257,6 +1276,25 @@ const vi = {
   btnNext: 'Tiếp theo',
   btnPrev: 'Quay lại',
   btnFinish: 'Hoàn thành',
+
+  // ─── Matching Step — Phase 2 ───────────────────────────────────
+  matchingHint: 'Nhấn một cụm từ tiếng Anh, rồi nhấn nghĩa tiếng Việt tương ứng.',
+  matchingAllMatched: 'Ghép hết rồi! Giỏi lắm.',
+  matchingScore: '{matched} / {total} cặp đã ghép đúng',
+
+  // ─── Drag Order Step — Phase 2 ────────────────────────────────
+  dragOrderCheckBtn: 'Kiểm tra thứ tự',
+  dragOrderScore: '{correct} / {total} dòng đúng vị trí',
+
+  // ─── Flash Card Step — Phase 2 ────────────────────────────────
+  flashCardGotIt: 'Nhớ rồi',
+  flashCardStillLearning: 'Còn đang học',
+  flashCardSummary: '{got} / {total} thẻ đã thuộc',
+
+  // ─── Cloze Word Bank — Phase 2 ────────────────────────────────
+  clozeWordBankLabel: 'Ngân hàng từ — nhấn để điền',
+  clozeWordBankSubtitle: 'Nhấn một từ để điền vào ô trống. Nhấn từ đã điền để trả lại.',
+  clozeWordBankEmpty: 'Đã điền hết từ',
 
   // ─── Hospital Dashboard (Admin) ────────────────────────────────
   navHospitalDashboard: 'Dashboard Bệnh viện',
