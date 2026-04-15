@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, BookOpen, Building2, Users, BarChart3, Activity, X, Mic } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Building2, Users, BarChart3, Activity, X, Mic, MessageSquare, LogOut, Gift } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface Props {
   isOpen?: boolean
@@ -13,6 +14,7 @@ interface Props {
 export function AdminSidebar({ isOpen = false, onClose }: Props) {
   const pathname = usePathname()
   const { t, lang, toggleLang } = useLang()
+  const { profile, signOut } = useAuth()
 
   const NAV_ITEMS = [
     { label: t.navOverview, href: '/admin', icon: LayoutDashboard },
@@ -21,7 +23,9 @@ export function AdminSidebar({ isOpen = false, onClose }: Props) {
     { label: t.navHospitalDashboard ?? 'Hospital Dashboard', href: '/admin/hospital', icon: Activity },
     { label: t.navStudents, href: '/admin/students', icon: Users },
     { label: t.navAnalytics, href: '/admin/analytics', icon: BarChart3 },
+    { label: t.navFeedback ?? 'Feedback', href: '/admin/feedback', icon: MessageSquare },
     { label: 'Audio Generation', href: '/admin/audio', icon: Mic },
+    { label: t.navCoupons ?? 'Coupons', href: '/admin/coupons', icon: Gift },
   ]
 
   const isActive = (href: string) => {
@@ -72,6 +76,13 @@ export function AdminSidebar({ isOpen = false, onClose }: Props) {
       </nav>
 
       <div className="px-4 py-4 border-t border-border space-y-3">
+        {/* Signed-in user */}
+        {profile && (
+          <div className="px-3 py-2.5 rounded-xl bg-surface border border-border">
+            <p className="text-xs font-semibold text-text truncate">{profile.full_name ?? 'Admin'}</p>
+            <p className="text-[10px] text-text-muted capitalize">{profile.role.replace('_', ' ')}</p>
+          </div>
+        )}
         <div className="rounded-lg bg-white border border-border px-3 py-3 flex flex-col items-center gap-1">
           <span className="text-[10px] text-text-muted tracking-widest uppercase font-semibold">In partnership with</span>
           <img src="/images/chir-logo.jpg" alt="chir" className="h-14 w-auto object-contain" style={{ maxWidth: 120 }} />
@@ -83,6 +94,13 @@ export function AdminSidebar({ isOpen = false, onClose }: Props) {
           <span className={lang === 'en' ? 'text-primary font-bold' : ''}>EN</span>
           <span className="text-border">|</span>
           <span className={lang === 'vi' ? 'text-primary font-bold' : ''}>VI</span>
+        </button>
+        <button
+          onClick={signOut}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border text-xs font-medium text-text-muted hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all w-full justify-center"
+        >
+          <LogOut size={13} />
+          Sign out
         </button>
         <p className="text-xs text-text-muted font-medium">{t.adminFooterLabel}</p>
         <p className="text-xs text-text-muted mt-0.5">{t.adminFooterVersion}</p>

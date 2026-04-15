@@ -296,10 +296,10 @@ CREATE POLICY "nursed_service_all_user_rewards" ON nursed_user_rewards FOR ALL U
 
 -- ─── Seed Data: Default Rewards ───────────────────────────
 INSERT INTO nursed_rewards (name, name_vi, description, icon, points, rule_type, rule_config) VALUES
-  ('Bài học đầu tiên', 'First Lesson', 'Complete your first lesson', '🎯', 10, 'lesson_complete', '{"count": 1}'),
-  ('3 ngày liên tục', '3-Day Streak', 'Practice 3 days in a row', '🔥', 30, 'streak', '{"days": 3}'),
-  ('7 ngày liên tục', '7-Day Streak', 'Practice 7 days in a row', '🔥', 70, 'streak', '{"days": 7}'),
-  ('Ghi âm đầu tiên', 'First Recording', 'Submit your first voice recording', '🎤', 20, 'recording', '{"count": 1}'),
-  ('Điểm cao', 'High Score', 'Score 90%+ on a quiz', '⭐', 25, 'quiz_score', '{"min_score": 90}'),
-  ('Luyện tập nhóm', 'Pair Practice', 'Complete a pair practice session', '👥', 40, 'pair_session', '{"count": 1}')
+  ('First Lesson',    'Bài học đầu tiên', 'Complete your first lesson',             '🎯', 10, 'lesson_complete', '{"count": 1}'),
+  ('3-Day Streak',    '3 ngày liên tục',  'Practice 3 days in a row',              '🔥', 30, 'streak',          '{"days": 3}'),
+  ('7-Day Streak',    '7 ngày liên tục',  'Practice 7 days in a row',              '🔥', 70, 'streak',          '{"days": 7}'),
+  ('First Recording', 'Ghi âm đầu tiên', 'Submit your first voice recording',      '🎤', 20, 'recording',       '{"count": 1}'),
+  ('High Score',      'Điểm cao',         'Score 90%+ on a quiz',                  '⭐', 25, 'quiz_score',      '{"min_score": 90}'),
+  ('Pair Practice',   'Luyện tập nhóm',  'Complete a pair practice session',       '👥', 40, 'pair_session',    '{"count": 1}')
 ON CONFLICT DO NOTHING;

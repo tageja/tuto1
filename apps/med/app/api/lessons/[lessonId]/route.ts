@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getLessonById, updateLesson, deleteLesson } from '@/lib/db/courses'
+import { getLessonById, updateLesson, deleteLesson, resolveLesson } from '@/lib/db/courses'
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ lessonId: string }> }) {
   try {
     const { lessonId } = await params
-    const lesson = await getLessonById(lessonId)
+    const lesson = await resolveLesson(lessonId)
     return NextResponse.json({ data: lesson })
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })

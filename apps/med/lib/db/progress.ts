@@ -74,6 +74,38 @@ export async function getSubmissionsByStep(userId: string, stepId: string) {
   return data as NursedSubmission[]
 }
 
+export type LessonFeedbackPayload = {
+  user_id: string
+  lesson_id: string
+  q1_animation?: number
+  q2_variety?: number
+  q3_usefulness?: number
+  q4_confidence?: number
+  q5_continue?: number
+}
+
+export async function saveLessonFeedback(payload: LessonFeedbackPayload) {
+  const db = getServiceClient()
+  const { data, error } = await db
+    .from('nursed_lesson_feedback')
+    .upsert(
+      {
+        user_id: payload.user_id,
+        lesson_id: payload.lesson_id,
+        q1_animation: payload.q1_animation,
+        q2_variety: payload.q2_variety,
+        q3_usefulness: payload.q3_usefulness,
+        q4_confidence: payload.q4_confidence,
+        q5_continue: payload.q5_continue,
+      },
+      { onConflict: 'user_id,lesson_id' },
+    )
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
 // ─── Existing analytics helper (kept for /admin/analytics page) ─
 
 export async function getHospitalAnalytics(hospitalId: string) {

@@ -115,7 +115,7 @@ export default function AdminDashboard() {
                     {course.published ? t.statusPublished : t.statusDraft}
                   </span>
                   <Link
-                    href={`/admin/courses/${course.id}`}
+                    href={`/admin/courses/${course.slug ?? course.id}`}
                     className="text-xs text-primary hover:underline"
                   >
                     {t.linkDetail}

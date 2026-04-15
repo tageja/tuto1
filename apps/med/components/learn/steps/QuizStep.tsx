@@ -1,9 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { CheckCircle, XCircle, ChevronRight, RotateCcw } from 'lucide-react'
 import type { NursedLessonStep, NursedQuizQuestion } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
+import { useAuth } from '@/contexts/AuthContext'
+import { useIsPreview } from '@/contexts/PreviewContext'
 import AudioReplayBar from '@/components/learn/AudioReplayBar'
 
 interface Props {
@@ -55,10 +58,35 @@ const EXAMPLE_QUESTIONS: NursedQuizQuestion[] = [
   },
 ]
 
+const optionContainerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.06 },
+  },
+}
+
+const optionItemVariants = {
+  hidden: { opacity: 0, x: -14 },
+  show: {
+    opacity: 1,
+    x: 0,
+    transition: { type: 'spring' as const, stiffness: 300, damping: 24 },
+  },
+}
+
 export default function QuizStep({ step, onComplete, contextAudio }: Props) {
   const { t } = useLang()
+  const { user } = useAuth()
+  const isPreview = useIsPreview()
   const rawQ = step.config?.questions as NursedQuizQuestion[] | undefined
-  const questions = rawQ && rawQ.length > 0 ? rawQ : EXAMPLE_QUESTIONS
+  const questions = useMemo(() => {
+    const raw = rawQ && rawQ.length > 0 ? rawQ : EXAMPLE_QUESTIONS
+    return raw.map((q, i) => ({
+      ...q,
+      id: q.id ?? `q-${i}`,
+    }))
+  }, [rawQ])
 
   const [selected, setSelected] = useState<Record<string, string>>({})
   const [checked, setChecked] = useState(false)
@@ -72,8 +100,24 @@ export default function QuizStep({ step, onComplete, contextAudio }: Props) {
       const correctAnswer = Array.isArray(q.answer) ? q.answer[0] : q.answer
       res[q.id] = selected[q.id] === correctAnswer
     })
+    const scoreCount = Object.values(res).filter(Boolean).length
+    const total = questions.length
+    const pct = Math.round((scoreCount / total) * 100)
     setResults(res)
     setChecked(true)
+
+    if (user && !isPreview) {
+      fetch('/api/submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lesson_id: step.lesson_id,
+          step_id: step.id,
+          type: 'quiz',
+          quiz_score: pct,
+        }),
+      }).catch((err) => console.error('[submissions] failed to save quiz score:', err))
+    }
   }
 
   const handleReset = () => {
@@ -93,7 +137,7 @@ export default function QuizStep({ step, onComplete, contextAudio }: Props) {
         <AudioReplayBar
           audioUrl={contextAudio.url}
           transcript={contextAudio.transcript}
-          label="Replay audio from previous step"
+          label={t.audioReplayLabel}
         />
       )}
       <div>
@@ -101,23 +145,28 @@ export default function QuizStep({ step, onComplete, contextAudio }: Props) {
         <p className="text-sm text-text-muted mt-1">{t.quizSubtitle.replace('{n}', String(questions.length))}</p>
       </div>
 
-      {/* Questions */}
       <div className="space-y-5">
         {questions.map((q, qIdx) => {
           const correctAnswer = Array.isArray(q.answer) ? q.answer[0] : q.answer
           return (
-            <div key={q.id} className="card p-4 space-y-3">
+            <div key={q.id} className="card p-4 space-y-3 overflow-hidden">
               <p className="font-medium text-text text-sm">
                 {qIdx + 1}. {q.prompt_vi ?? q.prompt_en}
               </p>
-              <div className="space-y-2">
+              <motion.div
+                className="space-y-2"
+                variants={optionContainerVariants}
+                initial="hidden"
+                animate="show"
+                key={q.id}
+              >
                 {q.options.map((opt) => {
                   const isSelected = selected[q.id] === opt.id
                   const isCorrect = opt.id === correctAnswer
                   const showResult = checked
 
                   let optClass =
-                    'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border text-sm text-left transition-colors '
+                    'w-full flex items-center gap-3 px-3 py-3 rounded-lg border text-sm text-left transition-colors '
 
                   if (!showResult) {
                     optClass += isSelected
@@ -132,33 +181,51 @@ export default function QuizStep({ step, onComplete, contextAudio }: Props) {
                   }
 
                   return (
-                    <button
-                      key={opt.id}
-                      onClick={() => !checked && setSelected((prev) => ({ ...prev, [q.id]: opt.id }))}
-                      className={optClass}
-                      disabled={checked}
-                    >
-                      <span className="w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center text-xs font-bold border-current">
-                        {opt.id.toUpperCase()}
-                      </span>
-                      <span className="flex-1">{opt.text_vi ?? opt.text}</span>
-                      {showResult && isCorrect && <CheckCircle size={16} />}
-                      {showResult && isSelected && !isCorrect && <XCircle size={16} />}
-                    </button>
+                    <motion.div key={opt.id} variants={optionItemVariants}>
+                      <motion.button
+                        onClick={() => !checked && setSelected((prev) => ({ ...prev, [q.id]: opt.id }))}
+                        className={optClass}
+                        disabled={checked}
+                        animate={
+                          showResult && isCorrect
+                            ? { scale: [1, 1.03, 1] }
+                            : showResult && isSelected && !isCorrect
+                              ? { x: [-4, 4, -4, 4, 0] }
+                              : {}
+                        }
+                        transition={{ duration: 0.35 }}
+                      >
+                        <span className="w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center text-xs font-bold border-current">
+                          {opt.id.toUpperCase()}
+                        </span>
+                        <span className="flex-1">{opt.text_vi ?? opt.text}</span>
+                        {showResult && isCorrect && <CheckCircle size={16} />}
+                        {showResult && isSelected && !isCorrect && <XCircle size={16} />}
+                      </motion.button>
+                    </motion.div>
                   )
                 })}
-              </div>
-              {checked && q.explanation_vi && (
-                <div className="text-xs text-text-muted bg-surface rounded-lg p-2.5">
-                  💡 {q.explanation_vi}
-                </div>
-              )}
+              </motion.div>
+              <AnimatePresence>
+                {checked && (q.explanation_vi || q.explanation_en) && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    className="overflow-hidden"
+                  >
+                    <div className="text-sm text-text bg-primary-light rounded-lg p-3 border border-primary/20">
+                      💡 {q.explanation_vi ?? q.explanation_en}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )
         })}
       </div>
 
-      {/* Score banner */}
       {checked && (
         <div className={`card p-4 flex items-center gap-3 ${passed ? 'bg-green-50 border-success' : 'bg-orange-50 border-warning'}`}>
           <span className="text-3xl">{passed ? '🎉' : '💪'}</span>
@@ -176,7 +243,6 @@ export default function QuizStep({ step, onComplete, contextAudio }: Props) {
         </div>
       )}
 
-      {/* Actions */}
       <div className="flex gap-3">
         {!checked ? (
           <button

@@ -535,8 +535,8 @@ export default function AnimationsAdminPage() {
                   <VideoUploader
                     stepId={selectedStep}
                     stepTitle={step?.title ?? selectedStep}
+                    segments={segments}
                     onUploaded={(url) => {
-                      // Show success inline
                       console.log('Video linked to step:', url)
                     }}
                   />

@@ -3,16 +3,21 @@ import { createBrowserClient } from '@supabase/ssr'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 /** Browser client — use in client components */
 export function getBrowserClient() {
   return createBrowserClient(supabaseUrl, supabaseAnonKey)
 }
 
-/** Service-role client — use ONLY in API routes / server components */
+/**
+ * Service-role client — bypasses RLS. Use ONLY in API routes / server components.
+ * Falls back to the anon key when SUPABASE_SERVICE_ROLE_KEY is not set (local dev/testing).
+ * RLS is currently open on all tables, so anon reads work fine in both environments.
+ */
 export function getServiceClient() {
-  return createClient(supabaseUrl, supabaseServiceKey, {
+  const key = supabaseServiceKey ?? supabaseAnonKey
+  return createClient(supabaseUrl, key, {
     auth: { persistSession: false },
   })
 }
@@ -27,6 +32,7 @@ export function getAnonClient() {
 export type Database = {
   public: {
     Tables: {
+      nursed_profiles: { Row: NursedProfile; Insert: Omit<NursedProfile, 'created_at'>; Update: Partial<NursedProfile> }
       nursed_hospitals: { Row: NursedHospital; Insert: Omit<NursedHospital, 'id' | 'created_at'>; Update: Partial<NursedHospital> }
       nursed_courses: { Row: NursedCourse; Insert: Omit<NursedCourse, 'id' | 'created_at' | 'updated_at'>; Update: Partial<NursedCourse> }
       nursed_modules: { Row: NursedModule; Insert: Omit<NursedModule, 'id' | 'created_at'>; Update: Partial<NursedModule> }
@@ -39,8 +45,21 @@ export type Database = {
       nursed_submissions: { Row: NursedSubmission; Insert: Omit<NursedSubmission, 'id' | 'created_at'>; Update: Partial<NursedSubmission> }
       nursed_pair_groups: { Row: NursedPairGroup; Insert: Omit<NursedPairGroup, 'id' | 'created_at'>; Update: Partial<NursedPairGroup> }
       nursed_pair_sessions: { Row: NursedPairSession; Insert: Omit<NursedPairSession, 'id' | 'created_at'>; Update: Partial<NursedPairSession> }
+      nursed_peer_reviews: { Row: NursedPeerReview; Insert: Omit<NursedPeerReview, 'id' | 'created_at'>; Update: Partial<NursedPeerReview> }
+      nursed_feedback: { Row: NursedFeedback; Insert: Omit<NursedFeedback, 'id' | 'created_at' | 'updated_at'>; Update: Partial<NursedFeedback> }
     }
   }
+}
+
+export type UserRole = 'learner' | 'teacher' | 'hospital_admin' | 'super_admin'
+
+export type NursedProfile = {
+  id: string
+  full_name: string | null
+  hospital_id: string | null
+  role: UserRole
+  avatar_url: string | null
+  created_at: string
 }
 
 export type NursedHospital = {
@@ -65,6 +84,7 @@ export type NursedHospitalAdmin = {
 
 export type NursedCourse = {
   id: string
+  slug: string | null
   title: string
   title_vi: string | null
   description: string | null
@@ -79,6 +99,7 @@ export type NursedCourse = {
 
 export type NursedModule = {
   id: string
+  slug: string | null
   course_id: string
   title: string
   title_vi: string | null
@@ -90,6 +111,7 @@ export type NursedModule = {
 
 export type NursedLesson = {
   id: string
+  slug: string | null
   module_id: string
   title: string
   title_vi: string | null
@@ -114,6 +136,21 @@ export type StepType =
   | 'scenario_intro'
   | 'self_reflection'
   | 'conversation_animation'
+  | 'matching'
+  | 'drag_order'
+  | 'flash_card'
+
+/**
+ * Config shapes for the three new interactive step types.
+ * These are used in NursedLessonStep.config (Record<string, unknown>).
+ *
+ * matching:   config.pairs    — [{ en: string; vi: string }]
+ * drag_order: config.lines    — string[] in correct order; player shuffles on render
+ * flash_card: config.cards    — [{ front_en: string; back_vi: string; audio_url?: string }]
+ * cloze (enhanced): config.wordBank — boolean; true = chip-tap mode instead of typed input
+ */
+export type MatchingPair = { en: string; vi: string }
+export type FlashCard = { front_en: string; back_vi: string; audio_url?: string }
 
 export type LessonStage = 'heads_up' | 'heads_down' | 'heads_together' | 'assessment'
 
@@ -218,4 +255,89 @@ export type NursedPairSession = {
   notes: string | null
   created_by: string | null
   created_at: string
+}
+
+export type NursedPeerReview = {
+  id: string
+  reviewer_id: string
+  submission_id: string
+  rating: number
+  created_at: string
+}
+
+export type FeedbackCategory = 'bug' | 'suggestion' | 'content' | 'other'
+export type FeedbackStatus = 'pending' | 'in_progress' | 'fixed' | 'rejected'
+
+export type NursedFeedback = {
+  id: string
+  user_id: string
+  category: FeedbackCategory
+  message: string
+  page_context: string | null
+  status: FeedbackStatus
+  admin_response: string | null
+  created_at: string
+  updated_at: string
+}
+
+// ─── Rewards & Gamification ───────────────────────────────────────────────────
+
+export type RewardRuleType =
+  | 'lesson_complete'
+  | 'streak'
+  | 'recording'
+  | 'quiz_score'
+  | 'pair_session'
+  | 'module_complete'
+  | 'course_complete'
+  | 'daily_double'
+  | 'feedback'
+
+export type NursedReward = {
+  id: string
+  name: string
+  name_vi: string | null
+  description: string | null
+  icon: string | null
+  points: number
+  rule_type: RewardRuleType
+  rule_config: Record<string, unknown>
+  created_at: string
+}
+
+export type NursedUserReward = {
+  id: string
+  user_id: string
+  reward_id: string
+  points: number
+  context_id: string | null
+  earned_at: string
+}
+
+export type NursedCoupon = {
+  id: string
+  name: string
+  name_vi: string | null
+  description: string | null
+  description_vi: string | null
+  brand: string
+  image_url: string | null
+  star_cost: number
+  total_quantity: number | null
+  remaining: number | null
+  active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type CouponRedemptionStatus = 'pending' | 'fulfilled' | 'expired'
+
+export type NursedCouponRedemption = {
+  id: string
+  user_id: string
+  coupon_id: string
+  stars_spent: number
+  status: CouponRedemptionStatus
+  coupon_code: string | null
+  redeemed_at: string
 }

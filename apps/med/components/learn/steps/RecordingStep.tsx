@@ -1,12 +1,20 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { useParams } from 'next/navigation'
-import { Mic, MicOff, RotateCcw, CheckCircle, ChevronRight } from 'lucide-react'
+import { Mic, MicOff, RotateCcw, CheckCircle, ChevronRight, FileText } from 'lucide-react'
 import type { NursedLessonStep } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
+import { useIsPreview } from '@/contexts/PreviewContext'
+import { useAuth } from '@/contexts/AuthContext'
+import PeerRecordingsPanel from './PeerRecordingsPanel'
 
 type RecordState = 'idle' | 'recording' | 'recorded' | 'submitted'
+
+interface ScriptLine {
+  role: string
+  text: string
+}
 
 interface RubricItem {
   key: string
@@ -16,12 +24,53 @@ interface RubricItem {
 interface Props {
   step: NursedLessonStep
   onComplete: () => void
+  allSteps?: NursedLessonStep[]
+  currentIdx?: number
+  lessonId?: string
 }
 
-export default function RecordingStep({ step, onComplete }: Props) {
+function extractLessonPrompt(allSteps: NursedLessonStep[], currentIdx: number): string[] {
+  const lines: string[] = []
+
+  for (let i = 0; i < currentIdx; i++) {
+    const s = allSteps[i]
+    if (!s.config) continue
+
+    if (s.type === 'audio_shadow') {
+      const txt = (s.config.transcript ?? s.config.transcriptEn) as string | undefined
+      if (txt) lines.push(txt)
+    }
+
+    if (s.type === 'script_read') {
+      const scriptLines = s.config.lines as ScriptLine[] | undefined
+      if (Array.isArray(scriptLines)) {
+        for (const line of scriptLines) {
+          const role = line.role?.replace('_', ' ') ?? ''
+          lines.push(`${role}: ${line.text}`)
+        }
+      } else {
+        const script = s.config.script as string | undefined
+        if (script) lines.push(script)
+      }
+    }
+  }
+
+  return lines
+}
+
+export default function RecordingStep({ step, onComplete, allSteps, currentIdx, lessonId: lessonIdProp }: Props) {
   const params = useParams<{ lessonId?: string }>()
-  const lessonId = params?.lessonId ?? ''
+  const lessonId = lessonIdProp ?? params?.lessonId ?? ''
   const { t } = useLang()
+  const isPreview = useIsPreview()
+  const { user } = useAuth()
+
+  const promptLines = useMemo(() => {
+    if (!allSteps || currentIdx == null) return []
+    return extractLessonPrompt(allSteps, currentIdx)
+  }, [allSteps, currentIdx])
+
+  const configPrompt = step.config?.prompt as string | undefined
 
   const rubricKeys: RubricItem[] = [
     { key: 'balanced', checked: false },
@@ -112,19 +161,25 @@ export default function RecordingStep({ step, onComplete }: Props) {
     setError(null)
 
     try {
+      if (isPreview) {
+        setState('submitted')
+        return
+      }
+
       let storagePath: string | null = null
 
       const formData = new FormData()
       formData.append('file', audioBlob, 'recording.webm')
       formData.append('type', 'audio')
       formData.append('lessonId', lessonId)
+      formData.append('stepId', step.id)
 
       try {
         const uploadRes = await fetch('/api/assets/upload', { method: 'POST', body: formData })
         const uploadJson = await uploadRes.json()
         storagePath = uploadJson.data?.storage_path ?? null
       } catch {
-        // upload failed, proceed anyway
+        setError(t.errorUpload)
       }
 
       const rubricMap = Object.fromEntries(rubric.map((r) => [r.key, r.checked]))
@@ -132,7 +187,7 @@ export default function RecordingStep({ step, onComplete }: Props) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_id: 'guest',
+          user_id: user?.id ?? 'guest',
           lesson_id: lessonId,
           step_id: step.id,
           type: 'recording',
@@ -156,18 +211,37 @@ export default function RecordingStep({ step, onComplete }: Props) {
     setRubric((prev) => prev.map((r) => (r.key === key ? { ...r, checked: !r.checked } : r)))
   }
 
+  const hasPrompt = configPrompt || promptLines.length > 0
+
   return (
     <div className="space-y-5">
       <div>
-        <h3 className="text-base font-semibold text-text">🎤 {step.title ?? t.recordingTitleFallback}</h3>
+        <h3 className="text-base font-semibold text-text">{step.title ?? t.recordingTitleFallback}</h3>
         <p className="text-sm text-text-muted mt-1">{t.recordingSubtitle}</p>
       </div>
+
+      {hasPrompt && (
+        <div className="card p-4 bg-primary-light/30 border-primary/20 space-y-2">
+          <div className="flex items-center gap-2 text-primary font-semibold text-sm">
+            <FileText size={16} />
+            {t.recordingPromptTitle}
+          </div>
+          <div className="text-sm text-text leading-relaxed whitespace-pre-line">
+            {configPrompt || promptLines.join('\n')}
+          </div>
+        </div>
+      )}
+
+      {isPreview && (
+        <div className="card p-3 bg-amber-50 border-warning text-amber-700 text-sm">
+          {t.previewRecordingNote}
+        </div>
+      )}
 
       {error && (
         <div className="card p-3 bg-red-50 border-error text-error text-sm">{error}</div>
       )}
 
-      {/* IDLE state */}
       {state === 'idle' && (
         <div className="card p-8 flex flex-col items-center gap-4">
           <div className="w-20 h-20 rounded-full bg-primary-light flex items-center justify-center">
@@ -181,7 +255,6 @@ export default function RecordingStep({ step, onComplete }: Props) {
         </div>
       )}
 
-      {/* RECORDING state */}
       {state === 'recording' && (
         <div className="card p-8 flex flex-col items-center gap-4">
           <div className="relative">
@@ -199,7 +272,6 @@ export default function RecordingStep({ step, onComplete }: Props) {
         </div>
       )}
 
-      {/* RECORDED state */}
       {state === 'recorded' && audioUrl && (
         <div className="space-y-4">
           <div className="card p-4 space-y-3">
@@ -207,7 +279,6 @@ export default function RecordingStep({ step, onComplete }: Props) {
             <audio controls src={audioUrl} className="w-full" />
           </div>
 
-          {/* Rubric self-evaluation */}
           <div className="card p-4 space-y-3">
             <p className="text-sm font-semibold text-text">{t.selfEvalTitle}</p>
             {rubric.map((r) => (
@@ -239,7 +310,6 @@ export default function RecordingStep({ step, onComplete }: Props) {
         </div>
       )}
 
-      {/* SUBMITTED state */}
       {state === 'submitted' && (
         <div className="space-y-4">
           <div className="card p-6 text-center bg-green-50 border-success">
@@ -248,7 +318,6 @@ export default function RecordingStep({ step, onComplete }: Props) {
             <p className="text-sm text-text-muted mt-1">{t.submittedDesc}</p>
           </div>
 
-          {/* Rubric summary */}
           <div className="card p-4 space-y-2">
             <p className="text-sm font-semibold text-text">{t.selfEvalSummaryTitle}</p>
             {rubric.map((r) => (
@@ -260,6 +329,8 @@ export default function RecordingStep({ step, onComplete }: Props) {
               </div>
             ))}
           </div>
+
+          {!isPreview && <PeerRecordingsPanel stepId={step.id} />}
 
           <button onClick={onComplete} className="btn-primary w-full justify-center">
             {t.btnNextRecording} <ChevronRight size={16} />

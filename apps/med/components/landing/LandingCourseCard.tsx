@@ -22,6 +22,7 @@ const LEVEL_BADGE: Record<string, string> = {
 
 export type LandingCourse = {
   id: string
+  slug?: string | null
   title: string
   title_vi: string | null
   description: string | null
@@ -109,7 +110,7 @@ export function LandingCourseCard({ course }: LandingCourseCardProps) {
         </button>
       ) : (
         <Link
-          href={`/learn/courses/${course.id}`}
+          href={`/learn/courses/${course.slug ?? course.id}`}
           className="w-full py-2.5 px-4 rounded-xl bg-[var(--primary)] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-[var(--primary-dark)] transition-all group-hover:gap-3"
         >
           {t.btnStartCourse}

@@ -192,7 +192,7 @@ export default function CoursesPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
                       <Link
-                        href={`/admin/courses/${course.id}`}
+                        href={`/admin/courses/${course.slug ?? course.id}`}
                         className="btn-secondary !py-1 !px-3 text-xs"
                       >
                         {t.btnViewDetail}

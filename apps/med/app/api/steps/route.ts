@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getStepsByLesson, createStep, reorderSteps } from '@/lib/db/courses'
+import { getStepsByLesson, createStep, reorderSteps, resolveLesson } from '@/lib/db/courses'
+import { isUuid } from '@/lib/utils/slug'
 
 export async function GET(req: NextRequest) {
   try {
-    const lessonId = req.nextUrl.searchParams.get('lessonId')
+    let lessonId = req.nextUrl.searchParams.get('lessonId')
     if (!lessonId) return NextResponse.json({ error: 'lessonId required' }, { status: 400 })
+    if (!isUuid(lessonId)) {
+      const lesson = await resolveLesson(lessonId)
+      if (!lesson) return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
+      lessonId = lesson.id
+    }
     const steps = await getStepsByLesson(lessonId)
     return NextResponse.json({ data: steps })
   } catch (e: any) {
