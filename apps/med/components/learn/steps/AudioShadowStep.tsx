@@ -22,7 +22,7 @@ export default function AudioShadowStep({ step, onComplete }: Props) {
   const [activePhase, setActivePhase] = useState<'listen' | 'read' | 'speak' | null>(null)
   const audioRef = useRef<HTMLAudioElement>(null)
 
-  const audioUrl = step.config?.audioUrl as string | undefined
+  const audioUrl = (step.config?.audioUrl ?? step.config?.audio_url) as string | undefined
   const transcript = (step.config?.transcript ?? step.config?.transcriptEn ?? '') as string
   const hasTranscriptSegments = Array.isArray(step.config?.transcriptSegments) && step.config.transcriptSegments.length > 0
 

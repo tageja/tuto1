@@ -44,6 +44,16 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 # Without this key, all READ API routes still work via the anon key fallback
 SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
 
+# ── AUTH REDIRECT URL ───────────────────────────────────────────────────────
+# Ensures magic link / OAuth redirects go to the correct domain.
+# The shared Supabase project's Site URL points to tutoglobal.com, so this
+# env var tells the auth helpers to always use this origin instead.
+# Local dev: http://localhost:3001   Production: https://med.tuto.asia
+NEXT_PUBLIC_SITE_URL=http://localhost:3001
+
+# App URL — used by Next.js metadataBase in layout.tsx
+NEXT_PUBLIC_APP_URL=http://localhost:3001
+
 # ── TESTING BYPASS ──────────────────────────────────────────────────────────
 # Set this to 'true' to skip all authentication checks.
 # /learn/** and /admin/** are accessible without login.
@@ -169,32 +179,69 @@ These TypeScript errors existed before nursemed1.3 — do NOT mark as FAIL:
 
 ---
 
-## Supabase SQL Setup (run once in dashboard)
+## Supabase SQL Setup — REQUIRED before re-running step tests
+
+**Migration 043** fixes the root cause of all step creation failures (`POST /api/steps → 500`).
+Apply it in the Supabase dashboard → SQL Editor:
 
 ```sql
--- Create nursed_profiles table (if not yet created)
+-- File: supabase/migrations/043_nursed_step_types_and_schema_fixes.sql
+-- Run each block in order.
+
+-- 1. Fix the type CHECK constraint on nursed_lesson_steps
+--    (original migration only allowed 8 types; 6 new types cause 500 errors)
+ALTER TABLE nursed_lesson_steps
+  DROP CONSTRAINT IF EXISTS nursed_lesson_steps_type_check;
+
+ALTER TABLE nursed_lesson_steps
+  ADD CONSTRAINT nursed_lesson_steps_type_check CHECK (type IN (
+    'video', 'audio_shadow', 'script_read', 'cloze', 'no_script',
+    'recording_submit', 'quiz', 'mission',
+    'scenario_intro', 'self_reflection', 'conversation_animation',
+    'matching', 'drag_order', 'flash_card'
+  ));
+
+-- 2. Add missing columns
+ALTER TABLE nursed_lesson_steps ADD COLUMN IF NOT EXISTS title_vi text;
+ALTER TABLE nursed_lessons ADD COLUMN IF NOT EXISTS stage text
+  CHECK (stage IN ('heads_up', 'heads_down', 'heads_together', 'assessment'));
+ALTER TABLE nursed_lessons ADD COLUMN IF NOT EXISTS objective text;
+
+-- 3. Create nursed_profiles (auth user metadata)
 CREATE TABLE IF NOT EXISTS nursed_profiles (
-  id uuid REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
-  full_name text,
-  hospital_id uuid REFERENCES nursed_hospitals(id),
-  role text NOT NULL DEFAULT 'learner'
-    CHECK (role IN ('learner', 'teacher', 'hospital_admin', 'super_admin')),
-  avatar_url text,
-  created_at timestamptz DEFAULT now()
+  id          uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  full_name   text,
+  hospital_id uuid REFERENCES nursed_hospitals(id) ON DELETE SET NULL,
+  role        text NOT NULL DEFAULT 'learner'
+                CHECK (role IN ('learner', 'teacher', 'hospital_admin', 'super_admin')),
+  avatar_url  text,
+  created_at  timestamptz NOT NULL DEFAULT now()
 );
-
--- Enable RLS
 ALTER TABLE nursed_profiles ENABLE ROW LEVEL SECURITY;
-
--- Users can read their own profile
-CREATE POLICY "own profile read" ON nursed_profiles
-  FOR SELECT USING (auth.uid() = id);
-
--- Users can update their own profile  
-CREATE POLICY "own profile update" ON nursed_profiles
-  FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "nursed_profiles_self_read"   ON nursed_profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "nursed_profiles_self_update" ON nursed_profiles FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "nursed_profiles_service_all" ON nursed_profiles FOR ALL   USING (true);
 ```
+
+**After running this SQL**, re-run all SKIP tests for:
+- T062–T091 (step creation + interactive exercises)
+- T095–T100 (lesson player with real steps)
+- T114 (lesson step saves persist)
 
 Also in Supabase dashboard → Authentication → URL Configuration → Redirect URLs, add:
 - `http://localhost:3001/auth/callback`
 - `https://med.tuto.asia/auth/callback`
+
+---
+
+## T039 — "Coming Soon" is Expected Behaviour
+
+**T039 is NOT a bug.** The course detail page (`/learn/courses/[courseId]`) intentionally shows a
+"Coming Soon" state (Bell notification button, no module accordion) when `course.published = false`.
+The full module list only renders when `course.published = true`.
+
+To verify the accordion works, either:
+- Publish a course in admin (toggle the Published badge) and reload the learner page, OR
+- Check `nursed_courses` in Supabase and confirm the test course has `published = false`
+
+Mark T039 as **SKIP** (requires published course data) or **PASS** if you publish a course and confirm the accordion appears.

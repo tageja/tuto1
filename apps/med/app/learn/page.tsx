@@ -55,9 +55,10 @@ export default function LearnDashboard() {
   const [loading, setLoading] = useState(true)
   const [lastLesson, setLastLesson] = useState<{
     lessonId: string; courseId: string; title: string
+    courseSlug?: string; lessonSlug?: string
   } | null>(null)
-  const streak = 3
-  const lessonsCompleted = 4
+  const [streak, setStreak] = useState(0)
+  const [lessonsCompleted, setLessonsCompleted] = useState(0)
 
   // Hospital link state
   const [hospitalLink, setHospitalLink] = useState<{ hospital_id: string; name: string } | null>(null)
@@ -72,6 +73,18 @@ export default function LearnDashboard() {
       .then((j) => setAllCourses(sortCourses(j.data ?? [])))
       .catch(() => {})
       .finally(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/rewards/balance')
+      .then((r) => r.json())
+      .then((j) => {
+        if (j.success) {
+          setStreak(j.data.streak ?? 0)
+          setLessonsCompleted(j.data.todayCount ?? 0)
+        }
+      })
+      .catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -236,12 +249,16 @@ export default function LearnDashboard() {
           <div className="relative h-2 bg-[var(--surface)] rounded-full overflow-hidden">
             <div
               className="absolute inset-y-0 left-0 bg-[var(--primary)] rounded-full transition-all duration-700"
-              style={{ width: lessonsCompleted > 0 ? '40%' : '0%' }}
+              style={{ width: lessonsCompleted >= 1 ? '100%' : '0%' }}
             />
           </div>
           <div className="flex justify-between mt-2">
-            <span className="text-xs text-[var(--text-muted)]">{t.missionProgressTodo}</span>
-            <span className="text-xs font-medium text-[var(--primary)]">40%</span>
+            <span className="text-xs text-[var(--text-muted)]">
+              {lessonsCompleted >= 1 ? t.missionProgressDone : t.missionProgressTodo}
+            </span>
+            <span className="text-xs font-medium text-[var(--primary)]">
+              {lessonsCompleted >= 1 ? '100%' : '0%'}
+            </span>
           </div>
         </div>
 
@@ -283,7 +300,7 @@ function ContinueLearningCard({
   lesson,
   course,
 }: {
-  lesson: { lessonId: string; courseId: string; title: string }
+  lesson: { lessonId: string; courseId: string; title: string; courseSlug?: string; lessonSlug?: string }
   course: NursedCourse | null
 }) {
   const { t } = useLang()
@@ -301,7 +318,7 @@ function ContinueLearningCard({
       <div className="flex-1 min-w-0">
         {course && (
           <p className={`text-xs font-semibold uppercase tracking-wide ${colors.text} mb-0.5`}>
-            {course.title_vi ?? course.title}
+            {course.title_vi || course.title}
           </p>
         )}
         <p className="text-sm font-semibold text-[var(--text)] truncate">{lesson.title}</p>
@@ -315,7 +332,7 @@ function ContinueLearningCard({
 
       {/* CTA */}
       <Link
-        href={`/learn/courses/${lesson.courseId}/lessons/${lesson.lessonId}`}
+        href={`/learn/courses/${lesson.courseSlug ?? lesson.courseId}/lessons/${lesson.lessonSlug ?? lesson.lessonId}`}
         className="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--primary)] text-white text-sm font-medium hover:bg-[var(--primary-dark)] transition-colors"
       >
         <Play size={14} fill="white" />
@@ -374,7 +391,7 @@ function PathStepCard({ course, index }: { course: NursedCourse; index: number }
 
       {/* Title */}
       <p className="text-xs font-medium text-[var(--text)] leading-tight line-clamp-3">
-        {course.title_vi ?? course.title}
+        {course.title_vi || course.title}
       </p>
 
       {/* Status */}
@@ -399,7 +416,7 @@ function PathStepCard({ course, index }: { course: NursedCourse; index: number }
 
   if (isActive) {
     return (
-      <Link href={`/learn/courses/${course.id}`}>
+      <Link href={`/learn/courses/${course.slug ?? course.id}`}>
         {inner}
       </Link>
     )

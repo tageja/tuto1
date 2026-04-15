@@ -1,10 +1,12 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, BookOpen, Users, X, LogOut } from 'lucide-react'
+import { Home, BookOpen, Users, X, LogOut, MessageCircle, Star } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
 import { useAuth } from '@/contexts/AuthContext'
+import FeedbackModal from './FeedbackModal'
 
 interface Props {
   isOpen?: boolean
@@ -12,15 +14,25 @@ interface Props {
 }
 
 const NAV_HREFS = [
-  { icon: Home, href: '/learn', tKey: 'learnNavDashboard' as const },
-  { icon: BookOpen, href: '/learn/courses', tKey: 'learnNavMyCourses' as const },
-  { icon: Users, href: '/learn/pairs', tKey: 'learnNavPracticeGroups' as const },
+  { icon: Home,     href: '/learn',         tKey: 'learnNavDashboard'      as const },
+  { icon: BookOpen, href: '/learn/courses',  tKey: 'learnNavMyCourses'      as const },
+  { icon: Users,    href: '/learn/pairs',    tKey: 'learnNavPracticeGroups' as const },
+  { icon: Star,     href: '/learn/rewards',  tKey: 'learnNavRewards'        as const },
 ]
 
 export default function LearnerSidebar({ isOpen = false, onClose }: Props) {
   const pathname = usePathname()
   const { t, lang, toggleLang } = useLang()
   const { profile, signOut } = useAuth()
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
+  const [streak, setStreak] = useState<number | null>(null)
+
+  useEffect(() => {
+    fetch('/api/rewards/balance')
+      .then(r => r.json())
+      .then(j => { if (j.success) setStreak(j.data.streak ?? 0) })
+      .catch(() => {})
+  }, [])
 
   const isActive = (href: string) => {
     if (href === '/learn') return pathname === '/learn'
@@ -81,14 +93,35 @@ export default function LearnerSidebar({ isOpen = false, onClose }: Props) {
 
       {/* Streak badge */}
       <div className="px-4 py-4 border-t border-border">
-        <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-orange-50 border border-orange-100">
+        <Link
+          href="/learn/rewards"
+          onClick={onClose}
+          className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-orange-50 border border-orange-100 hover:bg-orange-100 transition-colors"
+        >
           <span className="text-xl">🔥</span>
           <div>
-            <p className="text-sm font-semibold text-orange-700">{t.streakLabel}</p>
+            <p className="text-sm font-semibold text-orange-700">
+              {streak !== null
+                ? t.streakLabel.replace('{n}', String(streak))
+                : t.streakLabel.replace('{n}', '–')}
+            </p>
             <p className="text-xs text-orange-500">{t.streakEncouragement}</p>
           </div>
-        </div>
+        </Link>
       </div>
+
+      {/* Feedback button */}
+      <div className="px-4 pb-1">
+        <button
+          onClick={() => setFeedbackOpen(true)}
+          className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl bg-primary/5 border border-primary/15 text-sm font-medium text-primary hover:bg-primary/10 transition-all"
+        >
+          <MessageCircle size={16} />
+          <span>{t.feedbackButton}</span>
+        </button>
+      </div>
+
+      <FeedbackModal isOpen={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
 
       {/* Partner logo + language toggle + logout */}
       <div className="px-4 py-4 border-t border-border space-y-3">

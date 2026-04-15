@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Plus, Trash2, Edit, GripVertical, ChevronDown } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2, Edit, GripVertical, ChevronDown, Eye } from 'lucide-react'
 import { useToast } from '@/components/ui/Toast'
 import { StepEditor } from '@/components/admin/StepEditor'
+import StepPreviewModal from '@/components/admin/StepPreviewModal'
 import type { NursedLesson, NursedLessonStep, StepType } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
 
@@ -59,6 +60,7 @@ export default function LessonBuilderPage() {
   const [editingStepId, setEditingStepId] = useState<string | null>(null)
   const [showAddDropdown, setShowAddDropdown] = useState(false)
   const [addingStep, setAddingStep] = useState(false)
+  const [previewStep, setPreviewStep] = useState<NursedLessonStep | null>(null)
 
   const STEP_TYPES: { value: StepType; label: string }[] = [
     { value: 'scenario_intro', label: t.stepTypeScenarioIntro },
@@ -87,7 +89,7 @@ export default function LessonBuilderPage() {
     mission: t.stepTypeMission,
     scenario_intro: t.stepTypeScenarioIntro,
     self_reflection: t.stepTypeSelfReflection,
-    conversation_animation: '🎬 Animation',
+    conversation_animation: t.stepTypeConversationAnimation,
     matching: t.stepTypeMatchingLabel,
     drag_order: t.stepTypeDragOrderLabel,
     flash_card: t.stepTypeFlashCardLabel,
@@ -220,6 +222,7 @@ export default function LessonBuilderPage() {
         </Link>
       </div>
 
+
       <div className="card p-5 mb-6">
         {editingHeader ? (
           <div className="space-y-3">
@@ -334,6 +337,15 @@ export default function LessonBuilderPage() {
                 </p>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
+                    type="button"
+                    onClick={() => setPreviewStep(step)}
+                    className="btn-ghost !py-1 !px-1.5 text-primary hover:bg-primary/10"
+                    title={t.btnPreviewStep}
+                  >
+                    <Eye size={13} />
+                  </button>
+                  <button
+                    type="button"
                     onClick={() =>
                       setEditingStepId(editingStepId === step.id ? null : step.id)
                     }
@@ -343,6 +355,7 @@ export default function LessonBuilderPage() {
                     {editingStepId === step.id ? t.btnCloseStep : t.btnEditStep}
                   </button>
                   <button
+                    type="button"
                     onClick={() => handleDeleteStep(step.id)}
                     className="btn-ghost !py-1 !px-1.5 text-error hover:bg-red-50"
                   >
@@ -364,6 +377,8 @@ export default function LessonBuilderPage() {
           ))
         )}
       </div>
+
+      <StepPreviewModal step={previewStep} onClose={() => setPreviewStep(null)} />
     </div>
   )
 }

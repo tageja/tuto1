@@ -215,7 +215,7 @@ function CourseCard({ course }: { course: NursedCourse }) {
             </div>
           ) : (
             <Link
-              href={`/learn/courses/${course.id}`}
+              href={`/learn/courses/${course.slug ?? course.id}`}
               className="flex items-center justify-center gap-1.5 text-sm font-medium text-[var(--primary)] py-2 rounded-xl bg-[var(--primary-light)] hover:bg-[var(--primary)] hover:text-white transition-all"
             >
               {t.btnStart} <Clock size={12} className="opacity-0 group-hover:opacity-100" />

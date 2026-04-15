@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Mic, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { useLang } from '@/contexts/LanguageContext'
 
 interface AudioField {
   text: string
@@ -19,6 +20,7 @@ interface Props {
 type FieldStatus = 'idle' | 'loading' | 'done' | 'error'
 
 export default function GenerateAudioButton({ stepId, fields, onGenerated }: Props) {
+  const { t } = useLang()
   const [statuses, setStatuses] = useState<Record<string, FieldStatus>>({})
   const [generatingAll, setGeneratingAll] = useState(false)
 
@@ -52,13 +54,20 @@ export default function GenerateAudioButton({ stepId, fields, onGenerated }: Pro
 
   if (!fields.length) return null
 
+  const statusLabel = (status: FieldStatus) => {
+    if (status === 'done') return t.audioGenDone
+    if (status === 'error') return t.audioGenRetry
+    if (status === 'loading') return '...'
+    return t.audioGenBtn
+  }
+
   return (
     <div className="border border-border rounded-xl p-4 bg-surface space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Mic size={15} className="text-primary" />
-          <span className="text-sm font-semibold text-text">Audio Generation</span>
-          <span className="text-xs text-text-muted">({fields.length} string{fields.length !== 1 ? 's' : ''})</span>
+          <span className="text-sm font-semibold text-text">{t.audioGenTitle}</span>
+          <span className="text-xs text-text-muted">({fields.length})</span>
         </div>
         <button
           onClick={generateAll}
@@ -66,7 +75,7 @@ export default function GenerateAudioButton({ stepId, fields, onGenerated }: Pro
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-semibold hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {generatingAll ? <Loader2 size={12} className="animate-spin" /> : <Mic size={12} />}
-          Generate All
+          {t.audioGenAll}
         </button>
       </div>
 
@@ -88,7 +97,7 @@ export default function GenerateAudioButton({ stepId, fields, onGenerated }: Pro
                 {status === 'done' && <CheckCircle size={11} className="text-success" />}
                 {status === 'error' && <AlertCircle size={11} className="text-error" />}
                 {status === 'idle' && <Mic size={11} />}
-                <span>{status === 'done' ? 'Done' : status === 'error' ? 'Retry' : status === 'loading' ? '...' : 'Gen'}</span>
+                <span>{statusLabel(status)}</span>
               </button>
             </div>
           )

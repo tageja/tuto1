@@ -11,7 +11,8 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/learn/courses'
+  const rawNext = searchParams.get('next') ?? '/learn/courses'
+  const next = rawNext.startsWith('/') ? rawNext : '/learn/courses'
 
   if (!code) {
     return NextResponse.redirect(`${origin}/auth/login?error=missing_code`)

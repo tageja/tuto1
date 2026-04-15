@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Eye, EyeOff, Mail, Lock, User, Hash, ArrowRight, Loader2 } from 'lucide-react'
 import { getBrowserClient } from '@/lib/supabase'
+import { getAuthCallbackUrl } from '@/lib/auth-utils'
 import type { NursedHospital } from '@/lib/supabase'
 
 export default function RegisterPage() {
@@ -53,7 +54,7 @@ export default function RegisterPage() {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: getAuthCallbackUrl(),
         data: {
           full_name: fullName,
           role: 'learner',

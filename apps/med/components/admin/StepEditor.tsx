@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Upload, Plus, Trash2 } from 'lucide-react'
-import type { NursedLessonStep, StepType } from '@/lib/supabase'
+import type { NursedLessonStep, StepType, QuizQuestionType } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
 import GenerateAudioButton from './GenerateAudioButton'
 
@@ -75,8 +75,8 @@ function VideoEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
 
 function AudioShadowEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
   const { t } = useLang()
-  const cfg = step.config as { audio_url?: string; speed?: string; transcript?: string }
-  const [audioUrl, setAudioUrl] = useState(cfg.audio_url ?? '')
+  const cfg = step.config as { audioUrl?: string; audio_url?: string; speed?: string; transcript?: string }
+  const [audioUrl, setAudioUrl] = useState(cfg.audioUrl ?? cfg.audio_url ?? '')
   const [speed, setSpeed] = useState(cfg.speed ?? 'normal')
   const [transcript, setTranscript] = useState(cfg.transcript ?? '')
   const [uploading, setUploading] = useState(false)
@@ -141,7 +141,7 @@ function AudioShadowEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
           onGenerated={(_, url) => setAudioUrl(url)}
         />
       )}
-      <EditorActions saving={saving} onCancel={onCancel} onSave={() => onSubmit({ audio_url: audioUrl, speed, transcript })} />
+      <EditorActions saving={saving} onCancel={onCancel} onSave={() => onSubmit({ audioUrl, speed, transcript })} />
     </div>
   )
 }
@@ -243,21 +243,40 @@ function RecordingEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
   )
 }
 
-interface QuizOption { id: string; text: string }
-interface QuizQuestion { type: string; prompt_en: string; prompt_vi: string; options: QuizOption[]; answer: string }
+interface QuizOption { id: string; text: string; text_vi?: string }
+interface QuizQuestion {
+  id: string
+  type: QuizQuestionType
+  prompt_en: string
+  prompt_vi: string
+  options: QuizOption[]
+  answer: string
+  explanation_en?: string
+  explanation_vi?: string
+}
+
+function normalizeQuizQuestions(raw: QuizQuestion[] | undefined): QuizQuestion[] {
+  return (raw ?? []).map((q) => ({
+    ...q,
+    id: q.id && q.id.length > 0 ? q.id : crypto.randomUUID(),
+  }))
+}
 
 function QuizEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
   const { t } = useLang()
   const cfg = step.config as { questions?: QuizQuestion[] }
-  const [questions, setQuestions] = useState<QuizQuestion[]>(cfg.questions ?? [])
+  const [questions, setQuestions] = useState<QuizQuestion[]>(() => normalizeQuizQuestions(cfg.questions))
 
   function addQuestion() {
     setQuestions([...questions, {
+      id: crypto.randomUUID(),
       type: 'mcq',
       prompt_en: '',
       prompt_vi: '',
-      options: [{ id: 'a', text: '' }, { id: 'b', text: '' }, { id: 'c', text: '' }, { id: 'd', text: '' }],
+      options: [{ id: 'a', text: '', text_vi: '' }, { id: 'b', text: '', text_vi: '' }, { id: 'c', text: '', text_vi: '' }, { id: 'd', text: '', text_vi: '' }],
       answer: 'a',
+      explanation_en: '',
+      explanation_vi: '',
     }])
   }
 
@@ -265,10 +284,10 @@ function QuizEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
     setQuestions(questions.map((q, i) => i === idx ? { ...q, [field]: value } : q))
   }
 
-  function updateOption(qIdx: number, oIdx: number, text: string) {
+  function updateOption(qIdx: number, oIdx: number, field: 'text' | 'text_vi', value: string) {
     const updated = questions.map((q, i) => {
       if (i !== qIdx) return q
-      const opts = q.options.map((o, j) => j === oIdx ? { ...o, text } : o)
+      const opts = q.options.map((o, j) => j === oIdx ? { ...o, [field]: value } : o)
       return { ...q, options: opts }
     })
     setQuestions(updated)
@@ -277,7 +296,7 @@ function QuizEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
   return (
     <div className="space-y-4">
       {questions.map((q, idx) => (
-        <div key={idx} className="bg-surface rounded-lg p-3 space-y-2 border border-border">
+        <div key={q.id} className="bg-surface rounded-lg p-3 space-y-2 border border-border">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-text-muted">
               {t.quizQuestionLabel.replace('{n}', String(idx + 1))}
@@ -288,10 +307,21 @@ function QuizEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
           </div>
           <input className="input text-sm" value={q.prompt_en} onChange={(e) => updateQuestion(idx, 'prompt_en', e.target.value)} placeholder={t.placeholderQuestionEn} />
           <input className="input text-sm" value={q.prompt_vi} onChange={(e) => updateQuestion(idx, 'prompt_vi', e.target.value)} placeholder={t.placeholderQuestionVi} />
-          <div className="grid grid-cols-2 gap-2">
-            {q.options.map((opt, oIdx) => (
-              <input key={opt.id} className="input text-xs" value={opt.text} onChange={(e) => updateOption(idx, oIdx, e.target.value)} placeholder={t.placeholderOption.replace('{letter}', opt.id.toUpperCase())} />
-            ))}
+          <div className="space-y-1">
+            <p className="text-xs text-text-muted font-medium">{t.labelOptionsEn}</p>
+            <div className="grid grid-cols-2 gap-2">
+              {q.options.map((opt, oIdx) => (
+                <input key={opt.id} className="input text-xs" value={opt.text} onChange={(e) => updateOption(idx, oIdx, 'text', e.target.value)} placeholder={t.placeholderOption.replace('{letter}', opt.id.toUpperCase())} />
+              ))}
+            </div>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs text-text-muted font-medium">{t.labelOptionsVi}</p>
+            <div className="grid grid-cols-2 gap-2">
+              {q.options.map((opt, oIdx) => (
+                <input key={`${opt.id}_vi`} className="input text-xs" value={opt.text_vi ?? ''} onChange={(e) => updateOption(idx, oIdx, 'text_vi', e.target.value)} placeholder={t.placeholderOptionVi.replace('{letter}', opt.id.toUpperCase())} />
+              ))}
+            </div>
           </div>
           <div>
             <label className="label text-xs">{t.labelCorrectAnswer}</label>
@@ -299,6 +329,8 @@ function QuizEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
               {q.options.map((o) => <option key={o.id} value={o.id}>{o.id.toUpperCase()}: {o.text || '...'}</option>)}
             </select>
           </div>
+          <input className="input text-xs" value={q.explanation_en ?? ''} onChange={(e) => updateQuestion(idx, 'explanation_en', e.target.value)} placeholder={t.placeholderExplanationEn} />
+          <input className="input text-xs" value={q.explanation_vi ?? ''} onChange={(e) => updateQuestion(idx, 'explanation_vi', e.target.value)} placeholder={t.placeholderExplanationVi} />
         </div>
       ))}
       <button type="button" onClick={addQuestion} className="btn-secondary text-xs w-full">

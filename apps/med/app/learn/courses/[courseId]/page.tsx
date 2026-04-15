@@ -1,19 +1,23 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   ChevronDown, ChevronRight, Clock, BookOpen, Lock,
   Layers, CheckCircle, Award, Bell,
 } from 'lucide-react'
-import type { NursedCourse, NursedModule, NursedLesson } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
+import { useAuth } from '@/contexts/AuthContext'
 import { COURSE_ICONS } from '../page'
-
-type CourseWithModules = NursedCourse & {
-  nursed_modules: (NursedModule & { nursed_lessons: NursedLesson[] })[]
-}
+import ModuleGateBanner from '@/components/learn/ModuleGateBanner'
+import Breadcrumb from '@/components/learn/Breadcrumb'
+import {
+  buildPublishedLessonOrder,
+  getLessonLearnStatus,
+  type CourseWithModules,
+} from '@/lib/learn/lessonAccess'
+import { isUuid } from '@/lib/utils/slug'
 
 const LEVEL_COLORS: Record<string, string> = {
   A1: 'badge-green',
@@ -79,15 +83,23 @@ const COURSE_OUTCOMES: Record<string, { en: string; vi: string }[]> = {
 export default function CourseOverview() {
   const { courseId } = useParams<{ courseId: string }>()
   const { t } = useLang()
+  const { user } = useAuth()
+  const router = useRouter()
   const [course, setCourse] = useState<CourseWithModules | null>(null)
   const [loading, setLoading] = useState(true)
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set())
+  const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set())
+  const [moduleGates, setModuleGates] = useState<Map<string, boolean>>(new Map())
 
   useEffect(() => {
     fetch(`/api/courses/${courseId}`)
       .then((r) => r.json())
       .then((j) => {
         const c = j.data as CourseWithModules
+        if (c?.slug && isUuid(courseId)) {
+          router.replace(`/learn/courses/${c.slug}`)
+          return
+        }
         setCourse(c)
         if (c?.nursed_modules?.length > 0) {
           setExpandedModules(new Set([c.nursed_modules[0].id]))
@@ -95,7 +107,40 @@ export default function CourseOverview() {
       })
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [courseId])
+  }, [courseId, router])
+
+  useEffect(() => {
+    if (!user || !course) return
+    fetch(`/api/progress/course?courseId=${course.id}`)
+      .then((r) => r.json())
+      .then((j) => {
+        const completed = new Set<string>()
+        for (const p of j.data ?? []) {
+          if (p.completed) completed.add(p.lesson_id)
+        }
+        setCompletedLessons(completed)
+      })
+      .catch(() => {})
+  }, [user, course])
+
+  useEffect(() => {
+    if (!user || !course) return
+    const modules = course.nursed_modules ?? []
+    if (modules.length === 0) return
+
+    Promise.all(
+      modules.map((mod) =>
+        fetch(`/api/module-progress?moduleId=${mod.id}`)
+          .then((r) => r.json())
+          .then((j) => ({ moduleId: mod.id, gateOpen: j.data?.gateOpen ?? true }))
+          .catch(() => ({ moduleId: mod.id, gateOpen: true }))
+      ),
+    ).then((results) => {
+      const gates = new Map<string, boolean>()
+      for (const r of results) gates.set(r.moduleId, r.gateOpen)
+      setModuleGates(gates)
+    })
+  }, [user, course])
 
   const toggleModule = (moduleId: string) => {
     setExpandedModules((prev) => {
@@ -138,11 +183,12 @@ export default function CourseOverview() {
   return (
     <div className="space-y-6">
       {/* ── Breadcrumb ────────────────────────────────────────── */}
-      <nav className="text-sm text-text-muted flex items-center gap-1">
-        <Link href="/learn/courses" className="hover:text-primary">{t.breadcrumbCourses}</Link>
-        <ChevronRight size={14} />
-        <span className="text-text">{course.title_vi ?? course.title}</span>
-      </nav>
+      <Breadcrumb
+        items={[
+          { label: t.breadcrumbCourses, href: '/learn/courses' },
+          { label: course.title_vi || course.title, truncate: true },
+        ]}
+      />
 
       {/* ── Hero banner ───────────────────────────────────────── */}
       <div className={`card overflow-hidden bg-gradient-to-br ${gradient}`}>
@@ -263,28 +309,48 @@ export default function CourseOverview() {
               </p>
             </div>
 
-            {modules.length === 0 ? (
-              <div className="card p-8 text-center text-text-muted">
-                <p>{t.emptyModulesLearn}</p>
-              </div>
-            ) : (
-              modules.map((mod, idx) => {
+            {(() => {
+              const { allLessonIds, lessonToModule } = buildPublishedLessonOrder(course)
+
+              function getLessonStatus(lessonId: string, lessonPublished: boolean): 'completed' | 'unlocked' | 'locked' {
+                const s = getLessonLearnStatus(lessonId, lessonPublished, {
+                  completedLessons,
+                  isLoggedIn: Boolean(user),
+                  allLessonIds,
+                  lessonToModule,
+                  moduleGates,
+                })
+                if (s === 'coming_soon') return 'locked'
+                return s
+              }
+
+              if (modules.length === 0) {
+                return (
+                  <div className="card p-8 text-center text-text-muted">
+                    <p>{t.emptyModulesLearn}</p>
+                  </div>
+                )
+              }
+
+              return modules.map((mod, idx) => {
                 const lessons = [...(mod.nursed_lessons ?? [])].sort((a, b) => a.order_index - b.order_index)
                 const isExpanded = expandedModules.has(mod.id)
                 const modMinutes = lessons.reduce((s, l) => s + (l.est_minutes ?? 0), 0)
                 return (
                   <div key={mod.id} className="card overflow-hidden">
-                    <button
-                      onClick={() => toggleModule(mod.id)}
-                      className="w-full flex items-center justify-between p-4 hover:bg-surface transition-colors text-left"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-7 h-7 rounded-full bg-primary-light text-primary text-xs font-bold flex items-center justify-center flex-shrink-0">
+                    <div className="flex w-full items-center justify-between gap-2 p-4 hover:bg-surface transition-colors">
+                      <div className="flex items-start gap-3 min-w-0 flex-1">
+                        <div className="w-7 h-7 rounded-full bg-primary-light text-primary text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
                           {idx + 1}
                         </div>
-                        <div>
-                          <p className="font-medium text-text">{mod.title_vi ?? mod.title}</p>
-                          <div className="flex items-center gap-3 mt-0.5">
+                        <div className="min-w-0 flex-1">
+                          <Link
+                            href={`/learn/courses/${course?.slug ?? courseId}/modules/${mod.slug ?? mod.id}`}
+                            className="font-medium text-text hover:text-primary text-left block truncate"
+                          >
+                            {mod.title_vi || mod.title}
+                          </Link>
+                          <div className="flex items-center gap-3 mt-0.5 flex-wrap">
                             <span className="text-xs text-text-muted">{t.lessonCountBadge.replace('{n}', String(lessons.length))}</span>
                             {modMinutes > 0 && (
                               <span className="text-xs text-text-muted flex items-center gap-0.5">
@@ -294,52 +360,90 @@ export default function CourseOverview() {
                           </div>
                         </div>
                       </div>
-                      {isExpanded ? <ChevronDown size={18} className="text-text-muted flex-shrink-0" /> : <ChevronRight size={18} className="text-text-muted flex-shrink-0" />}
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleModule(mod.id)}
+                        className="flex-shrink-0 p-2 rounded-lg hover:bg-bg border border-transparent hover:border-border text-text-muted"
+                        aria-expanded={isExpanded}
+                        aria-controls={`module-panel-${mod.id}`}
+                      >
+                        {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                      </button>
+                    </div>
 
                     {isExpanded && (
-                      <div className="border-t border-border">
+                      <div id={`module-panel-${mod.id}`} className="border-t border-border">
+                        {user && moduleGates.get(mod.id) === false && (
+                          <div className="px-4 py-3">
+                            <ModuleGateBanner moduleId={mod.id} />
+                          </div>
+                        )}
                         {lessons.length === 0 ? (
                           <p className="px-4 py-3 text-sm text-text-muted">{t.emptyLessonsLearn}</p>
                         ) : (
-                          lessons.map((lesson, lIdx) => (
-                            <div
-                              key={lesson.id}
-                              className="flex items-center justify-between px-4 py-3 border-b border-border last:border-0 hover:bg-surface transition-colors"
-                            >
-                              <div className="flex items-center gap-3 min-w-0">
-                                <span className="text-xs text-text-muted w-5 text-center flex-shrink-0">{lIdx + 1}</span>
-                                <div className="min-w-0">
-                                  <p className="text-sm font-medium text-text truncate">{lesson.title_vi ?? lesson.title}</p>
-                                  <div className="flex items-center gap-1.5 mt-0.5">
-                                    <Clock size={11} className="text-text-muted flex-shrink-0" />
-                                    <span className="text-xs text-text-muted">
-                                      {t.lessonMinutes.replace('{n}', String(lesson.est_minutes))}
-                                    </span>
+                          lessons.map((lesson, lIdx) => {
+                            const status = lesson.published ? getLessonStatus(lesson.id, lesson.published) : 'coming_soon'
+                            return (
+                              <div
+                                key={lesson.id}
+                                className={`flex items-center justify-between px-4 py-3 border-b border-border last:border-0 transition-colors ${
+                                  status === 'locked' ? 'opacity-60' : 'hover:bg-surface'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3 min-w-0">
+                                  <span className="w-5 text-center flex-shrink-0">
+                                    {status === 'completed' ? (
+                                      <CheckCircle size={16} className="text-success mx-auto" />
+                                    ) : (
+                                      <span className="text-xs text-text-muted">{lIdx + 1}</span>
+                                    )}
+                                  </span>
+                                  <div className="min-w-0">
+                                    <p className="text-sm font-medium text-text truncate">{lesson.title_vi || lesson.title}</p>
+                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                      <Clock size={11} className="text-text-muted flex-shrink-0" />
+                                      <span className="text-xs text-text-muted">
+                                        {t.lessonMinutes.replace('{n}', String(lesson.est_minutes))}
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
+                                {status === 'completed' && (
+                                  <Link
+                                    href={`/learn/courses/${course?.slug ?? courseId}/lessons/${lesson.slug ?? lesson.id}`}
+                                    className="btn-secondary text-xs px-3 py-1.5 flex-shrink-0"
+                                  >
+                                    {t.btnContinue}
+                                  </Link>
+                                )}
+                                {status === 'unlocked' && (
+                                  <Link
+                                    href={`/learn/courses/${course?.slug ?? courseId}/lessons/${lesson.slug ?? lesson.id}`}
+                                    className="btn-primary text-xs px-3 py-1.5 flex-shrink-0"
+                                  >
+                                    {t.btnLearn}
+                                  </Link>
+                                )}
+                                {status === 'locked' && (
+                                  <span className="text-text-muted flex items-center gap-1 text-xs flex-shrink-0">
+                                    <Lock size={14} /> {t.statusLocked}
+                                  </span>
+                                )}
+                                {status === 'coming_soon' && (
+                                  <span className="text-text-muted flex items-center gap-1 text-xs flex-shrink-0">
+                                    <Lock size={14} /> {t.statusComingSoon}
+                                  </span>
+                                )}
                               </div>
-                              {lesson.published ? (
-                                <Link
-                                  href={`/learn/courses/${courseId}/lessons/${lesson.id}`}
-                                  className="btn-primary text-xs px-3 py-1.5 flex-shrink-0"
-                                >
-                                  {t.btnLearn}
-                                </Link>
-                              ) : (
-                                <span className="text-text-muted flex items-center gap-1 text-xs flex-shrink-0">
-                                  <Lock size={14} /> {t.statusComingSoon}
-                                </span>
-                              )}
-                            </div>
-                          ))
+                            )
+                          })
                         )}
                       </div>
                     )}
                   </div>
                 )
               })
-            )}
+            })()}
           </div>
         </>
       )}

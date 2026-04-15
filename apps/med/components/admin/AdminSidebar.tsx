@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, BookOpen, Building2, Users, BarChart3, Activity, X, Mic, LogOut } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Building2, Users, BarChart3, Activity, X, Mic, MessageSquare, LogOut, Gift } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -23,7 +23,9 @@ export function AdminSidebar({ isOpen = false, onClose }: Props) {
     { label: t.navHospitalDashboard ?? 'Hospital Dashboard', href: '/admin/hospital', icon: Activity },
     { label: t.navStudents, href: '/admin/students', icon: Users },
     { label: t.navAnalytics, href: '/admin/analytics', icon: BarChart3 },
+    { label: t.navFeedback ?? 'Feedback', href: '/admin/feedback', icon: MessageSquare },
     { label: 'Audio Generation', href: '/admin/audio', icon: Mic },
+    { label: t.navCoupons ?? 'Coupons', href: '/admin/coupons', icon: Gift },
   ]
 
   const isActive = (href: string) => {

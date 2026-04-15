@@ -417,7 +417,7 @@ export default function CourseDetailPage() {
                             {lesson.published ? t.statusPublished : t.statusDraft}
                           </span>
                           <Link
-                            href={`/admin/courses/${courseId}/lessons/${lesson.id}`}
+                            href={`/admin/courses/${course?.slug ?? courseId}/lessons/${lesson.slug ?? lesson.id}`}
                             className="btn-secondary !py-1 !px-2.5 text-xs"
                           >
                             <Edit size={12} />

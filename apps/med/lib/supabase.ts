@@ -45,6 +45,8 @@ export type Database = {
       nursed_submissions: { Row: NursedSubmission; Insert: Omit<NursedSubmission, 'id' | 'created_at'>; Update: Partial<NursedSubmission> }
       nursed_pair_groups: { Row: NursedPairGroup; Insert: Omit<NursedPairGroup, 'id' | 'created_at'>; Update: Partial<NursedPairGroup> }
       nursed_pair_sessions: { Row: NursedPairSession; Insert: Omit<NursedPairSession, 'id' | 'created_at'>; Update: Partial<NursedPairSession> }
+      nursed_peer_reviews: { Row: NursedPeerReview; Insert: Omit<NursedPeerReview, 'id' | 'created_at'>; Update: Partial<NursedPeerReview> }
+      nursed_feedback: { Row: NursedFeedback; Insert: Omit<NursedFeedback, 'id' | 'created_at' | 'updated_at'>; Update: Partial<NursedFeedback> }
     }
   }
 }
@@ -82,6 +84,7 @@ export type NursedHospitalAdmin = {
 
 export type NursedCourse = {
   id: string
+  slug: string | null
   title: string
   title_vi: string | null
   description: string | null
@@ -96,6 +99,7 @@ export type NursedCourse = {
 
 export type NursedModule = {
   id: string
+  slug: string | null
   course_id: string
   title: string
   title_vi: string | null
@@ -107,6 +111,7 @@ export type NursedModule = {
 
 export type NursedLesson = {
   id: string
+  slug: string | null
   module_id: string
   title: string
   title_vi: string | null
@@ -250,4 +255,89 @@ export type NursedPairSession = {
   notes: string | null
   created_by: string | null
   created_at: string
+}
+
+export type NursedPeerReview = {
+  id: string
+  reviewer_id: string
+  submission_id: string
+  rating: number
+  created_at: string
+}
+
+export type FeedbackCategory = 'bug' | 'suggestion' | 'content' | 'other'
+export type FeedbackStatus = 'pending' | 'in_progress' | 'fixed' | 'rejected'
+
+export type NursedFeedback = {
+  id: string
+  user_id: string
+  category: FeedbackCategory
+  message: string
+  page_context: string | null
+  status: FeedbackStatus
+  admin_response: string | null
+  created_at: string
+  updated_at: string
+}
+
+// ─── Rewards & Gamification ───────────────────────────────────────────────────
+
+export type RewardRuleType =
+  | 'lesson_complete'
+  | 'streak'
+  | 'recording'
+  | 'quiz_score'
+  | 'pair_session'
+  | 'module_complete'
+  | 'course_complete'
+  | 'daily_double'
+  | 'feedback'
+
+export type NursedReward = {
+  id: string
+  name: string
+  name_vi: string | null
+  description: string | null
+  icon: string | null
+  points: number
+  rule_type: RewardRuleType
+  rule_config: Record<string, unknown>
+  created_at: string
+}
+
+export type NursedUserReward = {
+  id: string
+  user_id: string
+  reward_id: string
+  points: number
+  context_id: string | null
+  earned_at: string
+}
+
+export type NursedCoupon = {
+  id: string
+  name: string
+  name_vi: string | null
+  description: string | null
+  description_vi: string | null
+  brand: string
+  image_url: string | null
+  star_cost: number
+  total_quantity: number | null
+  remaining: number | null
+  active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type CouponRedemptionStatus = 'pending' | 'fulfilled' | 'expired'
+
+export type NursedCouponRedemption = {
+  id: string
+  user_id: string
+  coupon_id: string
+  stars_spent: number
+  status: CouponRedemptionStatus
+  coupon_code: string | null
+  redeemed_at: string
 }
