@@ -16,6 +16,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter()
 
   useEffect(() => {
+    // #region agent log H2/H3 - role state in admin layout
+    fetch('http://127.0.0.1:7456/ingest/e0d134c7-1f40-43e7-9e5c-a671c022ab02',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'54a064'},body:JSON.stringify({sessionId:'54a064',location:'admin/layout.tsx:useEffect',message:'admin layout role check',data:{role,loading,AUTH_DISABLED},timestamp:Date.now(),hypothesisId:'H2/H3'})}).catch(()=>{});
+    // #endregion
+
     // Skip role enforcement when auth is disabled (local testing)
     if (AUTH_DISABLED) return
     if (loading) return
