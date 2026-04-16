@@ -34,6 +34,12 @@ export async function middleware(request: NextRequest) {
   })
   // #endregion
 
+  // If Supabase env vars are not configured (e.g. preview deployments without env vars),
+  // pass through without auth checks rather than crashing with MIDDLEWARE_INVOCATION_FAILED
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return supabaseResponse
+  }
+
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
