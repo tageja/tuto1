@@ -26,6 +26,14 @@ export async function middleware(request: NextRequest) {
   if (AUTH_DISABLED) return supabaseResponse
   // ──────────────────────────────────────────────────────────────────────────
 
+  // #region agent log H4 - env var presence check
+  console.log('[dbg54a064][middleware] env check', {
+    hasUrl: !!supabaseUrl,
+    hasKey: !!supabaseAnonKey,
+    path: request.nextUrl.pathname,
+  })
+  // #endregion
+
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
@@ -52,6 +60,15 @@ export async function middleware(request: NextRequest) {
 
   const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p))
   const isAuthPage = AUTH_PREFIXES.some((p) => pathname.startsWith(p))
+
+  // #region agent log H1/H5 - user session state at protected route
+  console.log('[dbg54a064][middleware] auth check', {
+    pathname,
+    isProtected,
+    hasUser: !!user,
+    userId: user?.id ?? null,
+  })
+  // #endregion
 
   // Unauthenticated user trying to access protected route → login
   if (isProtected && !user) {

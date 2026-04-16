@@ -35,11 +35,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchProfile = useCallback(async (userId: string) => {
     const supabase = getBrowserClient()
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('nursed_profiles')
       .select('*')
       .eq('id', userId)
       .single()
+    // #region agent log H3 - profile fetch result
+    fetch('http://127.0.0.1:7456/ingest/e0d134c7-1f40-43e7-9e5c-a671c022ab02',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'54a064'},body:JSON.stringify({sessionId:'54a064',location:'AuthContext.tsx:fetchProfile',message:'profile fetch result',data:{userId,profileRole:data?.role??null,profileExists:!!data,errorCode:error?.code??null},timestamp:Date.now(),hypothesisId:'H3'})}).catch(()=>{});
+    // #endregion
     setProfile(data ?? null)
   }, [])
 
