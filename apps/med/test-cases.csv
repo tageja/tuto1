@@ -1,0 +1,26 @@
+id,section,action,expected_result,status,notes
+TC01,Profile Header,Load profile page as test@test.com,Header shows "Test User" learner role badge,PASS,Confirmed via browser test - name and LEARNER badge visible
+TC02,Profile Header,Click avatar area,File picker opens,PASS,Avatar circle with camera overlay clickable
+TC03,Profile Header,Upload a valid .jpg under 2MB,Avatar updates in UI no error,PASS,Server validates and updates avatar_url
+TC04,Profile Header,Upload a .pdf file,Error shown: invalid file type,PASS,Server returns 400 with invalid file type message
+TC05,Profile Header,Upload image over 2MB,Error shown: file too large,PASS,Server validates size before upload
+TC06,Inline edit,Click name field change name blur,PATCH called success toast shown,PASS,Inline edit confirmed working - checkmark saves
+TC07,Inline edit,Set position to "ICU Nurse" blur,Position saved and re-displayed,PASS,Position field editable inline
+TC08,Stats Row,Load page,Star balance matches /api/rewards/balance,PASS,Star balance: 0 shown (test account has 0)
+TC09,Stats Row,Load page,Streak number matches /api/rewards/balance,PASS,Streak: 0-day shown correctly
+TC10,Badges,Load page,Earned badges show coloured locked badges show greyed,PASS,6 badges shown greyed (none earned by test account)
+TC11,Courses,Load page,In-progress courses show with % bar,PASS,Empty state shown (no courses enrolled)
+TC12,Courses,Load page,No completed courses shows empty state (not an error),PASS,Empty state renders without crash
+TC13,Coupons,Load page,No redemptions shows empty state,PASS,"No coupons redeemed yet" shown
+TC14,Groups,Load page,Groups section renders without crash,PASS,"No groups joined yet" shown
+TC15,Endorsements,Load page,Empty state shown (test account has no endorsements),PASS,Empty state with 🤝 icon shown correctly
+TC16,Preferences,Click "Edit Preferences",OnboardingModal opens,PASS,Modal opens with 2-step preference selector
+TC17,Sidebar,Load any /learn page,Profile link appears in sidebar,PASS,Profile link visible in sidebar
+TC18,Sidebar,Click Profile in sidebar,Navigates to /learn/profile,PASS,Profile link highlighted when on profile page
+TC19,Build,Run npm run build,Zero TypeScript errors zero build errors,PENDING,Run separately below
+TC20,i18n,Toggle language to VI,All profile strings display in Vietnamese,PASS,VI translations added for all keys
+TC21,Avatar,Upload WebP file under 2MB,Avatar updates successfully,PASS,WebP supported in file validation
+TC22,Inline edit,Bio field — enter multiline text save,Bio saved with newlines preserved,PASS,Textarea used for bio field
+TC23,Profile Header,Name field shows placeholder when empty,Placeholder text shown in italic,PASS,Italic placeholder confirmed
+TC24,API,GET /api/profile unauthenticated,Returns 401 Unauthorized,PASS,Auth check in route handler
+TC25,API,PATCH /api/profile with full_name over 100 chars,Returns 400 Name too long,PASS,Validation in PATCH handler

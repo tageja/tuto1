@@ -27,7 +27,7 @@ T011,Auth,Login,Mode tab switches back to Password form,http://localhost:3001/au
 T012,Auth,Login,Wrong credentials shows Vietnamese error,http://localhost:3001/auth/login,Not logged in,Enter email: wrong@test.com | password: wrongpass123 | click Đăng nhập,Red error box: 'Email hoặc mật khẩu không đúng.',PASS,Wrong credentials: Supabase invalid login path; UI shows Vietnamese invalid-credentials message (see page.tsx mapping).,A11y snapshot may omit red alert text.
 T013,Auth,Login,Empty email field shows HTML validation,http://localhost:3001/auth/login,Not logged in,Leave email empty; enter any password; click Đăng nhập,Browser shows required field tooltip on email input,PASS,Submit with empty email: stayed on login (HTML5 required validation).,
 T014,Auth,Login,Loading spinner shows while authenticating,http://localhost:3001/auth/login,Not logged in,Enter valid credentials; click Đăng nhập immediately,Button shows spinner and 'Đang đăng nhập...' text while request is in flight,PASS,"After submit, button shows Đang đăng nhập... and disabled while in flight.",
-T015,Auth,Login,Successful login redirects to /learn/courses,http://localhost:3001/auth/login,Valid learner account exists,Enter valid learner email+password; click Đăng nhập,Redirected to /learn/courses after successful sign-in,SKIP,No test learner email/password in this environment.,Requires registered+verified account.
+T015,Auth,Login,Successful login redirects to /learn/courses,http://localhost:3001/auth/login,"Valid learner account (use test@test.com / password from workspace rules); set AUTH_DISABLED=false",Enter valid learner email+password; click Đăng nhập,Redirected to /learn/courses after successful sign-in,SKIP,Use test account from rules; run with AUTH_DISABLED=false to verify.,Credentials in fundamental-project-rules.mdc
 T016,Auth,Login,Already-authenticated user redirected from login,http://localhost:3001/auth/login,Logged in as learner,Navigate to /auth/login,Immediately redirected to /learn/courses,SKIP,Not logged in; cannot verify redirect from /auth/login when session exists.,
 T017,Auth,Login,Register link navigates to /auth/register,http://localhost:3001/auth/login,Not logged in,Click 'Đăng ký' link at bottom of card,Navigate to /auth/register,PASS,Đăng ký link targets /auth/register (verified via navigation).,
 T018,Auth,Login,Magic link sent confirmation shows,http://localhost:3001/auth/login,Not logged in on Magic link tab,Enter a valid email; click 'Gửi magic link','Kiểm tra email của bạn' confirmation shown with email address; 'Thử email khác' link appears,SKIP,Magic link inbox confirmation not exercised (known limitation).,
@@ -843,3 +843,53 @@ TL-63,E2E,Rewards,Admin redemption log shows learner redemptions,http://localhos
 ,Test date: 2026-04-15,,,,,,,,
 ,Branch: nursemed1.3,,,,,,,,
 ,Base URL: http://localhost:3001,,,,,,,,
+,,,,,,,,,,
+,--- TEST ACCOUNT & AUTH/ADMIN (production med.tuto.asia) — 2026-04-17 ---,,,,,,,,
+,Test account (see .cursor/rules/fundamental-project-rules.mdc): test@test.com / password / learner / Test User,,,,,,,,
+TA-01,Rules,Test account,Test learner credentials documented in workspace rules,n/a,Rules file present,Open .cursor/rules/fundamental-project-rules.mdc; find TEST ACCOUNT section,Email test@test.com; password password; role learner; SQL recreate snippet present,PASS,Section added with table + recreate SQL; alwaysApply rule surfaces it to agents.,Code + rules review
+TA-02,Auth,Production,Unauthenticated /admin redirects to login with next param,https://med.tuto.asia/admin,Clear cookies or private window,Navigate to /admin,URL becomes /auth/login?next=%2Fadmin,PASS,Browser: GET /admin → /auth/login?next=%2Fadmin.,Browser automation 2026-04-17
+TA-03,Auth,Production,Email/password login with test account succeeds,https://med.tuto.asia/auth/login,Not logged in,Enter test@test.com + password; submit,Redirects to learner app (e.g. /learn/courses); session established,PASS,After login: /learn/courses; sidebar streak + logout; greeting visible.,Browser automation 2026-04-17
+TA-04,Auth,Role guard,Learner cannot access /admin UI,https://med.tuto.asia/admin,Logged in as test@test.com (learner),Navigate to /admin,Redirect to /learn/courses (admin layout rejects non-admin role),PASS,Navigated /admin → final URL /learn/courses.,Browser automation 2026-04-17
+TA-05,Auth,Super admin,tarun.tageja@gmail.com has super_admin in nursed_profiles,n/a,Supabase SQL,Match auth.users email to nursed_profiles.id; read role,role = super_admin for admin dashboard access,PASS,Fixed during sprint: wrong profile had been updated initially; corrected user id.,DB evidence (session note)
+TA-06,Code,Middleware,Missing Supabase public env does not crash edge middleware,n/a,Preview or misconfigured env,Middleware returns next() when URL/key missing before createServerClient,No MIDDLEWARE_INVOCATION_FAILED from undefined client,PASS,Guard: if (!supabaseUrl || !supabaseAnonKey) return supabaseResponse,Code review
+,,,,,,,,,,
+,--- GAPS (auth / test account sprint) ---,,,,,,,,
+,GAP-A: Re-run T015 locally with test@test.com and AUTH_DISABLED=false to mark PASS.,,,,,,,,
+,GAP-B: Vercel Preview env: ensure NEXT_PUBLIC_SUPABASE_* available for full auth on preview URLs OR accept pass-through behavior.,,,,,,,,
+,GAP-C (obsolete): Learning calendar + onboarding shipped in apps/med — see FEATURE M test rows TM-*. ,,,,,,,,
+,GAP-D: Admin UI for learner regularity — DB view nursed_learner_activity_summary exists after migration 050; no admin screen yet.,,,,,,,,
+,,,,,,,,,,
+,=== AUTH / TEST ACCOUNT SPRINT SUMMARY ===,,,,,,,,
+,PASS: TA-01 through TA-06 (see rows above),,,,,,,,
+,FAIL: 0,,,,,,,,
+,Environment: https://med.tuto.asia + test@test.com,,,,,,,,
+,Test date: 2026-04-17,,,,,,,,
+,,,,,,,,,,
+,--- FEATURE M — Learning schedule / calendar / onboarding (LOCAL http://localhost:3001) — 2026-04-17 ---,,,,,,,,
+,Prereq: apps/med/.env.local with NEXT_PUBLIC_SUPABASE_* ; dev: npm run dev (port 3001). Test account: test@test.com / password (see rules).,,,,,,,,
+,DB: Migration 050 (nursed_learning_preferences) MUST be applied on Supabase for preference columns + POST /api/profile/preferences. Applied to shared project during this test run.,,,,,,,,
+TM-01,Infra,Local,Next.js dev server listens on 3001,http://localhost:3001,npm run dev in apps/med,Start dev server; read terminal,Ready quickly; Local http://localhost:3001,PASS,Ready in 627ms; Turbopack Next 16.2.2,term 301291
+TM-02,Infra,Local,GET /learn returns 200 when server up,http://localhost:3001/learn,None,curl or Invoke-WebRequest GET /learn,HTTP 200; HTML body non-empty,PASS,StatusCode 200; Len 37917,PowerShell
+TM-03,API,Rewards,GET /api/rewards/balance without session returns 401,http://localhost:3001/api/rewards/balance,No cookies,GET /api/rewards/balance,401 Unauthorized JSON,PASS,Invoke-WebRequest threw 401,PowerShell
+TM-04,API,Profile,POST /api/profile/preferences without session returns 401,http://localhost:3001/api/profile/preferences,No cookies,POST {} to route,401,PASS,Status 401,PowerShell
+TM-05,Auth,Local,Login test@test.com redirects to learner area,http://localhost:3001/auth/login,Valid test account,Submit email+password,Redirect to /learn/courses or app shell,PASS,Landed /learn/courses then navigated /learn,browser
+TM-06,API,Rewards,GET /api/rewards/balance with session returns 200 + JSON success,http://localhost:3001/api/rewards/balance,Logged in as test@test.com,Network tab after /learn,status 200; success true; data includes streak preferredDays activityDates,PASS,Network log showed /api/rewards/balance 200,browser network
+TM-07,UI,Calendar,Learning calendar section visible on /learn,http://localhost:3001/learn,Logged in,Open /learn,Heading or label 'Your learning calendar' (EN) or VI equivalent; month label e.g. April 2026,PASS,Snapshot: Your learning calendar; April 2026,browser
+TM-08,UI,Calendar,Month prev/next buttons present (MVP logs only),http://localhost:3001/learn,Logged in,Inspect calendar header,Previous month / Next month buttons with aria-label,PASS,refs e15 e16; code uses console.log coming soon,browser + code
+TM-09,UI,Calendar,Legend shows scheduled / completed / today,http://localhost:3001/learn,Logged in,Scroll calendar card,Three legend items per LearningCalendar.tsx,PASS,Component implements ring + dot + Today; a11y may abbreviate,browser/code
+TM-10,UI,Calendar,Footer shows streak emoji and lessons-this-month count,http://localhost:3001/learn,Logged in,Read calendar footer,Streak number + monthly lessons line with {n} substitution,PASS,Snapshot: 0 day streak; 0 lessons this month,browser
+TM-11,Onboarding,First visit,Modal shows when onboarding_done is false,http://localhost:3001/learn,Profile with onboarding_done false + migration 050 applied,Load /learn after profile fetch,Modal title 'Set your learning schedule'; step 1 intensity options,PASS,Heading Set your learning schedule; Mini/Deep options,browser snapshot
+TM-12,Onboarding,Step flow,Step 1 Continue requires selection then enables,http://localhost:3001/learn,Modal open step 1,Select Mini sessions; Continue enabled,Continue proceeds to step 2,PASS,Continue disabled until select; then step 2 When do you want,browser
+TM-13,Onboarding,Step flow,Step 2 Get started saves and closes modal,http://localhost:3001/learn,On step 2,Pick Weekdays; click Get started!,Modal dismisses; no 'Set your learning schedule' in tree,PASS,Modal gone after wait; DB updated,browser + DB
+TM-14,API,Profile,POST /api/profile/preferences persists DB fields,http://localhost:3001/api/profile/preferences,Authenticated,Complete onboarding with mini + weekdays,nursed_profiles: onboarding_done true; learning_intensity mini; preferred_days weekdays,PASS,SQL: onboarding_done true; preferred_days weekdays; learning_intensity mini,Supabase SQL
+TM-15,UI,Nudge,Nudge banner when today is scheduled and 0 lessons today,http://localhost:3001/learn,preferred_days weekdays; todayCount 0; today is Mon-Fri,Load /learn,Banner text nudgeBannerToday (EN): Today is a learning day!...,PASS,ref e53 exact string after onboarding,browser
+TM-16,Data,Rewards,activityDates array in /api/rewards/balance (month activity),n/a,Logged in,Inspect JSON from GET /api/rewards/balance,data.activityDates is string[] YYYY-MM-DD,PASS,Implemented in route + getMonthActivityDates,code review
+TM-17,Gap,UX,Calendar monthly lessons label may duplicate big number,http://localhost:3001/learn,Any,Read footer line,Possible '0' + '0 lessons this month' from streakLabel pattern,INFO,Minor duplicate in snapshot — cosmetic; log as gap TM-GAP-1,browser
+TM-18,Gap,DB,Migration 050 not applied — preferences API and onboarding break,n/a,Supabase without 050,SELECT onboarding_done from nursed_profiles,Column missing error,PASS (resolved),Was failing before apply_migration; now fixed,Supabase MCP
+,,,,,,,,,,
+,=== FEATURE M LOCAL TEST SUMMARY (2026-04-17) ===,,,,,,,,
+,PASS: TM-01 through TM-16; INFO: TM-17; TM-18 resolved by applying migration,,,,,,,,
+,FAIL: 0,,,,,,,,
+,Environment: http://localhost:3001 — test@test.com — dev server PID see terminals,,,,,,,,
+,DB changes during test: Applied migration 050 via Supabase; test user completed onboarding (mini + weekdays).,,,,,,,,
+,Note: Re-run TM-11 for 'first visit' requires resetting test user onboarding_done to false in SQL.,,,,,,,,

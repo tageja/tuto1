@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, BookOpen, Users, X, LogOut, MessageCircle, Star } from 'lucide-react'
+import { Home, BookOpen, Users, X, LogOut, MessageCircle, Star, User } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
 import { useAuth } from '@/contexts/AuthContext'
 import FeedbackModal from './FeedbackModal'
@@ -14,10 +14,11 @@ interface Props {
 }
 
 const NAV_HREFS = [
-  { icon: Home,     href: '/learn',         tKey: 'learnNavDashboard'      as const },
+  { icon: Home,     href: '/learn',          tKey: 'learnNavDashboard'      as const },
   { icon: BookOpen, href: '/learn/courses',  tKey: 'learnNavMyCourses'      as const },
   { icon: Users,    href: '/learn/pairs',    tKey: 'learnNavPracticeGroups' as const },
   { icon: Star,     href: '/learn/rewards',  tKey: 'learnNavRewards'        as const },
+  { icon: User,     href: '/learn/profile',  tKey: 'learnNavProfile'        as const },
 ]
 
 export default function LearnerSidebar({ isOpen = false, onClose }: Props) {

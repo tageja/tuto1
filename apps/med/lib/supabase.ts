@@ -60,6 +60,15 @@ export type NursedProfile = {
   role: UserRole
   avatar_url: string | null
   created_at: string
+  // Learning preference columns — added in migration 050
+  learning_intensity: 'mini' | 'deep' | null
+  preferred_days: 'everyday' | 'weekdays' | 'weekends' | null
+  onboarding_done: boolean
+  schedule_set_at: string | null
+  // Extended profile columns — added in migration 051
+  position: string | null
+  date_of_birth: string | null
+  bio: string | null
 }
 
 export type NursedHospital = {

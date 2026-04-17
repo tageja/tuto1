@@ -11,7 +11,13 @@ import { findScript } from '@/data/animation-scripts'
 // ── Types ─────────────────────────────────────────────────────────
 
 interface Course { id: string; title: string }
-interface Lesson { id: string; title: string; order_index: number; _module_order?: number }
+interface Lesson {
+  id: string
+  title: string
+  order_index: number
+  _module_order: number
+  _module_title: string
+}
 interface Step   { id: string; title: string; type: string; order_index: number; config: Record<string, unknown> | null }
 
 const SPEAKERS: Speaker[] = ['nurse', 'patient', 'doctor', 'family']
@@ -236,6 +242,19 @@ export default function AnimationsAdminPage() {
   const selectedStepObj = steps.find(s => s.id === selectedStep)
   const hasExistingManifest = !!(selectedStepObj?.config?.animation_manifest)
 
+  // Build sorted module groups for the lesson dropdown (mirrors learner view numbering)
+  const moduleGroups = lessons.reduce<Map<number, { title: string; lessons: Lesson[] }>>(
+    (acc, l) => {
+      if (!acc.has(l._module_order)) {
+        acc.set(l._module_order, { title: l._module_title, lessons: [] })
+      }
+      acc.get(l._module_order)!.lessons.push(l)
+      return acc
+    },
+    new Map()
+  )
+  const sortedModules = [...moduleGroups.entries()].sort(([a], [b]) => a - b)
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
@@ -305,7 +324,18 @@ export default function AnimationsAdminPage() {
                   className="w-full appearance-none border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-white pr-8 focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50"
                 >
                   <option value="">— Select lesson —</option>
-                  {lessons.map(l => <option key={l.id} value={l.id}>{l.title}</option>)}
+                  {sortedModules.map(([moduleOrder, group], moduleIdx) => {
+                    const moduleNum = moduleIdx + 1
+                    return (
+                      <optgroup key={moduleOrder} label={`Module ${moduleNum}: ${group.title}`}>
+                        {group.lessons.map((l, lessonIdx) => (
+                          <option key={l.id} value={l.id}>
+                            {moduleNum}.{lessonIdx + 1} — {l.title}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )
+                  })}
                 </select>
                 <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
               </div>
@@ -320,12 +350,43 @@ export default function AnimationsAdminPage() {
                   className="w-full appearance-none border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-white pr-8 focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50"
                 >
                   <option value="">— Select step —</option>
-                  {steps.map(s => <option key={s.id} value={s.id}>{s.title} ({s.type})</option>)}
+                  {steps.map((s, idx) => (
+                    <option key={s.id} value={s.id}>
+                      Step {idx + 1} — {s.title} ({s.type})
+                    </option>
+                  ))}
                 </select>
                 <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
               </div>
             </div>
           </div>
+          {selectedLesson && (() => {
+            const lesson = lessons.find(l => l.id === selectedLesson)
+            const step = steps.find(s => s.id === selectedStep)
+            if (!lesson) return null
+            const moduleIdx = sortedModules.findIndex(([modOrder]) => modOrder === lesson._module_order)
+            const moduleNum = moduleIdx + 1
+            const moduleGroup = moduleIdx >= 0 ? sortedModules[moduleIdx][1] : null
+            const lessonIdx = moduleGroup?.lessons.findIndex(l => l.id === lesson.id) ?? -1
+            const lessonNum = lessonIdx + 1
+            const stepIdx = step ? steps.findIndex(s => s.id === step.id) : -1
+            const stepNum = stepIdx + 1
+            return (
+              <div className="flex items-center gap-1.5 text-xs text-gray-500 bg-gray-50 rounded-xl px-3 py-2 font-mono flex-wrap">
+                <span className="font-semibold text-gray-700">Module {moduleNum}</span>
+                <span className="text-gray-300">›</span>
+                <span className="font-semibold text-primary">{moduleNum}.{lessonNum}</span>
+                <span className="text-gray-400 font-sans truncate max-w-[180px]">{lesson.title}</span>
+                {step && (
+                  <>
+                    <span className="text-gray-300">›</span>
+                    <span className="font-semibold text-gray-700">Step {stepNum}</span>
+                    <span className="text-gray-400 font-sans truncate max-w-[180px]">{step.title}</span>
+                  </>
+                )}
+              </div>
+            )
+          })()}
           {scriptSource === 'manifest' && (
             <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 px-3 py-2 rounded-xl">
               <CheckCircle size={14} />
