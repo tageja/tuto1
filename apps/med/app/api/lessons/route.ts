@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     // Lessons live under modules → query via module join
     const { data: modules, error } = await db
       .from('nursed_modules')
-      .select('id, order_index, nursed_lessons(id, title, title_vi, order_index, module_id)')
+      .select('id, title, order_index, nursed_lessons(id, title, title_vi, order_index, module_id)')
       .eq('course_id', courseId)
       .order('order_index')
 
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
       ((mod.nursed_lessons ?? []) as { id: string; title: string; title_vi: string | null; order_index: number; module_id: string }[])
         .slice()
         .sort((a, b) => a.order_index - b.order_index)
-        .map(l => ({ ...l, _module_order: mod.order_index }))
+        .map(l => ({ ...l, _module_order: mod.order_index, _module_title: mod.title as string }))
     )
 
     return NextResponse.json({ data: lessons })

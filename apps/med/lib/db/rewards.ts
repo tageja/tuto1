@@ -209,3 +209,47 @@ export async function getAllRedemptions(limit = 100) {
   if (error) throw error
   return data ?? []
 }
+
+// ─── Calendar activity dates ───────────────────────────────────────────────────
+
+/**
+ * Returns distinct YYYY-MM-DD strings (Vietnam UTC+7) for all days the learner
+ * completed at least one lesson in the given calendar month.
+ * Defaults to the current month when year/month are omitted.
+ */
+export async function getMonthActivityDates(
+  userId: string,
+  year?: number,
+  month?: number,  // 0-based (0 = January)
+): Promise<string[]> {
+  const db = getServiceClient()
+
+  const now = new Date()
+  const y = year ?? now.getFullYear()
+  const m = month ?? now.getMonth()
+
+  const start = new Date(Date.UTC(y, m, 1)).toISOString()
+  const end   = new Date(Date.UTC(y, m + 1, 1)).toISOString()
+
+  const { data, error } = await db
+    .from('nursed_progress')
+    .select('last_active')
+    .eq('user_id', userId)
+    .eq('completed', true)
+    .not('last_active', 'is', null)
+    .gte('last_active', start)
+    .lt('last_active', end)
+
+  if (error) throw error
+
+  const dateSet = new Set<string>()
+  for (const row of data ?? []) {
+    if (!row.last_active) continue
+    const vnDate = new Date(row.last_active).toLocaleDateString('en-CA', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+    })
+    dateSet.add(vnDate)
+  }
+
+  return [...dateSet].sort()
+}

@@ -3,11 +3,14 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
-  ChevronRight, BookOpen, CheckCircle2, Lock, Play, ArrowRight, Building2, X, Link2,
+  ChevronRight, CheckCircle2, Lock, Play, ArrowRight, Building2, X, Link2, Target,
 } from 'lucide-react'
 import type { NursedCourse } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
+import { useAuth } from '@/contexts/AuthContext'
 import { COURSE_ICONS } from './courses/page'
+import { OnboardingModal } from '@/components/learn/OnboardingModal'
+import { LearningCalendar } from '@/components/learn/LearningCalendar'
 
 const HOSP_LINK_KEY = 'nursed_hospital_link'
 
@@ -49,8 +52,15 @@ function sortCourses(data: NursedCourse[]) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+const PREFERRED_DAYS_WEEKDAYS: Record<string, number[]> = {
+  everyday: [0, 1, 2, 3, 4, 5, 6],
+  weekdays: [1, 2, 3, 4, 5],
+  weekends: [0, 6],
+}
+
 export default function LearnDashboard() {
   const { t } = useLang()
+  const { profile } = useAuth()
   const [allCourses, setAllCourses] = useState<NursedCourse[]>([])
   const [loading, setLoading] = useState(true)
   const [lastLesson, setLastLesson] = useState<{
@@ -59,6 +69,9 @@ export default function LearnDashboard() {
   } | null>(null)
   const [streak, setStreak] = useState(0)
   const [lessonsCompleted, setLessonsCompleted] = useState(0)
+  const [preferredDays, setPreferredDays] = useState<string | null>(null)
+  const [activityDates, setActivityDates] = useState<string[]>([])
+  const [showOnboarding, setShowOnboarding] = useState(false)
 
   // Hospital link state
   const [hospitalLink, setHospitalLink] = useState<{ hospital_id: string; name: string } | null>(null)
@@ -82,10 +95,17 @@ export default function LearnDashboard() {
         if (j.success) {
           setStreak(j.data.streak ?? 0)
           setLessonsCompleted(j.data.todayCount ?? 0)
+          setPreferredDays(j.data.preferredDays ?? null)
+          setActivityDates(j.data.activityDates ?? [])
         }
       })
       .catch(() => {})
   }, [])
+
+  // Show onboarding modal on first visit (when profile loaded and not yet done)
+  useEffect(() => {
+    if (profile && !profile.onboarding_done) setShowOnboarding(true)
+  }, [profile])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -130,36 +150,57 @@ export default function LearnDashboard() {
     ? allCourses.find((c) => c.id === lastLesson.courseId) ?? null
     : null
 
+  // Derive nudge banner visibility
+  const todayWeekday = new Date().getDay()
+  const scheduledToday = preferredDays
+    ? (PREFERRED_DAYS_WEEKDAYS[preferredDays] ?? []).includes(todayWeekday)
+    : false
+  const showNudge = scheduledToday && lessonsCompleted === 0
+
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <>
+    <div className="max-w-5xl mx-auto space-y-6">
 
-      {/* ── HERO ─────────────────────────────────────────────────── */}
-      <div className="rounded-2xl bg-gradient-to-r from-[#0B5FFF] to-[#3B82F6] p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center gap-6 shadow-lg">
-        <div className="flex-1">
-          <p className="text-white/70 text-sm font-medium mb-1 tracking-wide uppercase">NurseEd</p>
-          <h1 className="text-white text-2xl sm:text-3xl font-bold leading-tight mb-2">
-            {t.learnWelcomeTitle}
-          </h1>
-          <p className="text-white/90 text-sm leading-relaxed max-w-md">{t.learnWelcomeSubtitle}</p>
+      {/* ── HERO — compact modern banner ─────────────────────────── */}
+      <div className="rounded-2xl overflow-hidden bg-[#0B5FFF] shadow-md">
+        {/* Top accent line */}
+        <div className="h-0.5 bg-gradient-to-r from-white/30 via-white/10 to-transparent" />
+        <div className="px-5 py-4 flex items-center gap-4">
+          {/* Left: greeting + subtitle */}
+          <div className="flex-1 min-w-0">
+            <p className="text-white/60 text-[11px] font-semibold tracking-widest uppercase mb-0.5">NurseEd</p>
+            <h1 className="text-white text-lg font-bold leading-snug truncate">
+              {t.learnWelcomeTitle}
+            </h1>
+            <p className="text-white/70 text-xs leading-relaxed mt-0.5 line-clamp-1">{t.learnWelcomeSubtitle}</p>
+          </div>
+
+          {/* Right: compact stat chips */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <StatChip icon="🔥" value={streak} label={t.statsDaysStreak} />
+            <StatChip icon="✓" value={lessonsCompleted} label={t.statsLessonsCompleted} />
+            <StatChip icon="📚" value={allCourses.filter(c => c.published).length} label={t.statsCoursesEnrolled} />
+          </div>
         </div>
 
-        {/* Stats pills */}
-        <div className="flex sm:flex-col gap-3 flex-wrap">
-          <StatPill icon="🔥" value={streak} label={t.statsDaysStreak} color="bg-orange-400/20 text-white border-orange-300/30" />
-          <StatPill icon="✓" value={lessonsCompleted} label={t.statsLessonsCompleted} color="bg-white/10 text-white border-white/20" />
-          <StatPill icon="📚" value={allCourses.filter(c => c.published).length} label={t.statsCoursesEnrolled} color="bg-white/10 text-white border-white/20" />
-        </div>
+        {/* Bottom: nudge strip — shown inside hero if today is scheduled and no lesson yet */}
+        {showNudge && (
+          <div className="flex items-center gap-2 px-5 py-2 bg-white/10 border-t border-white/10">
+            <Target size={13} className="text-white/80 flex-shrink-0" />
+            <p className="text-white/90 text-xs font-medium">{t.nudgeBannerToday}</p>
+          </div>
+        )}
       </div>
 
       {/* ── HOSPITAL LINK ────────────────────────────────────────── */}
       {hospitalLink ? (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary-light border border-primary/20">
-          <Building2 size={16} className="text-primary flex-shrink-0" />
+        <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-primary-light border border-primary/20">
+          <Building2 size={14} className="text-primary flex-shrink-0" />
           <p className="text-sm text-primary flex-1 font-medium">
             {t.hospLinkedBadge.replace('{name}', hospitalLink.name)}
           </p>
           <button onClick={handleUnlink} className="text-xs text-primary hover:opacity-80 flex items-center gap-1">
-            <X size={13} />
+            <X size={12} />
             {t.hospUnlink}
           </button>
         </div>
@@ -208,6 +249,14 @@ export default function LearnDashboard() {
         </section>
       )}
 
+      {/* ── LEARNING CALENDAR (moved here — between Continue and Path) ── */}
+      <LearningCalendar
+        preferredDays={preferredDays as 'everyday' | 'weekdays' | 'weekends' | null}
+        activityDates={activityDates}
+        streak={streak}
+        lessonsThisMonth={activityDates.length}
+      />
+
       {/* ── LEARNING PATH ─────────────────────────────────────────── */}
       <section>
         <div className="flex items-end justify-between mb-4">
@@ -234,43 +283,18 @@ export default function LearnDashboard() {
         )}
       </section>
 
-      {/* ── DAILY GOAL + STREAK ───────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Daily goal — takes 2 cols */}
-        <div className="sm:col-span-2 rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-7 h-7 rounded-full bg-[var(--primary-light)] flex items-center justify-center">
-              <BookOpen size={14} className="text-[var(--primary)]" />
-            </div>
-            <h3 className="text-sm font-semibold text-[var(--text)]">{t.todayMissionTitle}</h3>
-          </div>
-          <p className="text-sm text-[var(--text-muted)] mb-4">{t.missionDesc}</p>
-
-          <div className="relative h-2 bg-[var(--surface)] rounded-full overflow-hidden">
-            <div
-              className="absolute inset-y-0 left-0 bg-[var(--primary)] rounded-full transition-all duration-700"
-              style={{ width: lessonsCompleted >= 1 ? '100%' : '0%' }}
-            />
-          </div>
-          <div className="flex justify-between mt-2">
-            <span className="text-xs text-[var(--text-muted)]">
-              {lessonsCompleted >= 1 ? t.missionProgressDone : t.missionProgressTodo}
-            </span>
-            <span className="text-xs font-medium text-[var(--primary)]">
-              {lessonsCompleted >= 1 ? '100%' : '0%'}
-            </span>
-          </div>
-        </div>
-
-        {/* Streak */}
-        <div className="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm flex flex-col items-center justify-center gap-1 text-center">
-          <span className="text-3xl mb-1">🔥</span>
-          <p className="text-4xl font-bold text-orange-500 leading-none">{streak}</p>
-          <p className="text-sm text-[var(--text-muted)] mt-1">{t.streakDays}</p>
-          <p className="text-xs text-[var(--text-muted)]">{t.streakNudge}</p>
-        </div>
-      </div>
     </div>
+
+    {/* ── ONBOARDING MODAL ─────────────────────────────────────── */}
+    {showOnboarding && (
+      <OnboardingModal
+        onComplete={(prefs) => {
+          setPreferredDays(prefs.preferred_days)
+          setShowOnboarding(false)
+        }}
+      />
+    )}
+    </>
   )
 }
 
@@ -282,16 +306,12 @@ function SectionHeading({ title, className = '' }: { title: string; className?: 
   )
 }
 
-function StatPill({
-  icon, value, label, color,
-}: { icon: string; value: number; label: string; color: string }) {
+function StatChip({ icon, value, label }: { icon: string; value: number; label: string }) {
   return (
-    <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${color} text-sm`}>
-      <span className="text-base leading-none">{icon}</span>
-      <div>
-        <p className="font-bold text-base leading-none">{value}</p>
-        <p className="text-xs opacity-80 leading-none mt-0.5">{label}</p>
-      </div>
+    <div className="flex flex-col items-center justify-center px-3 py-2 rounded-xl bg-white/12 border border-white/20 min-w-[52px]">
+      <span className="text-sm leading-none mb-0.5">{icon}</span>
+      <p className="text-white font-bold text-sm leading-none">{value}</p>
+      <p className="text-white/60 text-[9px] leading-tight mt-0.5 text-center whitespace-nowrap">{label}</p>
     </div>
   )
 }

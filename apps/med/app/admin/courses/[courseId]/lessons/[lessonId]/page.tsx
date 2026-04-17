@@ -307,8 +307,7 @@ export default function LessonBuilderPage() {
                   onClick={() => handleAddStep(value)}
                   className="w-full text-left px-4 py-2.5 text-sm text-text hover:bg-surface transition-colors"
                 >
-                  <span className={`${TYPE_BADGE[value]} mr-2`}>{TYPE_LABEL[value]}</span>
-                  {label}
+                  <span className={`${TYPE_BADGE[value]}`}>{TYPE_LABEL[value]}</span>
                 </button>
               ))}
             </div>
