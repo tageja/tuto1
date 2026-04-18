@@ -544,9 +544,11 @@ function MatchingEditor({ step, siblingSteps, onSubmit, saving, onCancel }: Edit
   const existing = (step.config?.pairs as { en: string; vi: string }[] | undefined) ?? []
   const [raw, setRaw] = useState(existing.map((p) => `${p.en} | ${p.vi}`).join('\n'))
   const [pulled, setPulled] = useState(false)
+  const [translating, setTranslating] = useState(false)
+  const [translateProgress, setTranslateProgress] = useState('')
 
-  /** Collect English dialogue lines from sibling script/audio steps. */
-  function handlePullFromScript() {
+  /** Collect unique English dialogue lines from sibling script/audio steps. */
+  function collectLines(): string[] {
     const lines: string[] = []
     for (const s of siblingSteps) {
       const cfg = s.config as Record<string, unknown> | null
@@ -558,17 +560,47 @@ function MatchingEditor({ step, siblingSteps, onSubmit, saving, onCancel }: Edit
         }
       }
     }
-    if (lines.length === 0) return
-    // Deduplicate
-    const unique = [...new Set(lines)]
-    // Keep any existing content the user already typed, append new lines below
-    const existingTrimmed = raw.trim()
-    const newLines = unique.map((en) => `${en} | `).join('\n')
-    setRaw(existingTrimmed ? `${existingTrimmed}\n${newLines}` : newLines)
-    setPulled(true)
+    return [...new Set(lines)]
   }
 
-  // Find how many script lines are available across siblings
+  async function handlePullFromScript() {
+    const unique = collectLines()
+    if (unique.length === 0) return
+
+    setTranslating(true)
+    setTranslateProgress(`Translating ${unique.length} lines…`)
+
+    try {
+      const res = await fetch('/api/translate/phrases', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phrases: unique }),
+      })
+      const data = await res.json() as { pairs?: { en: string; vi: string }[]; error?: string }
+
+      if (!res.ok || data.error || !data.pairs) {
+        // Fallback: insert English-only lines so the user can type VI manually
+        const existingTrimmed = raw.trim()
+        const fallback = unique.map((en) => `${en} | `).join('\n')
+        setRaw(existingTrimmed ? `${existingTrimmed}\n${fallback}` : fallback)
+        setTranslateProgress('Translation failed — fill Vietnamese manually')
+      } else {
+        const existingTrimmed = raw.trim()
+        const newLines = data.pairs.map(({ en, vi }) => `${en} | ${vi}`).join('\n')
+        setRaw(existingTrimmed ? `${existingTrimmed}\n${newLines}` : newLines)
+        setTranslateProgress(`✓ ${data.pairs.length} lines translated`)
+      }
+    } catch {
+      const existingTrimmed = raw.trim()
+      const fallback = unique.map((en) => `${en} | `).join('\n')
+      setRaw(existingTrimmed ? `${existingTrimmed}\n${fallback}` : fallback)
+      setTranslateProgress('Translation failed — fill Vietnamese manually')
+    } finally {
+      setTranslating(false)
+      setPulled(true)
+    }
+  }
+
   const availableScriptCount = siblingSteps.reduce((acc, s) => {
     const cfg = s.config as Record<string, unknown> | null
     if (!cfg) return acc
@@ -601,16 +633,25 @@ function MatchingEditor({ step, siblingSteps, onSubmit, saving, onCancel }: Edit
               {availableScriptCount} dialogue line{availableScriptCount !== 1 ? 's' : ''} found in this lesson's scripts
             </p>
             <p className="text-xs text-text-muted mt-0.5">
-              Pull them in, then fill the Vietnamese side and delete lines you don't want.
+              {translateProgress || 'Pull & auto-translate into English | Vietnamese pairs.'}
             </p>
           </div>
           <button
             type="button"
             onClick={handlePullFromScript}
-            disabled={pulled}
-            className="btn-secondary !py-1.5 !px-3 text-xs shrink-0 disabled:opacity-50"
+            disabled={pulled || translating}
+            className="btn-secondary !py-1.5 !px-3 text-xs shrink-0 disabled:opacity-50 flex items-center gap-1.5"
           >
-            {pulled ? '✓ Pulled' : '⚡ Pull from script'}
+            {translating ? (
+              <>
+                <span className="inline-block w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                Translating…
+              </>
+            ) : pulled ? (
+              '✓ Done'
+            ) : (
+              '⚡ Pull & translate'
+            )}
           </button>
         </div>
       )}
@@ -621,12 +662,8 @@ function MatchingEditor({ step, siblingSteps, onSubmit, saving, onCancel }: Edit
         value={raw}
         onChange={(e) => setRaw(e.target.value)}
         placeholder={"Good morning, how can I help you? | Chào buổi sáng, tôi có thể giúp gì cho bạn?\nPlease take a seat. | Mời bạn ngồi xuống."}
+        disabled={translating}
       />
-      {pulled && raw.includes(' | \n') || (pulled && raw.endsWith(' | ')) ? (
-        <p className="text-xs text-amber-600">
-          ⚠ Fill in the Vietnamese side (after the |) for each line, then delete any you don't need.
-        </p>
-      ) : null}
       <EditorActions saving={saving} onCancel={onCancel} onSave={handleSave} />
     </div>
   )
