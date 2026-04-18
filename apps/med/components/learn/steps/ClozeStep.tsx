@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { CheckCircle, XCircle, ChevronRight } from 'lucide-react'
 import type { NursedLessonStep } from '@/lib/supabase'
@@ -49,13 +49,17 @@ interface WordBankProps {
   step: NursedLessonStep
 }
 
+// Drag source can come from the word bank or from an existing filled slot
+type DragSource =
+  | { origin: 'bank'; chip: string; bankIdx: number }
+  | { origin: 'slot'; chip: string; slotIdx: number }
+
 function WordBankCloze({ tokens, onComplete, contextAudio, step }: WordBankProps) {
   const { t } = useLang()
 
   const blanks = tokens.filter((tk) => tk.isBlank)
   const blankCount = blanks.length
 
-  // Shuffled chip pool (answers + optional decoys from config)
   const chipPool = useMemo(() => {
     const answers = blanks.map((b) => b.answer ?? '')
     const decoys = (step.config?.decoys as string[] | undefined) ?? []
@@ -63,41 +67,105 @@ function WordBankCloze({ tokens, onComplete, contextAudio, step }: WordBankProps
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // placed[i] = chip text placed in blank i, or null if empty
   const [placed, setPlaced] = useState<(string | null)[]>(Array(blankCount).fill(null))
-  // bank: chips still available (not placed)
   const [bank, setBank] = useState<string[]>(chipPool)
-
   const [checked, setChecked] = useState(false)
   const [results, setResults] = useState<Record<number, boolean>>({})
+  const [dragOver, setDragOver] = useState<number | null>(null) // blank idx being hovered
+  const dragSrc = useRef<DragSource | null>(null)
 
-  function handleChipTap(chip: string) {
-    // Place chip into the first empty blank
+  // ── Tap handlers (mobile-friendly, kept as-is) ──────────────────────────────
+  function handleChipTap(chip: string, bankIdx: number) {
     const emptyIdx = placed.findIndex((p) => p === null)
     if (emptyIdx === -1) return
-    setPlaced((prev) => {
-      const next = [...prev]
-      next[emptyIdx] = chip
-      return next
-    })
-    setBank((prev) => {
-      const idx = prev.indexOf(chip)
-      return [...prev.slice(0, idx), ...prev.slice(idx + 1)]
-    })
+    setPlaced((prev) => { const n = [...prev]; n[emptyIdx] = chip; return n })
+    setBank((prev) => prev.filter((_, i) => i !== bankIdx))
   }
 
-  function handleSlotTap(blankIdx: number) {
-    const chip = placed[blankIdx]
+  function handleSlotTap(slotIdx: number) {
+    const chip = placed[slotIdx]
     if (!chip || checked) return
-    // Return chip to bank
-    setPlaced((prev) => {
-      const next = [...prev]
-      next[blankIdx] = null
-      return next
-    })
+    setPlaced((prev) => { const n = [...prev]; n[slotIdx] = null; return n })
     setBank((prev) => [...prev, chip])
   }
 
+  // ── Drag-and-drop handlers ──────────────────────────────────────────────────
+  function onBankDragStart(chip: string, bankIdx: number) {
+    dragSrc.current = { origin: 'bank', chip, bankIdx }
+  }
+
+  function onSlotDragStart(chip: string, slotIdx: number) {
+    dragSrc.current = { origin: 'slot', chip, slotIdx }
+  }
+
+  function onSlotDragOver(e: React.DragEvent, slotIdx: number) {
+    e.preventDefault()
+    setDragOver(slotIdx)
+  }
+
+  function onSlotDrop(e: React.DragEvent, targetSlotIdx: number) {
+    e.preventDefault()
+    setDragOver(null)
+    const src = dragSrc.current
+    if (!src) return
+    dragSrc.current = null
+
+    const chip = src.chip
+
+    setPlaced((prevPlaced) => {
+      const next = [...prevPlaced]
+
+      // If target slot is occupied, swap that chip back to bank (or back to source slot)
+      const displaced = next[targetSlotIdx]
+
+      // Place incoming chip in target slot
+      next[targetSlotIdx] = chip
+
+      setBank((prevBank) => {
+        let nextBank = [...prevBank]
+
+        if (src.origin === 'bank') {
+          // Remove chip from bank
+          nextBank = nextBank.filter((_, i) => i !== src.bankIdx)
+        } else {
+          // Clear source slot (already handled — return displaced below)
+          next[src.slotIdx] = null
+        }
+
+        // If a chip was displaced from the target, put it back appropriately
+        if (displaced) {
+          if (src.origin === 'slot') {
+            // Swap: displaced goes into the source slot
+            next[src.slotIdx] = displaced
+          } else {
+            // Displaced goes back to bank
+            nextBank = [...nextBank, displaced]
+          }
+        }
+
+        return nextBank
+      })
+
+      return next
+    })
+  }
+
+  function onDragEnd() {
+    dragSrc.current = null
+    setDragOver(null)
+  }
+
+  // Drop onto the bank area (return a slot chip to bank)
+  function onBankDrop(e: React.DragEvent) {
+    e.preventDefault()
+    const src = dragSrc.current
+    if (!src || src.origin !== 'slot') return
+    dragSrc.current = null
+    setPlaced((prev) => { const n = [...prev]; n[src.slotIdx] = null; return n })
+    setBank((prev) => [...prev, src.chip])
+  }
+
+  // ── Check / reset ───────────────────────────────────────────────────────────
   function handleCheck() {
     const res: Record<number, boolean> = {}
     blanks.forEach((token, bi) => {
@@ -112,6 +180,7 @@ function WordBankCloze({ tokens, onComplete, contextAudio, step }: WordBankProps
     setBank(chipPool)
     setChecked(false)
     setResults({})
+    setDragOver(null)
   }
 
   const score = Object.values(results).filter(Boolean).length
@@ -134,7 +203,7 @@ function WordBankCloze({ tokens, onComplete, contextAudio, step }: WordBankProps
         <p className="text-sm text-text-muted mt-1">{t.clozeWordBankSubtitle}</p>
       </div>
 
-      {/* Cloze text with tap-to-remove slots */}
+      {/* Cloze text with droppable / tappable blank slots */}
       <div className="card p-5 bg-surface">
         <p className="text-sm leading-loose text-text">
           {tokens.map((token, idx) => {
@@ -143,23 +212,32 @@ function WordBankCloze({ tokens, onComplete, contextAudio, step }: WordBankProps
             const value = placed[currentBi]
             const isCorrect = results[currentBi] === true
             const isWrong = results[currentBi] === false
+            const isHovered = dragOver === currentBi && !checked
 
             return (
               <span key={idx} className="inline-block mx-1 align-middle">
                 <motion.button
                   layout
+                  draggable={!!value && !checked}
+                  onDragStart={() => value && onSlotDragStart(value, currentBi)}
+                  onDragEnd={onDragEnd}
+                  onDragOver={(e) => !checked && onSlotDragOver(e, currentBi)}
+                  onDrop={(e) => !checked && onSlotDrop(e, currentBi)}
+                  onDragLeave={() => setDragOver(null)}
                   onClick={() => handleSlotTap(currentBi)}
-                  className={`min-w-[5rem] px-2.5 py-0.5 rounded-lg border text-sm font-medium transition-colors ${
+                  className={`min-w-[5rem] px-2.5 py-0.5 rounded-lg border text-sm font-medium transition-all duration-150 ${
                     checked
                       ? isCorrect
                         ? 'border-success bg-green-50 text-success cursor-default'
                         : 'border-error bg-red-50 text-error cursor-default'
+                      : isHovered
+                      ? 'border-primary border-2 bg-primary/10 text-primary scale-105 shadow-sm'
                       : value
-                      ? 'border-primary bg-primary-light text-primary cursor-pointer hover:bg-primary/10'
-                      : 'border-dashed border-border text-text-muted cursor-default'
+                      ? 'border-primary bg-primary-light text-primary cursor-grab active:cursor-grabbing hover:bg-primary/10'
+                      : 'border-dashed border-2 border-border text-text-muted cursor-default'
                   }`}
                 >
-                  {value ?? '___'}
+                  {value ?? '　'}
                 </motion.button>
                 {checked && isCorrect && <CheckCircle size={14} className="inline ml-1 text-success" />}
                 {checked && isWrong && (
@@ -174,17 +252,24 @@ function WordBankCloze({ tokens, onComplete, contextAudio, step }: WordBankProps
         </p>
       </div>
 
-      {/* Word bank */}
+      {/* Word bank — droppable area + draggable chips */}
       {!checked && (
-        <div>
+        <div
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={onBankDrop}
+          className="min-h-[3rem] rounded-xl border-2 border-dashed border-border p-3 transition-colors"
+        >
           <p className="text-xs text-text-muted mb-2">{t.clozeWordBankLabel}</p>
           <div className="flex flex-wrap gap-2">
             {bank.map((chip, i) => (
               <motion.button
                 layout
                 key={`${chip}-${i}`}
-                onClick={() => handleChipTap(chip)}
-                className="px-3 py-1.5 rounded-xl border border-border bg-bg text-sm text-text hover:border-primary hover:bg-primary-light hover:text-primary transition-colors"
+                draggable
+                onDragStart={() => onBankDragStart(chip, i)}
+                onDragEnd={onDragEnd}
+                onClick={() => handleChipTap(chip, i)}
+                className="px-3 py-1.5 rounded-xl border border-border bg-bg text-sm text-text hover:border-primary hover:bg-primary-light hover:text-primary transition-colors cursor-grab active:cursor-grabbing select-none"
               >
                 {chip}
               </motion.button>
