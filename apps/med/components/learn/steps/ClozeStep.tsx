@@ -447,7 +447,9 @@ function TextInputCloze({ tokens, onComplete, contextAudio, step }: WordBankProp
 // ─── Root export — routes to word-bank or text-input mode ────────────────────
 
 export default function ClozeStep({ step, onComplete, contextAudio }: Props) {
-  const rawText = step.config?.clozeText as string | undefined
+  // clozeText is the correct key; fall back to cloze (old key) if present.
+  // If neither exists, show the example so at least something renders.
+  const rawText = (step.config?.clozeText ?? step.config?.cloze) as string | undefined
   const tokens = parseClozeText(rawText ?? EXAMPLE_TEXT)
   const wordBank = step.config?.wordBank === true
 

@@ -181,13 +181,17 @@ function ScriptEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
 
 function ClozeEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
   const { t } = useLang()
-  const cfg = step.config as { script?: string; cloze?: string }
+  // Support both old key (cloze) and new key (clozeText)
+  const cfg = step.config as { script?: string; cloze?: string; clozeText?: string }
   const [script, setScript] = useState(cfg.script ?? '')
-  const [cloze, setCloze] = useState(cfg.cloze ?? '')
+  // Load from whichever key exists; prefer clozeText (the correct key)
+  const [cloze, setCloze] = useState(cfg.clozeText ?? cfg.cloze ?? '')
 
   function generateCloze() {
+    // Produce [word] format: every 4th word becomes [word] where word is the correct answer.
+    // The learner component reads [word] to know both the blank position and the correct answer.
     const words = script.split(/\s+/)
-    const result = words.map((w, i) => ((i + 1) % 4 === 0 ? '___' : w)).join(' ')
+    const result = words.map((w, i) => ((i + 1) % 4 === 0 ? `[${w}]` : w)).join(' ')
     setCloze(result)
   }
 
@@ -203,10 +207,14 @@ function ClozeEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
       {cloze && (
         <div>
           <label className="label text-xs">{t.labelClozeOutput}</label>
+          <p className="text-xs text-text-muted mb-1">
+            Words in <code className="bg-surface px-1 rounded">[brackets]</code> are the blanks — the word inside is the correct answer. Edit freely.
+          </p>
           <textarea className="input resize-none text-sm font-mono" rows={5} value={cloze} onChange={(e) => setCloze(e.target.value)} />
         </div>
       )}
-      <EditorActions saving={saving} onCancel={onCancel} onSave={() => onSubmit({ script, cloze })} />
+      {/* Save to clozeText (the key ClozeStep reads) and keep script for reference */}
+      <EditorActions saving={saving} onCancel={onCancel} onSave={() => onSubmit({ script, clozeText: cloze })} />
     </div>
   )
 }
