@@ -8,11 +8,12 @@ import GenerateAudioButton from './GenerateAudioButton'
 
 interface StepEditorProps {
   step: NursedLessonStep
+  siblingSteps?: NursedLessonStep[]
   onSave: (stepId: string, config: Record<string, unknown>) => Promise<void>
   onCancel: () => void
 }
 
-export function StepEditor({ step, onSave, onCancel }: StepEditorProps) {
+export function StepEditor({ step, siblingSteps = [], onSave, onCancel }: StepEditorProps) {
   const { t } = useLang()
   const [saving, setSaving] = useState(false)
 
@@ -25,7 +26,7 @@ export function StepEditor({ step, onSave, onCancel }: StepEditorProps) {
     }
   }
 
-  const editorProps = { step, onSubmit: handleSubmit, saving, onCancel }
+  const editorProps = { step, siblingSteps, onSubmit: handleSubmit, saving, onCancel }
 
   switch (step.type) {
     case 'video': return <VideoEditor {...editorProps} />
@@ -47,6 +48,7 @@ export function StepEditor({ step, onSave, onCancel }: StepEditorProps) {
 
 interface EditorProps {
   step: NursedLessonStep
+  siblingSteps: NursedLessonStep[]
   onSubmit: (config: Record<string, unknown>) => Promise<void>
   saving: boolean
   onCancel: () => void
@@ -522,10 +524,60 @@ function SelfReflectionEditor({ step, onSubmit, saving, onCancel }: EditorProps)
 
 // ─── Matching Editor ────────────────────────────────────────────────────────
 // Each line: "English phrase | Tiếng Việt"
-function MatchingEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
+
+/** Parse script/transcript text and extract English dialogue lines. */
+function extractEnglishLines(text: string): string[] {
+  return text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((line) => {
+      // "Nurse: Good morning, how can I help you?" → "Good morning, how can I help you?"
+      const match = line.match(/^(?:Nurse|Patient|Doctor|Family|Speaker\s*\d*):\s*(.+)/i)
+      return match ? match[1].trim() : null
+    })
+    .filter((l): l is string => l !== null && l.length > 2)
+}
+
+function MatchingEditor({ step, siblingSteps, onSubmit, saving, onCancel }: EditorProps) {
   const { t } = useLang()
   const existing = (step.config?.pairs as { en: string; vi: string }[] | undefined) ?? []
   const [raw, setRaw] = useState(existing.map((p) => `${p.en} | ${p.vi}`).join('\n'))
+  const [pulled, setPulled] = useState(false)
+
+  /** Collect English dialogue lines from sibling script/audio steps. */
+  function handlePullFromScript() {
+    const lines: string[] = []
+    for (const s of siblingSteps) {
+      const cfg = s.config as Record<string, unknown> | null
+      if (!cfg) continue
+      for (const key of ['script', 'transcript']) {
+        const text = cfg[key]
+        if (typeof text === 'string' && text.trim()) {
+          lines.push(...extractEnglishLines(text))
+        }
+      }
+    }
+    if (lines.length === 0) return
+    // Deduplicate
+    const unique = [...new Set(lines)]
+    // Keep any existing content the user already typed, append new lines below
+    const existingTrimmed = raw.trim()
+    const newLines = unique.map((en) => `${en} | `).join('\n')
+    setRaw(existingTrimmed ? `${existingTrimmed}\n${newLines}` : newLines)
+    setPulled(true)
+  }
+
+  // Find how many script lines are available across siblings
+  const availableScriptCount = siblingSteps.reduce((acc, s) => {
+    const cfg = s.config as Record<string, unknown> | null
+    if (!cfg) return acc
+    for (const key of ['script', 'transcript']) {
+      const text = cfg[key]
+      if (typeof text === 'string') acc += extractEnglishLines(text).length
+    }
+    return acc
+  }, 0)
 
   function handleSave() {
     const pairs = raw
@@ -542,6 +594,26 @@ function MatchingEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
 
   return (
     <div className="space-y-3">
+      {availableScriptCount > 0 && (
+        <div className="flex items-center gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium text-primary">
+              {availableScriptCount} dialogue line{availableScriptCount !== 1 ? 's' : ''} found in this lesson's scripts
+            </p>
+            <p className="text-xs text-text-muted mt-0.5">
+              Pull them in, then fill the Vietnamese side and delete lines you don't want.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handlePullFromScript}
+            disabled={pulled}
+            className="btn-secondary !py-1.5 !px-3 text-xs shrink-0 disabled:opacity-50"
+          >
+            {pulled ? '✓ Pulled' : '⚡ Pull from script'}
+          </button>
+        </div>
+      )}
       <p className="text-xs text-text-muted">{t.matchingEditorHint}</p>
       <textarea
         className="input resize-none text-sm font-mono"
@@ -550,6 +622,11 @@ function MatchingEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
         onChange={(e) => setRaw(e.target.value)}
         placeholder={"Good morning, how can I help you? | Chào buổi sáng, tôi có thể giúp gì cho bạn?\nPlease take a seat. | Mời bạn ngồi xuống."}
       />
+      {pulled && raw.includes(' | \n') || (pulled && raw.endsWith(' | ')) ? (
+        <p className="text-xs text-amber-600">
+          ⚠ Fill in the Vietnamese side (after the |) for each line, then delete any you don't need.
+        </p>
+      ) : null}
       <EditorActions saving={saving} onCancel={onCancel} onSave={handleSave} />
     </div>
   )

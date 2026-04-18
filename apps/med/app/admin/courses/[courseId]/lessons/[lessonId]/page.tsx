@@ -409,6 +409,7 @@ export default function LessonBuilderPage() {
                 <div className="px-4 pb-4 pt-1 border-t border-border bg-surface/30">
                   <StepEditor
                     step={step}
+                    siblingSteps={steps.filter((s) => s.id !== step.id)}
                     onSave={handleSaveStep}
                     onCancel={() => setEditingStepId(null)}
                   />
