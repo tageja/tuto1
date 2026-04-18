@@ -15,7 +15,7 @@ import { isUuid } from '@/lib/utils/slug'
 export default function LessonPage() {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>()
   const { t, lang } = useLang()
-  const { user } = useAuth()
+  const { user, role } = useAuth()
   const router = useRouter()
   const [lesson, setLesson] = useState<any>(null)
   const [course, setCourse] = useState<CourseWithModules | null>(null)
@@ -59,6 +59,8 @@ export default function LessonPage() {
 
   useEffect(() => {
     if (!user || !courseId || !course || !lesson) return
+    // super_admin can preview any lesson regardless of completion state
+    if (role === 'super_admin') return
 
     const { allLessonIds, lessonToModule } = buildPublishedLessonOrder(course)
     const idx = allLessonIds.indexOf(resolvedLessonId)
@@ -94,7 +96,7 @@ export default function LessonPage() {
         }
       })
       .catch(() => {})
-  }, [user, courseId, resolvedLessonId, course, lesson])
+  }, [user, role, courseId, resolvedLessonId, course, lesson])
 
   useEffect(() => {
     if (!user || !course) return

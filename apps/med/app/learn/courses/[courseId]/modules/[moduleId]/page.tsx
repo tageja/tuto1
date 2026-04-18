@@ -27,7 +27,7 @@ const STAGE_LABELS: Record<LessonStage, { en: string; vi: string }> = {
 export default function ModuleDetailPage() {
   const { courseId, moduleId } = useParams<{ courseId: string; moduleId: string }>()
   const { t, lang } = useLang()
-  const { user } = useAuth()
+  const { user, role } = useAuth()
   const router = useRouter()
   const [course, setCourse] = useState<CourseWithModules | null>(null)
   const [loading, setLoading] = useState(true)
@@ -109,6 +109,8 @@ export default function ModuleDetailPage() {
   }, [publishedInModule])
 
   function getStatus(lessonId: string, lessonPublished: boolean): 'completed' | 'unlocked' | 'locked' | 'coming_soon' {
+    // super_admin previews all published lessons without sequential locks
+    if (role === 'super_admin' && lessonPublished) return 'unlocked'
     return getLessonLearnStatus(lessonId, lessonPublished, {
       completedLessons,
       isLoggedIn: Boolean(user),

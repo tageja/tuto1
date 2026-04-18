@@ -83,7 +83,7 @@ const COURSE_OUTCOMES: Record<string, { en: string; vi: string }[]> = {
 export default function CourseOverview() {
   const { courseId } = useParams<{ courseId: string }>()
   const { t } = useLang()
-  const { user } = useAuth()
+  const { user, role } = useAuth()
   const router = useRouter()
   const [course, setCourse] = useState<CourseWithModules | null>(null)
   const [loading, setLoading] = useState(true)
@@ -313,6 +313,8 @@ export default function CourseOverview() {
               const { allLessonIds, lessonToModule } = buildPublishedLessonOrder(course)
 
               function getLessonStatus(lessonId: string, lessonPublished: boolean): 'completed' | 'unlocked' | 'locked' {
+                // super_admin can preview any published lesson — no sequential locks
+                if (role === 'super_admin' && lessonPublished) return 'unlocked'
                 const s = getLessonLearnStatus(lessonId, lessonPublished, {
                   completedLessons,
                   isLoggedIn: Boolean(user),
