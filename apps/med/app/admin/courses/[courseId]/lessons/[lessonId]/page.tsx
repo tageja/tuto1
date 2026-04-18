@@ -61,6 +61,8 @@ export default function LessonBuilderPage() {
   const [showAddDropdown, setShowAddDropdown] = useState(false)
   const [addingStep, setAddingStep] = useState(false)
   const [previewStep, setPreviewStep] = useState<NursedLessonStep | null>(null)
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
   const STEP_TYPES: { value: StepType; label: string }[] = [
     { value: 'scenario_intro', label: t.stepTypeScenarioIntro },
@@ -201,6 +203,35 @@ export default function LessonBuilderPage() {
     }
   }
 
+  function handleDragStart(idx: number) {
+    setDragIndex(idx)
+  }
+
+  function handleDragOver(e: React.DragEvent, idx: number) {
+    e.preventDefault()
+    setDragOverIndex(idx)
+  }
+
+  function handleDragEnd() {
+    if (dragIndex === null || dragOverIndex === null || dragIndex === dragOverIndex) {
+      setDragIndex(null)
+      setDragOverIndex(null)
+      return
+    }
+    const reordered = [...steps]
+    const [moved] = reordered.splice(dragIndex, 1)
+    reordered.splice(dragOverIndex, 0, moved)
+    const withNewOrder = reordered.map((s, i) => ({ ...s, order_index: i + 1 }))
+    setSteps(withNewOrder)
+    setDragIndex(null)
+    setDragOverIndex(null)
+    fetch('/api/steps', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ steps: withNewOrder.map((s) => ({ id: s.id, order_index: s.order_index })) }),
+    }).catch(() => toast(t.toastUpdateError, 'error'))
+  }
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -326,9 +357,20 @@ export default function LessonBuilderPage() {
           </div>
         ) : (
           steps.map((step, idx) => (
-            <div key={step.id} className="card overflow-hidden">
+            <div
+              key={step.id}
+              draggable
+              onDragStart={() => handleDragStart(idx)}
+              onDragOver={(e) => handleDragOver(e, idx)}
+              onDragEnd={handleDragEnd}
+              className={`card overflow-hidden transition-all duration-150 ${
+                dragOverIndex === idx && dragIndex !== idx
+                  ? 'ring-2 ring-primary ring-offset-1 scale-[1.01]'
+                  : ''
+              } ${dragIndex === idx ? 'opacity-40' : ''}`}
+            >
               <div className="flex items-center gap-3 px-4 py-3">
-                <GripVertical size={16} className="text-text-muted cursor-grab" />
+                <GripVertical size={16} className="text-text-muted cursor-grab active:cursor-grabbing shrink-0" />
                 <span className="text-xs text-text-muted w-5 shrink-0">{idx + 1}</span>
                 <span className={`${TYPE_BADGE[step.type]} shrink-0`}>{TYPE_LABEL[step.type]}</span>
                 <p className="text-sm text-text flex-1 truncate">
