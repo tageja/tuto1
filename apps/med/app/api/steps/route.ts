@@ -21,6 +21,12 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
+    // Resolve lesson slug → UUID if needed (slug-based URLs pass non-UUID lesson_id)
+    if (body.lesson_id && !isUuid(body.lesson_id)) {
+      const lesson = await resolveLesson(body.lesson_id)
+      if (!lesson) return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
+      body.lesson_id = lesson.id
+    }
     const step = await createStep(body)
     return NextResponse.json({ data: step }, { status: 201 })
   } catch (e: any) {

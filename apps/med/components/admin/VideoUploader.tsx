@@ -43,37 +43,63 @@ export default function VideoUploader({ stepId, stepTitle, segments = [], onUplo
     setProgress(0)
     setError('')
 
-    const form = new FormData()
-    form.append('file', file)
-    form.append('stepId', stepId)
-    form.append('updateStepType', String(updateType))
-    if (segments.length) {
-      form.append('segments', JSON.stringify(segments))
-    }
-
-    const ticker = setInterval(() => {
-      setProgress(p => Math.min(p + 3, 88))
-    }, 400)
+    const ext = file.name.split('.').pop()?.toLowerCase() ?? 'mp4'
 
     try {
-      const res = await fetch('/api/video/upload', { method: 'POST', body: form })
+      // Step 1: Get a signed upload URL from our API (tiny request, no file bytes through Vercel)
+      const urlRes = await fetch(`/api/video/upload?stepId=${stepId}&ext=${ext}`)
+      const urlData = await urlRes.json()
+      if (!urlRes.ok || urlData.error) {
+        setUploadState('error')
+        setError(urlData.error ?? 'Could not get upload URL')
+        return
+      }
+      const { signedUrl, path: storagePath } = urlData
+
+      // Step 2: Upload the file directly to Supabase Storage (bypasses Vercel completely)
+      const ticker = setInterval(() => {
+        setProgress(p => Math.min(p + 2, 88))
+      }, 300)
+
+      const uploadRes = await fetch(signedUrl, {
+        method: 'PUT',
+        body: file,
+        headers: { 'Content-Type': file.type || 'video/mp4' },
+      })
       clearInterval(ticker)
+
+      if (!uploadRes.ok) {
+        setUploadState('error')
+        setError(`Storage upload failed (${uploadRes.status})`)
+        return
+      }
+      setProgress(95)
+
+      // Step 3: Tell our API to link the uploaded file to the step in the DB
+      const linkRes = await fetch('/api/video/link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          stepId,
+          storagePath,
+          updateStepType: updateType,
+          segments: segments.length ? segments : undefined,
+        }),
+      })
+      const linkData = await linkRes.json()
       setProgress(100)
 
-      const data = await res.json()
-
-      if (!res.ok || data.error) {
+      if (!linkRes.ok || linkData.error) {
         setUploadState('error')
-        setError(data.error ?? 'Upload failed')
+        setError(linkData.error ?? 'Failed to link video to step')
         return
       }
 
       setUploadState('done')
-      setVideoUrl(data.videoUrl)
-      setUploadMeta({ vttGenerated: data.vttGenerated, segmentsUsed: data.segmentsUsed ?? 0 })
-      onUploaded(data.videoUrl)
+      setVideoUrl(linkData.videoUrl)
+      setUploadMeta({ vttGenerated: linkData.vttGenerated, segmentsUsed: linkData.segmentsUsed ?? 0 })
+      onUploaded(linkData.videoUrl)
     } catch (e) {
-      clearInterval(ticker)
       setUploadState('error')
       setError(e instanceof Error ? e.message : 'Upload failed')
     }

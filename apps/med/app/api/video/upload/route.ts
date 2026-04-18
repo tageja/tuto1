@@ -35,12 +35,60 @@ function buildViVtt(segments: AnimationSegment[]): string {
 }
 
 /**
+ * GET /api/video/upload
+ * Returns a Supabase Storage signed upload URL so the browser can upload
+ * directly to Supabase without proxying the file through Vercel.
+ * Query params: stepId, ext (default: mp4)
+ */
+export async function GET(req: NextRequest) {
+  try {
+    const stepId = req.nextUrl.searchParams.get('stepId')
+    const ext = req.nextUrl.searchParams.get('ext')?.toLowerCase() ?? 'mp4'
+
+    if (!stepId) return NextResponse.json({ error: 'stepId required' }, { status: 400 })
+    if (!['mp4', 'webm', 'mov'].includes(ext)) {
+      return NextResponse.json({ error: 'Only mp4, webm, mov accepted' }, { status: 400 })
+    }
+
+    const db = getServiceClient()
+
+    const { data: step, error: stepErr } = await db
+      .from('nursed_lesson_steps')
+      .select('id')
+      .eq('id', stepId)
+      .single()
+    if (stepErr || !step) return NextResponse.json({ error: 'Step not found' }, { status: 404 })
+
+    const storagePath = `animation/${stepId}/heygen-video.${ext}`
+
+    const { data, error } = await db.storage
+      .from(BUCKET)
+      .createSignedUploadUrl(storagePath)
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+    const { data: urlData } = db.storage.from(BUCKET).getPublicUrl(storagePath)
+
+    return NextResponse.json({
+      signedUrl: data.signedUrl,
+      token: data.token,
+      path: storagePath,
+      publicUrl: urlData.publicUrl,
+    })
+  } catch (err) {
+    return NextResponse.json({ error: (err as Error).message }, { status: 500 })
+  }
+}
+
+/**
  * POST /api/video/upload
  * multipart/form-data:
  *   file        — video file (mp4 / webm / mov)
  *   stepId      — nursed_lesson_steps.id to attach to
  *   updateStepType — 'true' → change step type to 'video'
  *   segments    — optional JSON string: AnimationSegment[] for auto VTT
+ *
+ * @deprecated Use GET /api/video/upload for signed URL + POST /api/video/link instead.
+ * Kept for local dev compatibility only — Vercel's 4.5 MB body limit blocks large files.
  */
 export async function POST(req: NextRequest) {
   try {
