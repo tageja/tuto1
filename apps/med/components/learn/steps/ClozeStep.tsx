@@ -42,29 +42,32 @@ function parseBracketFormat(text: string): ClozeToken[] {
   })
 }
 
-/** Old format: ___ = blank, answers reconstructed by aligning positions with full script */
+/** Old format: ___ = blank, answers reconstructed by aligning positions with full script.
+ *  Splits directly on _{2,} so punctuation attached to blanks (___, ___. ___?) all work. */
 function parseUnderscoreFormat(cloze: string, script: string): ClozeToken[] {
-  const clozeWords = cloze.split(/\s+/)
+  // Split on any run of 2+ underscores, capturing them as delimiters.
+  // e.g. "here to ___. What ___?" → ["here to ", "___", ". What ", "___", "?"]
+  const parts = cloze.split(/(_{2,})/)
   const scriptWords = script.split(/\s+/)
 
+  let scriptPos = 0
   const tokens: ClozeToken[] = []
-  let textBuf = ''
 
-  for (let i = 0; i < clozeWords.length; i++) {
-    if (/^___+$/.test(clozeWords[i])) {
-      if (textBuf) {
-        tokens.push({ text: textBuf + ' ', isBlank: false })
-        textBuf = ''
-      }
-      const raw = scriptWords[i] ?? ''
-      // Strip leading/trailing punctuation for the answer display
-      const answer = raw.replace(/^[^\w]+|[^\w]+$/g, '') || raw
+  for (const part of parts) {
+    if (/^_{2,}$/.test(part)) {
+      // Blank — answer is the word at the current script position
+      const raw = scriptWords[scriptPos] ?? ''
+      const answer = raw.replace(/^[^a-zA-Z0-9\u00C0-\u024F]+|[^a-zA-Z0-9\u00C0-\u024F]+$/g, '') || raw
+      scriptPos++
       tokens.push({ text: '', isBlank: true, answer })
-    } else {
-      textBuf += (textBuf ? ' ' : '') + clozeWords[i]
+    } else if (part) {
+      // Count whitespace-separated tokens in this segment to advance script position.
+      // We use \S+ so standalone punctuation like "." or "?" counts as a token.
+      const wordCount = (part.match(/\S+/g) ?? []).length
+      scriptPos += wordCount
+      tokens.push({ text: part, isBlank: false })
     }
   }
-  if (textBuf) tokens.push({ text: textBuf, isBlank: false })
   return tokens
 }
 
