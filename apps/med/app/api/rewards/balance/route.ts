@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { getUserStarBalance, getRecentEarnedRewards, getAllRewardDefinitions, getEarnedRewards, getMonthActivityDates } from '@/lib/db/rewards'
 import { computeStreak, getTodayLessonsCompleted } from '@/lib/rewards-engine'
+import { getServiceClient } from '@/lib/supabase'
+
+async function getTotalProgress(userId: string): Promise<{ totalLessons: number; totalModules: number }> {
+  const db = getServiceClient()
+  const { data } = await db
+    .from('nursed_progress')
+    .select('lesson_id, completed')
+    .eq('user_id', userId)
+    .eq('completed', true)
+
+  return { totalLessons: data?.length ?? 0, totalModules: 0 }
+}
 
 export async function GET(_req: NextRequest) {
   try {
@@ -9,7 +21,7 @@ export async function GET(_req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const [balance, streak, todayCount, recentEarned, allDefinitions, earnedRewards, activityDates, profileRow] = await Promise.all([
+    const [balance, streak, todayCount, recentEarned, allDefinitions, earnedRewards, activityDates, profileRow, totalProgress] = await Promise.all([
       getUserStarBalance(user.id),
       computeStreak(user.id),
       getTodayLessonsCompleted(user.id),
@@ -18,6 +30,7 @@ export async function GET(_req: NextRequest) {
       getEarnedRewards(user.id),
       getMonthActivityDates(user.id),
       supabase.from('nursed_profiles').select('preferred_days').eq('id', user.id).single(),
+      getTotalProgress(user.id),
     ])
 
     const earnedRewardIds = new Set(earnedRewards.map(r => r.reward_id))
@@ -29,6 +42,7 @@ export async function GET(_req: NextRequest) {
         balance,
         streak,
         todayCount,
+        totalLessonsCompleted: totalProgress.totalLessons,
         recentEarned,
         allDefinitions,
         earnedRewardIds: [...earnedRewardIds],

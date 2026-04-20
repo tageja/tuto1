@@ -7,6 +7,7 @@ import { Home, BookOpen, Users, X, LogOut, MessageCircle, Star, User } from 'luc
 import { useLang } from '@/contexts/LanguageContext'
 import { useAuth } from '@/contexts/AuthContext'
 import FeedbackModal from './FeedbackModal'
+import { usePrefetchRoute } from '@/lib/hooks/usePrefetchRoute'
 
 interface Props {
   isOpen?: boolean
@@ -25,6 +26,7 @@ export default function LearnerSidebar({ isOpen = false, onClose }: Props) {
   const pathname = usePathname()
   const { t, lang, toggleLang } = useLang()
   const { profile, signOut } = useAuth()
+  const prefetch = usePrefetchRoute()
   const [feedbackOpen, setFeedbackOpen] = useState(false)
   const [streak, setStreak] = useState<number | null>(null)
 
@@ -83,6 +85,7 @@ export default function LearnerSidebar({ isOpen = false, onClose }: Props) {
               key={item.href}
               href={item.href}
               onClick={onClose}
+              onMouseEnter={() => prefetch(item.href)}
               className={active ? 'sidebar-item-active' : 'sidebar-item-inactive'}
             >
               <Icon size={18} />

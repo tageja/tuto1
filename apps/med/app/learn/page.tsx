@@ -69,6 +69,7 @@ export default function LearnDashboard() {
   } | null>(null)
   const [streak, setStreak] = useState(0)
   const [lessonsCompleted, setLessonsCompleted] = useState(0)
+  const [totalLessonsCompleted, setTotalLessonsCompleted] = useState(0)
   const [preferredDays, setPreferredDays] = useState<string | null>(null)
   const [activityDates, setActivityDates] = useState<string[]>([])
   const [showOnboarding, setShowOnboarding] = useState(false)
@@ -95,6 +96,7 @@ export default function LearnDashboard() {
         if (j.success) {
           setStreak(j.data.streak ?? 0)
           setLessonsCompleted(j.data.todayCount ?? 0)
+          setTotalLessonsCompleted(j.data.totalLessonsCompleted ?? 0)
           setPreferredDays(j.data.preferredDays ?? null)
           setActivityDates(j.data.activityDates ?? [])
         }
@@ -178,7 +180,7 @@ export default function LearnDashboard() {
           {/* Right: compact stat chips */}
           <div className="flex items-center gap-2 flex-shrink-0">
             <StatChip icon="🔥" value={streak} label={t.statsDaysStreak} />
-            <StatChip icon="✓" value={lessonsCompleted} label={t.statsLessonsCompleted} />
+            <StatChip icon="✓" value={totalLessonsCompleted} label={t.statsLessonsCompleted} today={lessonsCompleted > 0 ? `+${lessonsCompleted} ${t.statsTodayLessons}` : undefined} />
             <StatChip icon="📚" value={allCourses.filter(c => c.published).length} label={t.statsCoursesEnrolled} />
           </div>
         </div>
@@ -306,12 +308,15 @@ function SectionHeading({ title, className = '' }: { title: string; className?: 
   )
 }
 
-function StatChip({ icon, value, label }: { icon: string; value: number; label: string }) {
+function StatChip({ icon, value, label, today }: { icon: string; value: number; label: string; today?: string }) {
   return (
     <div className="flex flex-col items-center justify-center px-3 py-2 rounded-xl bg-white/12 border border-white/20 min-w-[52px]">
       <span className="text-sm leading-none mb-0.5">{icon}</span>
       <p className="text-white font-bold text-sm leading-none">{value}</p>
       <p className="text-white/60 text-[9px] leading-tight mt-0.5 text-center whitespace-nowrap">{label}</p>
+      {today && (
+        <p className="text-yellow-300 text-[8px] leading-tight font-semibold whitespace-nowrap">{today}</p>
+      )}
     </div>
   )
 }
@@ -324,8 +329,23 @@ function ContinueLearningCard({
   course: NursedCourse | null
 }) {
   const { t } = useLang()
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
+
+  useEffect(() => {
+    if (!course?.id) return
+    fetch(`/api/progress/course?courseId=${course.id}`)
+      .then(r => r.json())
+      .then(j => {
+        const rows: { completed: boolean }[] = j.data ?? []
+        const done = rows.filter(r => r.completed).length
+        setProgress({ done, total: rows.length })
+      })
+      .catch(() => {})
+  }, [course?.id])
+
   const colors = course ? (COURSE_COLOR[course.title] ?? { bg: 'bg-primary-light', text: 'text-primary', ring: 'ring-primary/20' }) : { bg: 'bg-primary-light', text: 'text-primary', ring: 'ring-primary/20' }
   const icon = course ? (COURSE_ICONS[course.title] ?? '📖') : '📖'
+  const pct = progress && progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : null
 
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-white p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
@@ -344,9 +364,14 @@ function ContinueLearningCard({
         <p className="text-sm font-semibold text-[var(--text)] truncate">{lesson.title}</p>
         <div className="flex items-center gap-1.5 mt-2">
           <div className="flex-1 h-1.5 bg-[var(--surface)] rounded-full overflow-hidden">
-            <div className="h-full w-1/3 bg-[var(--primary)] rounded-full" />
+            <div
+              className="h-full bg-[var(--primary)] rounded-full transition-all duration-500"
+              style={{ width: pct !== null ? `${pct}%` : '0%' }}
+            />
           </div>
-          <span className="text-xs text-[var(--text-muted)] flex-shrink-0">{t.continueLearningInProgress}</span>
+          <span className="text-xs text-[var(--text-muted)] flex-shrink-0">
+            {progress ? `${progress.done}/${progress.total} lessons` : t.continueLearningInProgress}
+          </span>
         </div>
       </div>
 
