@@ -322,33 +322,32 @@ export default function LoginPage() {
     }
   }, [user, router]);
 
-  // If we have a session but profile not yet loaded, validate session and clear if invalid
+  // If we have a session but profile not yet loaded, validate session and clear if invalid.
+  // Fire-and-forget: never await Supabase here — AuthContext owns blocking auth flow.
   useEffect(() => {
     if (!firebaseUser) return;
     let cancelled = false;
-    (async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+    supabase.auth.getSession()
+      .then(({ data: { session }, error }) => {
         if (cancelled) return;
-        if (error) {
-          await supabase.auth.signOut();
-          return;
+        if (error || !session) {
+          supabase.auth.signOut().catch(() => { /* ignore */ });
         }
-        if (!session) await supabase.auth.signOut();
-      } catch {
-        if (!cancelled) await supabase.auth.signOut();
-      }
-    })();
+      })
+      .catch(() => {
+        if (!cancelled) supabase.auth.signOut().catch(() => { /* ignore */ });
+      });
     return () => { cancelled = true; };
   }, [firebaseUser]);
 
-  // Escape hatch: if stuck on "Signing you in..." for 12s, show option to sign out and try again
+  // Escape hatch: if stuck on "Signing you in..." for 8s, show option to sign out and try again.
+  // (Reduced from 12s — with the new auth flow, profile load is <2s typically.)
   useEffect(() => {
     if (!firebaseUser || user) {
       setRecoveryStuck(false);
       return;
     }
-    const timer = setTimeout(() => setRecoveryStuck(true), 12000);
+    const timer = setTimeout(() => setRecoveryStuck(true), 8000);
     return () => clearTimeout(timer);
   }, [firebaseUser, user]);
 
