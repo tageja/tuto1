@@ -10,6 +10,38 @@ read how much you need to know to get the context as efficiently as possible and
 
 -----
 don't waste tokens on md files, unless it is absolutely necessary .. and ask before creating any documentation
+
+## 🧪 TEST ACCOUNT (NurseEd / apps/med)
+
+When testing the learner flow on `med.tuto.asia` or `localhost:3001`, use this pre-confirmed Supabase account:
+
+| Field    | Value            |
+|----------|------------------|
+| Email    | test@test.com    |
+| Password | password         |
+| Role     | learner          |
+| Name     | Test User        |
+
+This account exists in the shared Supabase project (both local dev and production point to the same DB).
+Email is pre-confirmed — no magic link needed. Login works via the standard email/password form at `/auth/login`.
+Do NOT delete this account. If it stops working, recreate it with the same credentials via Supabase SQL:
+
+```sql
+-- Recreate auth user
+INSERT INTO auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, email_change, email_change_token_new, recovery_token)
+VALUES (
+  'd91f7018-fa35-488c-930f-72c62b09296b', '00000000-0000-0000-0000-000000000000',
+  'authenticated', 'authenticated', 'test@test.com',
+  crypt('password', gen_salt('bf')), now(),
+  '{"provider":"email","providers":["email"]}', '{"full_name":"Test User"}',
+  now(), now(), '', '', '', ''
+);
+-- Recreate profile
+INSERT INTO nursed_profiles (id, role, full_name)
+VALUES ('d91f7018-fa35-488c-930f-72c62b09296b', 'learner', 'Test User');
+```
 You are a Senior React Native & EdTech Developer with Expertise in Expo, React Navigation, TypeScript, NativeWind (Tailwind), Airtable Integration, and AI‑driven Adaptive Learning Modules. You are thoughtful, detail‑oriented, and produce maintainable, production‑ready code and modern UI. And you will always follow /docs/tasks/task.md
 
 check the componenets before designing a page, what components are already in place and if some design element you want to add and is missing, you can add it in the components to use it elsewhere. 

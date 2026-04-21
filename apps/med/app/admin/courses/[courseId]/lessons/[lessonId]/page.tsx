@@ -25,6 +25,10 @@ const TYPE_BADGE: Record<StepType, string> = {
   matching: 'badge-blue',
   drag_order: 'badge-yellow',
   flash_card: 'badge-green',
+  quick_response: 'badge-blue',
+  odd_one_out: 'badge-yellow',
+  sentence_builder: 'badge-purple',
+  spot_the_mistake: 'badge-amber',
 }
 
 const STAGE_COLORS: Record<string, string> = {
@@ -78,6 +82,10 @@ export default function LessonBuilderPage() {
     { value: 'matching', label: t.stepTypeMatchingLabel },
     { value: 'drag_order', label: t.stepTypeDragOrderLabel },
     { value: 'flash_card', label: t.stepTypeFlashCardLabel },
+    { value: 'quick_response', label: t.stepTypeQuickResponse },
+    { value: 'odd_one_out', label: t.stepTypeOddOneOut },
+    { value: 'sentence_builder', label: t.stepTypeSentenceBuilder },
+    { value: 'spot_the_mistake', label: t.stepTypeSpotTheMistake },
   ]
 
   const TYPE_LABEL: Record<StepType, string> = {
@@ -95,6 +103,10 @@ export default function LessonBuilderPage() {
     matching: t.stepTypeMatchingLabel,
     drag_order: t.stepTypeDragOrderLabel,
     flash_card: t.stepTypeFlashCardLabel,
+    quick_response: t.stepTypeQuickResponse,
+    odd_one_out: t.stepTypeOddOneOut,
+    sentence_builder: t.stepTypeSentenceBuilder,
+    spot_the_mistake: t.stepTypeSpotTheMistake,
   }
 
   useEffect(() => {

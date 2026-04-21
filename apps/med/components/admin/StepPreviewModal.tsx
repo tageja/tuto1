@@ -86,6 +86,10 @@ export default function StepPreviewModal({ step, onClose }: Props) {
       matching: t.stepTypeMatchingLabel,
       drag_order: t.stepTypeDragOrderLabel,
       flash_card: t.stepTypeFlashCardLabel,
+      quick_response: t.stepTypeQuickResponse,
+      odd_one_out: t.stepTypeOddOneOut,
+      sentence_builder: t.stepTypeSentenceBuilder,
+      spot_the_mistake: t.stepTypeSpotTheMistake,
     }[step.type] ?? step.type
 
   return (

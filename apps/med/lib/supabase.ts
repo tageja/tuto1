@@ -148,18 +148,104 @@ export type StepType =
   | 'matching'
   | 'drag_order'
   | 'flash_card'
+  | 'quick_response'
+  | 'odd_one_out'
+  | 'sentence_builder'
+  | 'spot_the_mistake'
 
 /**
- * Config shapes for the three new interactive step types.
+ * Config shapes for step types.
  * These are used in NursedLessonStep.config (Record<string, unknown>).
  *
- * matching:   config.pairs    — [{ en: string; vi: string }]
- * drag_order: config.lines    — string[] in correct order; player shuffles on render
- * flash_card: config.cards    — [{ front_en: string; back_vi: string; audio_url?: string }]
- * cloze (enhanced): config.wordBank — boolean; true = chip-tap mode instead of typed input
+ * matching:        config.pairs    — [{ en: string; vi: string }]
+ * drag_order:      config.lines    — string[] in correct order; player shuffles on render
+ * flash_card:      config.cards    — [{ front_en: string; back_vi: string; audio_url?: string }]
+ * cloze (enhanced):config.wordBank — boolean; true = chip-tap mode instead of typed input
+ * quick_response:  config matches QuickResponseConfig
+ * odd_one_out:     config matches OddOneOutConfig
+ * sentence_builder:config matches SentenceBuilderConfig
+ * spot_the_mistake:config matches SpotTheMistakeConfig
  */
 export type MatchingPair = { en: string; vi: string }
 export type FlashCard = { front_en: string; back_vi: string; audio_url?: string }
+
+// ─── Quick Response ─────────────────────────────────────────────────────────
+
+export interface QuickResponseOption {
+  id: string
+  text_en: string
+  text_vi: string
+  rating: 'best' | 'acceptable' | 'incorrect'
+  explanation_en?: string
+  explanation_vi?: string
+}
+
+export interface QuickResponseConfig {
+  prompt_en: string
+  prompt_vi: string
+  speaker_label_en?: string
+  speaker_label_vi?: string
+  question_en?: string
+  question_vi?: string
+  options: QuickResponseOption[]
+  feedback_best_en?: string
+  feedback_best_vi?: string
+}
+
+// ─── Odd One Out ─────────────────────────────────────────────────────────────
+
+export interface OddOneOutWord {
+  text_en: string
+  text_vi?: string
+  is_odd: boolean
+}
+
+export interface OddOneOutQuestion {
+  id: string
+  prompt_en?: string
+  prompt_vi?: string
+  words: OddOneOutWord[]
+  category_explanation_en: string
+  category_explanation_vi: string
+}
+
+export interface OddOneOutConfig {
+  questions: OddOneOutQuestion[]
+}
+
+// ─── Sentence Builder ────────────────────────────────────────────────────────
+
+export interface SentenceBuilderConfig {
+  prompt_en?: string
+  prompt_vi: string
+  audio_url?: string
+  chunks: string[]
+  correct_order: number[]
+  hint_en?: string
+  hint_vi?: string
+}
+
+// ─── Spot the Mistake ────────────────────────────────────────────────────────
+
+export interface SpotTheMistakeToken {
+  text: string
+  is_wrong: boolean
+}
+
+export interface SpotTheMistakeQuestion {
+  id: string
+  sentence_en: string
+  sentence_vi?: string
+  tokens: SpotTheMistakeToken[]
+  correction_en: string
+  correction_vi?: string
+  explanation_en: string
+  explanation_vi?: string
+}
+
+export interface SpotTheMistakeConfig {
+  questions: SpotTheMistakeQuestion[]
+}
 
 export type LessonStage = 'heads_up' | 'heads_down' | 'heads_together' | 'assessment'
 

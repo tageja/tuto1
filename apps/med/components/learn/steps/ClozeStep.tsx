@@ -13,6 +13,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { CheckCircle, XCircle, ChevronRight } from 'lucide-react'
 import type { NursedLessonStep } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
@@ -45,8 +46,6 @@ function parseBracketFormat(text: string): ClozeToken[] {
 /** Old format: ___ = blank, answers reconstructed by aligning positions with full script.
  *  Splits directly on _{2,} so punctuation attached to blanks (___, ___. ___?) all work. */
 function parseUnderscoreFormat(cloze: string, script: string): ClozeToken[] {
-  // Split on any run of 2+ underscores, capturing them as delimiters.
-  // e.g. "here to ___. What ___?" → ["here to ", "___", ". What ", "___", "?"]
   const parts = cloze.split(/(_{2,})/)
   const scriptWords = script.split(/\s+/)
 
@@ -55,14 +54,11 @@ function parseUnderscoreFormat(cloze: string, script: string): ClozeToken[] {
 
   for (const part of parts) {
     if (/^_{2,}$/.test(part)) {
-      // Blank — answer is the word at the current script position
       const raw = scriptWords[scriptPos] ?? ''
       const answer = raw.replace(/^[^a-zA-Z0-9\u00C0-\u024F]+|[^a-zA-Z0-9\u00C0-\u024F]+$/g, '') || raw
       scriptPos++
       tokens.push({ text: '', isBlank: true, answer })
     } else if (part) {
-      // Count whitespace-separated tokens in this segment to advance script position.
-      // We use \S+ so standalone punctuation like "." or "?" counts as a token.
       const wordCount = (part.match(/\S+/g) ?? []).length
       scriptPos += wordCount
       tokens.push({ text: part, isBlank: false })
@@ -92,7 +88,6 @@ function shuffle<T>(arr: T[]): T[] {
   return a
 }
 
-/** Pick decoy words from the script that aren't correct answers */
 function pickDecoys(blanks: ClozeToken[], script: string, count: number): string[] {
   const answers = new Set(blanks.map((b) => (b.answer ?? '').toLowerCase()))
   const candidates = [...new Set(
@@ -110,8 +105,6 @@ interface ChipProps {
   id: string
   label: string
   ghost?: boolean
-  checked?: boolean
-  correct?: boolean
 }
 
 function DraggableChip({ id, label, ghost }: ChipProps) {
@@ -126,8 +119,8 @@ function DraggableChip({ id, label, ghost }: ChipProps) {
       style={style}
       {...listeners}
       {...attributes}
-      className={`inline-flex items-center px-3 py-1.5 rounded-xl border border-primary bg-primary-light text-primary text-sm font-medium select-none cursor-grab active:cursor-grabbing touch-none transition-opacity ${
-        isDragging || ghost ? 'opacity-0' : 'opacity-100'
+      className={`inline-flex items-center justify-center px-3 py-2 rounded-2xl border border-primary/40 bg-primary-light text-primary text-sm font-medium select-none cursor-grab active:cursor-grabbing touch-none shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all min-h-[44px] min-w-[44px] ${
+        isDragging || ghost ? 'opacity-30' : 'opacity-100'
       }`}
     >
       {label}
@@ -137,7 +130,7 @@ function DraggableChip({ id, label, ghost }: ChipProps) {
 
 function OverlayChip({ label }: { label: string }) {
   return (
-    <span className="inline-flex items-center px-3 py-1.5 rounded-xl border-2 border-primary bg-primary text-white text-sm font-medium shadow-lg select-none cursor-grabbing rotate-2">
+    <span className="inline-flex items-center justify-center px-3 py-2 rounded-2xl border-2 border-primary bg-primary text-white text-sm font-medium shadow-lg select-none cursor-grabbing rotate-2 min-h-[44px]">
       {label}
     </span>
   )
@@ -154,7 +147,7 @@ interface SlotProps {
 function DroppableSlot({ id, value, checked, correct, expectedAnswer }: SlotProps) {
   const { setNodeRef, isOver } = useDroppable({ id })
 
-  const baseClass = 'inline-flex items-center min-w-[5rem] px-2.5 py-0.5 mx-1 rounded-lg border text-sm font-medium align-middle transition-all duration-150'
+  const baseClass = 'inline-flex items-center min-w-[5rem] px-2.5 py-1 mx-1 rounded-xl border text-sm font-medium align-middle transition-all duration-150'
 
   let colorClass: string
   if (checked) {
@@ -164,7 +157,7 @@ function DroppableSlot({ id, value, checked, correct, expectedAnswer }: SlotProp
   } else if (value) {
     colorClass = isOver
       ? 'border-primary border-2 bg-primary/20 text-primary scale-105'
-      : 'border-primary bg-primary-light text-primary cursor-grab active:cursor-grabbing'
+      : 'border-primary bg-primary-light text-primary cursor-grab active:cursor-grabbing shadow-sm'
   } else {
     colorClass = isOver
       ? 'border-primary border-2 bg-primary/10 scale-105'
@@ -199,6 +192,7 @@ interface WordBankProps {
 
 function WordBankCloze({ tokens, script, step, onComplete, contextAudio }: WordBankProps) {
   const { t } = useLang()
+  const shouldReduceMotion = useReducedMotion()
 
   const blanks = useMemo(() => tokens.filter((tk) => tk.isBlank), [tokens])
   const blankCount = blanks.length
@@ -211,9 +205,7 @@ function WordBankCloze({ tokens, script, step, onComplete, contextAudio }: WordB
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // placed[i] = chip value placed in slot i, or null
   const [placed, setPlaced] = useState<(string | null)[]>(Array(blankCount).fill(null))
-  // bank: chips still in the word bank pool
   const [bank, setBank] = useState<string[]>(chipPool)
   const [activeChip, setActiveChip] = useState<{ id: string; label: string } | null>(null)
   const [checked, setChecked] = useState(false)
@@ -259,7 +251,7 @@ function WordBankCloze({ tokens, script, step, onComplete, contextAudio }: WordB
         const next = [...prev]
         if (isFromSlot) {
           const fromIdx = Number(srcId.slice(5))
-          next[fromIdx] = displaced // swap or clear
+          next[fromIdx] = displaced ?? null
         }
         next[slotIdx] = chip
         return next
@@ -268,7 +260,6 @@ function WordBankCloze({ tokens, script, step, onComplete, contextAudio }: WordB
       setBank((prev) => {
         let next = [...prev]
         if (isFromBank) {
-          // remove chip from bank using stored index in id
           const parts = srcId.split('-')
           const bankIdx = Number(parts[parts.length - 1])
           next = next.filter((_, i) => i !== bankIdx)
@@ -283,7 +274,6 @@ function WordBankCloze({ tokens, script, step, onComplete, contextAudio }: WordB
     }
   }
 
-  // Tap handlers for mobile (click chip → first empty slot, click slot → return to bank)
   function tapChip(chip: string, bankIdx: number) {
     const emptyIdx = placed.findIndex((p) => p === null)
     if (emptyIdx === -1) return
@@ -316,6 +306,7 @@ function WordBankCloze({ tokens, script, step, onComplete, contextAudio }: WordB
 
   const allFilled = placed.every((p) => p !== null)
   const score = Object.values(results).filter(Boolean).length
+  const passed = score === blankCount
 
   let bi = 0
 
@@ -326,31 +317,39 @@ function WordBankCloze({ tokens, script, step, onComplete, contextAudio }: WordB
           <AudioReplayBar
             audioUrl={contextAudio.url}
             transcript={contextAudio.transcript}
-            label="Replay audio from previous step"
+            label={t.clozeSubtitle}
           />
         )}
 
         <div>
           <h3 className="text-base font-semibold text-text">✏️ {step.title ?? t.clozeTitleFallback}</h3>
-          <p className="text-sm text-text-muted mt-1">Drag the words into the correct blanks</p>
+          <p className="text-sm text-text-muted mt-1">{t.clozeSubtitle}</p>
         </div>
 
         {/* Word bank */}
         {!checked && (
-          <div id="bank-area" className="min-h-[3.5rem] p-3 rounded-xl border-2 border-dashed border-border bg-surface flex flex-wrap gap-2 items-center">
-            {bank.length === 0 ? (
-              <span className="text-xs text-text-muted italic">{t.clozeWordBankEmpty}</span>
-            ) : (
-              bank.map((chip, i) => (
-                <span key={`${chip}-${i}`} onClick={() => tapChip(chip, i)}>
-                  <DraggableChip
-                    id={`bank-${chip}-${i}`}
-                    label={chip}
-                    ghost={activeChip?.id === `bank-${chip}-${i}`}
-                  />
-                </span>
-              ))
-            )}
+          <div>
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">
+              {t.clozeWordBankLabel}
+            </p>
+            <div
+              id="bank-area"
+              className="min-h-[3.5rem] p-3 rounded-xl border-2 border-dashed border-border bg-gradient-to-b from-surface to-bg flex flex-wrap gap-2 items-center"
+            >
+              {bank.length === 0 ? (
+                <span className="text-xs text-text-muted italic">{t.clozeWordBankEmpty}</span>
+              ) : (
+                bank.map((chip, i) => (
+                  <span key={`${chip}-${i}`} onClick={() => tapChip(chip, i)}>
+                    <DraggableChip
+                      id={`bank-${chip}-${i}`}
+                      label={chip}
+                      ghost={activeChip?.id === `bank-${chip}-${i}`}
+                    />
+                  </span>
+                ))
+              )}
+            </div>
           </div>
         )}
 
@@ -382,18 +381,37 @@ function WordBankCloze({ tokens, script, step, onComplete, contextAudio }: WordB
           </p>
         </div>
 
-        {/* Score */}
-        {checked && (
-          <div className={`card p-4 flex items-center gap-3 ${score === blankCount ? 'bg-green-50 border-success' : 'bg-orange-50 border-warning'}`}>
-            <span className="text-2xl">{score === blankCount ? '🎉' : '💪'}</span>
-            <div>
-              <p className="font-semibold text-text">{score}/{blankCount} correct</p>
-              <p className="text-sm text-text-muted">
-                {score === blankCount ? t.scorePerfectDesc : t.scoreRetryDesc}
-              </p>
-            </div>
-          </div>
-        )}
+        {/* Score with framer-motion celebration */}
+        <AnimatePresence>
+          {checked && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={
+                shouldReduceMotion
+                  ? { opacity: 1 }
+                  : passed
+                  ? { opacity: 1, y: 0, scale: [1, 1.04, 1] }
+                  : { opacity: 1, y: 0 }
+              }
+              transition={{ duration: 0.4 }}
+              className={`card p-4 flex items-center gap-3 ${
+                passed ? 'bg-green-50 border-success' : 'bg-orange-50 border-warning'
+              }`}
+            >
+              <span className="text-2xl">{passed ? '🎉' : '💪'}</span>
+              <div>
+                <p className="font-semibold text-text">
+                  {t.clozeScoreLabel
+                    .replace('{score}', String(score))
+                    .replace('{total}', String(blankCount))}
+                </p>
+                <p className="text-sm text-text-muted">
+                  {passed ? t.scorePerfectDesc : t.scoreRetryDesc}
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="flex gap-3">
           {!checked ? (

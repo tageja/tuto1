@@ -118,7 +118,7 @@ lib/
 
 ---
 
-## What Has Been Built (Agents A–N Summary)
+## What Has Been Built (Agents A–O + Direct Fixes Summary)
 
 | Agent | Feature | Status |
 |---|---|---|
@@ -139,6 +139,20 @@ lib/
 | — | Calendar: working month navigation, visual day markers, new API | ✅ Built |
 | N | User Profile Page (avatar, badges, courses, rewards, groups, endorsements) | ✅ Handover created |
 | O | Animation Builder: lesson/step numbering + optgroup grouping (2-file fix) | ✅ Handover created |
+| — | **Video upload fix**: Vercel 4.5MB body limit bypassed via signed Supabase Storage URLs. New routes: `GET /api/video/upload` (signed URL), `POST /api/video/link` (DB update). `VideoUploader.tsx` does 3-step direct upload. | ✅ Built |
+| — | **Step creation fix**: Admin lesson URLs use slugs; POST `/api/steps` now resolves slug → UUID before DB insert. | ✅ Built |
+| — | **Super admin lesson bypass**: `super_admin` role can access any published lesson without completing previous ones. Implemented in lesson page, `CourseOverviewClient.tsx`, `ModuleDetailClient.tsx`. Completed lessons still show as completed. | ✅ Built |
+| — | **Admin drag-and-drop step reordering**: HTML5 DnD on step cards in admin lesson editor. Persists via `PUT /api/steps`. | ✅ Built |
+| — | **Matching step auto-populate**: "Pull & translate" button in `MatchingEditor` extracts EN dialogue lines from sibling lesson steps, auto-translates to VI via `POST /api/translate/phrases` (MyMemory API). | ✅ Built |
+| — | **Fill-in-the-blanks drag-and-drop (learner)**: `ClozeStep.tsx` fully rewritten to always use `@dnd-kit` word bank. Handles both `[word]` (new) and `___` (legacy) formats. Decoy words auto-generated. | ✅ Built |
+| — | **Cloze editor fix**: Admin now saves to `config.clozeText` in `[word]` format. "Auto-generate Cloze" disabled when script is empty. "Pull script" button added. Learner reads `clozeText` first, falls back to `cloze`. | ✅ Built |
+| — | **Rewards system fix (migration 052)**: Added `context_id` column to `nursed_user_rewards`; updated unique constraint to allow repeatable rewards per lesson. Stars now correctly credit after lesson completion. | ✅ Built |
+| — | **Reward renaming**: "First Lesson" reward renamed to "Lesson Complete" / "Hoàn thành bài học" in `nursed_rewards`. | ✅ Built |
+| — | **Lesson completion tracking UI**: Module page and course overview page now show green checkmark, "Completed" label, and green "Review ↺" button for done lessons. Module accordion headers show `N/M done` + CheckCircle badge. | ✅ Built |
+| — | **Home screen progress**: `GET /api/rewards/balance` returns `totalLessonsCompleted`. Stats chip shows real total with `+N Today` badge. Continue Learning card fetches course-specific `done/total` from `GET /api/progress/course` and shows real progress bar. | ✅ Built |
+| Q | Performance SSR — Server Components for course/module pages, `revalidate` cache, hover prefetching | ✅ Handover created (see `HANDOVER_Q_PERFORMANCE_SSR.md`); `usePrefetchRoute` hook + sidebar wiring already done |
+| W | Interactive Exercises — DragOrderStep (pool → numbered slots, two-region DnD via useDraggable/useDroppable, per-slot ✓/✗ with framer-motion scale-pulse + shake, tap-to-fill mobile fallback), MatchingStep (SVG `motion.path` bezier connector lines with pathLength 0→1 tween + dashed stub from selected card, resize-aware coord recompute), ClozeStep (rounded-2xl chip polish, animated perfect-score scale-pulse, word-bank gradient + label, fixed 2 hardcoded EN strings), AudioShadowStep (40-bar deterministic waveform seeded from `hashStr(audioUrl)`, circular pulsing play button, tabbed phase stepper with underline indicator, `// TODO Agent R` placeholder for pronunciation scoring), FlashCardStep (rounded-3xl, SpeakerButton, card-stack peek, framer-motion swipe + sprint-mode root branch). FlashCardEditor: pull-from-script via `POST /api/translate/phrases` (mirrors MatchingEditor) + sprint checkbox + duration input. 19 new i18n keys (EN+VI). **Design language for Agent X to mirror**: soft cards (rounded-2xl/3xl), shadow-sm→shadow-md hover lift, framer-motion `scale` pulse on correct, `x` shake on wrong (NOT red), amber tint for translation/correction feedback (red reserved for hard errors only), check/X icons from lucide-react, gradient-tinted score banners, deterministic shuffle on mount, `useReducedMotion()` everywhere. | ✅ Done 2026-04-20. Verified by orchestrator: `npm run build` passes (exit 0). All TS errors flagged by `tsc --noEmit` are pre-existing (translations.ts duplicate keys at lines 46/109/1078/1141, `lesson-feedback/route.ts`, `next.config.ts`, `StepEditor speakerRoles`) — NOT W regressions. |
+| X | New Interactive Step Types — adds **4 step types** end-to-end: `quick_response`, `odd_one_out`, `sentence_builder`, `spot_the_mistake` (migration 053, types, translations, learner components, admin editors with pull-from-script reference panel for the 3 vocabulary-driven types, lesson builder picker entries, preview modal label map). Sentence Builder + Spot the Mistake added per Tarun's brainstorm picks 1 & 4. | ✅ Done 2026-04-20. Migration 053 applied + verified (18 types in constraint). 4 learner components + 4 admin editors shipped. ~80 EN+VI translation keys added. `npm run build` exits 0; tsc shows only the 15 pre-existing errors (zero regressions). Design notes: SpotTheMistakeEditor uses shift-click-merges-left-neighbour model; SentenceBuilderEditor uses `@dnd-kit/sortable` (already installed, no new packages); `badge-purple` + `badge-amber` added to `globals.css`. |
 
 ---
 
@@ -153,10 +167,13 @@ lib/
 048_nursed_coupons.sql
 049_nursed_slugs.sql
 050_nursed_learning_preferences.sql  ← Adds onboarding_done, preferred_days, etc.
-051_nursed_profile_extended.sql      ← Adds position, date_of_birth, bio + nursed_endorsements (created by Agent N)
+051_nursed_profile_extended.sql      ← Adds position, date_of_birth, bio + nursed_endorsements (Agent N)
+052_add_context_id_to_user_rewards.sql ← Adds context_id to nursed_user_rewards, updates unique constraint
 ```
 
-Next migration should be `052_*.sql`.
+Next migration should be `053_*.sql` — **reserved for Agent X** (`053_nursed_step_types_interactive_v2.sql`). It extends the `nursed_lesson_steps.type` CHECK constraint from 14 → **18** types, adding `quick_response`, `odd_one_out`, `sentence_builder`, `spot_the_mistake`. No new tables, no new columns. Any other DB work should wait or use 054+.
+
+> Note: file `052_add_context_id_to_user_rewards.sql` was applied via the Supabase SQL editor by a previous session but the file may not be checked into the `supabase/migrations/` folder on disk. If you don't see it locally, that's why — the schema change IS live.
 
 ---
 
@@ -293,24 +310,24 @@ These are features Tarun has mentioned or that logically follow from the current
 
 ### HIGH PRIORITY
 
-**Agent P — Admin Learner Regularity View** *(was N, then O, bumped by profile page and animation fix)*
-Tarun said: "work on this separately after the learning schedule/calendar view". The DB view `nursed_learner_activity_summary` already exists (migration 050). The admin UI needs to be built at `/admin/learners` showing which learners have been active, their streak, preferred days, and last seen. Hospital admin sees only their hospital's learners. No admin UI was built in Agent N — this is still fully pending.
-
-**Agent O — Complete Audio Recording (finishing Agent F's work)**
+**Agent R — Complete Audio Recording (finishing Agent F's work)**
 Audio recording placeholders exist throughout the emergency course. MediaRecorder needs to be wired to Supabase Storage. The `recording_submit` step type needs to work end-to-end: record → upload → save to `nursed_submissions` → allow playback.
 
-**Agent P — Navigation Fixes (finishing Agent G's work)**
-The lesson player currently has no back button between steps, no exit-to-module button, and no module overview page. Agent G's handover described the ideal navigation map — this agent implements it.
+**Agent S — Admin Learner Regularity View**
+Tarun said: "work on this separately after the learning schedule/calendar view". The DB view `nursed_learner_activity_summary` already exists (migration 050). The admin UI needs to be built at `/admin/learners` showing which learners have been active, their streak, preferred days, and last seen. Hospital admin sees only their hospital's learners.
+
+**Agent Q — Performance SSR (partially done)**
+`HANDOVER_Q_PERFORMANCE_SSR.md` exists and `usePrefetchRoute` + sidebar hover prefetching is already implemented. Remaining: convert course/module pages to full Server Components and wire `revalidate` cache headers.
 
 ### MEDIUM PRIORITY
 
-**Agent Q — Slug URL Implementation (finishing Agent H's work)**
-UUIDs still appear in URLs like `/learn/courses/9113d5cb.../lessons/22cb2740...`. Agent H's handover describes the slug strategy. This agent implements it: adding slug columns to modules and lessons, updating all Link hrefs, and adding redirect handlers for old UUID URLs.
+**Agent T — Slug URL Implementation (finishing Agent H's work)**
+UUIDs still appear in some URLs. Agent H's handover describes the slug strategy. Modules and lessons already have slug columns (added in migration 049). This agent updates all `Link` hrefs in learner pages to use slugs and adds redirect handlers for old UUID URLs.
 
-**Agent R — Pairs Page Redesign (Agent I's scope)**
+**Agent U — Pairs Page Redesign (Agent I's scope)**
 The `/learn/pairs` page needs a complete UI rethink. Agent I's handover has the brainstorm. This agent implements the redesigned page using the existing `nursed_pair_groups` and `nursed_pair_sessions` backend.
 
-**Agent S — Group Practice UI (Agent E's scope)**
+**Agent V — Group Practice UI (Agent E's scope)**
 The peer audio recording and rating flow for group practice needs to be built. Agent E's handover has the full spec. This builds the group session UI where learners record, listen to peers, and rate them.
 
 ### LOWER PRIORITY / FUTURE
@@ -319,6 +336,7 @@ The peer audio recording and rating flow for group practice needs to be built. A
 - **Hospital admin dashboard** — View hospital learners' progress, regularity, completion rates.
 - **OSCE exam practice mode** — A timed exam mode that pulls from existing lesson steps.
 - **Push notifications / email nudges** — Remind learners on their scheduled days.
+- **Navigation fixes (finishing Agent G's work)** — Lesson player back button, exit-to-module button. Agent G's handover has the spec.
 
 ---
 
@@ -365,4 +383,37 @@ A great handover document has these properties:
 
 ---
 
-*This document was authored by the previous Orchestrator Agent. Improve upon it with each session.*
+### Additional Lessons Learned (Session covering fixes + rewards + completion tracking)
+
+11. **Silent DB schema errors are the worst bugs** — The rewards system appeared to work (toast showed "+10 stars") because the completion screen had a hardcoded fallback. The actual DB insert was silently failing due to a missing `context_id` column. Always check Supabase logs when a feature "looks like it works" but produces no real data. Apply schema changes first, code second.
+
+12. **Role bypass logic must check completed state BEFORE the bypass** — The super_admin bypass that skipped sequential locking was placed before the completion check, so completed lessons appeared unlocked instead of completed. Always structure status functions as: `if completed → return 'completed'` first, then check role, then check locks.
+
+13. **Drag-and-drop in learner context requires a library, not HTML5 DnD** — HTML5 drag-and-drop is unreliable on mobile/touch. Use `@dnd-kit/core` + `@dnd-kit/sortable` for learner-facing DnD. HTML5 DnD is acceptable for admin-only interfaces (keyboard-only users don't need it in admin).
+
+14. **Data format mismatches between admin save and learner read cause invisible bugs** — Admin was saving `config.cloze` with `___` markers; learner was reading `config.clozeText` with `[word]` markers. Define the canonical format in both places simultaneously. Name the key consistently (e.g. always `clozeText`).
+
+15. **Regex that matches `___` but not `___?` causes partial blank rendering** — When splitting text on underscores, use `/(_{2,})/` not `/^___+$/`. The former splits inline; the latter only matches whole tokens with no surrounding text.
+
+### Additional Lessons Learned (Session covering Agents W + X assignment)
+
+16. **Split brainstorm-and-build agents from new-feature agents.** When a feature has both a "what should it look like" question AND a "build new schema + types + admin + learner UI" question, splitting into two sequential handovers (W = polish + brainstorm, X = new types) prevents one agent from holding too much in their head and producing incoherent output. The first agent establishes the design language; the second matches it. The dependency must be explicit in both docs.
+
+17. **Never assume the user wants random/whimsical content in vocabulary exercises.** Tarun explicitly rejected an Odd One Out screenshot showing a banana among medical icons. Medical English learners need exercises grounded in the medical vocabulary they're actually being taught. Rule of thumb: if the exercise tests vocabulary, the content must come from (or be suggested by) the lesson's actual scripts/transcripts. Always add a "Pull from lesson script" affordance to the admin editor.
+
+18. **Admin authorability is not optional — it's the bar for "feature complete".** A new step type that only works with manually-seeded JSON in the database does not exist as far as Tarun is concerned. Every new step type must appear in the lesson builder dropdown, have a dedicated editor in `StepEditor.tsx`, and render in `StepPreviewModal.tsx`. Bake this into the Definition of Done for any step-type-introducing handover.
+
+19. **Reuse the `siblingSteps` prop pattern.** `MatchingEditor` and `ClozeEditor` both pull script content from sibling steps in the same lesson via the `siblingSteps` prop already passed to every editor by `StepEditor`. New editors that need lesson context (Odd One Out, Flashcard pull-vocab, future Sentence Builder) should reuse this prop and the existing `extractEnglishLines` helper rather than inventing parallel mechanisms.
+
+20. **Brainstorm before building creative features — but constrain the brainstorm.** Telling an agent "brainstorm exercise ideas" without a structured template produces 30 ideas of varying quality. Telling them "produce 8–12 ideas with these exact fields (name / one-line / why-it-fits / content-source / sketch / effort / risk) and stop for review" produces a Tarun-decidable doc.
+
+21. **Verify "build passes" claims yourself.** When an agent reports "zero TS errors", run `npm run build` and `npx tsc --noEmit` from the orchestrator seat before crediting them. If errors appear, distinguish pre-existing rot from regressions by spot-checking which lines were touched. **Working verification trick when an agent adds many translation keys:** record the file's pre-existing error line numbers BEFORE the agent starts. After the agent reports done, re-run `tsc`. If the same KIND of errors appear at line numbers that have shifted by N lines (where N = number of keys added × ~1 line each), confirm by: (a) total error count is unchanged, (b) new line numbers map cleanly to old ones via a constant offset. This ruled out regressions for both Agent W and Agent X without manually inspecting hundreds of new lines. **Outstanding tech debt to fix when convenient (NOT urgent — Next.js build ignores these):**
+    - `lib/i18n/translations.ts` has duplicate keys in BOTH the EN block AND the VI block: `navCourses`, `btnContinue`, `btnViewAllCourses`, `statsLessonsCompleted`, `learningPathTitle`, `feedbackSubmit`. Each appears 2–3 times. Pick the canonical value, delete the rest. Risk: silent value drift — different parts of the UI may render different strings from the same key depending on TS object-literal-last-wins semantics.
+    - `app/api/lesson-feedback/route.ts:61` — discriminated-union narrowing bug.
+    - `next.config.ts:7` — `eslint` field not on `NextConfig` type (probably `eslint: { ignoreDuringBuilds: true }` works at runtime but the typing is stale).
+    - `components/admin/StepEditor.tsx` (line shifts as the file grows) — `speakerRoles` literal-union miss (`'family'` vs `'nurse' | 'patient' | 'doctor'`). Pre-existing.
+    These should be fixed in a small standalone cleanup pass — assign to a future agent or do as a 30-minute chore between feature agents.
+
+22. **The interactive-exercise overhaul (Agents W + X) shipped successfully because the work was split along a clean dependency edge.** W owned design language (polish 5 components + Vocab Sprint flag), X inherited that language to build 4 new step types. Splitting purely by "polish vs new" instead of by "frontend vs backend" or by "step-type-A vs step-type-B" worked because: (a) X had a concrete, code-verifiable design reference (W's shipped components) instead of a vague "match the vibe" instruction; (b) W never had to predict X's needs — they just shipped the best polished version of what existed; (c) the brainstorm doc + Tarun's pick step happened BETWEEN them, so X's scope was finalised AFTER W was already coding, not before. For future creative-feature overhauls, repeat this shape: polish-agent → user-approval gate on brainstorm → new-features-agent.
+
+*This document was last updated when Agent X shipped 4 new interactive step types (`quick_response`, `odd_one_out`, `sentence_builder`, `spot_the_mistake`) via migration 053 — completing the interactive-exercise overhaul kicked off by Agent W. Both ✅ Done 2026-04-20.*
