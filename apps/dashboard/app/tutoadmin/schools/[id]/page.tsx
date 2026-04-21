@@ -27,6 +27,7 @@ import {
   AlertTriangle,
   Copy,
   Check,
+  FileSpreadsheet,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -272,6 +273,13 @@ export default function SchoolDetailPage() {
 
         {!isOffboarded && (
           <div className="flex gap-3">
+            <Link
+              href={`/tutoadmin/schools/${schoolId}/import`}
+              className="flex items-center gap-2 px-4 py-2 border border-border text-text rounded-lg hover:bg-surface transition-colors"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              Import Data
+            </Link>
             <button
               onClick={() => setShowAdminCodeModal(true)}
               className="flex items-center gap-2 px-4 py-2 border border-border text-text rounded-lg hover:bg-surface transition-colors"

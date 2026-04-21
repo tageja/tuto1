@@ -7,7 +7,7 @@ import {
   Building2,
   BarChart3,
   UserPlus,
-  Settings,
+  Shield,
   LogOut,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -29,6 +29,7 @@ export function TutoAdminSidebar() {
     { icon: Building2, label: 'Schools', href: '/tutoadmin/schools' },
     { icon: UserPlus, label: 'Onboard School', href: '/tutoadmin/schools/onboard' },
     { icon: BarChart3, label: 'Analytics', href: '/tutoadmin/analytics' },
+    { icon: Shield, label: 'Community Moderation', href: '/tutoadmin/moderation' },
   ];
 
   const handleSignOut = async () => {
