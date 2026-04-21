@@ -8,27 +8,41 @@ import { createServerClient } from '@supabase/ssr';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('⚠️  Supabase configuration missing');
-  console.error('Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local');
+// Lazy singleton — avoids throwing at module load time when env vars are absent.
+// Next.js (Turbopack) evaluates API route modules during build-time page-data
+// collection without runtime env vars present, which would otherwise crash the
+// build with "supabaseUrl is required".
+let _supabase: ReturnType<typeof createClient> | null = null;
+
+function getSupabaseClient() {
+  if (!_supabase) {
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('⚠️  Supabase configuration missing');
+      console.error('Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local');
+      throw new Error('Supabase configuration missing: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required');
+    }
+    _supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        storageKey: 'tuto-dashboard-auth',
+        debug: process.env.NODE_ENV === 'development',
+      },
+      global: {
+        headers: {
+          'X-Client-Info': 'tuto-dashboard',
+        },
+      },
+    });
+  }
+  return _supabase;
 }
 
-// Create Supabase client for browser
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-    // Set storage key to avoid conflicts
-    storageKey: 'tuto-dashboard-auth',
-    // Add debug logging in development
-    debug: process.env.NODE_ENV === 'development',
-  },
-  // Add global headers for better error tracking
-  global: {
-    headers: {
-      'X-Client-Info': 'tuto-dashboard',
-    },
+// Proxy that defers client creation until first property access.
+export const supabase = new Proxy({} as ReturnType<typeof createClient>, {
+  get(_target, prop) {
+    return (getSupabaseClient() as any)[prop];
   },
 });
 
@@ -177,11 +191,11 @@ export async function signUpWithEmail(email: string, password: string, metadata?
   };
 }
 
-// Database helpers
+// Database helpers — all accessors are lazy (no module-level supabase property reads).
 export const db = {
   from: (table: string) => supabase.from(table),
   rpc: (fn: string, params?: any) => supabase.rpc(fn, params),
-  storage: supabase.storage,
+  get storage() { return supabase.storage; },
 };
 
 export default supabase;
