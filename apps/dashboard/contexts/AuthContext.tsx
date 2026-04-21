@@ -127,31 +127,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       let result: Awaited<ReturnType<ReturnType<typeof supabase.from>['single']>>;
       try {
+        // Single, generous timeout (15s). DO NOT sign out on timeout — that races
+        // with in-flight queries on the same page (which then return 406 because
+        // the JWT was just nuked) and breaks routes like /tutoadmin that only
+        // depend on session.user.email, not the profile row.
         result = await withTimeout(
           profileQuery(),
-          6000,
+          15000,
           'Profile fetch timed out'
         );
       } catch (timeoutErr: any) {
         if (timeoutErr?.message?.includes('timed out')) {
-          console.warn('⏱️ Profile fetch timed out (6s), retrying once...');
-          try {
-            result = await withTimeout(profileQuery(), 4000, 'Profile fetch retry timed out');
-          } catch (retryErr: any) {
-            // Both attempts timed out — sign out and let user retry (DB is cold-starting)
-            console.error('❌ Profile fetch timed out twice. Database may be cold-starting. Signing out.');
-            clearLocalAuthState();
-            supabase.auth.signOut().catch(() => { /* fire-and-forget */ });
-            setSupabaseUser(null);
-            setUser(null);
-            setAccessToken(null);
-            lastFetchedUserIdRef.current = null;
-            setError('Connection to database timed out. Please sign in again — it should work now.');
-            return;
-          }
-        } else {
-          throw timeoutErr;
+          console.warn('⏱️ Profile fetch timed out (15s). Keeping session intact; profile will load on next navigation.');
+          // Keep supabaseUser + accessToken so route guards that check session work.
+          // Just leave `user` as null — components that strictly need the profile can retry.
+          setError('Profile took too long to load. Refresh the page if needed.');
+          return;
         }
+        throw timeoutErr;
       }
 
       const { data: profile, error: profileError } = result;
@@ -167,14 +160,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       if (profileError || !profile) {
-        // Check if this is an auth error (expired session)
-        // Be more aggressive in detecting auth issues
+        // Only sign the user out for *unambiguous* auth errors (specific PostgREST
+        // codes). Keyword matching on .message is unreliable — e.g. a 406 error
+        // body can contain the word "auth" and falsely trigger sign-out, which
+        // then nukes in-flight queries on the same page (causing more 406s) and
+        // creates a redirect loop on protected routes.
         if (profileError && (
-          profileError.message?.includes('JWT') || 
-          profileError.message?.includes('token') || 
-          profileError.message?.includes('expired') ||
-          profileError.message?.includes('auth') ||
-          profileError.message?.includes('unauthorized') ||
           profileError.code === 'PGRST301' ||  // JWT expired
           profileError.code === 'PGRST302' ||  // JWT invalid
           profileError.code === '401'
