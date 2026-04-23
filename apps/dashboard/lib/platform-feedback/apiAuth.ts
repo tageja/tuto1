@@ -61,11 +61,14 @@ export async function assertSchoolAdminCanAccessSchool(
 ): Promise<boolean> {
   if (role === 'admin') return true;
   if (role !== 'school_admin') return false;
+  // Canonical school-admin link table is `school_users` with role='admin'.
+  // (`school_admins` is legacy and unused — confirmed during MP-A QA on 2026-04-23.)
   const { data } = await service
-    .from('school_admins')
+    .from('school_users')
     .select('school_id')
     .eq('user_id', profileId)
     .eq('school_id', schoolUuid)
+    .eq('role', 'admin')
     .maybeSingle();
   return !!data;
 }
