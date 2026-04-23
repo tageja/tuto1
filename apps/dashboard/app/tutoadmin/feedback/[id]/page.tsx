@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { Card } from '../../../../components/ui/Card';
 import { Button } from '../../../../components/ui/Button';
+import { supabase } from '../../../../lib/supabase';
 
 interface Detail {
   id: string;
@@ -34,11 +35,26 @@ export default function TutoAdminFeedbackDetailPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const authHeader = useCallback(async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    if (!token) return null;
+    return { Authorization: `Bearer ${token}` };
+  }, []);
+
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/platform-feedback/${id}`, { credentials: 'include' });
+      const h = await authHeader();
+      if (!h) {
+        setError('Not authenticated');
+        setRow(null);
+        return;
+      }
+      const res = await fetch(`/api/platform-feedback/${id}`, { headers: h });
       const json = await res.json();
       if (!json.success) {
         setError(json.error || 'Failed to load');
@@ -54,7 +70,7 @@ export default function TutoAdminFeedbackDetailPage() {
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, authHeader]);
 
   useEffect(() => {
     load();
@@ -65,10 +81,14 @@ export default function TutoAdminFeedbackDetailPage() {
     setSaving(true);
     setError(null);
     try {
+      const h = await authHeader();
+      if (!h) {
+        setError('Not authenticated');
+        return;
+      }
       const res = await fetch(`/api/platform-feedback/${id}`, {
         method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...h, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           status,
           admin_response: response.trim(),

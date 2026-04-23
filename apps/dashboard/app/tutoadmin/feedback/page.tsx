@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { Card } from '../../../components/ui/Card';
 import { Search } from 'lucide-react';
+import { supabase } from '../../../lib/supabase';
 
 interface Row {
   id: string;
@@ -31,13 +32,22 @@ export default function TutoAdminFeedbackInboxPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) {
+        setRows([]);
+        setTotal(0);
+        return;
+      }
       const params = new URLSearchParams();
       if (status !== 'all') params.set('status', status);
       if (category !== 'all') params.set('category', category);
       params.set('limit', String(limit));
       params.set('offset', String(offset));
       const res = await fetch(`/api/platform-feedback/admin?${params.toString()}`, {
-        credentials: 'include',
+        headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();
       if (json.success) {

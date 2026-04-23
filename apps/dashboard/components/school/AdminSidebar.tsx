@@ -32,10 +32,18 @@ import {
 export function AdminSidebar() {
   const pathname = usePathname();
   const { t } = useI18n();
-  const { selectedSchool, schoolIdFromUrl } = useSchool();
+  const { selectedSchool, schoolIdFromUrl, availableSchools } = useSchool();
 
-  // Use URL-based schoolId if available, otherwise use selectedSchool
-  const schoolId = schoolIdFromUrl || selectedSchool?.id || selectedSchool?.name || 'Sunrise International School';
+  // Resolution order: URL → selected school → first available school.
+  // (Previously hardcoded to "Sunrise International School", which sent every
+  // user to the wrong tenant when their selectedSchool wasn't loaded yet.)
+  const schoolId =
+    schoolIdFromUrl ||
+    selectedSchool?.id ||
+    selectedSchool?.name ||
+    availableSchools[0]?.id ||
+    availableSchools[0]?.name ||
+    '';
   const encodedSchoolId = encodeURIComponent(schoolId);
 
   // Check if we're on a URL-based route

@@ -52,16 +52,19 @@ export async function GET(request: NextRequest) {
     }
 
     // school_admin: return ONLY their linked school(s)
+    // Canonical link table is `school_users` with role='admin' (legacy `school_admins`
+    // is unused; confirmed during MP-A QA on 2026-04-23).
     if (userRole === 'school_admin' && userRowId) {
       const { data: adminRows } = await supabase
-        .from('school_admins')
+        .from('school_users')
         .select('school_id')
-        .eq('user_id', userRowId);
+        .eq('user_id', userRowId)
+        .eq('role', 'admin');
 
       const schoolIds = (adminRows ?? []).map((r: any) => r.school_id).filter(Boolean);
 
       if (schoolIds.length === 0) {
-        console.warn(`⚠️ school_admin ${uid} has no linked schools in school_admins`);
+        console.warn(`⚠️ school_admin ${uid} has no linked schools in school_users`);
         return NextResponse.json({ success: true, schools: [] });
       }
 
