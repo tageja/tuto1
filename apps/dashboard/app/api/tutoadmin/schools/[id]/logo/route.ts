@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '../../../../../../../lib/supabase';
+import { createServerSupabaseClient } from '../../../../../../lib/supabase';
 
 const BUCKET = 'school-logos';
 const MAX_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB
