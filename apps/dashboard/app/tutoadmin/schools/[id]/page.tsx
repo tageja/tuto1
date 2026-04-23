@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Card } from '../../../../components/ui/Card';
 import { OffboardingModal } from '../../../../components/tutoadmin/OffboardingModal';
@@ -28,6 +28,9 @@ import {
   Copy,
   Check,
   FileSpreadsheet,
+  Upload,
+  Trash2,
+  Image as ImageIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -50,6 +53,7 @@ interface AdminCode {
 interface School {
   id: string;
   name: string;
+  logo_url: string | null;
   email: string;
   phone: string;
   address: string;
@@ -80,6 +84,9 @@ export default function SchoolDetailPage() {
   const [showOffboardingModal, setShowOffboardingModal] = useState(initialAction === 'offboard');
   const [showAdminCodeModal, setShowAdminCodeModal] = useState(initialAction === 'generate-code');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadSchool();
@@ -153,6 +160,55 @@ export default function SchoolDetailPage() {
       setTimeout(() => setCopiedCode(null), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
+    }
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setLogoError(null);
+    setLogoUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch(`/api/tutoadmin/schools/${schoolId}/logo`, {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSchool(prev => prev ? { ...prev, logo_url: data.logo_url } : prev);
+      } else {
+        setLogoError(data.error ?? 'Upload failed');
+      }
+    } catch {
+      setLogoError('Upload failed. Please try again.');
+    } finally {
+      setLogoUploading(false);
+      if (logoInputRef.current) logoInputRef.current.value = '';
+    }
+  };
+
+  const handleLogoDelete = async () => {
+    setLogoError(null);
+    setLogoUploading(true);
+    try {
+      const res = await fetch(`/api/tutoadmin/schools/${schoolId}/logo`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSchool(prev => prev ? { ...prev, logo_url: null } : prev);
+      } else {
+        setLogoError(data.error ?? 'Delete failed');
+      }
+    } catch {
+      setLogoError('Delete failed. Please try again.');
+    } finally {
+      setLogoUploading(false);
     }
   };
 
@@ -251,8 +307,17 @@ export default function SchoolDetailPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
-            <Building2 className="w-8 h-8 text-primary" />
+          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center overflow-hidden">
+            {school.logo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={school.logo_url}
+                alt={`${school.name} logo`}
+                className="w-full h-full object-contain p-1"
+              />
+            ) : (
+              <Building2 className="w-8 h-8 text-primary" />
+            )}
           </div>
           <div>
             <h1 className="text-3xl font-bold text-text">{school.name}</h1>
@@ -412,6 +477,66 @@ export default function SchoolDetailPage() {
               </div>
             </>
           )}
+
+          {/* School Logo */}
+          <hr className="my-4 border-border" />
+          <h4 className="font-medium text-text mb-3">School Logo</h4>
+          <div className="flex items-start gap-4">
+            {/* Preview */}
+            <div className="w-20 h-20 rounded-xl border border-border bg-surface flex items-center justify-center shrink-0 overflow-hidden">
+              {school.logo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={school.logo_url}
+                  alt={`${school.name} logo`}
+                  className="w-full h-full object-contain p-1"
+                />
+              ) : (
+                <ImageIcon className="w-8 h-8 text-text-muted" />
+              )}
+            </div>
+
+            <div className="flex-1 space-y-2">
+              <p className="text-sm text-text-muted">
+                {school.logo_url
+                  ? 'PNG, JPEG, WebP or SVG · max 2 MB'
+                  : 'Upload the school logo. Parents will see it in the app.'}
+              </p>
+
+              {logoError && (
+                <p className="text-sm text-danger">{logoError}</p>
+              )}
+
+              <div className="flex gap-2 flex-wrap">
+                <input
+                  ref={logoInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                  className="hidden"
+                  onChange={handleLogoUpload}
+                />
+                <button
+                  onClick={() => logoInputRef.current?.click()}
+                  disabled={logoUploading}
+                  className="flex items-center gap-2 px-3 py-1.5 text-sm border border-border text-text rounded-lg hover:bg-surface transition-colors disabled:opacity-50"
+                >
+                  <Upload className="w-4 h-4" />
+                  {logoUploading ? 'Uploading…' : school.logo_url ? 'Replace' : 'Upload'}
+                </button>
+
+                {school.logo_url && (
+                  <button
+                    onClick={handleLogoDelete}
+                    disabled={logoUploading}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm border border-danger/30 text-danger rounded-lg hover:bg-danger/5 transition-colors disabled:opacity-50"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Remove
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
         </Card>
 
         {/* Admin Codes */}
