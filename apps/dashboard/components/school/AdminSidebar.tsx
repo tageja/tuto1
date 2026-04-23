@@ -26,6 +26,7 @@ import {
   MessageSquare,
   Crown,
   FileSpreadsheet,
+  HelpCircle,
 } from 'lucide-react';
 
 export function AdminSidebar() {
@@ -60,6 +61,7 @@ export function AdminSidebar() {
     { icon: Activity, label: t('extracurricular'), href: `/school/${encodedSchoolId}/admin/extracurricular` },
     { icon: CreditCard, label: t('payments'), href: `/school/${encodedSchoolId}/admin/payments` },
     { icon: Crown, label: t('pricing') || 'Pricing', href: `/pricing` },
+    { icon: HelpCircle, label: t('helpAndSupport'), href: `/school/${encodedSchoolId}/admin/help` },
     { icon: Settings, label: t('settings'), href: `/school/${encodedSchoolId}/admin/settings` },
   ];
 
@@ -89,7 +91,8 @@ export function AdminSidebar() {
             if (pathname?.includes(item.href) || 
                 (item.label === t('teachers') && pathname?.includes('/teachers')) ||
                 (item.label === t('students') && pathname?.includes('/students')) ||
-                (item.label === t('dailyActivities') && pathname?.includes('/daily-activities'))) {
+                (item.label === t('dailyActivities') && pathname?.includes('/daily-activities')) ||
+                (item.label === t('helpAndSupport') && pathname?.includes('/admin/help'))) {
               isActive = true;
             }
 

@@ -67,6 +67,27 @@ export function createServerSupabaseClient() {
 }
 
 /**
+ * Supabase client scoped to the caller's JWT (RLS applies).
+ * Use in API routes with Bearer access token for platform_feedback etc.
+ */
+export function createBearerSupabaseClient(accessToken: string) {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required');
+  }
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+}
+
+/**
  * Server-side Supabase client with user session (for API routes)
  * Use in API routes where you need to authenticate the user
  */

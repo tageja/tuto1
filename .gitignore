@@ -41,6 +41,8 @@ yarn-error.*
 .env.production
 .env.development
 .env.test
+# but allow committed example/template files for documentation
+!.env*.example
 
 # Next.js
 .next/

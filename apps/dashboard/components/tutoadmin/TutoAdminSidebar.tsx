@@ -9,6 +9,7 @@ import {
   UserPlus,
   Shield,
   LogOut,
+  MessageSquare,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -29,6 +30,7 @@ export function TutoAdminSidebar() {
     { icon: Building2, label: 'Schools', href: '/tutoadmin/schools' },
     { icon: UserPlus, label: 'Onboard School', href: '/tutoadmin/schools/onboard' },
     { icon: BarChart3, label: 'Analytics', href: '/tutoadmin/analytics' },
+    { icon: MessageSquare, label: 'Feedback', href: '/tutoadmin/feedback' },
     { icon: Shield, label: 'Community Moderation', href: '/tutoadmin/moderation' },
   ];
 
@@ -54,6 +56,9 @@ export function TutoAdminSidebar() {
     if (href === '/tutoadmin/schools') {
       return pathname === '/tutoadmin/schools' || 
         (pathname?.startsWith('/tutoadmin/schools/') && !pathname?.startsWith('/tutoadmin/schools/onboard'));
+    }
+    if (href === '/tutoadmin/feedback') {
+      return pathname === '/tutoadmin/feedback' || pathname?.startsWith('/tutoadmin/feedback/');
     }
     // Default: starts with check
     return pathname?.startsWith(href);
