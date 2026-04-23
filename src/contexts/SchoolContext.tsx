@@ -131,6 +131,7 @@ export const SchoolProvider: React.FC<SchoolProviderProps> = ({ children }) => {
       const schoolData: School = {
         id: school.id,
         name: school.name,
+        logo_url: school.logo_url || undefined,
         code: school.school_code || '',
         address: school.address || '',
         phone: school.phone || '',
@@ -251,6 +252,7 @@ export const SchoolProvider: React.FC<SchoolProviderProps> = ({ children }) => {
         const mapped: School = {
           id: resolveSchoolId(school.id),
           name: school.name,
+          logo_url: school.logo_url || undefined,
           code: school.school_code || '',
           address: school.address || '',
           phone: school.phone || '',

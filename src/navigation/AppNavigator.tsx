@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
+import AppLoadingScreen from '../components/common/AppLoadingScreen';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { useTheme } from '../contexts/ThemeContext';
@@ -231,12 +232,7 @@ const RoleGate: React.FC = () => {
   // Show loading while user data is being loaded
   if (loading) {
     console.log('🚪 RoleGate: Loading user data...');
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background.secondary }}>
-        <ActivityIndicator size="large" color="#0B5FFF" />
-        <Text style={{ marginTop: 16, fontSize: 16, color: colors.text.secondary }}>Loading...</Text>
-      </View>
-    );
+    return <AppLoadingScreen />;
   }
   
   // If no userType set yet, show RoleSelection

@@ -14,6 +14,7 @@ import { useUser } from '../contexts/UserContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { useNotifications } from '../hooks/useNotifications';
 import { useNetwork } from '../hooks/network';
+import { useSchool } from '../contexts/SchoolContext';
 
 import { HeroSection } from '../components/home/HeroSection';
 import { RoleGatewaySection } from '../components/home/RoleGatewaySection';
@@ -29,6 +30,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { userData } = useUser();
   const { isOffline, retryNow } = useNetwork();
   const { unreadCount, hasUrgentUnread } = useNotifications();
+  const { currentSchool, isSchoolMode } = useSchool();
+
+  const schoolLogoUrl = isSchoolMode && currentSchool?.logo_url ? currentSchool.logo_url : null;
 
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background.secondary },
@@ -43,6 +47,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       borderBottomColor: colors.border.light,
     },
     logo: { width: 72, height: 30, tintColor: isDark ? '#FFFFFF' : undefined },
+    schoolLogoHeader: { width: 40, height: 40, borderRadius: 8 },
     headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     iconBtn: { padding: 4, position: 'relative' },
     badge: {
@@ -83,13 +88,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.background.primary} />
 
-      {/* Header — tuto logo + notification bell + avatar */}
+      {/* Header — logo + notification bell + avatar */}
       <View style={styles.header}>
-        <Image
-          source={require('../../assets/images/tuto-logo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        {schoolLogoUrl ? (
+          <Image
+            source={{ uri: schoolLogoUrl }}
+            style={styles.schoolLogoHeader}
+            resizeMode="contain"
+          />
+        ) : (
+          <Image
+            source={require('../../assets/images/tuto-logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        )}
         <View style={styles.headerRight}>
           <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.navigate('Notifications')}>
             <MaterialIcons

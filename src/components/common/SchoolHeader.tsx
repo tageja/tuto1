@@ -93,12 +93,12 @@ export const SchoolHeader: React.FC = () => {
           />
         </View>
 
-        {/* Right: school logo (when available) */}
-        {branding?.logo_url ? (
+        {/* Right: school logo — prefer branding hook result, fall back to context logo_url */}
+        {(branding?.logo_url || currentSchool?.logo_url) ? (
           <>
             <View style={styles.divider} />
             <Image
-              source={{ uri: branding.logo_url }}
+              source={{ uri: branding?.logo_url ?? currentSchool!.logo_url! }}
               style={styles.schoolLogo}
               resizeMode="contain"
             />
