@@ -784,6 +784,26 @@ const en = {
   clozeWordBankSubtitle: 'Tap a word to place it. Tap a placed word to return it to the bank.',
   clozeWordBankEmpty: 'All words placed',
 
+  // ─── Agent W — Exercise visual polish ──────────────────────────
+  dragOrderSlotEmpty: 'All words placed — check your order',
+  dragOrderPoolLabel: 'Word pool',
+  matchingConnectingLine: 'Tap a phrase on the right',
+  audioShadowWaveformLabel: 'Audio waveform',
+  audioShadowRecordHint: 'Practice recording in the next step',
+  clozeScoreLabel: '{score}/{total} correct',
+  flashCardPullVocab: '⚡ Pull key vocabulary',
+  flashCardVocabPulled: '✓ Pulled & translated',
+  flashCardVocabBannerLabel: '{n} dialogue line(s) found in this lesson\'s scripts',
+  flashCardModeSprintLabel: 'Sprint mode (timed)',
+  flashCardSprintDurationLabel: 'Duration (seconds)',
+  flashCardSprintTimerLabel: '{n}s left',
+  flashCardSprintKnewIt: '✓ Knew it',
+  flashCardSprintDidnt: '✗ Didn\'t',
+  flashCardSprintEarlyFinish: '🎉 Finished early — {n}s left!',
+  flashCardSprintSummary: '{got}/{seen} known — {seen} cards in {sec}s',
+  flashCardSprintTryAgain: 'Try again',
+  flashCardSprintContinue: 'Continue',
+
   // ─── Hospital Dashboard (Admin) ────────────────────────────────
   navHospitalDashboard: 'Hospital Dashboard',
   hospDashTitle: 'Hospital Dashboard',
@@ -1010,6 +1030,98 @@ const en = {
   adminColCode: 'Code',
   adminColStatus: 'Status',
   adminColDate: 'Date',
+
+  // ─── Agent X — New step type labels ────────────────────────
+  stepTypeQuickResponse: '💬 Quick Response',
+  stepTypeOddOneOut: '🧠 Odd One Out',
+  stepTypeSentenceBuilder: '🧩 Sentence Builder',
+  stepTypeSpotTheMistake: '🔍 Spot the Mistake',
+
+  // ─── Quick Response (learner) ───────────────────────────────
+  quickResponseTitleFallback: 'Quick Response',
+  quickResponseDefaultSpeakerEn: 'Patient',
+  quickResponseDefaultQuestionEn: 'What would you say next?',
+  quickResponseConfirmBtn: 'Confirm',
+  quickResponseRatingBest: '★ Best choice',
+  quickResponseRatingAcceptable: '✓ Acceptable',
+  quickResponseRatingIncorrect: 'Try another',
+  quickResponseDefaultBestFeedback: 'Best choice — you ensure safety and offer help.',
+  quickResponseEmptyState: 'This step has no responses yet — open the admin editor to add some.',
+
+  // ─── Quick Response (admin editor) ─────────────────────────
+  quickResponseEditorAddOption: '+ Add option',
+  quickResponseEditorRatingBest: 'Best',
+  quickResponseEditorRatingAcceptable: 'Acceptable',
+  quickResponseEditorRatingIncorrect: 'Try another',
+  quickResponseEditorBestFeedbackLabel: 'Best-choice feedback',
+  quickResponseEditorMaxOptionsHint: 'Max 4 options',
+  quickResponseEditorValidationNeedBest: 'Mark exactly one option as Best',
+  quickResponseEditorValidationNeedPrompt: 'Patient prompt (EN) is required',
+
+  // ─── Odd One Out (learner) ──────────────────────────────────
+  oddOneOutTitleFallback: 'Odd One Out',
+  oddOneOutDefaultPromptEn: "Which word doesn't belong?",
+  oddOneOutQuestionLabel: 'Question {n} of {total}',
+  oddOneOutCorrectBanner: 'Correct! {explanation}',
+  oddOneOutWrongBanner: 'Not quite — {explanation}',
+  oddOneOutScoreBanner: '{correct} of {total} correct',
+
+  // ─── Odd One Out (admin editor) ─────────────────────────────
+  oddOneOutEditorPullScriptBtn: '⚡ Pull script from lesson',
+  oddOneOutEditorReferencePanelTitle: 'Lesson script reference',
+  oddOneOutEditorAddQuestionBtn: '+ Add another question',
+  oddOneOutEditorMarkAsOdd: 'Mark as odd',
+  oddOneOutEditorExplanationEnLabel: 'Explanation (EN)',
+  oddOneOutEditorExplanationViLabel: 'Explanation (VI)',
+  oddOneOutEditorCopiedToast: 'Copied — paste into a word slot',
+  oddOneOutEditorValidationNeedFour: 'Each question needs exactly 4 words',
+  oddOneOutEditorValidationNeedOdd: 'Mark exactly one word as odd',
+  oddOneOutEditorValidationNeedExplanation: 'Add an explanation for the category',
+
+  // ─── Sentence Builder (learner) ─────────────────────────────
+  sentenceBuilderTitleFallback: 'Sentence Builder',
+  sentenceBuilderInstructionEn: 'Translate this sentence:',
+  sentenceBuilderCheckBtn: 'Check',
+  sentenceBuilderTryAgainBtn: '↻ Try again',
+  sentenceBuilderCorrectAnswerLabel: 'Correct answer:',
+
+  // ─── Sentence Builder (admin editor) ────────────────────────
+  sentenceBuilderEditorPromptViLabel: 'VI prompt (sentence to translate)',
+  sentenceBuilderEditorContextEnLabel: 'EN context (optional hint above prompt)',
+  sentenceBuilderEditorChunksLabel: 'Build the sentence (chunks)',
+  sentenceBuilderEditorParseBtn: 'Parse chunks',
+  sentenceBuilderEditorPreviewPoolLabel: 'Preview learner pool (shuffled)',
+  sentenceBuilderEditorHintEnLabel: 'Hint EN (shown on first wrong attempt)',
+  sentenceBuilderEditorHintViLabel: 'Hint VI',
+  sentenceBuilderEditorValidationNeedTwoChunks: 'Need at least 2 chunks',
+  sentenceBuilderEditorValidationNeedPromptVi: 'VI prompt is required',
+
+  // ─── Spot the Mistake (learner) ─────────────────────────────
+  spotTheMistakeTitleFallback: 'Spot the Mistake',
+  spotTheMistakeInstructionEn: "Tap the word or phrase that's wrong:",
+  spotTheMistakeCheckBtn: 'Check',
+  spotTheMistakeCorrectionLabel: 'Correct: {correction}',
+  spotTheMistakeLookCloserHint: 'Look closer here',
+  spotTheMistakeQuestionLabel: 'Question {n} of {total}',
+  spotTheMistakeScoreBanner: '{correct} of {total} correct',
+  spotTheMistakeNoWrongToken: 'This question has no mistake configured — open the admin editor to fix.',
+
+  // ─── Spot the Mistake (admin editor) ────────────────────────
+  spotTheMistakeEditorSentenceEnLabel: 'Sentence EN (with the deliberate mistake)',
+  spotTheMistakeEditorTokeniseBtn: 'Tokenise →',
+  spotTheMistakeEditorTokensLabel: 'Tokens (click = mark wrong, shift-click = merge with left)',
+  spotTheMistakeEditorMergeHint: 'Shift-click a token to merge it with the one to its left',
+  spotTheMistakeEditorSplitBtn: '⤺ Split',
+  spotTheMistakeEditorCorrectionEnLabel: 'Correction EN',
+  spotTheMistakeEditorCorrectionViLabel: 'Correction VI (optional)',
+  spotTheMistakeEditorSentenceViLabel: 'Sentence VI (optional, shown to VI learners)',
+  spotTheMistakeEditorExplanationEnLabel: 'Explanation EN',
+  spotTheMistakeEditorExplanationViLabel: 'Explanation VI (optional)',
+  spotTheMistakeEditorAddQuestionBtn: '+ Add another question',
+  spotTheMistakeEditorValidationNeedWrong: 'Mark exactly one token as wrong',
+  spotTheMistakeEditorValidationNeedCorrection: 'Add the correction',
+  spotTheMistakeEditorValidationNeedExplanation: 'Add an explanation',
+
 } as const
 
 const vi = {
@@ -1796,6 +1908,26 @@ const vi = {
   clozeWordBankSubtitle: 'Nhấn một từ để điền vào ô trống. Nhấn từ đã điền để trả lại.',
   clozeWordBankEmpty: 'Đã điền hết từ',
 
+  // ─── Agent W — Exercise visual polish ──────────────────────────
+  dragOrderSlotEmpty: 'Đã điền hết — kiểm tra thứ tự',
+  dragOrderPoolLabel: 'Kho từ',
+  matchingConnectingLine: 'Chạm vào một cụm từ bên phải',
+  audioShadowWaveformLabel: 'Sóng âm thanh',
+  audioShadowRecordHint: 'Luyện ghi âm ở bước tiếp theo',
+  clozeScoreLabel: '{score}/{total} đúng',
+  flashCardPullVocab: '⚡ Lấy từ vựng chính',
+  flashCardVocabPulled: '✓ Đã dịch',
+  flashCardVocabBannerLabel: 'Tìm thấy {n} câu thoại trong bài',
+  flashCardModeSprintLabel: 'Chế độ tốc độ (có giờ)',
+  flashCardSprintDurationLabel: 'Thời gian (giây)',
+  flashCardSprintTimerLabel: 'Còn {n} giây',
+  flashCardSprintKnewIt: '✓ Đã biết',
+  flashCardSprintDidnt: '✗ Chưa biết',
+  flashCardSprintEarlyFinish: '🎉 Hoàn thành sớm — còn {n} giây!',
+  flashCardSprintSummary: '{got}/{seen} đã biết — {seen} thẻ trong {sec} giây',
+  flashCardSprintTryAgain: 'Thử lại',
+  flashCardSprintContinue: 'Tiếp tục',
+
   // ─── Hospital Dashboard (Admin) ────────────────────────────────
   navHospitalDashboard: 'Dashboard Bệnh viện',
   hospDashTitle: 'Dashboard Bệnh viện',
@@ -2022,6 +2154,98 @@ const vi = {
   adminColCode: 'Mã',
   adminColStatus: 'Trạng thái',
   adminColDate: 'Ngày',
+
+  // ─── Agent X — New step type labels ────────────────────────
+  stepTypeQuickResponse: '💬 Phản hồi nhanh',
+  stepTypeOddOneOut: '🧠 Từ khác biệt',
+  stepTypeSentenceBuilder: '🧩 Xây dựng câu',
+  stepTypeSpotTheMistake: '🔍 Tìm lỗi sai',
+
+  // ─── Quick Response (learner) ───────────────────────────────
+  quickResponseTitleFallback: 'Phản hồi nhanh',
+  quickResponseDefaultSpeakerEn: 'Bệnh nhân',
+  quickResponseDefaultQuestionEn: 'Bạn sẽ nói gì tiếp theo?',
+  quickResponseConfirmBtn: 'Xác nhận',
+  quickResponseRatingBest: '★ Lựa chọn tốt nhất',
+  quickResponseRatingAcceptable: '✓ Có thể chấp nhận',
+  quickResponseRatingIncorrect: 'Thử lại',
+  quickResponseDefaultBestFeedback: 'Lựa chọn tốt nhất — bạn đảm bảo an toàn và hỗ trợ bệnh nhân.',
+  quickResponseEmptyState: 'Bước này chưa có câu trả lời — mở trình chỉnh sửa admin để thêm.',
+
+  // ─── Quick Response (admin editor) ─────────────────────────
+  quickResponseEditorAddOption: '+ Thêm lựa chọn',
+  quickResponseEditorRatingBest: 'Tốt nhất',
+  quickResponseEditorRatingAcceptable: 'Chấp nhận được',
+  quickResponseEditorRatingIncorrect: 'Thử lại',
+  quickResponseEditorBestFeedbackLabel: 'Phản hồi cho lựa chọn tốt nhất',
+  quickResponseEditorMaxOptionsHint: 'Tối đa 4 lựa chọn',
+  quickResponseEditorValidationNeedBest: 'Đánh dấu đúng một lựa chọn là Tốt nhất',
+  quickResponseEditorValidationNeedPrompt: 'Câu hỏi của bệnh nhân (EN) là bắt buộc',
+
+  // ─── Odd One Out (learner) ──────────────────────────────────
+  oddOneOutTitleFallback: 'Từ khác biệt',
+  oddOneOutDefaultPromptEn: 'Từ nào không thuộc nhóm?',
+  oddOneOutQuestionLabel: 'Câu {n} / {total}',
+  oddOneOutCorrectBanner: 'Đúng! {explanation}',
+  oddOneOutWrongBanner: 'Chưa đúng — {explanation}',
+  oddOneOutScoreBanner: '{correct}/{total} câu đúng',
+
+  // ─── Odd One Out (admin editor) ─────────────────────────────
+  oddOneOutEditorPullScriptBtn: '⚡ Lấy kịch bản từ bài học',
+  oddOneOutEditorReferencePanelTitle: 'Tham khảo kịch bản bài học',
+  oddOneOutEditorAddQuestionBtn: '+ Thêm câu hỏi',
+  oddOneOutEditorMarkAsOdd: 'Đánh dấu là từ khác',
+  oddOneOutEditorExplanationEnLabel: 'Giải thích (EN)',
+  oddOneOutEditorExplanationViLabel: 'Giải thích (VI)',
+  oddOneOutEditorCopiedToast: 'Đã sao chép — dán vào ô từ',
+  oddOneOutEditorValidationNeedFour: 'Mỗi câu cần đúng 4 từ',
+  oddOneOutEditorValidationNeedOdd: 'Đánh dấu đúng một từ là từ khác',
+  oddOneOutEditorValidationNeedExplanation: 'Thêm giải thích cho nhóm từ',
+
+  // ─── Sentence Builder (learner) ─────────────────────────────
+  sentenceBuilderTitleFallback: 'Xây dựng câu',
+  sentenceBuilderInstructionEn: 'Hãy dịch câu này:',
+  sentenceBuilderCheckBtn: 'Kiểm tra',
+  sentenceBuilderTryAgainBtn: '↻ Thử lại',
+  sentenceBuilderCorrectAnswerLabel: 'Đáp án đúng:',
+
+  // ─── Sentence Builder (admin editor) ────────────────────────
+  sentenceBuilderEditorPromptViLabel: 'Câu tiếng Việt (câu cần dịch)',
+  sentenceBuilderEditorContextEnLabel: 'Gợi ý EN (tùy chọn, hiển thị phía trên câu)',
+  sentenceBuilderEditorChunksLabel: 'Xây dựng câu (các mảnh ghép)',
+  sentenceBuilderEditorParseBtn: 'Phân tích mảnh',
+  sentenceBuilderEditorPreviewPoolLabel: 'Xem trước giao diện học viên (đã trộn)',
+  sentenceBuilderEditorHintEnLabel: 'Gợi ý EN (hiển thị sau lần sai đầu)',
+  sentenceBuilderEditorHintViLabel: 'Gợi ý VI',
+  sentenceBuilderEditorValidationNeedTwoChunks: 'Cần ít nhất 2 mảnh ghép',
+  sentenceBuilderEditorValidationNeedPromptVi: 'Câu tiếng Việt là bắt buộc',
+
+  // ─── Spot the Mistake (learner) ─────────────────────────────
+  spotTheMistakeTitleFallback: 'Tìm lỗi sai',
+  spotTheMistakeInstructionEn: 'Hãy bấm vào từ hoặc cụm từ sai:',
+  spotTheMistakeCheckBtn: 'Kiểm tra',
+  spotTheMistakeCorrectionLabel: 'Đúng: {correction}',
+  spotTheMistakeLookCloserHint: 'Hãy nhìn kỹ hơn',
+  spotTheMistakeQuestionLabel: 'Câu {n} / {total}',
+  spotTheMistakeScoreBanner: '{correct}/{total} câu đúng',
+  spotTheMistakeNoWrongToken: 'Câu này chưa có lỗi — mở trình chỉnh sửa admin để thiết lập.',
+
+  // ─── Spot the Mistake (admin editor) ────────────────────────
+  spotTheMistakeEditorSentenceEnLabel: 'Câu EN (có lỗi cố ý)',
+  spotTheMistakeEditorTokeniseBtn: 'Tách từ →',
+  spotTheMistakeEditorTokensLabel: 'Từ (click = đánh dấu sai, shift-click = gộp với từ trái)',
+  spotTheMistakeEditorMergeHint: 'Shift-click để gộp với từ bên trái',
+  spotTheMistakeEditorSplitBtn: '⤺ Tách',
+  spotTheMistakeEditorCorrectionEnLabel: 'Sửa lỗi (EN)',
+  spotTheMistakeEditorCorrectionViLabel: 'Sửa lỗi (VI, tùy chọn)',
+  spotTheMistakeEditorSentenceViLabel: 'Câu VI (tùy chọn, hiển thị cho học viên VI)',
+  spotTheMistakeEditorExplanationEnLabel: 'Giải thích (EN)',
+  spotTheMistakeEditorExplanationViLabel: 'Giải thích (VI, tùy chọn)',
+  spotTheMistakeEditorAddQuestionBtn: '+ Thêm câu hỏi',
+  spotTheMistakeEditorValidationNeedWrong: 'Đánh dấu đúng một từ là sai',
+  spotTheMistakeEditorValidationNeedCorrection: 'Thêm cách sửa lỗi',
+  spotTheMistakeEditorValidationNeedExplanation: 'Thêm giải thích',
+
 } as const
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

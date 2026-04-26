@@ -14,6 +14,10 @@ import ConversationAnimationStep from './steps/ConversationAnimationStep'
 import MatchingStep from './steps/MatchingStep'
 import DragOrderStep from './steps/DragOrderStep'
 import FlashCardStep from './steps/FlashCardStep'
+import QuickResponseStep from './steps/QuickResponseStep'
+import OddOneOutStep from './steps/OddOneOutStep'
+import SentenceBuilderStep from './steps/SentenceBuilderStep'
+import SpotTheMistakeStep from './steps/SpotTheMistakeStep'
 
 interface RenderOpts {
   contextAudio?: { url: string; transcript: string }
@@ -57,6 +61,14 @@ export function renderLessonStep(
       return <DragOrderStep step={step} onComplete={onComplete} />
     case 'flash_card':
       return <FlashCardStep step={step} onComplete={onComplete} />
+    case 'quick_response':
+      return <QuickResponseStep step={step} onComplete={onComplete} />
+    case 'odd_one_out':
+      return <OddOneOutStep step={step} onComplete={onComplete} />
+    case 'sentence_builder':
+      return <SentenceBuilderStep step={step} onComplete={onComplete} />
+    case 'spot_the_mistake':
+      return <SpotTheMistakeStep step={step} onComplete={onComplete} />
     default:
       return opts.fallback ?? null
   }
