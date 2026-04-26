@@ -139,6 +139,10 @@ lib/
 | — | Calendar: working month navigation, visual day markers, new API | ✅ Built |
 | N | User Profile Page (avatar, badges, courses, rewards, groups, endorsements) | ✅ Handover created |
 | O | Animation Builder: lesson/step numbering + optgroup grouping (2-file fix) | ✅ Handover created |
+| W | Interactive Exercise polish (DragOrder, Matching, Cloze, AudioShadow, FlashCard) + FlashCard sprint mode + admin "pull key vocabulary" | ✅ Built — `HANDOVER_W_INTERACTIVE_EXERCISES_POLISH.md` (untracked on `main`, never committed to `nursemed`) |
+| X | 4 new step types (`quick_response`, `odd_one_out`, `sentence_builder`, `spot_the_mistake`) — learner UI, admin editors, migration 053, badge classes | ✅ Built — `HANDOVER_X_NEW_INTERACTIVE_STEP_TYPES.md` + `W_BRAINSTORM_EXERCISE_IDEAS.md` (untracked on `main`, never committed to `nursemed`) |
+
+> **⚠️ Action item:** the W/X handover docs and `supabase/migrations/053_nursed_step_types_interactive_v2.sql` exist locally on `main` as untracked files but were never committed. They need to be committed to `nursemed` before the next deploy so future agents can find them in the repo.
 
 ---
 
@@ -154,9 +158,11 @@ lib/
 049_nursed_slugs.sql
 050_nursed_learning_preferences.sql  ← Adds onboarding_done, preferred_days, etc.
 051_nursed_profile_extended.sql      ← Adds position, date_of_birth, bio + nursed_endorsements (created by Agent N)
+052_add_context_id_to_user_rewards.sql  ← Applied via Supabase SQL editor; NOT committed to git
+053_nursed_step_types_interactive_v2.sql  ← CHECK constraint extended to 18 step types (Agent X). Applied live; file untracked on main.
 ```
 
-Next migration should be `052_*.sql`.
+Next migration should be `054_*.sql`.
 
 ---
 
@@ -269,6 +275,16 @@ These are real mistakes and friction points from Agents A–M. Learn from them.
 
 10. **Forgetting the i18n system** — Hardcoded English strings in JSX break the Vietnamese translation flow. Every user-facing string must go through `t.keyName` via `useLang()`.
 
+11. **Telling Tarun "env vars are picked up at runtime cold start"** — they are NOT. Vercel env vars are baked into a deployment **at build/deploy time**. Existing deployments don't see new env values without a redeploy. If a runtime env var is missing on a live function, the fix is to redeploy (preferably the last green deploy via the redeploy modal's "Choose a Deployment" picker — never a known-failing latest commit).
+
+12. **Not checking the Vercel project's Production Branch setting before debugging deploy failures** — symptom on the `med` project on Apr 21+: every push errored, but `med.tuto.asia` stayed up. Root cause was that the Production Branch had been silently switched from `nursemed` to `main` in project settings. Before deep-diving build logs, always verify Settings → Git → Production Branch matches the branch the code actually lives on.
+
+13. **Verifying agent claims of "build passes, zero new TS errors"** — Agent W and Agent X both claimed it; both were technically true but only confirmed by personally running `npm run build` and `npx tsc --noEmit` and counting line-shifted errors against a baseline. Always trust-but-verify with the actual commands. The line-offset trick (an existing error at line N shows up at line N+K after an insertion) is how you tell a regression from a pre-existing issue.
+
+14. **Editing audio without re-recording to match** — when Tarun rewrites a `script_read` or `cloze` script, the per-line `line_N_audioUrl` fields silently keep pointing to MP3s of the OLD wording. Always either (a) clear those fields, or (b) regenerate audio in the same session. Otherwise learners hear text that doesn't match what they read.
+
+15. **Treating "med Vercel project" as the same thing as "tuto Vercel project"** — `med.tuto.asia` is served by the `med` project (id `prj_23SdtfcC8eLN0p6rjPRaHX7PHkRl`). `tutoglobal.com` is served by `tuto`. Env vars, Production Branch, and deployments are independent. When debugging, always confirm which Vercel project the failing URL belongs to before changing settings.
+
 ### ✅ What Works Well — Keep Doing These
 
 1. **Give the agent a vivid product persona** — "You are a Senior Gamification Engineer who thinks in habit loops" produces far better output than "implement a rewards system". The agent performs better when it understands its identity.
@@ -290,6 +306,53 @@ These are real mistakes and friction points from Agents A–M. Learn from them.
 ## Pending Features / Ideas Not Yet Assigned
 
 These are features Tarun has mentioned or that logically follow from the current build. Assign agents for these as Tarun prioritises them.
+
+### 🔥 URGENT / OPS BLOCKER
+
+**Agent Y — Vercel / DevOps Triage for `med` project** *(blocks all NurseEd shipping)*
+
+**Symptom:** `med.tuto.asia` has been **serving a stale Apr 21 deployment** since then. Every push to either `main` or `nursemed` since Apr 21 has produced a Vercel deployment in `ERROR` state. This was discovered on 2026-04-26 while trying to re-record audio for lesson 7.2.
+
+**Diagnosis (already done — agent does NOT need to redo this):**
+1. The `med` Vercel project's **Production Branch** was changed from `nursemed` to `main` somewhere around Apr 21. Confirmed via the redeploy modal which now offers `main` commits as "Current". `main` does not contain a buildable `apps/med` Next.js app for this project's build settings, so every `main` push errors.
+2. Live site stays up only because Vercel keeps the last successful deploy alive when subsequent ones fail. Last green prod deploy: `dpl_8HK11bMmJPeUeAW9KuQpPhJCAQHz` (Apr 21, `nursemed` commit `6e77a5a` "fix: cloze blank parser").
+3. Several env vars on the `med` project are mis-scoped to **Preview · branch=`nursemed1.2`** (a branch that doesn't exist) instead of **Production**. Tarun has fixed `FISH_AUDIO_API_KEY`, `FISH_AUDIO_VOICE_NURSE`, `FISH_AUDIO_VOICE_PATIENT` to Production scope on 2026-04-26. `SUPABASE_SERVICE_ROLE_KEY` (Preview · `nursemed1.2`) and `SUPABASE_SERVICE_ROLE_KEY` (Production, "Needs Attention") still need re-saving — verify before this agent redeploys.
+
+**The fix (do these in order):**
+1. Vercel Dashboard → `tarun-tagejas-projects/med` → **Settings → Git → Production Branch** → change from `main` → **`nursemed`**. Save.
+2. Vercel → **Settings → Environment Variables** → for any var with `[Needs Attention]` badge, click **Edit** and re-paste the value (this re-encrypts it with the current key). Confirm `SUPABASE_SERVICE_ROLE_KEY` is set on **Production** scope (not just Preview).
+3. Trigger a fresh deploy from `nursemed` HEAD. Either push a no-op commit to `nursemed`, or in Deployments → find the last green `nursemed` deploy → `...` → **Redeploy** to Production.
+4. Wait for `Ready` state. Verify `med.tuto.asia` is serving the new deploy by checking a route that's only on the latest `nursemed` HEAD.
+5. Smoke-test `POST /api/audio/generate` with a dummy body — should return something other than `FISH_AUDIO_API_KEY not configured`.
+
+**Out of scope for this agent:** Do NOT attempt to merge `nursemed` into `main` or vice versa. Do NOT restructure the build. The fix is purely a Vercel project settings change.
+
+**Definition of done:** Latest `nursemed` HEAD is live on med.tuto.asia. New pushes to `nursemed` deploy successfully. `/api/audio/generate` returns 4xx (not 500 "key not configured") when called with valid auth.
+
+---
+
+**Agent Z — Lesson 7.2 audio regeneration via fish.audio** *(blocked by Agent Y)*
+
+After Agent Y restores deploys, regenerate the audio for lesson 7.2 (Module 7, Lesson 2: "Recognising Stroke Symptoms — FAST", Emergency Nursing Communication course).
+
+**Context (already done on 2026-04-26):**
+- The `script_read` step (id `58220623-fb3f-46c5-b85f-2a5707a035d2`) was rewritten to a 6-line SBAR-style dialogue with VI translations for each line. Old per-line audio URLs were removed because they no longer match the new lines.
+- The `cloze` step (id `7cbdb6a0-6271-4bb3-a7fd-74bbdacd5ae0`) was updated with a matching cloze featuring 7 blanks against the new script.
+- The `audio_shadow` step (id `479d03c2-d9e5-430f-8ce7-3fcfb81fcb3a`) was **left untouched** — its existing single-MP3 audio still matches its (longer) transcript and serves as a "rich SBAR call" warm-up.
+
+**To do:**
+1. Generate 6 line audios for the `script_read` step by calling `POST https://med.tuto.asia/api/audio/generate` six times. Lines 0/2/4 are nurse turns (use `voice: 'nurse'`), lines 1/3/5 are doctor turns. The endpoint writes the MP3 to Supabase Storage `nursed-assets/audio/{stepId}/{field}.mp3` and patches `step.config[field]` with the public URL. Body shape: `{ text, voice: 'nurse'|'doctor'|'patient', stepId, field: 'line_N_audioUrl' }`.
+2. **Voice quirk to decide before firing:** the route at `apps/med/app/api/audio/generate/route.ts` currently maps `doctor` → `FISH_AUDIO_VOICE_NURSE` (i.e. doctor lines come out in Nurse Mai's voice). Three options:
+   - (i) ship 6 lines all in Nurse Mai's voice — quickest, no code change
+   - (ii) call doctor lines with `voice: 'patient'` to use the patient voice as a stand-in doctor — no code change
+   - (iii) add a `FISH_AUDIO_VOICE_DOCTOR` env var and a 1-line route change to map `doctor` → that var — best long-term but requires a commit + deploy on `nursemed`
+   
+   Tarun did not pick yet — confirm with him before generating.
+3. Optional: regenerate the single-MP3 `audioUrl` on the `audio_shadow` step too if Tarun wants a fresh nurse-voice version (current single-call route would mix both speakers' lines into one Nurse Mai voice, which is acceptable).
+
+**Out of scope:** Do not touch any other lesson, course, or migration. Do not alter the script/cloze again — they're final.
+
+---
 
 ### HIGH PRIORITY
 
@@ -366,3 +429,14 @@ A great handover document has these properties:
 ---
 
 *This document was authored by the previous Orchestrator Agent. Improve upon it with each session.*
+
+---
+
+## Handover History (Orchestrator log)
+
+Append a one-line entry every session so the next orchestrator can see what the previous one did without reading transcripts.
+
+| Date | Orchestrator | What happened |
+|---|---|---|
+| 2026-04-26 | (Cursor agent) | Reviewed Agents W (interactive exercise polish) and X (4 new step types) — both built, builds pass, zero new TS regressions. Reviewed lesson 7.2 of the Emergency Nursing Communication course; rewrote the `script_read` step into a 6-line SBAR-style stroke-call dialogue with VI translations for every line, and rewrote the matching `cloze` step with 7 blanks against the new script. Audio re-record was attempted via fish.audio (`POST /api/audio/generate`) but blocked: discovered (a) `med` Vercel project's Production Branch was silently switched from `nursemed` → `main` around Apr 21, causing every build since to fail; (b) FISH_AUDIO_* env vars were mis-scoped to Preview · branch=`nursemed1.2`. Tarun re-scoped the FISH vars to Production. Created `Agent Y` (Vercel/DevOps triage) and `Agent Z` (audio regen for 7.2) entries above. Added 5 new lessons (#11–#15). Created a separate orchestrator handover for the main Tuto project at `docs/dev-agent-reviews/HANDOVER_ORCHESTRATOR_AGENT.md` (root-level, not this file) so the two projects don't share orchestration. |
+
