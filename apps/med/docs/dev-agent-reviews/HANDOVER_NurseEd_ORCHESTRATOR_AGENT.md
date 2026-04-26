@@ -139,10 +139,10 @@ lib/
 | — | Calendar: working month navigation, visual day markers, new API | ✅ Built |
 | N | User Profile Page (avatar, badges, courses, rewards, groups, endorsements) | ✅ Handover created |
 | O | Animation Builder: lesson/step numbering + optgroup grouping (2-file fix) | ✅ Handover created |
-| W | Interactive Exercise polish (DragOrder, Matching, Cloze, AudioShadow, FlashCard) + FlashCard sprint mode + admin "pull key vocabulary" | ✅ Built — `HANDOVER_W_INTERACTIVE_EXERCISES_POLISH.md` (untracked on `main`, never committed to `nursemed`) |
-| X | 4 new step types (`quick_response`, `odd_one_out`, `sentence_builder`, `spot_the_mistake`) — learner UI, admin editors, migration 053, badge classes | ✅ Built — `HANDOVER_X_NEW_INTERACTIVE_STEP_TYPES.md` + `W_BRAINSTORM_EXERCISE_IDEAS.md` (untracked on `main`, never committed to `nursemed`) |
+| W | Interactive Exercise polish (DragOrder, Matching, Cloze, AudioShadow, FlashCard) + FlashCard sprint mode + admin "pull key vocabulary" | ✅ Handover doc committed to `nursemed` (commit `9dc44ff`). Code edits on top of `nursemed` were committed earlier in the W session — verify by reading `HANDOVER_W_INTERACTIVE_EXERCISES_POLISH.md`. |
+| X | 4 new step types (`quick_response`, `odd_one_out`, `sentence_builder`, `spot_the_mistake`) — learner UI, admin editors, migration 053, badge classes | ⚠️ **Partially recovered.** Handover doc + brainstorm + migration 053 committed on `nursemed` (commit `9dc44ff`). The 4 learner-side `.tsx` components were preserved on branch `agent-x-recovery` (commit `ad32f84`). Agent X's integration edits (`lib/supabase.ts` types, ~80 i18n keys, `renderLessonStep` arms, admin editors, preview labels, lesson-builder entries, `globals.css` badge classes) were **never saved** and must be re-derived. See `apps/med/components/learn/steps/AGENT_X_RECOVERY_README.md` on the recovery branch for the integration checklist. |
 
-> **⚠️ Action item:** the W/X handover docs and `supabase/migrations/053_nursed_step_types_interactive_v2.sql` exist locally on `main` as untracked files but were never committed. They need to be committed to `nursemed` before the next deploy so future agents can find them in the repo.
+> **Status (2026-04-26):** Handovers + migration are in `nursemed`. Migration 053 is also live in Supabase. The four `.tsx` components are preserved but **not on `nursemed`** — they live on `agent-x-recovery`. A follow-up agent must re-derive Agent X's integration code, then cherry-pick the four files into a clean integration branch before merging back to `nursemed`. See the recovery README for step-by-step.
 
 ---
 
