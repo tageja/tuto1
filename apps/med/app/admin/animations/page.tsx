@@ -49,6 +49,11 @@ function extractScriptFromConfig(config: Record<string, unknown> | null): string
     return config.script.trim()
   }
 
+  // Format 3: audio_shadow steps store their dialogue in config.transcript.
+  if (typeof config.transcript === 'string' && config.transcript.trim()) {
+    return config.transcript.trim()
+  }
+
   return null
 }
 
@@ -68,7 +73,7 @@ function parseScript(raw: string): AnimationSegment[] {
   const segments: AnimationSegment[] = []
 
   for (const line of lines) {
-    const match = line.match(/^(nurse|patient|doctor|family)\s*:\s*(.+)$/i)
+    const match = line.match(/^(nurse|patient|doctor|family)(?:\s+[^:]+)?\s*:\s*(.+)$/i)
     if (!match) continue
     segments.push({
       speaker: match[1].toLowerCase() as Speaker,
@@ -92,7 +97,7 @@ export default function AnimationsAdminPage() {
   const [sceneSetting, setSceneSetting] = useState('Hospital')
   const [segments, setSegments] = useState<AnimationSegment[]>([])
   const [previewManifest, setPreviewManifest] = useState<AnimationManifest | null>(null)
-  const [scriptSource, setScriptSource] = useState<'manifest' | 'step-config' | 'library' | null>(null)
+  const [scriptSource, setScriptSource] = useState<'manifest' | 'step-config' | 'lesson-step' | 'library' | null>(null)
 
   const [genStatus, setGenStatus] = useState<'idle' | 'running' | 'done' | 'error'>('idle')
   const [genResult, setGenResult] = useState<{ generated: number; total: number } | null>(null)
@@ -160,7 +165,17 @@ export default function AnimationsAdminPage() {
       return
     }
 
-    // Priority 3: look up in pre-written scripts library
+    // Priority 3: selected practice/no_script step can borrow dialogue from a sibling lesson step.
+    const siblingWithScript = steps.find(s => s.id !== selectedStep && extractScriptFromConfig(s.config))
+    const siblingScript = siblingWithScript ? extractScriptFromConfig(siblingWithScript.config) : null
+    if (siblingScript) {
+      setScriptText(siblingScript)
+      setSegments(parseScript(siblingScript))
+      setScriptSource('lesson-step')
+      return
+    }
+
+    // Priority 4: look up in pre-written scripts library
     const lesson = lessons.find(l => l.id === selectedLesson)
     if (lesson) {
       const found = findScript(lesson.title, step.title ?? '')
@@ -397,6 +412,12 @@ export default function AnimationsAdminPage() {
             <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-3 py-2 rounded-xl">
               <Sparkles size={14} />
               Script auto-loaded from step dialogue lines — review and generate animation.
+            </div>
+          )}
+          {scriptSource === 'lesson-step' && (
+            <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-3 py-2 rounded-xl">
+              <Sparkles size={14} />
+              Script auto-loaded from another dialogue step in this lesson — review and generate animation.
             </div>
           )}
           {scriptSource === 'library' && (
