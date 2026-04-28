@@ -225,6 +225,12 @@ export async function uploadLogo(
   // Update branding with new logo URL
   await updateSchoolBranding(resolvedSchoolId, userId, { logo_url: logoUrl });
 
+  // Keep schools.logo_url in sync so the splash screen picks it up
+  await supabase
+    .from('schools')
+    .update({ logo_url: logoUrl })
+    .eq('id', resolvedSchoolId);
+
   return logoUrl;
 }
 

@@ -117,10 +117,10 @@ export const SchoolProvider: React.FC<SchoolProviderProps> = ({ children }) => {
         }
       }
 
-      // Get school information from Supabase
+      // Get school information from Supabase (join school_branding for logo)
       const { data: school, error: schoolError } = await supabase
         .from('schools')
-        .select('*')
+        .select('*, school_branding(logo_url)')
         .eq('id', invitation.school_id)
         .single();
 
@@ -128,10 +128,14 @@ export const SchoolProvider: React.FC<SchoolProviderProps> = ({ children }) => {
         throw new Error('School not found');
       }
 
+      const brandingLogoUrl = (school as any).school_branding?.[0]?.logo_url
+        ?? (school as any).school_branding?.logo_url
+        ?? null;
+
       const schoolData: School = {
         id: school.id,
         name: school.name,
-        logo_url: school.logo_url || undefined,
+        logo_url: school.logo_url || brandingLogoUrl || undefined,
         code: school.school_code || '',
         address: school.address || '',
         phone: school.phone || '',
@@ -241,18 +245,22 @@ export const SchoolProvider: React.FC<SchoolProviderProps> = ({ children }) => {
     try {
       const { supabase } = await import('../config/supabase');
       
-      // Refresh school information
+      // Refresh school information (join school_branding for logo)
       const { data: school, error } = await supabase
         .from('schools')
-        .select('*')
+        .select('*, school_branding(logo_url)')
         .eq('id', currentSchool.id)
         .single();
 
       if (!error && school) {
+        const brandingLogoUrl = (school as any).school_branding?.[0]?.logo_url
+          ?? (school as any).school_branding?.logo_url
+          ?? null;
+
         const mapped: School = {
           id: resolveSchoolId(school.id),
           name: school.name,
-          logo_url: school.logo_url || undefined,
+          logo_url: school.logo_url || brandingLogoUrl || undefined,
           code: school.school_code || '',
           address: school.address || '',
           phone: school.phone || '',

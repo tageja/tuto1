@@ -180,8 +180,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#d1d5db',
   },
   tutoLogoLarge: {
-    width: width * 0.35,
-    height: width * 0.35,
+    width: width * 0.55,
+    height: width * 0.55,
   },
   footer: {
     alignItems: 'center',
