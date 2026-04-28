@@ -33,6 +33,7 @@ const SchoolSelectorScreen: React.FC = () => {
     setCurrentSchool({
       id: school.school_id,
       name: school.school_name,
+      logo_url: school.school_logo_url || undefined,
       code: '',
       address: '',
       phone: '',
