@@ -88,6 +88,7 @@ import MessagesConversationScreen from '../screens/school/MessagesConversationSc
 import MessagesComposeScreen from '../screens/school/MessagesComposeScreen';
 import ParentFeedbackListScreen from '../screens/school/ParentFeedbackListScreen';
 import AdminFeedbackListScreen from '../screens/school/AdminFeedbackListScreen';
+import AdminHelpSupportScreen from '../screens/school/AdminHelpSupportScreen';
 import ParentCreateFeedbackScreen from '../screens/school/ParentCreateFeedbackScreen';
 import FeedbackDetailsScreen from '../screens/school/FeedbackDetailsScreen';
 import { SettingsStackNavigator } from './SettingsStack';
@@ -196,6 +197,7 @@ export type RootStackParamList = {
   SchoolSurveys: undefined;
   SchoolSubscriptions: undefined;
   SchoolFeedback: undefined;
+  AdminHelpSupport: undefined;
   SchoolSettings: undefined;
   SchoolActivityDetail: { activity: any };
   SchoolMessageDetail: { message: any };
@@ -211,6 +213,7 @@ export type RootStackParamList = {
   MessagesConversation: { threadId: string; userRole?: 'admin' | 'parent' };
   MessagesCompose: undefined;
   SchoolFeedback: undefined;
+  AdminHelpSupport: undefined;
   FeedbackCreate: undefined;
   FeedbackDetails: { feedbackId: string };
   // Teacher dashboard (root screens for quick actions)
@@ -435,6 +438,7 @@ export const AppNavigator = () => {
             );
           }}
         </Stack.Screen>
+        <Stack.Screen name="AdminHelpSupport" component={AdminHelpSupportScreen} />
         <Stack.Screen name="FeedbackCreate" component={ParentCreateFeedbackScreen} />
         <Stack.Screen name="FeedbackDetails" component={FeedbackDetailsScreen} />
         <Stack.Screen name="SchoolTeachers" component={TeachersScreen} />

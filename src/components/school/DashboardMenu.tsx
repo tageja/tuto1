@@ -78,6 +78,7 @@ export const DashboardMenu: React.FC<DashboardMenuProps> = ({
       { icon: 'medication', label: 'Medicine', labelVi: 'Thuốc men', screen: 'SchoolMedicine', roles: ['admin', 'parent'] },
       { icon: 'emoji-events', label: 'Extracurricular', labelVi: 'Ngoại khóa', screen: 'SchoolActivities', roles: ['admin'] },
       { icon: 'payments', label: 'Fees', labelVi: 'Phí', screen: 'SchoolPayments', roles: ['admin', 'parent'] },
+      { icon: 'help-outline', label: 'Help & Support', labelVi: 'Trợ lý & Hỗ trợ', screen: 'AdminHelpSupport', roles: ['admin'] },
       { icon: 'settings', label: 'Settings', labelVi: 'Cài đặt', screen: 'SettingsStack', roles: ['admin', 'parent'] },
     ];
     if (userRole === 'admin') {
