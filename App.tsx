@@ -16,10 +16,13 @@ import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_7
 export default function App() {
   const [queryClient] = useState(() => new QueryClient());
 
-  // CRITICAL: Hide splash screen IMMEDIATELY when React starts
+  // Hide native splash after a brief delay so AppLoadingScreen is painted first,
+  // preventing the white flash between the native splash and React Native content.
   React.useEffect(() => {
-    // Hide splash as soon as React mounts - don't wait for anything
-    SplashScreen.hideAsync().catch(() => {});
+    const timer = setTimeout(() => {
+      SplashScreen.hideAsync().catch(() => {});
+    }, 200);
+    return () => clearTimeout(timer);
   }, []);
 
   // Initialize monitoring in background

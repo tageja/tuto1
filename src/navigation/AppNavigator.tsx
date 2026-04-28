@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { supabase } from '../config/supabase';
 import { View, Text, ActivityIndicator } from 'react-native';
 import AppLoadingScreen from '../components/common/AppLoadingScreen';
 import { useNavigation } from '@react-navigation/native';
@@ -229,19 +230,45 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 const MIN_SPLASH_MS = 1500;
 
-const RoleGate: React.FC = () => {
-  const { userType, loading } = useUser();
+/**
+ * SplashRoute — the true initial route.
+ *
+ * Shows AppLoadingScreen for at least MIN_SPLASH_MS, then checks for an
+ * active Supabase session and routes to "Home" (logged in) or "Login" (not).
+ * This ensures the school-branded loading screen is ALWAYS shown on cold
+ * launch, regardless of auth state.
+ */
+const SplashRoute: React.FC<{ navigation: any }> = ({ navigation }) => {
   const startRef = useRef(Date.now());
-  const [minElapsed, setMinElapsed] = useState(false);
 
   useEffect(() => {
-    const elapsed = Date.now() - startRef.current;
-    const remaining = Math.max(0, MIN_SPLASH_MS - elapsed);
-    const timer = setTimeout(() => setMinElapsed(true), remaining);
-    return () => clearTimeout(timer);
-  }, []);
+    let cancelled = false;
 
-  if (loading || !minElapsed) {
+    const run = async () => {
+      const { data } = await supabase.auth.getSession();
+      const hasSession = !!data?.session;
+
+      const elapsed = Date.now() - startRef.current;
+      const remaining = Math.max(0, MIN_SPLASH_MS - elapsed);
+
+      if (cancelled) return;
+      setTimeout(() => {
+        if (cancelled) return;
+        navigation.replace(hasSession ? 'Home' : 'Login');
+      }, remaining);
+    };
+
+    run();
+    return () => { cancelled = true; };
+  }, [navigation]);
+
+  return <AppLoadingScreen />;
+};
+
+const RoleGate: React.FC = () => {
+  const { userType, loading } = useUser();
+
+  if (loading) {
     return <AppLoadingScreen />;
   }
 
@@ -343,7 +370,8 @@ export const AppNavigator = () => {
       }}
     >
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Splash" component={SplashRoute as any} />
         <Stack.Screen name="Login" component={AuthUnifiedScreen as any} initialParams={{ mode: 'login' }} />
         <Stack.Screen name="Register" component={AuthUnifiedScreen as any} initialParams={{ mode: 'register' }} />
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
