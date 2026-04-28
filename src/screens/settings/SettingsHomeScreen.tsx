@@ -21,6 +21,7 @@ import { useSchool } from '../../contexts/SchoolContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useUserProfile } from '../../hooks/settings/useUserProfile';
 import { useTheme } from '../../contexts/ThemeContext';
+import { supabase } from '../../config/supabase';
 
 interface SettingsTile {
   id: string;
@@ -77,6 +78,7 @@ export default function SettingsHomeScreen() {
           text: t('settings.signOut.confirm'),
           style: 'destructive',
           onPress: async () => {
+            await supabase.auth.signOut();
             await clearUser();
             navigation.reset({
               index: 0,

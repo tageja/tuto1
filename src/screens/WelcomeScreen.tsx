@@ -98,18 +98,12 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
       // 2. school.access_type==='teacher' AND not admin → teacher
       // 3. userData.type==='teacher' AND not admin → teacher
       // 4. fallback → parent
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/233de770-f886-4fc3-bb3a-6a4bde299f3d',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1d6eec'},body:JSON.stringify({sessionId:'1d6eec',location:'WelcomeScreen.tsx:roleDecision',message:'role inputs',data:{userDataType:userData?.type,schoolRole:school.role,schoolAccessType:school.access_type,schoolName:school.school_name},hypothesisId:'teacher-override',timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       const roleForDashboard =
         school.role === 'admin' || userData?.type === 'admin'
           ? 'admin'
           : school.access_type === 'teacher' || userData?.type === 'teacher'
           ? 'teacher'
           : 'parent';
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/233de770-f886-4fc3-bb3a-6a4bde299f3d',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1d6eec'},body:JSON.stringify({sessionId:'1d6eec',location:'WelcomeScreen.tsx:roleDecision',message:'role output',data:{roleForDashboard},hypothesisId:'teacher-override',timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       if (userData) {
         setUserData({
           ...userData,

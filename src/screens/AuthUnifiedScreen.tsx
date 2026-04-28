@@ -709,10 +709,6 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
         school_id: schoolUserRole.school_id,
       } : 'None found');
 
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a822f593-e642-4290-8168-6f61447cf8e7',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a8c1a9'},body:JSON.stringify({sessionId:'a8c1a9',location:'AuthUnifiedScreen.tsx:role-resolution',message:'Role resolution inputs',data:{email:normalizedEmail,usersTableRole:userProfile.data?.role,schoolUserAdminRow:schoolUserRole ? {role:schoolUserRole.role,school_id:schoolUserRole.school_id} : null},hypothesisId:'A-B-C-D',timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
-      
       // Also check school_teachers to handle teacher accounts
       const userId = userProfile.data?.id || user.id;
       const { data: teacherRows } = await supabase
@@ -721,29 +717,14 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
         .ilike('email', normalizedEmail)
         .limit(1);
 
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a822f593-e642-4290-8168-6f61447cf8e7',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a8c1a9'},body:JSON.stringify({sessionId:'a8c1a9',location:'AuthUnifiedScreen.tsx:teacher-lookup',message:'school_teachers lookup result',data:{email:normalizedEmail,teacherRows:teacherRows||[],hasTeacherRow:!!(teacherRows && teacherRows.length>0)},hypothesisId:'E',timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
-
       const isTeacherInSchool = !!(teacherRows && teacherRows.length > 0);
       const usersTableRole = userProfile.data?.role;
       const isSchoolAdmin = usersTableRole === 'school_admin' || usersTableRole === 'admin' || schoolUserRole?.role === 'admin';
 
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/233de770-f886-4fc3-bb3a-6a4bde299f3d',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1d6eec'},body:JSON.stringify({sessionId:'1d6eec',location:'AuthUnifiedScreen.tsx:finalRole',message:'role resolution inputs',data:{email:normalizedEmail,usersTableRole,isTeacherInSchool,isSchoolAdmin,schoolUserAdminRow:!!schoolUserRole},hypothesisId:'teacher-override',timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
-
       // school_admin ALWAYS wins over teacher-table membership
       const finalRole = isSchoolAdmin ? 'admin' : isTeacherInSchool ? 'teacher' : (schoolUserRole?.role || usersTableRole || 'parent');
 
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/233de770-f886-4fc3-bb3a-6a4bde299f3d',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1d6eec'},body:JSON.stringify({sessionId:'1d6eec',location:'AuthUnifiedScreen.tsx:finalRole',message:'final role assigned',data:{finalRole},hypothesisId:'teacher-override',timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       console.log('👤 Final role determined:', finalRole);
-
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a822f593-e642-4290-8168-6f61447cf8e7',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a8c1a9'},body:JSON.stringify({sessionId:'a8c1a9',location:'AuthUnifiedScreen.tsx:final-role',message:'Final role assigned',data:{email:normalizedEmail,finalRole,isTeacherInSchool,usersTableRole:userProfile.data?.role,schoolUserAdminRow:!!schoolUserRole},hypothesisId:'A-B-E',timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       
       // Set user data for app
       const userData = {

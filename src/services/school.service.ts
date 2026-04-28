@@ -135,16 +135,17 @@ export async function redeemAdminCode(
       return { success: false, message: 'Failed to redeem code' };
     }
 
-    // 2. Create school_admin entry
+    // 2. Link user as school admin in the canonical school_users table
     const { error: adminError } = await supabase
-      .from('school_admins')
+      .from('school_users')
       .insert({
         school_id: schoolId,
         user_id: userId,
+        role: 'admin',
       });
 
     if (adminError) {
-      // Check if already exists (ignore duplicate error)
+      // Ignore duplicate — user is already linked as admin
       if (adminError.code === '23505') {
         console.log('ℹ️ User already admin of this school');
       } else {
