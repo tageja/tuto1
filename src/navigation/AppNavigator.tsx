@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import AppLoadingScreen from '../components/common/AppLoadingScreen';
 import { useNavigation } from '@react-navigation/native';
@@ -227,24 +227,28 @@ export type RootStackParamList = {
 
 const Stack = createStackNavigator<RootStackParamList>();
 
+const MIN_SPLASH_MS = 1500;
+
 const RoleGate: React.FC = () => {
   const { userType, loading } = useUser();
-  
-  console.log('🚪 RoleGate: Checking user type', { userType, loading });
-  
-  // Show loading while user data is being loaded
-  if (loading) {
-    console.log('🚪 RoleGate: Loading user data...');
+  const startRef = useRef(Date.now());
+  const [minElapsed, setMinElapsed] = useState(false);
+
+  useEffect(() => {
+    const elapsed = Date.now() - startRef.current;
+    const remaining = Math.max(0, MIN_SPLASH_MS - elapsed);
+    const timer = setTimeout(() => setMinElapsed(true), remaining);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading || !minElapsed) {
     return <AppLoadingScreen />;
   }
-  
-  // If no userType set yet, show RoleSelection
+
   if (!userType) {
-    console.log('🚪 RoleGate: No user type, showing RoleSelection');
     return <RoleSelectionScreen navigation={undefined as any} />;
   }
-  
-  console.log('🚪 RoleGate: Showing tabs for', userType);
+
   return <MainTabs />;
 };
 

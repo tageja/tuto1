@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Dimensions,
   StatusBar,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSchool } from '../../contexts/SchoolContext';
 
 const { width } = Dimensions.get('window');
@@ -16,21 +17,30 @@ const DOT_COUNT = 3;
 const DOT_DELAY = 200;
 
 /**
- * AppLoadingScreen — shown in place of the plain ActivityIndicator while
- * the app resolves auth + school context on first load.
+ * AppLoadingScreen — shown while the app resolves auth + school context.
  *
- * If the user belongs to a school that has a logo_url, the screen shows:
- *   - School logo (large, centred)
- *   - School name
- *   - Animated loading dots
- *   - "Powered by tuto." at the bottom
- *
- * If no school logo is set (new user / pre-login), it shows the standard
- * Tuto splash layout so there is never a blank white screen.
+ * Reads cached school from AsyncStorage directly on mount so the school
+ * logo appears immediately, even before SchoolContext has initialised.
+ * Falls back to the standard Tuto splash when no logo is available.
  */
 const AppLoadingScreen: React.FC = () => {
   const { currentSchool } = useSchool();
-  const schoolLogoUrl = currentSchool?.logo_url ?? null;
+  const [cachedLogoUrl, setCachedLogoUrl] = useState<string | null>(null);
+  const [cachedSchoolName, setCachedSchoolName] = useState<string | null>(null);
+
+  useEffect(() => {
+    AsyncStorage.getItem('currentSchool').then(stored => {
+      if (!stored) return;
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed?.logo_url) setCachedLogoUrl(parsed.logo_url);
+        if (parsed?.name) setCachedSchoolName(parsed.name);
+      } catch { /* ignore corrupt cache */ }
+    });
+  }, []);
+
+  const schoolLogoUrl = currentSchool?.logo_url ?? cachedLogoUrl;
+  const schoolName = currentSchool?.name ?? cachedSchoolName;
 
   // Fade-in for the whole screen
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -93,7 +103,7 @@ const AppLoadingScreen: React.FC = () => {
               style={styles.schoolLogo}
               resizeMode="contain"
             />
-            <Text style={styles.schoolName}>{currentSchool?.name ?? ''}</Text>
+            <Text style={styles.schoolName}>{schoolName ?? ''}</Text>
             <View style={styles.dotsRow}>
               {dotAnims.map((anim, i) => (
                 <Animated.View
