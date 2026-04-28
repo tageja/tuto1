@@ -209,8 +209,15 @@ See the workspace rule `.cursor/rules/rules.fullstack.mdc` for the full doctrine
 | Platform | Expo + EAS Build |
 | Config | `eas.json`, `app.json`, `app.config.js` |
 | Stores | iOS App Store, Google Play |
-| Current version | `2.1.1` (build 21) — bumped via commits `c7cf914`, `dcf14c5` |
+| Current version | `2.2.0` (build 24) — bumped via commit `61dd71a` |
 | iOS bundle | `com.tuto.app` (verify with `app.config.js` before bumping) |
+| **Active dev branch** | **`AppleLogin+homeRedesign2`** — branched off `origin/AppleLogin+homeRedesign`. All new mobile features go here, NOT `main`. Deploy OTA via `eas update --branch production` for JS-only changes. |
+
+### Supabase Storage Buckets
+
+| Bucket | Access | Purpose |
+|---|---|---|
+| `school-logos` | **Public** | School logo images uploaded via `/tutoadmin/schools/[id]`. URL stored in `schools.logo_url`. Created 2026-04-28. |
 
 ### Firebase Functions
 
@@ -435,6 +442,10 @@ END $$;
 
 15. **Split big work into agents.** If a task touches >3 files OR introduces a new step type / route group / DB table, write a `HANDOVER_<LETTER>_<NAME>.md` and ask Tarun for approval before kicking it off. Single-file, <100 LOC bug fixes you can do yourself.
 
+16. **Vercel's project root for the dashboard is `apps/dashboard/`, not the monorepo root.** Relative imports in `apps/dashboard/app/api/**` should count depth from `apps/dashboard/`. A file at `app/api/tutoadmin/schools/[id]/logo/route.ts` needs **6** `../` to reach `lib/supabase` — not 7.
+
+17. **Mobile app active dev branch is `AppleLogin+homeRedesign2`** (v2.2.0, 13 commits ahead of `main`). Never make mobile changes on `main`. All mobile JS changes are OTA-deployable via `eas update --branch production` — no App Store submission needed.
+
 ---
 
 ## 11. How to Delegate to Dev Agents
@@ -503,6 +514,12 @@ Pick a single uppercase letter (A, B, C…) for each agent. Avoid reusing letter
 
 7. **Airtable PAT rotation policy** (`docs/AIRTABLE_PAT_POLICY.md`) calls for quarterly rotation. Track the next rotation date in a calendar — not in this file.
 
+8. **Mobile branding OTA deploy pending (as of 2026-04-28).** `AppLoadingScreen` + dynamic logos committed to `AppleLogin+homeRedesign2` but not live yet. Tarun must pull branch on Mac and run `eas update --branch production`.
+
+9. **Empower English onboarding pending actions (as of 2026-04-28):** upload school logo via tutoadmin dashboard (bucket live ✅); send welcome email with admin code (drafted ✅); send feature PPT (in progress); send contract draft (in progress); verify sign-out works on the app before handing off to Ms Nhu Le.
+
+10. **Home screen icon (per-school) is an OS-level constraint** — cannot be changed dynamically per school at runtime on iOS/Android without pre-bundling alternate icons and a new App Store submission. Current solution: branded splash screen + logos on all in-app headers (implemented). Communicate this limitation clearly to school customers.
+
 ---
 
 ## 13. Standard Operating Procedure — Customer Bug Triage
@@ -570,6 +587,7 @@ npm run deploy:firebase              # from repo root
 | 2026-04-19/20 | (Cursor agent) | Diagnosed + fixed: tarun role reset to admin, school_admin scoping bug (commit `1bb84a6`), Vercel build failure from eager Supabase init (commit `4b897f2`), sign-in/sign-out hang (commit `8f0d2a7`), `/tutoadmin` redirect loop (commit `2869869`), VN CSV import (commit `b87ad97`). Manually seeded Empower English admin account in Supabase. Created this orchestrator handover document. |
 | 2026-04-23 | (Cursor agent) | Scoped agent **MP-A** (Platform Feedback: school admin → Tuto) — handover doc at `HANDOVER_MP-A_PLATFORM_FEEDBACK.md`. New table `platform_feedback` (migration `054`), new `is_tuto_admin()` SQL helper, new sidebar entries on `AdminSidebar` ("Help & Support") and `TutoAdminSidebar` ("Feedback"), email via **Resend SDK** (Tarun setting up Resend account + verifying `tutoglobal.com` domain — replaces initial nodemailer/Supabase-SMTP plan because Supabase warned that Gmail SMTP is for personal not transactional email). Awaiting `RESEND_API_KEY` env var before agent kickoff. Confirmed parent↔school feedback (`feedbacks` table, migration `025`) is a distinct domain and must not be conflated. |
 | 2026-04-23 | (Cursor agent) | **MP-A shipped + branch rescue.** Dev agent MP-A built the platform-feedback feature on the `nursemed` branch by mistake (Lesson #5 violation). Recovered non-destructively by creating worktree `../tuto-mp-a` on new branch `feat/mp-a-platform-feedback` (off `origin/main`), porting only MP-A files (untracked dirs + `AdminSidebar.tsx`, `TutoAdminSidebar.tsx`, `I18nContext.tsx`, `lib/supabase.ts`, `package.json` mods), discarding nursemed-only WIP. Verified locally: `npm run build` ✅ (all 6 MP-A routes built), `npx tsc --noEmit` shows 0 new errors in MP-A paths (re-baselined total to ~500 pre-existing, see Note 6), Supabase migration confirmed applied (`platform_feedback` table + 3 RLS policies + `is_tuto_admin()` fn live), Resend send confirmed end-to-end. Also: deleted leaky `apps/dashboard/.evn.local.backup` (typo dodged `.gitignore`); added `!.env*.example` negation to root `.gitignore` so the new `apps/dashboard/.env.local.example` template can be committed; corrected Vercel project name `tuto`→`tutomain`. Lesson logged: **always confirm dev agents start from a branch off `origin/main` before kickoff** — make it a checklist item in every future handover. |
+| 2026-04-28 | (Cursor agent) | **School branding feature (mobile + dashboard).** Commits: `deaa697` on `AppleLogin+homeRedesign2` (mobile) + `8719d56` + `d0f2def` on `main` (dashboard). Mobile: added `logo_url` to `School` type + `SchoolContext`; new `AppLoadingScreen` (school logo, animated dots, "Powered by tuto." footer; dark Tuto splash fallback when no logo); replaced `ActivityIndicator` in `RoleGate`; dynamic logos in `HomeScreen` header and `SchoolHeader`. Dashboard: new `POST/DELETE /api/tutoadmin/schools/[id]/logo` uploads to Supabase storage → updates `schools.logo_url`; tutoadmin school detail shows logo preview + upload/remove. `school-logos` public storage bucket created by Tarun. First Vercel deploy failed (`dpl_4MkJvwfXRW4zdBYpQjnM7afVMJZS`) — wrong import depth (7 `../` instead of 6 from project root); fixed in `d0f2def`; production deploy `dpl_6n1DAcEdq4mwDdLSN1noR4q76Tc3` READY. **Mobile OTA deploy still pending** — Tarun must run `eas update --branch production` from Mac on `AppleLogin+homeRedesign2` branch. Also confirmed: co-admins supported via multiple admin code generation. |
 | 2026-04-28 | (Cursor agent) | **MP-A QA fixes + production promotion.** Local QA on `feat/mp-a-platform-feedback` surfaced 3 bugs, all fixed (commits `28e799e` + `28fcfea`): (1) `apiAuth.ts` queried legacy `public.school_admins` instead of `public.school_users` → 403 "Forbidden" on every school-admin feedback POST; (2) `AdminSidebar.tsx` had hardcoded `'Sunrise International School'` fallback + `app/api/school/user-schools/route.ts` had the same legacy-table bug → real school admins routed to wrong school on every sidebar click; (3) tutoadmin feedback pages used cookie auth where the API route requires bearer auth → 401 empty inbox. See Section 9 entries for full root-cause writeups. Created 3 Tuto Demo School test accounts (`schooladmin@`/`schoolteacher@`/`schoolparent@tutoglobal.com`, all password `password`) — see updated Section 8. **Promoted to production**: fast-forwarded `origin/main` from `b87ad97` → `28fcfea` (no merge commit, since the 3 commits branched cleanly off `origin/main`); PR #4 auto-closed; Vercel deploy `dpl_DRaLuWBKT2oyegK4MHe1LEd1EFWC` READY on `tutoglobal.com` after ~7min queue + 3min build. Logged Section 12 #2 with explicit canonical-vs-legacy table guidance to prevent this same bug repeating a third time. |
 | | | |
 
