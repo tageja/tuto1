@@ -254,7 +254,9 @@ const SplashRoute: React.FC<{ navigation: any }> = ({ navigation }) => {
       if (cancelled) return;
       setTimeout(() => {
         if (cancelled) return;
-        navigation.replace(hasSession ? 'Home' : 'Login');
+        // Route through Welcome (same as AuthUnifiedScreen does) so school
+        // associations and role are resolved fresh before entering the app.
+        navigation.replace(hasSession ? 'Welcome' : 'Login');
       }, remaining);
     };
 
