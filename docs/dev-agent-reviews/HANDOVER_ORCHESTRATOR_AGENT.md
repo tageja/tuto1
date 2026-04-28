@@ -287,6 +287,45 @@ DELETE FROM auth.refresh_tokens WHERE user_id = '9c107921-1730-4481-8e02-77fffab
 ```
 Then have the user clear localStorage/cookies for `tutoglobal.com` and hard-refresh.
 
+### Tuto Demo School test accounts (use these for QA on `tutoglobal.com`)
+
+All three live in Supabase, password `password`, email pre-confirmed, linked to **Tuto Demo School** (`school_id = bed99290-1b7c-4e90-ac55-0ec7f496491b`). Use them to QA cross-role flows without touching the real customer (`Empower English`).
+
+| Email | `public.users.role` | Linked via | Use for |
+|---|---|---|---|
+| `schooladmin@tutoglobal.com` | `school_admin` | `school_users` (role='admin') **AND** `school_teachers` (so `get_user_school_ids()` resolves it under RLS) | School-admin sidebar, Help & Support feedback flow, school-scoped pages |
+| `schoolteacher@tutoglobal.com` | `teacher` | `school_teachers` (status='active') | Teacher dashboard, class roster views |
+| `schoolparent@tutoglobal.com` | `parent` | `school_parents` (joined_via_pin=true) | Parent dashboard, child views |
+
+> **Do not delete these accounts.** If they ever stop working, recreate via the SQL pattern below — note the trigger `on_auth_user_created` reads `role` from `raw_user_meta_data` and auto-creates the `public.users` row, so you only insert into `auth.users` then add the role-specific link row.
+
+```sql
+DO $$
+DECLARE
+  v_school_id uuid := 'bed99290-1b7c-4e90-ac55-0ec7f496491b';
+  v_auth_id   uuid := gen_random_uuid();
+  v_user_id   uuid;
+BEGIN
+  INSERT INTO auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at,
+    raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+    confirmation_token, email_change, email_change_token_new, recovery_token)
+  VALUES (
+    v_auth_id, '00000000-0000-0000-0000-000000000000',
+    'authenticated', 'authenticated', 'NEW_EMAIL@tutoglobal.com',
+    crypt('password', gen_salt('bf')), now(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"full_name":"NAME","role":"ROLE"}'::jsonb,  -- role: school_admin / teacher / parent
+    now(), now(), '', '', '', ''
+  );
+  SELECT id INTO v_user_id FROM public.users WHERE auth_user_id = v_auth_id;
+  -- Then add the role-specific link row:
+  --   teacher      -> public.school_teachers (school_id, user_id, name, email, status='active')
+  --   parent       -> public.school_parents  (school_id, parent_user_id, joined_via_pin=true)
+  --   school_admin -> public.school_users    (school_id, user_id, role='admin')
+  --                 + public.school_teachers (so get_user_school_ids() resolves the school)
+END $$;
+```
+
 ### NurseEd test learner (different project — for reference only)
 
 `test@test.com` / `password` on `med.tuto.asia`. **Do not use for main-project flows.**
@@ -330,6 +369,24 @@ Then have the user clear localStorage/cookies for `tutoglobal.com` and hard-refr
 - **Cause**: `AuthContext.fetchUserProfile` had a 6s+4s race-on-timeout. When Supabase was cold, the timeout fired, called `signOut()` which nuked the JWT mid-flight. Other queries on the same page returned 406 (RLS denies — no `auth.uid()`). `/tutoadmin`'s own listener saw `SIGNED_OUT` and redirected. Plus over-broad keyword matching (`'auth'`, `'unauthorized'`) on error messages was treating 406 bodies as session-expired.
 - **Fix**: commit `2869869` — single 15s timeout, no sign-out on timeout (keep `supabaseUser` + `accessToken`), only sign out on actual JWT codes (`PGRST301`, `PGRST302`, `401`).
 - **Lesson**: 406 from PostgREST is almost always a JWT/RLS mismatch, not a database row issue. Verify the row exists *and* the JWT is valid before "fixing" downstream.
+
+### April 23, 2026 — School admin sidebar redirects everyone to "Sunrise International School"
+
+- **Symptom**: Logged in as `schooladmin@tutoglobal.com` (linked to Tuto Demo School). Dashboard landing page correctly showed "Tuto Demo School", but the moment the user clicked Settings / Help / Feedback / Classes / any sidebar link, the URL switched to `/school/Sunrise International School/admin/...` — a school they don't belong to.
+- **Causes** (two stacked bugs):
+  1. `apps/dashboard/components/school/AdminSidebar.tsx` had a literal hardcoded fallback string `'Sunrise International School'` for `schoolId` whenever neither `schoolIdFromUrl` nor `selectedSchool` resolved (which was every fresh login with empty `localStorage` on `/school/admin`).
+  2. `apps/dashboard/app/api/school/user-schools/route.ts` queried the **legacy `public.school_admins` table** for `school_admin` users — that table has only 1 row in production, while `public.school_users` (with `role='admin'`) has 3. So `availableSchools` came back as `[]` and the hardcoded fallback fired.
+- **Fix**: commits `28e799e` + `28fcfea` —
+  - Replace fallback in `AdminSidebar.tsx` with `schoolIdFromUrl → selectedSchool → availableSchools[0] → ''`.
+  - Switch both `apiAuth.ts::assertSchoolAdminCanAccessSchool` and `app/api/school/user-schools/route.ts` to query `public.school_users` with `role='admin'` (the canonical table — the one `get_user_school_ids()` RLS helper also keys off via `school_teachers`).
+- **Lesson**: When you find a legacy-table-vs-canonical-table bug in one file, **grep the whole repo for the wrong table name** before closing the ticket. We almost shipped the same bug twice (caught the second occurrence only during local QA).
+
+### April 23, 2026 — Tuto-admin feedback inbox returns empty / 401
+
+- **Symptom**: `tarun@tutoglobal.com` opened `/tutoadmin/feedback` after a school admin submitted feedback — inbox showed empty + 401 in the network tab.
+- **Cause**: The two new pages `app/tutoadmin/feedback/page.tsx` and `app/tutoadmin/feedback/[id]/page.tsx` were calling `/api/platform-feedback/admin` with `credentials: 'include'` (cookie auth), but `requireBearerAuth` middleware on those routes only accepts `Authorization: Bearer <token>` headers. Cookie path always returned 401.
+- **Fix**: commit `28fcfea` — explicitly read the Supabase access token via `supabase.auth.getSession()` and send it as `Authorization: Bearer <token>` (matches the working pattern already in use on the school-admin Help & Support page).
+- **Lesson**: When adding new authed routes, copy the auth pattern from a known-working sibling, don't invent a new one. The dashboard has both cookie- and bearer-style auth in different places — pick the one matching the API route's middleware.
 
 ### April 20, 2026 — School CSV import fails for Vietnamese schools
 
@@ -422,7 +479,7 @@ Pick a single uppercase letter (A, B, C…) for each agent. Avoid reusing letter
 
 | Letter | Title | Status |
 |---|---|---|
-| MP-A | Platform Feedback (school admin → Tuto) — see `HANDOVER_MP-A_PLATFORM_FEEDBACK.md` | **Shipped (2026-04-23)** in branch `feat/mp-a-platform-feedback` — pending PR merge to `main` + Vercel preview QA. Migration `054_platform_feedback` already applied to live Supabase. |
+| MP-A | Platform Feedback (school admin → Tuto) — see `HANDOVER_MP-A_PLATFORM_FEEDBACK.md` | **Live in production (2026-04-28)** — `main` fast-forwarded to commit `28fcfea`, Vercel production deploy `dpl_DRaLuWBKT2oyegK4MHe1LEd1EFWC` READY on `tutoglobal.com` / `tuto.asia`. Migration `054_platform_feedback` applied. PR #4 auto-closed by GitHub on FF. Resend sender domain `tutoglobal.com` verified, `tarun@tutoglobal.com` receives notification on every new submission. |
 
 (Note: NurseEd has used letters E–X. Their list is in `apps/med/docs/dev-agent-reviews/HANDOVER_ORCHESTRATOR_AGENT.md`. To avoid confusion if Tarun ever cross-references, prefix main-project agents with `MP-` if you wish, e.g. `MP-A`, `MP-B`. Optional — your call.)
 
@@ -434,7 +491,7 @@ Pick a single uppercase letter (A, B, C…) for each agent. Avoid reusing letter
 
 1. **Mobile admin self-registration**: `RegisterScreen.tsx` doesn't support school-admin sign-up via code. Currently a manual Supabase insert by the orchestrator. Needs proper UX (likely a new flow that accepts admin invitation tokens at registration).
 
-2. **`school_users` vs `school_admins` vs `school_teachers`**: three overlapping tables for similar relationships. Some endpoints check one, some check another. Causes confusing 403s when a row exists in one but not the others. Consolidate when there's bandwidth.
+2. **`school_users` vs `school_admins` vs `school_teachers`**: three overlapping tables for similar relationships. **Canonical: `public.school_users` with `role='admin'`** (3 rows in prod, used by `get_user_school_ids()` RLS helper indirectly via `school_teachers`). **Legacy: `public.school_admins`** (only 1 row in prod, do not write to it, do not read from it). The platform-feedback shipping in April 2026 was bitten twice by code that read from `school_admins` instead of `school_users` (`apiAuth.ts::assertSchoolAdminCanAccessSchool` AND `app/api/school/user-schools/route.ts`) — both fixed in commits `28e799e` + `28fcfea`. **Action**: a future cleanup task should drop `school_admins`, plus consolidate `school_users`+`school_teachers` into one, or at minimum add a lint rule that flags any reference to `school_admins`.
 
 3. **Two parallel admin URL trees**: `app/school/admin/*` (legacy demo) vs `app/school/[schoolId]/admin/*` (canonical). Keep both for now but note: bug fixes for one often need to be applied to both.
 
@@ -513,6 +570,7 @@ npm run deploy:firebase              # from repo root
 | 2026-04-19/20 | (Cursor agent) | Diagnosed + fixed: tarun role reset to admin, school_admin scoping bug (commit `1bb84a6`), Vercel build failure from eager Supabase init (commit `4b897f2`), sign-in/sign-out hang (commit `8f0d2a7`), `/tutoadmin` redirect loop (commit `2869869`), VN CSV import (commit `b87ad97`). Manually seeded Empower English admin account in Supabase. Created this orchestrator handover document. |
 | 2026-04-23 | (Cursor agent) | Scoped agent **MP-A** (Platform Feedback: school admin → Tuto) — handover doc at `HANDOVER_MP-A_PLATFORM_FEEDBACK.md`. New table `platform_feedback` (migration `054`), new `is_tuto_admin()` SQL helper, new sidebar entries on `AdminSidebar` ("Help & Support") and `TutoAdminSidebar` ("Feedback"), email via **Resend SDK** (Tarun setting up Resend account + verifying `tutoglobal.com` domain — replaces initial nodemailer/Supabase-SMTP plan because Supabase warned that Gmail SMTP is for personal not transactional email). Awaiting `RESEND_API_KEY` env var before agent kickoff. Confirmed parent↔school feedback (`feedbacks` table, migration `025`) is a distinct domain and must not be conflated. |
 | 2026-04-23 | (Cursor agent) | **MP-A shipped + branch rescue.** Dev agent MP-A built the platform-feedback feature on the `nursemed` branch by mistake (Lesson #5 violation). Recovered non-destructively by creating worktree `../tuto-mp-a` on new branch `feat/mp-a-platform-feedback` (off `origin/main`), porting only MP-A files (untracked dirs + `AdminSidebar.tsx`, `TutoAdminSidebar.tsx`, `I18nContext.tsx`, `lib/supabase.ts`, `package.json` mods), discarding nursemed-only WIP. Verified locally: `npm run build` ✅ (all 6 MP-A routes built), `npx tsc --noEmit` shows 0 new errors in MP-A paths (re-baselined total to ~500 pre-existing, see Note 6), Supabase migration confirmed applied (`platform_feedback` table + 3 RLS policies + `is_tuto_admin()` fn live), Resend send confirmed end-to-end. Also: deleted leaky `apps/dashboard/.evn.local.backup` (typo dodged `.gitignore`); added `!.env*.example` negation to root `.gitignore` so the new `apps/dashboard/.env.local.example` template can be committed; corrected Vercel project name `tuto`→`tutomain`. Lesson logged: **always confirm dev agents start from a branch off `origin/main` before kickoff** — make it a checklist item in every future handover. |
+| 2026-04-28 | (Cursor agent) | **MP-A QA fixes + production promotion.** Local QA on `feat/mp-a-platform-feedback` surfaced 3 bugs, all fixed (commits `28e799e` + `28fcfea`): (1) `apiAuth.ts` queried legacy `public.school_admins` instead of `public.school_users` → 403 "Forbidden" on every school-admin feedback POST; (2) `AdminSidebar.tsx` had hardcoded `'Sunrise International School'` fallback + `app/api/school/user-schools/route.ts` had the same legacy-table bug → real school admins routed to wrong school on every sidebar click; (3) tutoadmin feedback pages used cookie auth where the API route requires bearer auth → 401 empty inbox. See Section 9 entries for full root-cause writeups. Created 3 Tuto Demo School test accounts (`schooladmin@`/`schoolteacher@`/`schoolparent@tutoglobal.com`, all password `password`) — see updated Section 8. **Promoted to production**: fast-forwarded `origin/main` from `b87ad97` → `28fcfea` (no merge commit, since the 3 commits branched cleanly off `origin/main`); PR #4 auto-closed; Vercel deploy `dpl_DRaLuWBKT2oyegK4MHe1LEd1EFWC` READY on `tutoglobal.com` after ~7min queue + 3min build. Logged Section 12 #2 with explicit canonical-vs-legacy table guidance to prevent this same bug repeating a third time. |
 | | | |
 
 ---
