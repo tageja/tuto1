@@ -267,6 +267,8 @@ const SchoolSelectorScreen: React.FC = () => {
                     <Text style={styles.roleText}>
                       {school.role === 'admin'
                         ? t('schoolSelector.admin')
+                        : school.role === 'teacher'
+                        ? t('schoolSelector.teacher')
                         : t('schoolSelector.parent')}
                     </Text>
                   </View>

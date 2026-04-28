@@ -15,8 +15,12 @@ export interface AdminCodeValidation {
   message?: string;
 }
 
+const ROLE_PRIORITY: Record<string, number> = { admin: 3, teacher: 2, parent: 1 };
+
 /**
- * Get all schools associated with a user's email
+ * Get all schools associated with a user's email.
+ * Deduplicates by school_id keeping the highest-privilege role
+ * (admin > teacher > parent) so the same school never appears twice.
  */
 export async function getUserSchoolAssociations(email: string): Promise<SchoolAssociation[]> {
   try {
@@ -30,8 +34,20 @@ export async function getUserSchoolAssociations(email: string): Promise<SchoolAs
       throw error;
     }
 
-    console.log('✅ Found school associations:', data);
-    return data || [];
+    const raw: SchoolAssociation[] = data || [];
+
+    // Deduplicate: keep highest-privilege row per school
+    const best = new Map<string, SchoolAssociation>();
+    for (const row of raw) {
+      const existing = best.get(row.school_id);
+      if (!existing || (ROLE_PRIORITY[row.role] ?? 0) > (ROLE_PRIORITY[existing.role] ?? 0)) {
+        best.set(row.school_id, row);
+      }
+    }
+
+    const deduped = Array.from(best.values());
+    console.log('✅ Found school associations (deduped):', deduped);
+    return deduped;
   } catch (error) {
     console.error('❌ Exception in getUserSchoolAssociations:', error);
     return [];
