@@ -17,9 +17,8 @@ import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useSchool } from '../../contexts/SchoolContext';
+import { useUser } from '../../contexts/UserContext';
 import { supabase } from '../../config/supabase';
-
-const DASHBOARD_BASE_URL = 'https://tutoglobal.com';
 
 type Category = 'bug' | 'feature' | 'improvement' | 'question' | 'other';
 const CATEGORIES: Category[] = ['bug', 'feature', 'improvement', 'question', 'other'];
@@ -34,17 +33,12 @@ interface FeedbackRow {
   created_at: string;
 }
 
-async function getBearerHeader(): Promise<{ Authorization: string } | null> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.access_token) return null;
-  return { Authorization: `Bearer ${session.access_token}` };
-}
-
 export default function AdminHelpSupportScreen() {
   const navigation = useNavigation();
   const { colors, spacing, typography, borderRadius } = useTheme();
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const { currentSchool } = useSchool();
+  const { userData } = useUser();
 
   const [list, setList] = useState<FeedbackRow[]>([]);
   const [loadingList, setLoadingList] = useState(true);
@@ -60,14 +54,12 @@ export default function AdminHelpSupportScreen() {
     if (!schoolId) return;
     setLoadingList(true);
     try {
-      const h = await getBearerHeader();
-      if (!h) return;
-      const res = await fetch(
-        `${DASHBOARD_BASE_URL}/api/platform-feedback?schoolId=${encodeURIComponent(schoolId)}`,
-        { headers: h }
-      );
-      const json = await res.json();
-      if (json.success) setList(json.data || []);
+      const { data, error } = await supabase
+        .from('platform_feedback')
+        .select('id, category, body, status, admin_response, responded_at, created_at')
+        .eq('school_id', schoolId)
+        .order('created_at', { ascending: false });
+      if (!error && data) setList(data);
     } catch (e) {
       console.error('Help & Support load error:', e);
     } finally {
@@ -93,20 +85,27 @@ export default function AdminHelpSupportScreen() {
       );
       return;
     }
-    const h = await getBearerHeader();
-    if (!h) return;
+    if (!userData?.id || !schoolId) {
+      Alert.alert(
+        language === 'vi' ? 'Lỗi' : 'Error',
+        language === 'vi' ? 'Không tìm thấy thông tin trường.' : 'School information not found.'
+      );
+      return;
+    }
+
     setSubmitting(true);
     try {
-      const res = await fetch(`${DASHBOARD_BASE_URL}/api/platform-feedback`, {
-        method: 'POST',
-        headers: { ...h, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ schoolId, category, body: trimmed }),
+      const { error } = await supabase.from('platform_feedback').insert({
+        school_id: schoolId,
+        submitted_by_user_id: userData.id,
+        category,
+        body: trimmed,
       });
-      const json = await res.json();
-      if (!json.success) {
+      if (error) {
+        console.error('platform_feedback insert error:', error);
         Alert.alert(
           language === 'vi' ? 'Lỗi' : 'Error',
-          json.error || (language === 'vi' ? 'Gửi thất bại. Vui lòng thử lại.' : 'Submission failed. Please try again.')
+          language === 'vi' ? 'Gửi thất bại. Vui lòng thử lại.' : 'Submission failed. Please try again.'
         );
         return;
       }
@@ -126,11 +125,11 @@ export default function AdminHelpSupportScreen() {
 
   const categoryLabel = (c: string) => {
     const labels: Record<string, { en: string; vi: string }> = {
-      bug:         { en: 'Bug Report',       vi: 'Báo lỗi' },
-      feature:     { en: 'Feature Request',  vi: 'Yêu cầu tính năng' },
-      improvement: { en: 'Improvement',      vi: 'Cải tiến' },
-      question:    { en: 'Question',         vi: 'Câu hỏi' },
-      other:       { en: 'Other',            vi: 'Khác' },
+      bug:         { en: 'Bug Report',      vi: 'Báo lỗi' },
+      feature:     { en: 'Feature Request', vi: 'Yêu cầu tính năng' },
+      improvement: { en: 'Improvement',     vi: 'Cải tiến' },
+      question:    { en: 'Question',        vi: 'Câu hỏi' },
+      other:       { en: 'Other',           vi: 'Khác' },
     };
     return language === 'vi' ? (labels[c]?.vi ?? c) : (labels[c]?.en ?? c);
   };
@@ -151,6 +150,19 @@ export default function AdminHelpSupportScreen() {
         day: '2-digit', month: 'short', year: 'numeric',
       });
     } catch { return iso; }
+  };
+
+  const categoryBgColor: Record<string, string> = {
+    bug: '#fee2e2', feature: '#dbeafe', improvement: '#fef3c7', question: '#f3f4f6', other: '#f1f5f9',
+  };
+  const categoryTextColor: Record<string, string> = {
+    bug: '#991b1b', feature: '#1e40af', improvement: '#92400e', question: '#374151', other: '#475569',
+  };
+  const statusBgColor: Record<string, string> = {
+    open: '#dcfce7', in_progress: '#dbeafe', closed: '#f3f4f6', rejected: '#fee2e2',
+  };
+  const statusTextColor: Record<string, string> = {
+    open: '#166534', in_progress: '#1e40af', closed: '#374151', rejected: '#991b1b',
   };
 
   const styles = StyleSheet.create({
@@ -267,7 +279,12 @@ export default function AdminHelpSupportScreen() {
       borderWidth: 1,
       borderColor: colors.border.light,
     },
-    feedbackHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: spacing.xs },
+    feedbackHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: spacing.xs,
+    },
     badgeRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
     badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 },
     badgeText: { fontSize: typography.fontSize.xs, fontFamily: typography.fontFamily.semibold },
@@ -277,10 +294,7 @@ export default function AdminHelpSupportScreen() {
       color: colors.text.primary,
       marginVertical: spacing.xs,
     },
-    feedbackDate: {
-      fontSize: typography.fontSize.xs,
-      color: colors.text.secondary,
-    },
+    feedbackDate: { fontSize: typography.fontSize.xs, color: colors.text.secondary },
     tutoResponseBox: {
       marginTop: spacing.sm,
       backgroundColor: colors.primary + '10',
@@ -293,10 +307,7 @@ export default function AdminHelpSupportScreen() {
       color: colors.primary,
       marginBottom: 4,
     },
-    tutoResponseText: {
-      fontSize: typography.fontSize.sm,
-      color: colors.text.primary,
-    },
+    tutoResponseText: { fontSize: typography.fontSize.sm, color: colors.text.primary },
     emptyText: {
       fontSize: typography.fontSize.sm,
       color: colors.text.secondary,
@@ -304,19 +315,6 @@ export default function AdminHelpSupportScreen() {
       paddingVertical: spacing.xl,
     },
   });
-
-  const categoryBgColor: Record<string, string> = {
-    bug: '#fee2e2', feature: '#dbeafe', improvement: '#fef3c7', question: '#f3f4f6', other: '#f1f5f9',
-  };
-  const categoryTextColor: Record<string, string> = {
-    bug: '#991b1b', feature: '#1e40af', improvement: '#92400e', question: '#374151', other: '#475569',
-  };
-  const statusBgColor: Record<string, string> = {
-    open: '#dcfce7', in_progress: '#dbeafe', closed: '#f3f4f6', rejected: '#fee2e2',
-  };
-  const statusTextColor: Record<string, string> = {
-    open: '#166534', in_progress: '#1e40af', closed: '#374151', rejected: '#991b1b',
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -332,7 +330,6 @@ export default function AdminHelpSupportScreen() {
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
 
-          {/* Submit form */}
           <Text style={styles.sectionTitle}>
             {language === 'vi' ? 'Gửi phản hồi tới Tuto' : 'Send Feedback to Tuto'}
           </Text>
@@ -363,7 +360,11 @@ export default function AdminHelpSupportScreen() {
               onChangeText={setBody}
               multiline
               maxLength={5000}
-              placeholder={language === 'vi' ? 'Mô tả vấn đề hoặc yêu cầu của bạn...' : 'Describe your issue or request...'}
+              placeholder={
+                language === 'vi'
+                  ? 'Mô tả vấn đề hoặc yêu cầu của bạn...'
+                  : 'Describe your issue or request...'
+              }
               placeholderTextColor={colors.text.secondary}
             />
             <Text style={styles.charCount}>{body.trim().length} / 5000</Text>
@@ -372,7 +373,9 @@ export default function AdminHelpSupportScreen() {
               <View style={styles.successBanner}>
                 <MaterialIcons name="check-circle" size={18} color="#166534" />
                 <Text style={styles.successText}>
-                  {language === 'vi' ? 'Gửi thành công! Chúng tôi sẽ phản hồi sớm.' : 'Submitted! We\'ll get back to you soon.'}
+                  {language === 'vi'
+                    ? 'Gửi thành công! Chúng tôi sẽ phản hồi sớm.'
+                    : "Submitted! We'll get back to you soon."}
                 </Text>
               </View>
             )}
@@ -393,13 +396,16 @@ export default function AdminHelpSupportScreen() {
 
           <View style={styles.divider} />
 
-          {/* Past submissions */}
           <Text style={styles.sectionTitle}>
             {language === 'vi' ? 'Phản hồi đã gửi' : 'Your Submissions'}
           </Text>
 
           {loadingList ? (
-            <ActivityIndicator size="large" color={colors.primary} style={{ marginVertical: spacing.xl }} />
+            <ActivityIndicator
+              size="large"
+              color={colors.primary}
+              style={{ marginVertical: spacing.xl }}
+            />
           ) : list.length === 0 ? (
             <Text style={styles.emptyText}>
               {language === 'vi' ? 'Chưa có phản hồi nào.' : 'No submissions yet.'}
@@ -407,7 +413,8 @@ export default function AdminHelpSupportScreen() {
           ) : (
             list.map((item) => {
               const isOpen = expanded === item.id;
-              const excerpt = item.body.length > 180 ? `${item.body.slice(0, 180)}…` : item.body;
+              const excerpt =
+                item.body.length > 180 ? `${item.body.slice(0, 180)}…` : item.body;
               return (
                 <TouchableOpacity
                   key={item.id}
@@ -417,13 +424,33 @@ export default function AdminHelpSupportScreen() {
                 >
                   <View style={styles.feedbackHeader}>
                     <View style={styles.badgeRow}>
-                      <View style={[styles.badge, { backgroundColor: categoryBgColor[item.category] ?? '#f3f4f6' }]}>
-                        <Text style={[styles.badgeText, { color: categoryTextColor[item.category] ?? '#374151' }]}>
+                      <View
+                        style={[
+                          styles.badge,
+                          { backgroundColor: categoryBgColor[item.category] ?? '#f3f4f6' },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.badgeText,
+                            { color: categoryTextColor[item.category] ?? '#374151' },
+                          ]}
+                        >
                           {categoryLabel(item.category)}
                         </Text>
                       </View>
-                      <View style={[styles.badge, { backgroundColor: statusBgColor[item.status] ?? '#f3f4f6' }]}>
-                        <Text style={[styles.badgeText, { color: statusTextColor[item.status] ?? '#374151' }]}>
+                      <View
+                        style={[
+                          styles.badge,
+                          { backgroundColor: statusBgColor[item.status] ?? '#f3f4f6' },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.badgeText,
+                            { color: statusTextColor[item.status] ?? '#374151' },
+                          ]}
+                        >
                           {statusLabel(item.status)}
                         </Text>
                       </View>
@@ -434,7 +461,9 @@ export default function AdminHelpSupportScreen() {
                       color={colors.text.secondary}
                     />
                   </View>
-                  <Text style={styles.feedbackBody}>{isOpen ? item.body : excerpt}</Text>
+                  <Text style={styles.feedbackBody}>
+                    {isOpen ? item.body : excerpt}
+                  </Text>
                   <Text style={styles.feedbackDate}>{formatDate(item.created_at)}</Text>
                   {isOpen && item.admin_response ? (
                     <View style={styles.tutoResponseBox}>
