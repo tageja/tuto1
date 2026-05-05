@@ -51,6 +51,11 @@ interface PlatformMetrics {
     totalLessonsCompleted: number
     totalCoursesPublished: number
   }
+  logins: {
+    total: number
+    thisMonth: number
+    thisWeek: number
+  }
   fetchedAt: string
 }
 
@@ -229,7 +234,7 @@ export default function MetricsPage() {
     )
   }
 
-  const { activeLearners, rating, engagement, fastFacts } = metrics
+  const { activeLearners, rating, engagement, fastFacts, logins } = metrics
 
   const fetchedLabel = new Date(metrics.fetchedAt).toLocaleString()
 
@@ -420,6 +425,30 @@ export default function MetricsPage() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Login Activity row */}
+      <div className="mt-6 mb-2">
+        <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
+          {tAny.metricsLoginTitle ?? 'Platform Logins'}
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            { label: tAny.metricsLoginTotal ?? 'Total unique logins', value: logins.total, accent: false },
+            { label: tAny.metricsLoginMonth ?? 'Unique logins this month', value: logins.thisMonth, accent: false },
+            { label: tAny.metricsLoginWeek  ?? 'Unique logins this week',  value: logins.thisWeek,  accent: true  },
+          ].map((item) => (
+            <div key={item.label} className="card p-5 flex items-center gap-4">
+              <p className={`text-4xl font-bold ${item.accent ? 'text-primary' : 'text-text'}`}>
+                {item.value.toLocaleString()}
+              </p>
+              <p className="text-sm text-text-muted leading-snug">{item.label}</p>
+            </div>
+          ))}
+        </div>
+        <p className="text-[11px] text-text-muted mt-2">
+          {tAny.metricsLoginNote ?? 'Based on most recent sign-in per user (pro.tuto.asia accounts only).'}
+        </p>
       </div>
 
       {/* Footer note */}

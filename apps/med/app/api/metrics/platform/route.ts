@@ -43,6 +43,11 @@ interface RawMetrics {
     totalLessonsCompleted: number
     totalCoursesPublished: number
   }
+  logins: {
+    total: number
+    thisMonth: number
+    thisWeek: number
+  }
 }
 
 // ---------- Cached data fetcher ------------------------------------------

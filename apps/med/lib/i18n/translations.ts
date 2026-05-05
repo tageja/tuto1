@@ -1187,6 +1187,11 @@ const en = {
   metricsRatingEmpty: 'Not enough rating data yet — first ratings appear here as learners complete lessons.',
   metricsLoadError: "Couldn't load metrics. Please refresh the page.",
   metricsAccessDenied: 'This page is for super-admins only.',
+  metricsLoginTitle: 'Platform Logins',
+  metricsLoginTotal: 'Total unique logins',
+  metricsLoginMonth: 'Unique logins this month',
+  metricsLoginWeek: 'Unique logins this week',
+  metricsLoginNote: 'Based on most recent sign-in per user (pro.tuto.asia accounts only).',
 
 } as const
 
@@ -2377,6 +2382,11 @@ const vi = {
   metricsRatingEmpty: 'Chưa đủ dữ liệu đánh giá — đánh giá đầu tiên sẽ xuất hiện khi người học hoàn thành bài học.',
   metricsLoadError: 'Không thể tải số liệu. Vui lòng làm mới trang.',
   metricsAccessDenied: 'Trang này chỉ dành cho quản trị viên cấp cao.',
+  metricsLoginTitle: 'Lượt đăng nhập nền tảng',
+  metricsLoginTotal: 'Tổng lượt đăng nhập',
+  metricsLoginMonth: 'Đăng nhập tháng này',
+  metricsLoginWeek: 'Đăng nhập tuần này',
+  metricsLoginNote: 'Dựa trên lần đăng nhập gần nhất mỗi người dùng (chỉ tài khoản pro.tuto.asia).',
 
 } as const
 
