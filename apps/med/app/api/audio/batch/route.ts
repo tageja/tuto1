@@ -6,8 +6,14 @@ const BUCKET = 'nursed-assets'
 
 const VOICE_IDS: Record<string, string> = {
   nurse: process.env.FISH_AUDIO_VOICE_NURSE ?? '',
-  patient: process.env.FISH_AUDIO_VOICE_PATIENT ?? '',
+  // Use a distinct patient voice if configured, otherwise fall back to nurse
+  patient: process.env.FISH_AUDIO_VOICE_PATIENT ?? process.env.FISH_AUDIO_VOICE_NURSE ?? '',
   doctor: process.env.FISH_AUDIO_VOICE_NURSE ?? '',
+  family: process.env.FISH_AUDIO_VOICE_PATIENT ?? process.env.FISH_AUDIO_VOICE_NURSE ?? '',
+  passerby: process.env.FISH_AUDIO_VOICE_PATIENT ?? process.env.FISH_AUDIO_VOICE_NURSE ?? '',
+  bystander: process.env.FISH_AUDIO_VOICE_PATIENT ?? process.env.FISH_AUDIO_VOICE_NURSE ?? '',
+  parent: process.env.FISH_AUDIO_VOICE_PATIENT ?? process.env.FISH_AUDIO_VOICE_NURSE ?? '',
+  child: process.env.FISH_AUDIO_VOICE_PATIENT ?? process.env.FISH_AUDIO_VOICE_NURSE ?? '',
 }
 
 async function generateAndUpload(
@@ -16,7 +22,8 @@ async function generateAndUpload(
   storagePath: string,
   apiKey: string,
 ): Promise<string> {
-  const referenceId = VOICE_IDS[voice] ?? VOICE_IDS.nurse
+  // Use || (not ??) so that empty strings also fall back to nurse voice
+  const referenceId = VOICE_IDS[voice] || VOICE_IDS.nurse
   const ttsRes = await fetch(FISH_AUDIO_API, {
     method: 'POST',
     headers: {
@@ -105,14 +112,25 @@ function extractAudioTasks(step: {
     let lines = cfg.lines as Array<{ role: string; text: string }> | undefined
 
     if (!lines?.length && cfg.script) {
-      const KNOWN_ROLES = ['Charge Nurse', 'Head Nurse', 'Supervisor', 'Doctor', 'Family', 'Patient', 'Nurse']
+      const KNOWN_ROLES = [
+        'Charge Nurse', 'Head Nurse', 'Supervisor', 'Doctor',
+        'Family', 'Parent', 'Mother', 'Father',
+        'Passerby', 'Bystander', 'Witness',
+        'Child', 'Patient', 'Nurse',
+      ]
       lines = (cfg.script as string).split(/\n/).map((l: string) => l.trim()).filter(Boolean).reduce(
         (acc: Array<{ role: string; text: string }>, line: string) => {
           for (const role of KNOWN_ROLES) {
-            if (line.startsWith(`${role}:`)) {
+            if (line.toLowerCase().startsWith(`${role.toLowerCase()}:`)) {
               acc.push({ role: role.toLowerCase(), text: line.slice(role.length + 1).trim() })
               return acc
             }
+          }
+          // Generic fallback: any "Word:" prefix treated as a role
+          const generic = line.match(/^([A-Za-z][A-Za-z ]{0,20}):\s*(.+)$/)
+          if (generic) {
+            acc.push({ role: generic[1].trim().toLowerCase(), text: generic[2].trim() })
+            return acc
           }
           if (acc.length > 0) acc[acc.length - 1].text += ' ' + line
           return acc
@@ -125,10 +143,11 @@ function extractAudioTasks(step: {
       lines.forEach((line, i) => {
         const fieldKey = `line_${i}_audioUrl`
         if (line.text?.trim() && isPlaceholder((cfg as Record<string, unknown>)[fieldKey])) {
-          const r = line.role?.toLowerCase() ?? ''
-          const voice = r.includes('patient') ? 'patient'
-            : r.includes('doctor') ? 'doctor'
-            : 'nurse'
+          const r = (line.role ?? '').toLowerCase().replace(/[\s_]/g, '')
+          // Non-nurse speakers (patient, family, child, passerby, etc.) get patient voice
+          const isNurse = r === 'nurse' || r === 'chargenurse' || r === 'headnurse' || r === 'supervisor'
+          const isDoctor = r === 'doctor'
+          const voice = isNurse ? 'nurse' : isDoctor ? 'doctor' : 'patient'
           tasks.push({
             text: line.text,
             voice,

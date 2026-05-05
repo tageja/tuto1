@@ -4,11 +4,20 @@ import { getServiceClient } from '@/lib/supabase'
 const FISH_AUDIO_API = 'https://api.fish.audio/v1/tts'
 const BUCKET = 'nursed-assets'
 
+const NURSE_VOICE = process.env.FISH_AUDIO_VOICE_NURSE ?? ''
+// Patient voice falls back to nurse if not separately configured
+const PATIENT_VOICE = process.env.FISH_AUDIO_VOICE_PATIENT || NURSE_VOICE
+
 const VOICE_MAP: Record<string, string> = {
-  nurse: process.env.FISH_AUDIO_VOICE_NURSE ?? '',
-  patient: process.env.FISH_AUDIO_VOICE_PATIENT ?? '',
-  doctor: process.env.FISH_AUDIO_VOICE_NURSE ?? '',
-  default: process.env.FISH_AUDIO_VOICE_NURSE ?? '',
+  nurse: NURSE_VOICE,
+  patient: PATIENT_VOICE,
+  doctor: NURSE_VOICE,
+  family: PATIENT_VOICE,
+  passerby: PATIENT_VOICE,
+  bystander: PATIENT_VOICE,
+  parent: PATIENT_VOICE,
+  child: PATIENT_VOICE,
+  default: NURSE_VOICE,
 }
 
 export async function POST(req: NextRequest) {
@@ -27,9 +36,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'FISH_AUDIO_API_KEY not configured' }, { status: 500 })
     }
 
-    const referenceId = VOICE_MAP[voice] ?? VOICE_MAP.default
+    // Use || so empty string also triggers fallback
+    const referenceId = VOICE_MAP[voice] || VOICE_MAP.default
     if (!referenceId) {
-      return NextResponse.json({ error: `Voice ID not configured for: ${voice}` }, { status: 500 })
+      return NextResponse.json({ error: 'FISH_AUDIO_VOICE_NURSE is not configured. Add it to your environment variables.' }, { status: 500 })
     }
 
     // Call fish.audio TTS API

@@ -41,7 +41,7 @@ interface TranslateStats { totalSteps: number; totalLines: number; translatedLin
 export default function AudioBatchPage() {
   const [courses, setCourses] = useState<Course[]>([])
   const [selectedCourse, setSelectedCourse] = useState<string>('')
-  const [stepTypes, setStepTypes] = useState<string[]>(['scenario_intro', 'audio_shadow'])
+  const [stepTypes, setStepTypes] = useState<string[]>(['scenario_intro', 'audio_shadow', 'script_read'])
   const [preview, setPreview] = useState<PreviewStep[]>([])
   const [status, setStatus] = useState<BatchStatus>('idle')
   const [result, setResult] = useState<BatchResult | null>(null)
@@ -321,7 +321,7 @@ export default function AudioBatchPage() {
             Dialogue Line Translations (EN → VI)
           </h2>
           <p className="text-xs text-text-muted mt-1">
-            Auto-translate all conversation lines in script_read steps so hover tooltips work. Uses MyMemory free API.
+            Auto-translate conversation lines in <strong>script_read</strong> steps (line_N_vi keys) and phrase segments in <strong>audio_shadow</strong> steps (hover tooltips). Uses MyMemory free API.
           </p>
         </div>
 

@@ -27,7 +27,7 @@ export async function getEarnedRewards(userId: string): Promise<(NursedUserRewar
   const db = getServiceClient()
   const { data, error } = await db
     .from('nursed_user_rewards')
-    .select('*, nursed_rewards(*)')
+    .select('*, reward:nursed_rewards(*)')
     .eq('user_id', userId)
     .order('earned_at', { ascending: false })
 

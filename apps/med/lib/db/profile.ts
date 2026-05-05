@@ -272,14 +272,16 @@ export async function getFullProfile(userId: string): Promise<ProfileAggregate> 
     ? { id: rawHospital.id as string, name: rawHospital.name as string }
     : null
 
-  const badges: ProfileBadge[] = earnedRewards.map(r => ({
-    id: r.reward_id,
-    name: r.reward.name,
-    name_vi: r.reward.name_vi ?? null,
-    icon: r.reward.icon ?? null,
-    points: r.points ?? r.reward.points,
-    earned_at: r.earned_at,
-  }))
+  const badges: ProfileBadge[] = earnedRewards
+    .filter(r => r.reward != null)
+    .map(r => ({
+      id: r.reward_id,
+      name: r.reward.name,
+      name_vi: r.reward.name_vi ?? null,
+      icon: r.reward.icon ?? null,
+      points: r.points ?? r.reward.points,
+      earned_at: r.earned_at,
+    }))
 
   const allBadgeDefinitions: BadgeDefinition[] = allDefs.map(d => ({
     id: d.id,
@@ -289,7 +291,7 @@ export async function getFullProfile(userId: string): Promise<ProfileAggregate> 
     points: d.points,
   }))
 
-  const earnedBadgeIds = earnedRewards.map(r => r.reward_id)
+  const earnedBadgeIds = earnedRewards.filter(r => r.reward != null).map(r => r.reward_id)
 
   const { inProgress: coursesInProgress, completed: coursesCompleted } = buildCourseProgress(progressRows ?? [])
 
