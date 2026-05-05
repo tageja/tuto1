@@ -1,11 +1,29 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { TrendingUp, TrendingDown, Minus, Award, AlertCircle } from 'lucide-react'
 import {
-  BarChart,
-  Bar,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Award,
+  AlertCircle,
+  Users,
+  Star,
+  Flame,
+  Mic2,
+  GraduationCap,
+  BookOpenCheck,
+  LibraryBig,
+  LogIn,
+  Calendar,
+  CalendarDays,
+  Sparkles,
+  MessageSquareQuote,
+} from 'lucide-react'
+import {
+  AreaChart,
+  Area,
   ResponsiveContainer,
   Tooltip as RechartTooltip,
 } from 'recharts'
@@ -59,25 +77,57 @@ interface PlatformMetrics {
   fetchedAt: string
 }
 
+// ---------- Helpers ------------------------------------------------------
+
+/**
+ * Pad the API trend to a full 12-week series.
+ * The DB only returns weeks where there was activity, but the chart should
+ * always show 12 bars to communicate "12-week history" — investors expect
+ * a complete chart, not 3 lonely bars.
+ */
+function padToTwelveWeeks(trend: WeeklyPoint[]): WeeklyPoint[] {
+  const map = new Map<string, number>()
+  trend.forEach((p) => map.set(p.weekStart, p.activeLearners))
+
+  const today = new Date()
+  // Find Monday of the current ISO week
+  const day = today.getUTCDay() === 0 ? 6 : today.getUTCDay() - 1
+  const currentMonday = new Date(today)
+  currentMonday.setUTCDate(today.getUTCDate() - day)
+  currentMonday.setUTCHours(0, 0, 0, 0)
+
+  const weeks: WeeklyPoint[] = []
+  for (let i = 11; i >= 0; i -= 1) {
+    const d = new Date(currentMonday)
+    d.setUTCDate(currentMonday.getUTCDate() - i * 7)
+    const key = d.toISOString().slice(0, 10)
+    weeks.push({ weekStart: key, activeLearners: map.get(key) ?? 0 })
+  }
+  return weeks
+}
+
 // ---------- Sub-components -----------------------------------------------
 
 function SkeletonHeroCard() {
   return (
-    <div className="card p-6 animate-pulse">
-      <div className="h-4 bg-surface rounded w-1/3 mb-4" />
-      <div className="h-14 bg-surface rounded w-2/3 mb-2" />
-      <div className="h-3 bg-surface rounded w-1/2 mb-4" />
-      <div className="h-3 bg-surface rounded w-1/4 mb-6" />
-      <div className="h-12 bg-surface rounded w-full" />
+    <div className="rounded-2xl bg-white border border-border p-6 animate-pulse">
+      <div className="flex items-center justify-between mb-4">
+        <div className="h-3 bg-surface rounded w-24" />
+        <div className="h-10 w-10 bg-surface rounded-xl" />
+      </div>
+      <div className="h-16 bg-surface rounded w-2/3 mb-3" />
+      <div className="h-3 bg-surface rounded w-1/2 mb-6" />
+      <div className="h-14 bg-surface rounded w-full" />
     </div>
   )
 }
 
 function SkeletonFastFact() {
   return (
-    <div className="card p-4 animate-pulse">
-      <div className="h-8 bg-surface rounded w-1/2 mx-auto mb-2" />
-      <div className="h-3 bg-surface rounded w-3/4 mx-auto" />
+    <div className="rounded-xl bg-white border border-border p-4 animate-pulse">
+      <div className="h-9 w-9 bg-surface rounded-lg mb-3" />
+      <div className="h-7 bg-surface rounded w-1/2 mb-2" />
+      <div className="h-3 bg-surface rounded w-3/4" />
     </div>
   )
 }
@@ -88,25 +138,39 @@ interface GrowthBadgeProps {
 function GrowthBadge({ pct }: GrowthBadgeProps) {
   if (pct > 0) {
     return (
-      <span className="inline-flex items-center gap-1 text-sm font-semibold text-green-600 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full">
-        <TrendingUp size={14} />
+      <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
+        <TrendingUp size={13} className="shrink-0" />
         +{pct.toFixed(1)}% vs. last week
       </span>
     )
   }
   if (pct < 0) {
     return (
-      <span className="inline-flex items-center gap-1 text-sm font-semibold text-red-600 bg-red-50 border border-red-200 px-2.5 py-1 rounded-full">
-        <TrendingDown size={14} />
+      <span className="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-3 py-1.5 rounded-full">
+        <TrendingDown size={13} className="shrink-0" />
         {pct.toFixed(1)}% vs. last week
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center gap-1 text-sm font-semibold text-gray-500 bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-full">
-      <Minus size={14} />
-      No change vs. last week
+    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-full">
+      <Minus size={13} className="shrink-0" />
+      Steady vs. last week
     </span>
+  )
+}
+
+interface IconBadgeProps {
+  icon: React.ComponentType<{ size?: number; className?: string }>
+  gradient: string
+}
+function IconBadge({ icon: Icon, gradient }: IconBadgeProps) {
+  return (
+    <div
+      className={`h-11 w-11 rounded-xl flex items-center justify-center shadow-md ${gradient}`}
+    >
+      <Icon size={22} className="text-white" />
+    </div>
   )
 }
 
@@ -117,15 +181,17 @@ interface RatingBarProps {
 function RatingBar({ label, value }: RatingBarProps) {
   const pct = value != null ? (value / 5) * 100 : 0
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-xs text-text-muted w-24 shrink-0 truncate">{label}</span>
-      <div className="flex-1 h-2 bg-surface rounded-full overflow-hidden">
+    <div className="flex items-center gap-3">
+      <span className="text-[11px] font-medium text-text-muted w-24 shrink-0 truncate">
+        {label}
+      </span>
+      <div className="flex-1 h-2 bg-amber-100/60 rounded-full overflow-hidden">
         <div
-          className="h-full bg-primary rounded-full transition-all duration-500"
+          className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full transition-all duration-700 ease-out"
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="text-xs font-semibold text-text w-8 text-right">
+      <span className="text-xs font-bold text-text w-8 text-right tabular-nums">
         {value != null ? value.toFixed(1) : '—'}
       </span>
     </div>
@@ -144,7 +210,6 @@ export default function MetricsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
-  // Super-admin only — redirect hospital_admin back to /admin
   useEffect(() => {
     if (authLoading) return
     if (role && role !== 'super_admin') {
@@ -173,6 +238,11 @@ export default function MetricsPage() {
       .finally(() => setLoading(false))
   }, [authLoading, role, router])
 
+  const paddedTrend = useMemo(
+    () => (metrics ? padToTwelveWeeks(metrics.activeLearners.weeklyTrend) : []),
+    [metrics],
+  )
+
   // ---------- Access denied --------------------------------------------
 
   if (!authLoading && role && role !== 'super_admin') {
@@ -198,7 +268,7 @@ export default function MetricsPage() {
           </div>
           <div className="h-4 bg-surface rounded w-40 animate-pulse mt-1" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <SkeletonHeroCard />
           <SkeletonHeroCard />
           <SkeletonHeroCard />
@@ -236,13 +306,18 @@ export default function MetricsPage() {
 
   const { activeLearners, rating, engagement, fastFacts, logins } = metrics
 
-  const fetchedLabel = new Date(metrics.fetchedAt).toLocaleString()
+  const fetchedLabel = new Date(metrics.fetchedAt).toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 
   const ratingBreakdown = [
-    { label: tAny.metricsHeroRatingQ1 ?? 'Animation',    value: rating.breakdown.q1_animation },
-    { label: tAny.metricsHeroRatingQ2 ?? 'Variety',      value: rating.breakdown.q2_variety },
-    { label: tAny.metricsHeroRatingQ3 ?? 'Usefulness',   value: rating.breakdown.q3_usefulness },
-    { label: tAny.metricsHeroRatingQ4 ?? 'Confidence',   value: rating.breakdown.q4_confidence },
+    { label: tAny.metricsHeroRatingQ1 ?? 'Animation',     value: rating.breakdown.q1_animation },
+    { label: tAny.metricsHeroRatingQ2 ?? 'Variety',       value: rating.breakdown.q2_variety },
+    { label: tAny.metricsHeroRatingQ3 ?? 'Usefulness',    value: rating.breakdown.q3_usefulness },
+    { label: tAny.metricsHeroRatingQ4 ?? 'Confidence',    value: rating.breakdown.q4_confidence },
     { label: tAny.metricsHeroRatingQ5 ?? 'Will continue', value: rating.breakdown.q5_continue },
   ]
 
@@ -257,119 +332,177 @@ export default function MetricsPage() {
     .replace('{n}', String(engagement.longestStreakRecord))
 
   const fastFactItems = [
-    { label: tAny.metricsFastTotalLearners   ?? 'Total learners',        value: fastFacts.totalLearners },
-    { label: tAny.metricsFastTotalRecordings ?? 'Recordings submitted',  value: fastFacts.totalRecordings },
-    { label: tAny.metricsFastTotalLessons    ?? 'Lessons completed',     value: fastFacts.totalLessonsCompleted },
-    { label: tAny.metricsFastTotalCourses    ?? 'Courses published',     value: fastFacts.totalCoursesPublished },
+    {
+      label: tAny.metricsFastTotalLearners ?? 'Total learners',
+      value: fastFacts.totalLearners,
+      icon: GraduationCap,
+      tint: 'bg-blue-50 text-blue-600',
+    },
+    {
+      label: tAny.metricsFastTotalRecordings ?? 'Recordings submitted',
+      value: fastFacts.totalRecordings,
+      icon: Mic2,
+      tint: 'bg-rose-50 text-rose-600',
+    },
+    {
+      label: tAny.metricsFastTotalLessons ?? 'Lessons completed',
+      value: fastFacts.totalLessonsCompleted,
+      icon: BookOpenCheck,
+      tint: 'bg-emerald-50 text-emerald-600',
+    },
+    {
+      label: tAny.metricsFastTotalCourses ?? 'Courses published',
+      value: fastFacts.totalCoursesPublished,
+      icon: LibraryBig,
+      tint: 'bg-violet-50 text-violet-600',
+    },
   ]
+
+  const ratingHasData = rating.composite != null
+  const engagementHasData =
+    engagement.activeStreakPct > 0 || engagement.longestStreakRecord > 0 || engagement.avgSessionsPerUser > 0
 
   // ---------- Full page render -----------------------------------------
 
   return (
-    <div>
+    <div className="pb-6">
       {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-text">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+            </span>
+            <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-widest">Live</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-bold text-text leading-tight">
             {tAny.metricsTitle ?? 'Platform Metrics'}
           </h1>
-          <p className="text-sm text-text-muted mt-1">
+          <p className="text-sm text-text-muted mt-1.5">
             {tAny.metricsSubtitle ?? 'Live data, refreshed every 60 seconds'}
           </p>
         </div>
-        <p className="text-xs text-text-muted mt-1 shrink-0">
+        <div className="inline-flex items-center gap-2 text-xs text-text-muted bg-surface border border-border px-3 py-1.5 rounded-full self-start sm:self-end">
+          <Sparkles size={12} className="text-primary" />
           As of {fetchedLabel}
-        </p>
+        </div>
       </div>
 
       {/* Hero row — 3 large cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 
-        {/* Hero 1: Active Learners */}
-        <div className="card p-6 flex flex-col">
-          <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
-            {tAny.metricsHeroActiveTitle ?? 'Active Learners'}
-          </p>
+        {/* Hero 1 — Active Learners */}
+        <div className="relative overflow-hidden rounded-2xl bg-white border border-border p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-blue-500/5 blur-2xl" aria-hidden />
+          <div className="relative flex items-start justify-between mb-4">
+            <p className="text-[11px] font-bold text-text-muted uppercase tracking-widest">
+              {tAny.metricsHeroActiveTitle ?? 'Active Learners'}
+            </p>
+            <IconBadge icon={Users} gradient="bg-gradient-to-br from-blue-500 to-blue-700" />
+          </div>
 
-          <p className="text-5xl font-bold text-primary leading-none mb-1">
-            {activeLearners.wau.toLocaleString()}
-          </p>
-          <p className="text-sm text-text-muted mb-3">
-            {tAny.metricsHeroActiveWeek ?? 'Active this week'}
-          </p>
+          <div className="relative">
+            <p className="text-[64px] font-extrabold text-text leading-[0.9] tabular-nums tracking-tight">
+              {activeLearners.wau.toLocaleString()}
+            </p>
+            <p className="text-sm text-text-muted mt-1.5">
+              {tAny.metricsHeroActiveWeek ?? 'Active this week'}
+            </p>
+          </div>
 
-          <p className="text-2xl font-semibold text-text mb-1">
-            {activeLearners.mau.toLocaleString()}
-          </p>
-          <p className="text-xs text-text-muted mb-4">
-            {tAny.metricsHeroActiveMonth ?? 'Active this month'}
-          </p>
-
-          <GrowthBadge pct={activeLearners.growthWau} />
-
-          {/* Sparkline */}
-          {activeLearners.weeklyTrend.length > 0 && (
-            <div className="mt-auto pt-5">
-              <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1">
-                {tAny.metricsHeroActiveTrend ?? '12-week trend'}
+          <div className="flex items-center justify-between mt-4 mb-4">
+            <div>
+              <p className="text-2xl font-bold text-text leading-none">
+                {activeLearners.mau.toLocaleString()}
               </p>
-              <ResponsiveContainer width="100%" height={56}>
-                <BarChart
-                  data={activeLearners.weeklyTrend}
-                  margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
-                >
-                  <Bar
-                    dataKey="activeLearners"
-                    fill="#0B5FFF"
-                    opacity={0.8}
-                    radius={[2, 2, 0, 0]}
-                  />
-                  <RechartTooltip
-                    cursor={{ fill: 'rgba(11,95,255,0.08)' }}
-                    contentStyle={{
-                      fontSize: 11,
-                      borderRadius: 8,
-                      border: '1px solid #e5e7eb',
-                      padding: '4px 10px',
-                    }}
-                    formatter={(v: number) => [v, 'Learners']}
-                    labelFormatter={(label: string) =>
-                      `Week of ${new Date(label).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`
-                    }
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              <p className="text-xs text-text-muted mt-1">
+                {tAny.metricsHeroActiveMonth ?? 'Active this month'}
+              </p>
             </div>
-          )}
+            <GrowthBadge pct={activeLearners.growthWau} />
+          </div>
+
+          {/* Sparkline (always 12 weeks) */}
+          <div className="mt-auto pt-4 border-t border-border/60">
+            <p className="text-[10px] text-text-muted uppercase tracking-widest mb-2 font-semibold">
+              {tAny.metricsHeroActiveTrend ?? '12-week trend'}
+            </p>
+            <ResponsiveContainer width="100%" height={64}>
+              <AreaChart data={paddedTrend} margin={{ top: 2, right: 2, bottom: 2, left: 2 }}>
+                <defs>
+                  <linearGradient id="activeGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"  stopColor="#0B5FFF" stopOpacity={0.5} />
+                    <stop offset="100%" stopColor="#0B5FFF" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <Area
+                  type="monotone"
+                  dataKey="activeLearners"
+                  stroke="#0B5FFF"
+                  strokeWidth={2.5}
+                  fill="url(#activeGradient)"
+                  isAnimationActive
+                />
+                <RechartTooltip
+                  cursor={{ stroke: 'rgba(11,95,255,0.25)', strokeWidth: 1 }}
+                  contentStyle={{
+                    fontSize: 11,
+                    borderRadius: 8,
+                    border: '1px solid #e5e7eb',
+                    padding: '4px 10px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                  }}
+                  formatter={(v: number) => [v, 'Learners']}
+                  labelFormatter={(label: string) =>
+                    `Week of ${new Date(label).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`
+                  }
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
-        {/* Hero 2: Average Rating */}
-        <div className="card p-6 flex flex-col">
-          <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
-            {tAny.metricsHeroRatingTitle ?? 'Average Rating'}
-          </p>
+        {/* Hero 2 — Average Rating */}
+        <div className="relative overflow-hidden rounded-2xl bg-white border border-border p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-amber-500/5 blur-2xl" aria-hidden />
+          <div className="relative flex items-start justify-between mb-4">
+            <p className="text-[11px] font-bold text-text-muted uppercase tracking-widest">
+              {tAny.metricsHeroRatingTitle ?? 'Average Rating'}
+            </p>
+            <IconBadge icon={Star} gradient="bg-gradient-to-br from-amber-400 to-amber-600" />
+          </div>
 
-          {rating.composite == null ? (
-            <div className="flex-1 flex items-center justify-center py-8">
-              <p className="text-sm text-text-muted text-center leading-relaxed">
+          {!ratingHasData ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
+              <div className="h-14 w-14 rounded-full bg-amber-50 flex items-center justify-center mb-3">
+                <MessageSquareQuote size={26} className="text-amber-500" />
+              </div>
+              <p className="text-sm text-text-muted leading-relaxed max-w-[240px]">
                 {tAny.metricsRatingEmpty ?? 'Not enough rating data yet — first ratings appear here as learners complete lessons.'}
               </p>
             </div>
           ) : (
             <>
-              <div className="flex items-end gap-2 mb-1">
-                <p className="text-5xl font-bold text-primary leading-none">
-                  {rating.composite.toFixed(2)}
+              <div className="relative flex items-baseline gap-2 mb-1">
+                <p className="text-[64px] font-extrabold text-text leading-[0.9] tabular-nums tracking-tight">
+                  {rating.composite!.toFixed(2)}
                 </p>
-                <p className="text-lg text-text-muted mb-1">
-                  / {tAny.metricsHeroRatingOutOf ?? 'out of 5'}
-                </p>
+                <div className="flex items-center gap-0.5 text-amber-500">
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <Star
+                      key={i}
+                      size={14}
+                      className={i < Math.round(rating.composite!) ? 'fill-amber-500 text-amber-500' : 'text-amber-200'}
+                    />
+                  ))}
+                </div>
               </div>
+              <p className="text-xs text-text-muted mb-5">
+                {tAny.metricsHeroRatingOutOf ?? 'out of 5'} · {footnoteSrc}
+              </p>
 
-              <p className="text-xs text-text-muted mb-4">{footnoteSrc}</p>
-
-              {/* Per-question breakdown bars */}
-              <div className="space-y-2 mt-auto">
+              <div className="space-y-2.5 mt-auto">
                 {ratingBreakdown.map((q) => (
                   <RatingBar key={q.label} label={q.label} value={q.value} />
                 ))}
@@ -378,81 +511,151 @@ export default function MetricsPage() {
           )}
         </div>
 
-        {/* Hero 3: Engagement */}
-        <div className="card p-6 flex flex-col">
-          <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
-            {tAny.metricsHeroEngagementTitle ?? 'Engagement'}
-          </p>
+        {/* Hero 3 — Engagement */}
+        <div className="relative overflow-hidden rounded-2xl bg-white border border-border p-6 flex flex-col shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-emerald-500/5 blur-2xl" aria-hidden />
+          <div className="relative flex items-start justify-between mb-4">
+            <p className="text-[11px] font-bold text-text-muted uppercase tracking-widest">
+              {tAny.metricsHeroEngagementTitle ?? 'Engagement'}
+            </p>
+            <IconBadge icon={Flame} gradient="bg-gradient-to-br from-emerald-500 to-emerald-700" />
+          </div>
 
-          {engagement.activeStreakPct === 0 && engagement.longestStreakRecord === 0 ? (
-            <div className="flex-1 flex items-center justify-center py-8">
-              <p className="text-sm text-text-muted text-center">
-                No streak data yet — learners build streaks as they return daily.
+          {!engagementHasData ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
+              <div className="h-14 w-14 rounded-full bg-emerald-50 flex items-center justify-center mb-3">
+                <Flame size={26} className="text-emerald-500" />
+              </div>
+              <p className="text-sm text-text-muted leading-relaxed max-w-[240px]">
+                Streaks build as learners return daily — the first ones will land here soon.
               </p>
             </div>
           ) : (
             <>
-              <p className="text-5xl font-bold text-primary leading-none mb-1">
-                {engagement.activeStreakPct.toFixed(0)}%
-              </p>
+              <div className="relative flex items-baseline gap-1 mb-1">
+                <p className="text-[64px] font-extrabold text-text leading-[0.9] tabular-nums tracking-tight">
+                  {engagement.activeStreakPct.toFixed(0)}
+                </p>
+                <p className="text-3xl font-bold text-text-muted">%</p>
+              </div>
               <p className="text-sm text-text-muted mb-5">
                 {tAny.metricsHeroEngagementStreak ?? 'Learners on a 3+ day streak'}
               </p>
 
-              <p className="text-sm text-text mb-4">
-                {sessionsSrc}
-              </p>
-
-              <div className="mt-auto inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 px-3 py-2 rounded-xl text-sm font-medium">
-                <Award size={16} className="text-amber-500 shrink-0" />
-                {longestSrc}
+              <div className="grid grid-cols-2 gap-2 mt-auto">
+                <div className="rounded-xl bg-emerald-50/60 border border-emerald-100 px-3 py-2.5">
+                  <p className="text-lg font-bold text-emerald-700 leading-none tabular-nums">
+                    {engagement.avgSessionsPerUser.toFixed(1)}
+                  </p>
+                  <p className="text-[10px] text-emerald-700/80 mt-1 font-medium leading-tight">
+                    Active days / learner
+                  </p>
+                </div>
+                <div className="rounded-xl bg-amber-50/60 border border-amber-100 px-3 py-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <Award size={14} className="text-amber-500 shrink-0" />
+                    <p className="text-lg font-bold text-amber-700 leading-none tabular-nums">
+                      {engagement.longestStreakRecord}
+                    </p>
+                  </div>
+                  <p className="text-[10px] text-amber-700/80 mt-1 font-medium leading-tight">
+                    Longest streak (days)
+                  </p>
+                </div>
               </div>
+              {/* Hidden: longestSrc kept for full-text accessibility */}
+              <span className="sr-only">{longestSrc}</span>
+              <span className="sr-only">{sessionsSrc}</span>
             </>
           )}
         </div>
       </div>
 
       {/* Fast facts row */}
-      <div className="mb-2">
-        <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
+      <div className="mb-8">
+        <p className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-3">
           {tAny.metricsFastFactsTitle ?? 'Fast facts'}
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {fastFactItems.map((item) => (
-            <div key={item.label} className="kpi-card text-center">
-              <p className="text-3xl font-bold text-text">{item.value.toLocaleString()}</p>
-              <p className="text-xs text-text-muted font-medium mt-1">{item.label}</p>
-            </div>
-          ))}
+          {fastFactItems.map((item) => {
+            const Icon = item.icon
+            return (
+              <div
+                key={item.label}
+                className="rounded-xl bg-white border border-border p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+              >
+                <div className={`h-9 w-9 rounded-lg flex items-center justify-center mb-3 ${item.tint}`}>
+                  <Icon size={18} />
+                </div>
+                <p className="text-3xl font-bold text-text leading-none tabular-nums">
+                  {item.value.toLocaleString()}
+                </p>
+                <p className="text-xs text-text-muted font-medium mt-1.5">{item.label}</p>
+              </div>
+            )
+          })}
         </div>
       </div>
 
-      {/* Login Activity row */}
-      <div className="mt-6 mb-2">
-        <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
+      {/* Platform Logins row */}
+      <div className="mb-2">
+        <p className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-3">
           {tAny.metricsLoginTitle ?? 'Platform Logins'}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {[
-            { label: tAny.metricsLoginTotal ?? 'Total unique logins', value: logins.total, accent: false },
-            { label: tAny.metricsLoginMonth ?? 'Unique logins this month', value: logins.thisMonth, accent: false },
-            { label: tAny.metricsLoginWeek  ?? 'Unique logins this week',  value: logins.thisWeek,  accent: true  },
-          ].map((item) => (
-            <div key={item.label} className="card p-5 flex items-center gap-4">
-              <p className={`text-4xl font-bold ${item.accent ? 'text-primary' : 'text-text'}`}>
-                {item.value.toLocaleString()}
-              </p>
-              <p className="text-sm text-text-muted leading-snug">{item.label}</p>
+          {/* Total */}
+          <div className="rounded-xl bg-white border border-border p-5 shadow-sm hover:shadow-md transition-shadow duration-200 flex items-center gap-4">
+            <div className="h-12 w-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
+              <LogIn size={22} />
             </div>
-          ))}
+            <div>
+              <p className="text-3xl font-bold text-text leading-none tabular-nums">
+                {logins.total.toLocaleString()}
+              </p>
+              <p className="text-xs text-text-muted font-medium mt-1.5">
+                {tAny.metricsLoginTotal ?? 'Total unique logins'}
+              </p>
+            </div>
+          </div>
+
+          {/* This month */}
+          <div className="rounded-xl bg-white border border-border p-5 shadow-sm hover:shadow-md transition-shadow duration-200 flex items-center gap-4">
+            <div className="h-12 w-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <CalendarDays size={22} />
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-text leading-none tabular-nums">
+                {logins.thisMonth.toLocaleString()}
+              </p>
+              <p className="text-xs text-text-muted font-medium mt-1.5">
+                {tAny.metricsLoginMonth ?? 'Unique logins this month'}
+              </p>
+            </div>
+          </div>
+
+          {/* This week — accent card with gradient */}
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary to-blue-600 text-white p-5 shadow-md flex items-center gap-4">
+            <div className="absolute -top-8 -right-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" aria-hidden />
+            <div className="relative h-12 w-12 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center shrink-0">
+              <Calendar size={22} className="text-white" />
+            </div>
+            <div className="relative">
+              <p className="text-3xl font-bold leading-none tabular-nums">
+                {logins.thisWeek.toLocaleString()}
+              </p>
+              <p className="text-xs text-white/85 font-medium mt-1.5">
+                {tAny.metricsLoginWeek ?? 'Unique logins this week'}
+              </p>
+            </div>
+          </div>
         </div>
-        <p className="text-[11px] text-text-muted mt-2">
+        <p className="text-[11px] text-text-muted mt-3">
           {tAny.metricsLoginNote ?? 'Based on most recent sign-in per user (pro.tuto.asia accounts only).'}
         </p>
       </div>
 
       {/* Footer note */}
-      <p className="text-xs text-text-muted mt-6 pb-2">
+      <p className="text-xs text-text-muted mt-8 pt-4 border-t border-border">
         {tAny.metricsFooterNote ?? 'Data refreshed every 60 seconds. All metrics aggregate across all hospitals.'}
       </p>
     </div>
