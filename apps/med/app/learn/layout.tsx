@@ -3,10 +3,13 @@
 import { useState } from 'react'
 import { Menu, Languages } from 'lucide-react'
 import LearnerSidebar from '@/components/learn/LearnerSidebar'
+import FeedbackButton from '@/components/learn/FeedbackButton'
+import FeedbackModal from '@/components/learn/FeedbackModal'
 import { useLang } from '@/contexts/LanguageContext'
 
 export default function LearnLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
   const { phraseTranslationEnabled, togglePhraseTranslation } = useLang()
 
   return (
@@ -54,6 +57,8 @@ export default function LearnLayout({ children }: { children: React.ReactNode })
         <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-8">
           {children}
         </div>
+        <FeedbackButton onClick={() => setFeedbackOpen(true)} />
+        <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
       </main>
     </div>
   )
