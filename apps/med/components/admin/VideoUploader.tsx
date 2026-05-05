@@ -1,24 +1,28 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
-import { Upload, CheckCircle, AlertCircle, Loader2, Film, X, Sparkles, BookOpen, Subtitles } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Upload, CheckCircle, AlertCircle, Loader2, Film, X, Sparkles, BookOpen, Subtitles, Trash2, RefreshCcw } from 'lucide-react'
 import type { AnimationSegment } from '@/components/animations/types'
 
 interface Props {
   stepId: string
   stepTitle: string
   segments?: AnimationSegment[]
+  currentVideoUrl?: string | null
   onUploaded: (videoUrl: string) => void
+  onDeleted?: () => void
 }
 
 type UploadState = 'idle' | 'uploading' | 'done' | 'error'
 type PracticeState = 'idle' | 'generating' | 'done' | 'error'
 
-export default function VideoUploader({ stepId, stepTitle, segments = [], onUploaded }: Props) {
+export default function VideoUploader({ stepId, stepTitle, segments = [], currentVideoUrl = null, onUploaded, onDeleted }: Props) {
   const [uploadState, setUploadState] = useState<UploadState>('idle')
   const [practiceState, setPracticeState] = useState<PracticeState>('idle')
   const [progress, setProgress] = useState(0)
   const [videoUrl, setVideoUrl] = useState<string | null>(null)
+  const [existingUrl, setExistingUrl] = useState<string | null>(currentVideoUrl)
+  const [deleting, setDeleting] = useState(false)
   const [fileMeta, setFileMeta] = useState<{ name: string; sizeMb: string } | null>(null)
   const [error, setError] = useState('')
   const [practiceError, setPracticeError] = useState('')
@@ -27,6 +31,8 @@ export default function VideoUploader({ stepId, stepTitle, segments = [], onUplo
   const [uploadMeta, setUploadMeta] = useState<{ vttGenerated: boolean; segmentsUsed: number } | null>(null)
   const [practiceResult, setPracticeResult] = useState<{ quizQuestions: number; clozeLines: number } | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => { setExistingUrl(currentVideoUrl) }, [currentVideoUrl])
 
   const handleFile = useCallback(async (file: File) => {
     if (!file) return
@@ -95,15 +101,38 @@ export default function VideoUploader({ stepId, stepTitle, segments = [], onUplo
         return
       }
 
+      const cacheBustedUrl = `${linkData.videoUrl}?v=${Date.now()}`
       setUploadState('done')
-      setVideoUrl(linkData.videoUrl)
+      setVideoUrl(cacheBustedUrl)
+      setExistingUrl(cacheBustedUrl)
       setUploadMeta({ vttGenerated: linkData.vttGenerated, segmentsUsed: linkData.segmentsUsed ?? 0 })
-      onUploaded(linkData.videoUrl)
+      onUploaded(cacheBustedUrl)
     } catch (e) {
       setUploadState('error')
       setError(e instanceof Error ? e.message : 'Upload failed')
     }
   }, [stepId, updateType, segments, onUploaded])
+
+  const handleDeleteExisting = useCallback(async () => {
+    if (!confirm('Delete the current video for this step? This removes the file from storage and clears the video URL — but the step itself stays.')) return
+    setDeleting(true)
+    setError('')
+    try {
+      const res = await fetch(`/api/video/upload?stepId=${stepId}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (!res.ok || data.error) {
+        setError(data.error ?? 'Delete failed')
+        return
+      }
+      setExistingUrl(null)
+      setVideoUrl(null)
+      setUploadState('idle')
+      setFileMeta(null)
+      onDeleted?.()
+    } finally {
+      setDeleting(false)
+    }
+  }, [stepId, onDeleted])
 
   const handleGeneratePractice = async () => {
     if (!segments.length) return
@@ -151,12 +180,14 @@ export default function VideoUploader({ stepId, stepTitle, segments = [], onUplo
     if (inputRef.current) inputRef.current.value = ''
   }
 
+  const showExistingPanel = !!existingUrl && uploadState !== 'uploading' && uploadState !== 'done'
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
           <Film size={16} className="text-purple-500" />
-          Upload HeyGen Video
+          {existingUrl ? 'HeyGen Video' : 'Upload HeyGen Video'}
         </h3>
         <label className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer select-none">
           <input
@@ -169,8 +200,44 @@ export default function VideoUploader({ stepId, stepTitle, segments = [], onUplo
         </label>
       </div>
 
-      {/* Upload zone */}
-      {uploadState === 'idle' && (
+      {/* Existing video panel — shown when a video already exists for this step */}
+      {showExistingPanel && (
+        <div className="border border-blue-200 bg-blue-50/40 rounded-xl p-4 space-y-3">
+          <div className="flex items-center gap-2 text-xs font-semibold text-blue-900 uppercase tracking-wider">
+            <CheckCircle size={14} className="text-blue-600" />
+            Current video on this step
+          </div>
+          <video src={existingUrl ?? undefined} controls className="w-full rounded-lg max-h-56 bg-black" />
+          <p className="text-xs text-blue-800/70 break-all font-mono">{existingUrl}</p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => inputRef.current?.click()}
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white border border-blue-300 hover:border-blue-500 text-blue-700 rounded-lg text-sm font-medium transition-colors"
+            >
+              <RefreshCcw size={14} />
+              Replace
+            </button>
+            <button
+              onClick={handleDeleteExisting}
+              disabled={deleting}
+              className="flex items-center justify-center gap-2 px-3 py-2 bg-white border border-red-300 hover:border-red-500 text-red-700 rounded-lg text-sm font-medium transition-colors disabled:opacity-60"
+            >
+              {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+              Delete
+            </button>
+          </div>
+          <input
+            ref={inputRef}
+            type="file"
+            accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov"
+            className="hidden"
+            onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
+          />
+        </div>
+      )}
+
+      {/* Upload zone — only when no video exists yet */}
+      {!existingUrl && uploadState === 'idle' && (
         <div
           onDragOver={e => { e.preventDefault(); setDragOver(true) }}
           onDragLeave={() => setDragOver(false)}

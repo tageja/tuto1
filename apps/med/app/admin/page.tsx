@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { BookOpen, Building2, Users, TrendingUp } from 'lucide-react'
+import { BookOpen, Building2, Users, TrendingUp, Globe } from 'lucide-react'
 import type { NursedCourse, NursedHospital } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
 
@@ -79,6 +79,23 @@ export default function AdminDashboard() {
             <p className="text-xs text-text-muted">{label}</p>
           </div>
         ))}
+      </div>
+
+      <div className="card p-5 mb-6">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+              <Globe size={18} />
+            </div>
+            <div>
+              <h3 className="text-base font-semibold leading-tight">Site settings</h3>
+              <p className="text-xs text-text-muted">Homepage intro video and other public-page content.</p>
+            </div>
+          </div>
+          <Link href="/admin/site" className="text-sm text-primary hover:underline whitespace-nowrap">
+            Manage →
+          </Link>
+        </div>
       </div>
 
       <div className="card p-5">

@@ -618,8 +618,22 @@ export default function AnimationsAdminPage() {
                     stepId={selectedStep}
                     stepTitle={step?.title ?? selectedStep}
                     segments={segments}
+                    currentVideoUrl={(step?.config as Record<string, unknown> | undefined)?.videoUrl as string | undefined ?? null}
                     onUploaded={(url) => {
-                      console.log('Video linked to step:', url)
+                      setSteps(prev => prev.map(s => s.id === selectedStep
+                        ? { ...s, config: { ...(s.config ?? {}), videoUrl: url, heygen_video: true } }
+                        : s
+                      ))
+                    }}
+                    onDeleted={() => {
+                      setSteps(prev => prev.map(s => {
+                        if (s.id !== selectedStep) return s
+                        const next = { ...(s.config ?? {}) } as Record<string, unknown>
+                        delete next.videoUrl
+                        delete next.subtitle_vtt_vi
+                        delete next.heygen_video
+                        return { ...s, config: next }
+                      }))
                     }}
                   />
                 </div>

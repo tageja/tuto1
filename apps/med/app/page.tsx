@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Volume2, FileText, Mic, Users, Award, BarChart3, ArrowRight } from 'lucide-react'
+import { Volume2, FileText, Mic, Users, Award, BarChart3, ArrowRight, PlayCircle } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
 import { LandingNav } from '@/components/landing/LandingNav'
 import { LandingFooter } from '@/components/landing/LandingFooter'
@@ -16,8 +16,6 @@ const COURSE_ORDER: string[] = [
   'Clinical Handover and Team Communication',
   'Career English for Nurses',
 ]
-
-const STATS = { activeNurses: 145, courses: 6, lessonsCompleted: 1247 }
 
 const FEATURES = [
   { icon: Volume2, key: 'featureAudioShadow', descKey: 'featureAudioShadowDesc' as const },
@@ -43,6 +41,7 @@ export default function Home() {
   const { t } = useLang()
   const [courses, setCourses] = useState<LandingCourse[]>([])
   const [loading, setLoading] = useState(true)
+  const [introVideoUrl, setIntroVideoUrl] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/courses?includeCounts=true')
@@ -50,6 +49,13 @@ export default function Home() {
       .then((j) => setCourses(sortCourses((j.data ?? []))))
       .catch(() => {})
       .finally(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/site-settings/homepage')
+      .then((r) => r.json())
+      .then((j) => setIntroVideoUrl(j.data?.intro_video_url ?? null))
+      .catch(() => {})
   }, [])
 
   return (
@@ -62,23 +68,23 @@ export default function Home() {
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[var(--primary)]/6 rounded-full blur-3xl -translate-y-1/3 translate-x-1/4" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/6 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4" />
 
-        <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-28">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Left — text */}
+        <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-24">
+          <div className="grid md:grid-cols-2 gap-10 lg:gap-14 items-center">
+            {/* Left — concise pitch */}
             <div className="text-left">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary-light)] border border-[var(--primary)]/20 rounded-full text-sm font-semibold text-[var(--primary)] mb-6 animate-fade-in">
                 <span className="w-2 h-2 rounded-full bg-[var(--primary)] animate-pulse" />
                 {t.heroBadge}
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-[1.1] tracking-tight animate-slide-up">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-[1.18] tracking-tight animate-slide-up">
                 {t.heroTitleLine1}
-                <span className="block bg-gradient-to-r from-[var(--primary)] via-blue-500 to-purple-600 bg-clip-text text-transparent mt-1">
+                <span className="block bg-gradient-to-r from-[var(--primary)] via-blue-500 to-purple-600 bg-clip-text text-transparent mt-1 pb-2">
                   {t.heroTitleLine2}
                 </span>
               </h1>
 
-              <p className="text-lg md:text-xl text-[var(--text-muted)] mb-8 leading-relaxed max-w-lg animate-stagger-1">
+              <p className="text-lg md:text-xl text-[var(--text-muted)] mb-8 leading-relaxed max-w-xl animate-stagger-1">
                 {t.heroSubtitle}
               </p>
 
@@ -97,71 +103,69 @@ export default function Home() {
                   {t.heroCtaAdmin}
                 </Link>
               </div>
-
-              {/* Stats row */}
-              <div className="flex items-center gap-8 mt-10 pt-8 border-t border-[var(--border)] animate-stagger-3">
-                <div>
-                  <div className="text-2xl font-bold text-[var(--primary)]">{STATS.activeNurses}+</div>
-                  <div className="text-xs text-[var(--text-muted)] mt-0.5">{t.statsActiveNurses}</div>
-                </div>
-                <div className="w-px h-8 bg-[var(--border)]" />
-                <div>
-                  <div className="text-2xl font-bold text-[var(--primary)]">{STATS.courses}</div>
-                  <div className="text-xs text-[var(--text-muted)] mt-0.5">{t.statsCourses}</div>
-                </div>
-                <div className="w-px h-8 bg-[var(--border)]" />
-                <div>
-                  <div className="text-2xl font-bold text-[var(--primary)]">{STATS.lessonsCompleted.toLocaleString()}</div>
-                  <div className="text-xs text-[var(--text-muted)] mt-0.5">{t.statsLessonsCompleted}</div>
-                </div>
-              </div>
             </div>
 
-            {/* Right — visual card stack */}
-            <div className="hidden md:flex items-center justify-center animate-stagger-2">
-              <div className="relative w-full max-w-sm">
-                {/* Background cards for depth */}
-                <div className="absolute inset-0 translate-x-4 translate-y-4 bg-purple-100 rounded-2xl opacity-40" />
-                <div className="absolute inset-0 translate-x-2 translate-y-2 bg-blue-100 rounded-2xl opacity-50" />
-                {/* Main card */}
-                <div className="relative bg-white rounded-2xl shadow-xl border border-[var(--border)] p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-[var(--primary-light)] flex items-center justify-center">
-                      <span className="text-xl">🚨</span>
-                    </div>
-                    <div>
-                      <div className="font-semibold text-sm text-[var(--text)]">Emergency Nursing</div>
-                      <div className="text-xs text-[var(--text-muted)]">12 modules · 96 lessons</div>
-                    </div>
-                    <div className="ml-auto px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">Live</div>
+            {/* Right — intro video (or fallback mockup) */}
+            <div className="flex items-center justify-center animate-stagger-2">
+              {introVideoUrl ? (
+                <div className="relative w-full max-w-xl">
+                  <div className="absolute inset-0 translate-x-3 translate-y-3 bg-purple-200/50 rounded-2xl blur-sm" aria-hidden />
+                  <div className="absolute inset-0 translate-x-1.5 translate-y-1.5 bg-blue-200/50 rounded-2xl" aria-hidden />
+                  <div className="relative rounded-2xl overflow-hidden bg-black shadow-2xl border border-[var(--border)] ring-1 ring-black/5">
+                    <video
+                      src={introVideoUrl}
+                      controls
+                      playsInline
+                      preload="metadata"
+                      className="w-full aspect-video"
+                    />
                   </div>
-                  {/* Fake progress */}
-                  <div className="space-y-2 mb-4">
-                    {['First Contact', 'Triage Intake', 'Immediate Instructions'].map((label, i) => (
-                      <div key={label} className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${i < 2 ? 'bg-[var(--primary)] text-white' : 'bg-[var(--surface)] border border-[var(--border)]'}`}>
-                          {i < 2 ? '✓' : ''}
+                  <p className="mt-3 text-xs text-[var(--text-muted)] flex items-center justify-center gap-1.5">
+                    <PlayCircle className="w-3.5 h-3.5" />
+                    {t.heroVideoCaption}
+                  </p>
+                </div>
+              ) : (
+                <div className="hidden md:block relative w-full max-w-sm">
+                  <div className="absolute inset-0 translate-x-4 translate-y-4 bg-purple-100 rounded-2xl opacity-40" />
+                  <div className="absolute inset-0 translate-x-2 translate-y-2 bg-blue-100 rounded-2xl opacity-50" />
+                  <div className="relative bg-white rounded-2xl shadow-xl border border-[var(--border)] p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-xl bg-[var(--primary-light)] flex items-center justify-center">
+                        <span className="text-xl">💼</span>
+                      </div>
+                      <div>
+                        <div className="font-semibold text-sm text-[var(--text)]">Workplace Communication</div>
+                        <div className="text-xs text-[var(--text-muted)]">12 modules · 96 lessons</div>
+                      </div>
+                      <div className="ml-auto px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">Live</div>
+                    </div>
+                    <div className="space-y-2 mb-4">
+                      {['Vocabulary preview', 'Listen & shadow', 'Speak with confidence'].map((label, i) => (
+                        <div key={label} className="flex items-center gap-3">
+                          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${i < 2 ? 'bg-[var(--primary)] text-white' : 'bg-[var(--surface)] border border-[var(--border)]'}`}>
+                            {i < 2 ? '✓' : ''}
+                          </div>
+                          <span className="text-xs text-[var(--text-muted)] flex-1">{label}</span>
+                          {i < 2 && <span className="text-xs text-[var(--primary)] font-medium">Done</span>}
                         </div>
-                        <span className="text-xs text-[var(--text-muted)] flex-1">{label}</span>
-                        {i < 2 && <span className="text-xs text-[var(--primary)] font-medium">Done</span>}
-                      </div>
-                    ))}
-                  </div>
-                  {/* Fake audio player */}
-                  <div className="bg-[var(--surface)] rounded-xl p-3 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center">
-                      <Volume2 className="w-4 h-4 text-white" />
+                      ))}
                     </div>
-                    <div className="flex-1">
-                      <div className="text-xs font-medium text-[var(--text)] mb-1">Listen & Repeat</div>
-                      <div className="h-1.5 bg-[var(--border)] rounded-full overflow-hidden">
-                        <div className="h-full w-3/5 bg-[var(--primary)] rounded-full" />
+                    <div className="bg-[var(--surface)] rounded-xl p-3 flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center">
+                        <Volume2 className="w-4 h-4 text-white" />
                       </div>
+                      <div className="flex-1">
+                        <div className="text-xs font-medium text-[var(--text)] mb-1">Listen & Repeat</div>
+                        <div className="h-1.5 bg-[var(--border)] rounded-full overflow-hidden">
+                          <div className="h-full w-3/5 bg-[var(--primary)] rounded-full" />
+                        </div>
+                      </div>
+                      <div className="text-xs text-[var(--text-muted)]">0.75x</div>
                     </div>
-                    <div className="text-xs text-[var(--text-muted)]">0.75x</div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
 
     const { data, error } = await db.storage
       .from(BUCKET)
-      .createSignedUploadUrl(storagePath)
+      .createSignedUploadUrl(storagePath, { upsert: true })
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
     const { data: urlData } = db.storage.from(BUCKET).getPublicUrl(storagePath)
@@ -199,3 +199,52 @@ export async function POST(req: NextRequest) {
 }
 
 // Next.js App Router streams multipart bodies natively — no bodyParser config needed
+
+const PUBLIC_PREFIX_REGEX = /\/storage\/v1\/object\/public\/[^/]+\//
+
+/**
+ * DELETE /api/video/upload?stepId=<id>
+ * Removes the uploaded video file from Supabase Storage and clears the
+ * videoUrl / subtitle_vtt_vi / heygen_video flags from the step's config.
+ * The step itself is left in place so the admin can re-upload or change type.
+ */
+export async function DELETE(req: NextRequest) {
+  try {
+    const stepId = req.nextUrl.searchParams.get('stepId')
+    if (!stepId) return NextResponse.json({ error: 'stepId required' }, { status: 400 })
+
+    const db = getServiceClient()
+    const { data: step, error: stepErr } = await db
+      .from('nursed_lesson_steps')
+      .select('config')
+      .eq('id', stepId)
+      .single()
+    if (stepErr || !step) return NextResponse.json({ error: 'Step not found' }, { status: 404 })
+
+    const cfg = (step.config as Record<string, unknown> | null) ?? {}
+    const currentUrl = typeof cfg.videoUrl === 'string' ? cfg.videoUrl : null
+
+    if (currentUrl) {
+      const match = currentUrl.match(PUBLIC_PREFIX_REGEX)
+      if (match) {
+        const path = currentUrl.slice((match.index ?? 0) + match[0].length).split('?')[0]
+        await db.storage.from(BUCKET).remove([path]).catch(() => undefined)
+      }
+    }
+
+    const nextCfg: Record<string, unknown> = { ...cfg }
+    delete nextCfg.videoUrl
+    delete nextCfg.subtitle_vtt_vi
+    delete nextCfg.heygen_video
+
+    const { error: updateErr } = await db
+      .from('nursed_lesson_steps')
+      .update({ config: nextCfg })
+      .eq('id', stepId)
+    if (updateErr) return NextResponse.json({ error: updateErr.message }, { status: 500 })
+
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    return NextResponse.json({ error: (err as Error).message }, { status: 500 })
+  }
+}

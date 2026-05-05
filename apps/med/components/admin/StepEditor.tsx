@@ -760,10 +760,56 @@ function MatchingEditor({ step, siblingSteps, onSubmit, saving, onCancel }: Edit
 
 // ─── Drag Order Editor ───────────────────────────────────────────────────────
 // One dialogue line per row — stored in correct order; player shuffles on render
-function DragOrderEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
+// "Pull script lines" button copies dialogue from sibling script_read / video / audio_shadow steps
+function DragOrderEditor({ step, siblingSteps, onSubmit, saving, onCancel }: EditorProps) {
   const { t } = useLang()
   const existing = (step.config?.lines as string[] | undefined) ?? []
   const [raw, setRaw] = useState(existing.join('\n'))
+  const [pulled, setPulled] = useState(false)
+
+  /** Collect raw dialogue lines from sibling script/transcript steps WITH role prefix.
+   *  Drag-order needs the whole "Nurse: ..." / "Patient: ..." line to preserve speaker context. */
+  function collectDialogueLines(): string[] {
+    const lines: string[] = []
+    for (const s of siblingSteps) {
+      if (s.id === step.id) continue
+      const cfg = s.config as Record<string, unknown> | null
+      if (!cfg) continue
+      for (const key of ['script', 'transcript']) {
+        const text = cfg[key]
+        if (typeof text === 'string' && text.trim()) {
+          for (const raw of text.split('\n')) {
+            const line = raw.trim()
+            if (line && /^[A-Za-z][A-Za-z ]{0,20}:\s/.test(line)) lines.push(line)
+          }
+        }
+      }
+    }
+    return [...new Set(lines)]
+  }
+
+  const availableLineCount = siblingSteps.reduce((acc, s) => {
+    if (s.id === step.id) return acc
+    const cfg = s.config as Record<string, unknown> | null
+    if (!cfg) return acc
+    for (const key of ['script', 'transcript']) {
+      const text = cfg[key]
+      if (typeof text === 'string') {
+        for (const raw of text.split('\n')) {
+          if (/^[A-Za-z][A-Za-z ]{0,20}:\s/.test(raw.trim())) acc++
+        }
+      }
+    }
+    return acc
+  }, 0)
+
+  function handlePullFromScript() {
+    const unique = collectDialogueLines()
+    if (unique.length === 0) return
+    const existingTrimmed = raw.trim()
+    setRaw(existingTrimmed ? `${existingTrimmed}\n${unique.join('\n')}` : unique.join('\n'))
+    setPulled(true)
+  }
 
   function handleSave() {
     const lines = raw
@@ -776,6 +822,22 @@ function DragOrderEditor({ step, onSubmit, saving, onCancel }: EditorProps) {
   return (
     <div className="space-y-3">
       <p className="text-xs text-text-muted">{t.dragOrderEditorHint}</p>
+
+      {availableLineCount > 0 && (
+        <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-primary/5 border border-primary/20">
+          <p className="text-xs text-text-muted">
+            {availableLineCount} dialogue line{availableLineCount === 1 ? '' : 's'} found in this lesson&rsquo;s script / video steps.
+          </p>
+          <button
+            type="button"
+            onClick={handlePullFromScript}
+            className="btn-secondary text-xs shrink-0"
+          >
+            📋 {pulled ? 'Pulled ✓' : 'Pull script lines'}
+          </button>
+        </div>
+      )}
+
       <textarea
         className="input resize-none text-sm font-mono"
         rows={8}
@@ -1365,6 +1427,38 @@ function SentenceBuilderEditor({ step, siblingSteps, onSubmit, saving, onCancel 
   const [hintVi, setHintVi] = useState(cfg.hint_vi ?? '')
   const [uploading, setUploading] = useState(false)
   const [validationError, setValidationError] = useState('')
+  const [translating, setTranslating] = useState(false)
+  const [translateError, setTranslateError] = useState('')
+
+  /** Translate the EN sentence (rawSentence with | between chunks) to Vietnamese
+   *  via /api/translate/phrases and put the result in promptVi. */
+  async function handleTranslateToVi() {
+    const enClean = rawSentence.replace(/\s*\|\s*/g, ' ').trim()
+    if (!enClean) {
+      setTranslateError('Type the English sentence first (use | between chunks).')
+      return
+    }
+    setTranslating(true)
+    setTranslateError('')
+    try {
+      const res = await fetch('/api/translate/phrases', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phrases: [enClean] }),
+      })
+      const data = await res.json() as { pairs?: { en: string; vi: string }[]; error?: string }
+      const vi = data.pairs?.[0]?.vi
+      if (vi) {
+        setPromptVi(vi)
+      } else {
+        setTranslateError('Translation failed. Type the Vietnamese prompt manually.')
+      }
+    } catch {
+      setTranslateError('Translation failed. Type the Vietnamese prompt manually.')
+    } finally {
+      setTranslating(false)
+    }
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -1431,8 +1525,20 @@ function SentenceBuilderEditor({ step, siblingSteps, onSubmit, saving, onCancel 
       <ScriptRefPanel siblingSteps={siblingSteps} onCopy={() => undefined} />
 
       <div>
-        <label className="label text-xs">{t.sentenceBuilderEditorPromptViLabel} *</label>
+        <div className="flex items-end justify-between gap-2 mb-1">
+          <label className="label text-xs mb-0">{t.sentenceBuilderEditorPromptViLabel} *</label>
+          <button
+            type="button"
+            onClick={handleTranslateToVi}
+            disabled={translating || !rawSentence.trim()}
+            className="text-[10px] text-primary hover:text-primary-dark font-medium disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+            title="Translate the English sentence (from chunks below) to Vietnamese"
+          >
+            🌐 {translating ? 'Translating…' : 'Translate from EN below'}
+          </button>
+        </div>
         <textarea className="input resize-none text-sm" rows={2} value={promptVi} onChange={(e) => setPromptVi(e.target.value)} placeholder="Tôi cần kiểm tra huyết áp của bạn ngay bây giờ." />
+        {translateError && <p className="text-[10px] text-error mt-1">{translateError}</p>}
       </div>
 
       <div>
