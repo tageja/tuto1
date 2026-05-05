@@ -16,8 +16,6 @@ import {
   BookOpenCheck,
   LibraryBig,
   LogIn,
-  Calendar,
-  CalendarDays,
   Sparkles,
   MessageSquareQuote,
 } from 'lucide-react'
@@ -597,62 +595,113 @@ export default function MetricsPage() {
         </div>
       </div>
 
-      {/* Platform Logins row */}
-      <div className="mb-2">
-        <p className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-3">
-          {tAny.metricsLoginTitle ?? 'Platform Logins'}
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {/* Total */}
-          <div className="rounded-xl bg-white border border-border p-5 shadow-sm hover:shadow-md transition-shadow duration-200 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
-              <LogIn size={22} />
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-text leading-none tabular-nums">
-                {logins.total.toLocaleString()}
-              </p>
-              <p className="text-xs text-text-muted font-medium mt-1.5">
-                {tAny.metricsLoginTotal ?? 'Total unique logins'}
-              </p>
-            </div>
-          </div>
+      {/* Platform Login Activity — recency funnel */}
+      {(() => {
+        const total = Math.max(logins.total, 1)
+        const rows = [
+          {
+            key: 'total',
+            label: tAny.metricsLoginTotal ?? 'All-time',
+            sub: 'Total unique users who have ever signed in',
+            value: logins.total,
+            barClass: 'bg-gradient-to-r from-slate-300 to-slate-400',
+            valueClass: 'text-slate-700',
+            isBaseline: true,
+          },
+          {
+            key: 'month',
+            label: tAny.metricsLoginMonth ?? 'This month',
+            sub: 'Active in the last 30 days',
+            value: logins.thisMonth,
+            barClass: 'bg-gradient-to-r from-blue-400 to-blue-600',
+            valueClass: 'text-blue-700',
+            isBaseline: false,
+          },
+          {
+            key: 'week',
+            label: tAny.metricsLoginWeek ?? 'This week',
+            sub: 'Active in the last 7 days',
+            value: logins.thisWeek,
+            barClass: 'bg-gradient-to-r from-emerald-400 to-emerald-600',
+            valueClass: 'text-emerald-700',
+            isBaseline: false,
+          },
+        ]
+        return (
+          <div className="relative overflow-hidden rounded-2xl bg-white border border-border p-6 shadow-sm hover:shadow-md transition-shadow duration-200 mb-2">
+            <div className="absolute -top-16 -right-16 h-56 w-56 rounded-full bg-violet-500/5 blur-3xl" aria-hidden />
 
-          {/* This month */}
-          <div className="rounded-xl bg-white border border-border p-5 shadow-sm hover:shadow-md transition-shadow duration-200 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-              <CalendarDays size={22} />
+            <div className="relative flex items-start justify-between mb-6">
+              <div>
+                <p className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1">
+                  {tAny.metricsLoginTitle ?? 'Platform Login Activity'}
+                </p>
+                <p className="text-sm text-text-muted">
+                  Recency funnel · most recent sign-in per user
+                </p>
+              </div>
+              <IconBadge icon={LogIn} gradient="bg-gradient-to-br from-violet-500 to-violet-700" />
             </div>
-            <div>
-              <p className="text-3xl font-bold text-text leading-none tabular-nums">
-                {logins.thisMonth.toLocaleString()}
-              </p>
-              <p className="text-xs text-text-muted font-medium mt-1.5">
-                {tAny.metricsLoginMonth ?? 'Unique logins this month'}
-              </p>
-            </div>
-          </div>
 
-          {/* This week — accent card with gradient */}
-          <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary to-blue-600 text-white p-5 shadow-md flex items-center gap-4">
-            <div className="absolute -top-8 -right-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" aria-hidden />
-            <div className="relative h-12 w-12 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center shrink-0">
-              <Calendar size={22} className="text-white" />
-            </div>
-            <div className="relative">
-              <p className="text-3xl font-bold leading-none tabular-nums">
-                {logins.thisWeek.toLocaleString()}
-              </p>
-              <p className="text-xs text-white/85 font-medium mt-1.5">
-                {tAny.metricsLoginWeek ?? 'Unique logins this week'}
-              </p>
-            </div>
+            {logins.total === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <div className="h-14 w-14 rounded-full bg-violet-50 flex items-center justify-center mb-3">
+                  <LogIn size={26} className="text-violet-500" />
+                </div>
+                <p className="text-sm text-text-muted">
+                  No sign-in data yet — first logins will appear here.
+                </p>
+              </div>
+            ) : (
+              <div className="relative space-y-5">
+                {rows.map((row) => {
+                  const widthPct = (row.value / total) * 100
+                  const retentionPct = (row.value / total) * 100
+                  return (
+                    <div key={row.key}>
+                      <div className="flex items-end justify-between gap-3 mb-2">
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-text leading-tight">
+                            {row.label}
+                          </p>
+                          <p className="text-xs text-text-muted leading-tight mt-0.5 truncate">
+                            {row.sub}
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className={`text-3xl font-extrabold leading-none tabular-nums ${row.valueClass}`}>
+                            {row.value.toLocaleString()}
+                          </p>
+                          {!row.isBaseline && (
+                            <p className="text-[11px] text-text-muted mt-1 font-medium">
+                              {retentionPct.toFixed(0)}% of total
+                            </p>
+                          )}
+                          {row.isBaseline && (
+                            <p className="text-[11px] text-text-muted mt-1 font-medium">
+                              baseline
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="h-3 bg-surface rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${row.barClass} transition-all duration-1000 ease-out`}
+                          style={{ width: `${Math.max(widthPct, row.value > 0 ? 4 : 0)}%` }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            <p className="relative text-[11px] text-text-muted mt-6 pt-4 border-t border-border/60">
+              {tAny.metricsLoginNote ?? 'Based on most recent sign-in per user (pro.tuto.asia accounts only).'}
+            </p>
           </div>
-        </div>
-        <p className="text-[11px] text-text-muted mt-3">
-          {tAny.metricsLoginNote ?? 'Based on most recent sign-in per user (pro.tuto.asia accounts only).'}
-        </p>
-      </div>
+        )
+      })()}
 
       {/* Footer note */}
       <p className="text-xs text-text-muted mt-8 pt-4 border-t border-border">
