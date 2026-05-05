@@ -14,11 +14,11 @@ interface Props {
 }
 
 const NAV_HREFS = [
-  { icon: Home,     href: '/learn',          tKey: 'learnNavDashboard'      as const },
-  { icon: BookOpen, href: '/learn/courses',  tKey: 'learnNavMyCourses'      as const },
-  { icon: Users,    href: '/learn/pairs',    tKey: 'learnNavPracticeGroups' as const },
-  { icon: Star,     href: '/learn/rewards',  tKey: 'learnNavRewards'        as const },
-  { icon: User,     href: '/learn/profile',  tKey: 'learnNavProfile'        as const },
+  { icon: Home,     href: '/learn',          tKey: 'learnNavDashboard'      as const, tourTarget: undefined },
+  { icon: BookOpen, href: '/learn/courses',  tKey: 'learnNavMyCourses'      as const, tourTarget: 'my-courses' },
+  { icon: Users,    href: '/learn/pairs',    tKey: 'learnNavPracticeGroups' as const, tourTarget: 'practice-groups' },
+  { icon: Star,     href: '/learn/rewards',  tKey: 'learnNavRewards'        as const, tourTarget: 'rewards' },
+  { icon: User,     href: '/learn/profile',  tKey: 'learnNavProfile'        as const, tourTarget: undefined },
 ]
 
 export default function LearnerSidebar({ isOpen = false, onClose }: Props) {
@@ -85,6 +85,7 @@ export default function LearnerSidebar({ isOpen = false, onClose }: Props) {
               onClick={onClose}
               onMouseEnter={() => prefetch(item.href)}
               className={active ? 'sidebar-item-active' : 'sidebar-item-inactive'}
+              {...(item.tourTarget ? { 'data-tour-target': item.tourTarget } : {})}
             >
               <Icon size={18} />
               <span>{t[item.tKey]}</span>

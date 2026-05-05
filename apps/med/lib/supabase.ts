@@ -69,6 +69,9 @@ export type NursedProfile = {
   position: string | null
   date_of_birth: string | null
   bio: string | null
+  // Onboarding product tour state — added in migration 055
+  tour_completed_at: string | null
+  tour_skipped_at: string | null
 }
 
 export type NursedHospital = {

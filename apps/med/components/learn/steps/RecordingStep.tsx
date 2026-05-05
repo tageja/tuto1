@@ -248,7 +248,8 @@ export default function RecordingStep({ step, onComplete, allSteps, currentIdx, 
             <Mic size={36} className="text-primary" />
           </div>
           <p className="text-text font-medium">{t.idleLabel}</p>
-          <button onClick={startRecording} className="btn-primary">
+          {/* data-tour-target="recording-mic" — lesson tour step 4 */}
+          <button onClick={startRecording} className="btn-primary" data-tour-target="recording-mic">
             <Mic size={16} />
             {t.btnStartRecording}
           </button>

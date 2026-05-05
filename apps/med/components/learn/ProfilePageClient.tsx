@@ -309,13 +309,29 @@ export default function ProfilePageClient({ data: initialData }: Props) {
             <span className="text-sm text-text-muted italic">{t.onboardingBtnSkip}</span>
           )}
         </div>
-        <button
-          onClick={() => setPrefsOpen(true)}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors"
-        >
-          <Pencil size={13} />
-          {t.profilePrefsEdit}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setPrefsOpen(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors"
+          >
+            <Pencil size={13} />
+            {t.profilePrefsEdit}
+          </button>
+          <button
+            onClick={async () => {
+              await fetch('/api/profile/tour', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'reset' }),
+              })
+              localStorage.removeItem('nursed_lesson_tour_seen')
+              window.location.href = '/learn'
+            }}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-surface border border-border text-sm font-medium text-text-muted hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-colors"
+          >
+            {t.tourReplayLink}
+          </button>
+        </div>
       </Section>
 
       {/* ── 4. Courses In Progress ── */}

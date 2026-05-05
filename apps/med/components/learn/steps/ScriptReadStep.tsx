@@ -399,7 +399,8 @@ export default function ScriptReadStep({ step, onComplete }: Props) {
           </p>
         )}
 
-        <div className="space-y-2 py-1">
+        {/* data-tour-target="script-read-bubbles" — lesson tour step 3 */}
+        <div className="space-y-2 py-1" data-tour-target="script-read-bubbles">
           {lines.map((line, idx) => {
             const role = line.role.toLowerCase().replace('_', ' ')
             const avatarRole = resolveRole(role)

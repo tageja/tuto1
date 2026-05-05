@@ -398,7 +398,7 @@ export default function LessonPlayer({
           </div>
         )}
 
-        <div className="card p-4 space-y-3">
+        <div className="card p-4 space-y-3" data-tour-target="lesson-step-counter">
           <div className="flex items-center justify-between text-sm gap-2 flex-wrap">
             <span className="text-text-muted font-medium">
               {t.progressLabel.replace('{current}', String(currentIdx + 1)).replace('{total}', String(steps.length))}
@@ -495,6 +495,7 @@ export default function LessonPlayer({
               key={`${step.id}-${idx}`}
               className={`card p-6 ${isVisible ? 'step-enter' : 'hidden'}`}
               aria-hidden={!isVisible}
+              {...(isVisible ? { 'data-tour-target': 'lesson-next-button' } : {})}
             >
               {renderLessonStep(step, handleStepComplete, {
                 contextAudio: contextAudio ?? undefined,

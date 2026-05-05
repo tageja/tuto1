@@ -49,7 +49,7 @@ export default function PeerRatingWidget({ submissionId, initialRating, onRated 
   const displayRating = hoveredStar || selectedRating
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-1" data-tour-target="peer-review-prompt">
       <div className="flex items-center gap-1">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
