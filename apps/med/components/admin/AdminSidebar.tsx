@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, BookOpen, Building2, Users, BarChart3, Activity, X, Mic, MessageSquare, LogOut, Gift } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Building2, Users, BarChart3, Activity, X, Mic, MessageSquare, LogOut, Gift, LineChart } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -11,22 +11,35 @@ interface Props {
   onClose?: () => void
 }
 
+interface NavItem {
+  label: string
+  href: string
+  icon: React.ComponentType<{ size?: number }>
+  superAdminOnly?: boolean
+}
+
 export function AdminSidebar({ isOpen = false, onClose }: Props) {
   const pathname = usePathname()
   const { t, lang, toggleLang } = useLang()
   const { profile, signOut } = useAuth()
+  const tAny = t as Record<string, string>
 
-  const NAV_ITEMS = [
-    { label: t.navOverview, href: '/admin', icon: LayoutDashboard },
-    { label: t.navCourses, href: '/admin/courses', icon: BookOpen },
-    { label: t.navHospitals, href: '/admin/hospitals', icon: Building2 },
-    { label: t.navHospitalDashboard ?? 'Hospital Dashboard', href: '/admin/hospital', icon: Activity },
-    { label: t.navStudents, href: '/admin/students', icon: Users },
-    { label: t.navAnalytics, href: '/admin/analytics', icon: BarChart3 },
-    { label: t.navFeedback ?? 'Feedback', href: '/admin/feedback', icon: MessageSquare },
-    { label: 'Audio Generation', href: '/admin/audio', icon: Mic },
-    { label: t.navCoupons ?? 'Coupons', href: '/admin/coupons', icon: Gift },
+  const ALL_NAV_ITEMS: NavItem[] = [
+    { label: t.navOverview,                         href: '/admin',           icon: LayoutDashboard },
+    { label: t.navCourses,                          href: '/admin/courses',   icon: BookOpen },
+    { label: t.navHospitals,                        href: '/admin/hospitals', icon: Building2 },
+    { label: tAny.navHospitalDashboard ?? 'Hospital Dashboard', href: '/admin/hospital', icon: Activity },
+    { label: t.navStudents,                         href: '/admin/students',  icon: Users },
+    { label: tAny.navMetrics ?? 'Metrics',          href: '/admin/metrics',   icon: LineChart, superAdminOnly: true },
+    { label: t.navAnalytics,                        href: '/admin/analytics', icon: BarChart3 },
+    { label: tAny.navFeedback ?? 'Feedback',        href: '/admin/feedback',  icon: MessageSquare },
+    { label: 'Audio Generation',                    href: '/admin/audio',     icon: Mic },
+    { label: tAny.navCoupons ?? 'Coupons',          href: '/admin/coupons',   icon: Gift },
   ]
+
+  const NAV_ITEMS = ALL_NAV_ITEMS.filter(
+    (item) => !item.superAdminOnly || profile?.role === 'super_admin',
+  )
 
   const isActive = (href: string) => {
     if (href === '/admin') return pathname === '/admin'
