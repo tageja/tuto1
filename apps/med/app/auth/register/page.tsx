@@ -6,8 +6,10 @@ import { Eye, EyeOff, Mail, Lock, User, Hash, ArrowRight, Loader2 } from 'lucide
 import { getBrowserClient } from '@/lib/supabase'
 import { getAuthCallbackUrl } from '@/lib/auth-utils'
 import type { NursedHospital } from '@/lib/supabase'
+import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 
 export default function RegisterPage() {
+  useDocumentTitle('Sign up')
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -101,11 +103,9 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 bg-[var(--primary)] rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-lg">N</span>
-            </div>
-            <span className="text-xl font-extrabold text-[var(--text)]">NurseEd</span>
+          <div className="inline-flex items-baseline gap-1.5 mb-4">
+            <span className="text-2xl font-extrabold text-[var(--primary)] leading-none">tuto.</span>
+            <span className="text-xl font-semibold text-[var(--text-muted)] leading-none">Pro</span>
           </div>
           <h1 className="text-2xl font-bold text-[var(--text)]">Đăng ký / Register</h1>
           <p className="text-sm text-[var(--text-muted)] mt-1">Tạo tài khoản miễn phí · Free account</p>
@@ -230,7 +230,7 @@ export default function RegisterPage() {
         </div>
 
         <p className="text-center text-xs text-[var(--text-muted)] mt-6">
-          © 2026 NurseEd · med.tuto.asia
+          © 2026 tuto. Pro · pro.tuto.asia
         </p>
       </div>
     </div>

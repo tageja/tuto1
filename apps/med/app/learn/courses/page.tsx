@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { BookOpen, Lock, Clock } from 'lucide-react'
 import type { NursedCourse } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
+import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 
 type Level = 'all' | 'A1' | 'A2' | 'B1' | 'B2'
 
@@ -55,6 +56,7 @@ function sortCourses(data: NursedCourse[]) {
 
 export default function CourseCatalog() {
   const { t } = useLang()
+  useDocumentTitle('Courses')
   const [courses, setCourses] = useState<NursedCourse[]>([])
   const [loading, setLoading] = useState(true)
   const [activeLevel, setActiveLevel] = useState<Level>('all')

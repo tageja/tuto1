@@ -164,7 +164,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
 
         {/* Header */}
         <div className="text-center mb-2">
-          <p className="text-[var(--text-muted)] text-xs font-semibold uppercase tracking-widest mb-1">NurseEd</p>
+          <p className="text-[var(--text-muted)] text-xs font-semibold uppercase tracking-widest mb-1">{t.logoSub}</p>
           <h2 className="text-xl font-bold text-[var(--text)] leading-tight">{t.onboardingTitle}</h2>
           <p className="text-sm text-[var(--text-muted)] mt-1">{t.onboardingSubtitle}</p>
         </div>

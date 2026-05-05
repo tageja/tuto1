@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Globe, Loader2 } from 'lucide-react'
 import HomepageVideoUploader from '@/components/admin/HomepageVideoUploader'
+import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 
 export default function AdminSiteSettingsPage() {
+  useDocumentTitle('Admin · Site')
   const [introVideoUrl, setIntroVideoUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -32,7 +34,7 @@ export default function AdminSiteSettingsPage() {
       <div className="card p-6 max-w-2xl">
         <h2 className="text-base font-semibold mb-1">Homepage intro video</h2>
         <p className="text-sm text-text-muted mb-5">
-          Upload the welcome video that introduces Tuto Pro to first-time visitors on the landing page.
+          Upload the welcome video that introduces tuto. Pro to first-time visitors on the landing page.
           Replace it any time — the change is instant.
         </p>
 

@@ -2,7 +2,7 @@ export type Lang = 'en' | 'vi'
 
 const en = {
   // ─── Shared / Global ───────────────────────────────────────────
-  logoSub: 'NurseEd',
+  logoSub: 'Pro',
   langToggleEn: 'EN',
   langToggleVi: 'VI',
   loading: 'Loading...',
@@ -28,7 +28,7 @@ const en = {
   authFullName: 'Full name / Họ và tên',
   authInviteCode: 'Hospital invite code',
   authInviteCodeOptional: '(optional)',
-  authLoginTitle: 'Sign in to NurseEd',
+  authLoginTitle: 'Sign in to tuto. Pro',
   authRegisterTitle: 'Create your account',
   authVerifyTitle: 'Check your email',
   authVerifyDesc: 'Click the confirmation link we sent to activate your account.',
@@ -51,7 +51,7 @@ const en = {
   heroBadge: 'English for Working Professionals',
   heroTitleLine1: 'Speak the English',
   heroTitleLine2: 'your job demands.',
-  heroSubtitle: 'Tuto Pro is built for nurses, doctors, engineers, hospitality teams, and anyone else who uses English at work. Practise the exact language you need, every day.',
+  heroSubtitle: 'tuto. Pro is built for nurses, doctors, engineers, hospitality teams, and anyone else who uses English at work. Practise the exact language you need, every day.',
   heroCtaExplore: 'Explore Courses',
   heroCtaAdmin: 'Admin Login',
   heroVideoCaption: 'Watch the 90-second intro',
@@ -86,7 +86,7 @@ const en = {
   footerPairPractice: 'Pair Practice',
   footerAdminLogin: 'Admin Panel',
   footerHospitalDashboard: 'Hospital Dashboard',
-  footerCopyright: '© 2026 NurseEd by Tuto. Powered by CHIR. All rights reserved.',
+  footerCopyright: '© 2026 tuto. Pro. Powered by CHIR. All rights reserved.',
   footerTagline: 'Medical English for Nurses',
   footerDesc: 'Empowering Vietnamese nurses with the language skills needed for excellent international patient care.',
   madeInVietNam: 'Made in Viet Nam',
@@ -103,7 +103,7 @@ const en = {
   module5Desc: 'Professional shift handover in English',
   module6Title: 'Difficult Situations',
   module6Desc: 'Difficult patients, refusal of treatment, complaints',
-  footer: '© 2026 NurseEd · A Tuto product · med.tuto.asia',
+  footer: '© 2026 tuto. Pro · pro.tuto.asia',
 
   // ─── Admin Sidebar ─────────────────────────────────────────────
   navOverview: 'Overview',
@@ -116,7 +116,7 @@ const en = {
 
   // ─── Admin Dashboard ───────────────────────────────────────────
   adminDashTitle: 'Overview',
-  adminDashSubtitle: 'Welcome to NurseEd Admin',
+  adminDashSubtitle: 'Welcome to tuto. Pro Admin',
   kpiTotalCourses: 'Total Courses',
   kpiPublished: 'Published',
   kpiHospitals: 'Hospitals',
@@ -943,17 +943,17 @@ const en = {
   moduleCountLabel: '{m} modules · {l} lessons · {h} hrs total',
 
   // ─── About page ────────────────────────────────────────────────
-  aboutTitle: 'About NurseEd',
-  aboutSubtitle: 'Medical English for Vietnamese Nurses',
+  aboutTitle: 'About tuto. Pro',
+  aboutSubtitle: 'Working English for Vietnamese professionals',
   aboutMissionTitle: 'Our Mission',
-  aboutMissionDesc: 'NurseEd empowers Vietnamese nurses with the language skills needed for excellent international patient care. Through bite-sized lessons, audio shadowing, and partner practice, we help nurses communicate confidently in English.',
-  aboutMissionDescVi: 'NurseEd trao quyền cho điều dưỡng Việt Nam với kỹ năng ngôn ngữ cần thiết cho chăm sóc bệnh nhân quốc tế xuất sắc. Qua các bài học ngắn, audio shadowing và luyện tập cặp, chúng tôi giúp điều dưỡng giao tiếp tự tin bằng tiếng Anh.',
+  aboutMissionDesc: 'tuto. Pro empowers Vietnamese working professionals with the English skills they need on the job. Through bite-sized lessons, audio shadowing, and partner practice, we help learners communicate confidently in real-world settings — starting with nursing and expanding outward.',
+  aboutMissionDescVi: 'tuto. Pro trao quyền cho người đi làm Việt Nam với kỹ năng tiếng Anh cần thiết trong công việc. Qua các bài học ngắn, audio shadowing và luyện tập cặp, chúng tôi giúp người học giao tiếp tự tin trong các tình huống thực tế — bắt đầu từ ngành điều dưỡng và mở rộng dần.',
   aboutWhoTitle: 'Who It\'s For',
-  aboutWhoDesc: 'Nurses working in hospitals with international patients, nurses preparing for overseas certification, and healthcare teams aiming to improve English communication.',
-  aboutWhoDescVi: 'Điều dưỡng làm việc tại bệnh viện có bệnh nhân quốc tế, điều dưỡng chuẩn bị chứng chỉ nước ngoài, và đội ngũ y tế muốn cải thiện giao tiếp tiếng Anh.',
+  aboutWhoDesc: 'Working professionals who use English on the job — starting with nurses in hospitals serving international patients, and expanding to other professions where clear English communication matters.',
+  aboutWhoDescVi: 'Người đi làm cần dùng tiếng Anh trong công việc — bắt đầu với điều dưỡng tại bệnh viện có bệnh nhân quốc tế, và mở rộng sang các nghề khác nơi giao tiếp tiếng Anh rõ ràng quan trọng.',
   aboutChirTitle: 'In Partnership with CHIR',
-  aboutChirDesc: 'NurseEd is developed in partnership with CHIR (Center for Health System Improvement Research), bringing evidence-based approaches to nursing education.',
-  aboutChirDescVi: 'NurseEd được phát triển cùng CHIR (Trung tâm Nghiên cứu Cải tiến Hệ thống Y tế), mang đến phương pháp dựa trên bằng chứng cho giáo dục điều dưỡng.',
+  aboutChirDesc: 'tuto. Pro is developed in partnership with CHIR (Center for Health System Improvement Research), bringing evidence-based approaches to professional education.',
+  aboutChirDescVi: 'tuto. Pro được phát triển cùng CHIR (Trung tâm Nghiên cứu Cải tiến Hệ thống Y tế), mang đến phương pháp dựa trên bằng chứng cho giáo dục chuyên nghiệp.',
 
   // ─── Feedback system ────────────────────────────────────────────
   feedbackButton: 'Give Feedback',
@@ -1149,7 +1149,7 @@ const en = {
 
 const vi = {
   // ─── Shared / Global ───────────────────────────────────────────
-  logoSub: 'NurseEd',
+  logoSub: 'Pro',
   langToggleEn: 'EN',
   langToggleVi: 'VI',
   loading: 'Đang tải...',
@@ -1175,7 +1175,7 @@ const vi = {
   authFullName: 'Họ và tên',
   authInviteCode: 'Mã mời bệnh viện',
   authInviteCodeOptional: '(tùy chọn)',
-  authLoginTitle: 'Đăng nhập NurseEd',
+  authLoginTitle: 'Đăng nhập tuto. Pro',
   authRegisterTitle: 'Tạo tài khoản',
   authVerifyTitle: 'Kiểm tra email của bạn',
   authVerifyDesc: 'Nhấn vào liên kết xác nhận chúng tôi đã gửi để kích hoạt tài khoản.',
@@ -1198,7 +1198,7 @@ const vi = {
   heroBadge: 'Tiếng Anh cho Người Đi Làm',
   heroTitleLine1: 'Nói tiếng Anh',
   heroTitleLine2: 'công việc bạn cần.',
-  heroSubtitle: 'Tuto Pro được thiết kế cho điều dưỡng, bác sĩ, kỹ sư, nhân viên khách sạn, và bất kỳ ai khác dùng tiếng Anh ở nơi làm việc. Luyện chính xác ngôn ngữ bạn cần, mỗi ngày.',
+  heroSubtitle: 'tuto. Pro được thiết kế cho điều dưỡng, bác sĩ, kỹ sư, nhân viên khách sạn, và bất kỳ ai khác dùng tiếng Anh ở nơi làm việc. Luyện chính xác ngôn ngữ bạn cần, mỗi ngày.',
   heroCtaExplore: 'Khám phá khóa học',
   heroCtaAdmin: 'Đăng nhập Admin',
   heroVideoCaption: 'Xem giới thiệu 90 giây',
@@ -1233,7 +1233,7 @@ const vi = {
   footerPairPractice: 'Luyện cặp',
   footerAdminLogin: 'Bảng quản trị',
   footerHospitalDashboard: 'Dashboard bệnh viện',
-  footerCopyright: '© 2026 NurseEd bởi Tuto. Được hỗ trợ bởi CHIR. Đã đăng ký bản quyền.',
+  footerCopyright: '© 2026 tuto. Pro. Được hỗ trợ bởi CHIR. Đã đăng ký bản quyền.',
   footerTagline: 'Tiếng Anh Y tế cho Điều dưỡng',
   footerDesc: 'Trao quyền cho điều dưỡng Việt Nam với kỹ năng ngôn ngữ cần thiết cho chăm sóc bệnh nhân quốc tế xuất sắc.',
   madeInVietNam: 'Made in Viet Nam',
@@ -1250,7 +1250,7 @@ const vi = {
   module5Desc: 'Bàn giao ca chuyên nghiệp bằng tiếng Anh',
   module6Title: 'Xử lý tình huống khó',
   module6Desc: 'Bệnh nhân khó tính, từ chối điều trị, khiếu nại',
-  footer: '© 2026 NurseEd · Sản phẩm của Tuto · med.tuto.asia',
+  footer: '© 2026 tuto. Pro · pro.tuto.asia',
 
   // ─── Admin Sidebar ─────────────────────────────────────────────
   navOverview: 'Tổng quan',
@@ -1263,7 +1263,7 @@ const vi = {
 
   // ─── Admin Dashboard ───────────────────────────────────────────
   adminDashTitle: 'Tổng quan',
-  adminDashSubtitle: 'Chào mừng đến NurseEd Admin',
+  adminDashSubtitle: 'Chào mừng đến tuto. Pro Admin',
   kpiTotalCourses: 'Tổng khóa học',
   kpiPublished: 'Đã xuất bản',
   kpiHospitals: 'Bệnh viện',
@@ -2090,17 +2090,17 @@ const vi = {
   moduleCountLabel: '{m} module · {l} bài học · {h} giờ',
 
   // ─── About page ────────────────────────────────────────────────
-  aboutTitle: 'Về NurseEd',
-  aboutSubtitle: 'Tiếng Anh Y tế cho Điều dưỡng Việt Nam',
+  aboutTitle: 'Về tuto. Pro',
+  aboutSubtitle: 'Tiếng Anh nghề nghiệp cho người đi làm Việt Nam',
   aboutMissionTitle: 'Sứ mệnh của chúng tôi',
-  aboutMissionDesc: 'NurseEd trao quyền cho điều dưỡng Việt Nam với kỹ năng ngôn ngữ cần thiết cho chăm sóc bệnh nhân quốc tế xuất sắc. Qua các bài học ngắn, audio shadowing và luyện tập cặp, chúng tôi giúp điều dưỡng giao tiếp tự tin bằng tiếng Anh.',
-  aboutMissionDescVi: 'NurseEd trao quyền cho điều dưỡng Việt Nam với kỹ năng ngôn ngữ cần thiết cho chăm sóc bệnh nhân quốc tế xuất sắc. Qua các bài học ngắn, audio shadowing và luyện tập cặp, chúng tôi giúp điều dưỡng giao tiếp tự tin bằng tiếng Anh.',
+  aboutMissionDesc: 'tuto. Pro trao quyền cho người đi làm Việt Nam với kỹ năng tiếng Anh cần thiết trong công việc. Qua các bài học ngắn, audio shadowing và luyện tập cặp, chúng tôi giúp người học giao tiếp tự tin trong các tình huống thực tế — bắt đầu từ ngành điều dưỡng và mở rộng dần.',
+  aboutMissionDescVi: 'tuto. Pro trao quyền cho người đi làm Việt Nam với kỹ năng tiếng Anh cần thiết trong công việc. Qua các bài học ngắn, audio shadowing và luyện tập cặp, chúng tôi giúp người học giao tiếp tự tin trong các tình huống thực tế — bắt đầu từ ngành điều dưỡng và mở rộng dần.',
   aboutWhoTitle: 'Dành cho ai',
-  aboutWhoDesc: 'Điều dưỡng làm việc tại bệnh viện có bệnh nhân quốc tế, điều dưỡng chuẩn bị chứng chỉ nước ngoài, và đội ngũ y tế muốn cải thiện giao tiếp tiếng Anh.',
-  aboutWhoDescVi: 'Điều dưỡng làm việc tại bệnh viện có bệnh nhân quốc tế, điều dưỡng chuẩn bị chứng chỉ nước ngoài, và đội ngũ y tế muốn cải thiện giao tiếp tiếng Anh.',
+  aboutWhoDesc: 'Người đi làm cần dùng tiếng Anh trong công việc — bắt đầu với điều dưỡng tại bệnh viện có bệnh nhân quốc tế, và mở rộng sang các nghề khác nơi giao tiếp tiếng Anh rõ ràng quan trọng.',
+  aboutWhoDescVi: 'Người đi làm cần dùng tiếng Anh trong công việc — bắt đầu với điều dưỡng tại bệnh viện có bệnh nhân quốc tế, và mở rộng sang các nghề khác nơi giao tiếp tiếng Anh rõ ràng quan trọng.',
   aboutChirTitle: 'Đối tác: CHIR',
-  aboutChirDesc: 'NurseEd được phát triển cùng CHIR (Trung tâm Nghiên cứu Cải tiến Hệ thống Y tế), mang đến phương pháp dựa trên bằng chứng cho giáo dục điều dưỡng.',
-  aboutChirDescVi: 'NurseEd được phát triển cùng CHIR (Trung tâm Nghiên cứu Cải tiến Hệ thống Y tế), mang đến phương pháp dựa trên bằng chứng cho giáo dục điều dưỡng.',
+  aboutChirDesc: 'tuto. Pro được phát triển cùng CHIR (Trung tâm Nghiên cứu Cải tiến Hệ thống Y tế), mang đến phương pháp dựa trên bằng chứng cho giáo dục chuyên nghiệp.',
+  aboutChirDescVi: 'tuto. Pro được phát triển cùng CHIR (Trung tâm Nghiên cứu Cải tiến Hệ thống Y tế), mang đến phương pháp dựa trên bằng chứng cho giáo dục chuyên nghiệp.',
 
   // ─── Feedback system ────────────────────────────────────────────
   feedbackButton: 'Góp ý',

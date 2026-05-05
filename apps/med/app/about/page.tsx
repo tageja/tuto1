@@ -1,18 +1,15 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useLang } from '@/contexts/LanguageContext'
 import { LandingNav } from '@/components/landing/LandingNav'
 import { LandingFooter } from '@/components/landing/LandingFooter'
 import { BookOpen, Users } from 'lucide-react'
 import Image from 'next/image'
+import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 
 export default function AboutPage() {
   const { t, lang } = useLang()
-
-  useEffect(() => {
-    document.title = `${t.aboutTitle} — NurseEd`
-  }, [t.aboutTitle])
+  useDocumentTitle(t.aboutTitle)
 
   return (
     <div className="min-h-screen bg-white">

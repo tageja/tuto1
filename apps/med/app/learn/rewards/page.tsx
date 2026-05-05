@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Star, Flame, Trophy, Gift, Clock, CheckCircle, Lock, ChevronDown, ChevronUp } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
+import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 import type { T } from '@/lib/i18n/translations'
 import type { NursedCoupon, NursedReward } from '@/lib/supabase'
 
@@ -31,6 +32,7 @@ type Redemption = {
 
 export default function RewardsPage() {
   const { t, lang } = useLang()
+  useDocumentTitle('Rewards')
 
   const [balanceData, setBalanceData] = useState<BalanceData | null>(null)
   const [coupons, setCoupons] = useState<NursedCoupon[]>([])

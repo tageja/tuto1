@@ -8,6 +8,7 @@ import {
 import type { NursedCourse } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
 import { useAuth } from '@/contexts/AuthContext'
+import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 import { COURSE_ICONS } from './courses/page'
 import { OnboardingModal } from '@/components/learn/OnboardingModal'
 import { LearningCalendar } from '@/components/learn/LearningCalendar'
@@ -61,6 +62,7 @@ const PREFERRED_DAYS_WEEKDAYS: Record<string, number[]> = {
 export default function LearnDashboard() {
   const { t } = useLang()
   const { profile } = useAuth()
+  useDocumentTitle('Home')
   const [allCourses, setAllCourses] = useState<NursedCourse[]>([])
   const [loading, setLoading] = useState(true)
   const [lastLesson, setLastLesson] = useState<{
@@ -170,7 +172,7 @@ export default function LearnDashboard() {
         <div className="px-5 py-4 flex items-center gap-4">
           {/* Left: greeting + subtitle */}
           <div className="flex-1 min-w-0">
-            <p className="text-white/60 text-[11px] font-semibold tracking-widest uppercase mb-0.5">NurseEd</p>
+            <p className="text-white/60 text-[11px] font-semibold tracking-widest uppercase mb-0.5">{t.logoSub}</p>
             <h1 className="text-white text-lg font-bold leading-snug truncate">
               {t.learnWelcomeTitle}
             </h1>

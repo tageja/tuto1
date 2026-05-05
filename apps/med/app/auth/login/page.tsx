@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react'
 import { getBrowserClient } from '@/lib/supabase'
 import { getAuthCallbackUrl } from '@/lib/auth-utils'
+import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 
 function GoogleIcon() {
   return (
@@ -33,6 +34,7 @@ export default function LoginPage() {
 }
 
 function LoginContent() {
+  useDocumentTitle('Sign in')
   const router = useRouter()
   const searchParams = useSearchParams()
   const next = searchParams.get('next') ?? '/learn/courses'
@@ -107,11 +109,9 @@ function LoginContent() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 bg-[var(--primary)] rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-lg">N</span>
-            </div>
-            <span className="text-xl font-extrabold text-[var(--text)]">NurseEd</span>
+          <div className="inline-flex items-baseline gap-1.5 mb-4">
+            <span className="text-2xl font-extrabold text-[var(--primary)] leading-none">tuto.</span>
+            <span className="text-xl font-semibold text-[var(--text-muted)] leading-none">Pro</span>
           </div>
           <h1 className="text-2xl font-bold text-[var(--text)]">Đăng nhập / Sign in</h1>
           <p className="text-sm text-[var(--text-muted)] mt-1">Chào mừng trở lại · Welcome back</p>
@@ -268,7 +268,7 @@ function LoginContent() {
         </div>
 
         <p className="text-center text-xs text-[var(--text-muted)] mt-6">
-          © 2026 NurseEd · med.tuto.asia
+          © 2026 tuto. Pro · pro.tuto.asia
         </p>
       </div>
     </div>

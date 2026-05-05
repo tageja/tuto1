@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Bug, Lightbulb, BookOpen, HelpCircle, Clock, CheckCircle2, Loader2, XCircle, MessageCircle } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
+import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 import type { NursedFeedback, FeedbackCategory, FeedbackStatus } from '@/lib/supabase'
 
 const CATEGORY_META: Record<FeedbackCategory, { icon: typeof Bug; color: string; bg: string }> = {
@@ -36,6 +37,7 @@ const CATEGORY_LABEL_KEYS: Record<FeedbackCategory, string> = {
 
 export default function FeedbackHistoryPage() {
   const { t } = useLang()
+  useDocumentTitle('Feedback')
   const [items, setItems] = useState<NursedFeedback[]>([])
   const [loading, setLoading] = useState(true)
 

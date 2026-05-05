@@ -21,6 +21,7 @@ import Link from 'next/link'
 import type { NursedPairGroup } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
 import { useAuth } from '@/contexts/AuthContext'
+import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 import type { CourseWithModules } from '@/lib/learn/lessonAccess'
 
 type PairMember = { user_id: string; joined_at?: string }
@@ -65,6 +66,7 @@ type ActivityItem = {
 
 export default function PairsPage() {
   const { t, lang } = useLang()
+  useDocumentTitle('Pairs')
   const { user, loading: authLoading } = useAuth()
 
   const [groups, setGroups] = useState<GroupWithMembers[]>([])

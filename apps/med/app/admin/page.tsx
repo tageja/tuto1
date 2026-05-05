@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { BookOpen, Building2, Users, TrendingUp, Globe } from 'lucide-react'
 import type { NursedCourse, NursedHospital } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
+import { useDocumentTitle } from '@/lib/hooks/useDocumentTitle'
 
 interface KpiData {
   totalCourses: number
@@ -20,6 +21,7 @@ const LEVEL_CLASS: Record<string, string> = {
 }
 
 export default function AdminDashboard() {
+  useDocumentTitle('Admin')
   const { t } = useLang()
   const [kpi, setKpi] = useState<KpiData>({ totalCourses: 0, publishedCourses: 0, totalHospitals: 0 })
   const [recentCourses, setRecentCourses] = useState<NursedCourse[]>([])
