@@ -39,7 +39,7 @@ export function LandingFooter() {
           <p className="text-sm text-[var(--text-muted)]">{t.footerCopyright}</p>
           <div className="flex items-center gap-4 text-sm text-[var(--text-muted)]">
             <Globe className="w-4 h-4" />
-            <span>med.tuto.asia</span>
+            <span>pro.tuto.asia</span>
             <span>{t.madeInVietNam}</span>
           </div>
         </div>
