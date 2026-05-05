@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation'
 import { Home, BookOpen, Users, X, LogOut, MessageCircle, Star, User } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
 import { useAuth } from '@/contexts/AuthContext'
-import FeedbackModal from './FeedbackModal'
 import { usePrefetchRoute } from '@/lib/hooks/usePrefetchRoute'
 
 interface Props {
@@ -27,7 +26,6 @@ export default function LearnerSidebar({ isOpen = false, onClose }: Props) {
   const { t, lang, toggleLang } = useLang()
   const { profile, signOut } = useAuth()
   const prefetch = usePrefetchRoute()
-  const [feedbackOpen, setFeedbackOpen] = useState(false)
   const [streak, setStreak] = useState<number | null>(null)
 
   useEffect(() => {
@@ -114,18 +112,24 @@ export default function LearnerSidebar({ isOpen = false, onClose }: Props) {
         </Link>
       </div>
 
-      {/* Feedback button */}
+      {/* My Feedback link — navigates to /learn/feedback (history view).
+          New feedback is filed via the floating button in /learn layout. */}
       <div className="px-4 pb-1">
-        <button
-          onClick={() => setFeedbackOpen(true)}
-          className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl bg-primary/5 border border-primary/15 text-sm font-medium text-primary hover:bg-primary/10 transition-all"
+        <Link
+          href="/learn/feedback"
+          onClick={onClose}
+          onMouseEnter={() => prefetch('/learn/feedback')}
+          className={[
+            'flex items-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
+            isActive('/learn/feedback')
+              ? 'bg-primary/10 border border-primary/30 text-primary'
+              : 'bg-primary/5 border border-primary/15 text-primary hover:bg-primary/10',
+          ].join(' ')}
         >
           <MessageCircle size={16} />
-          <span>{t.feedbackButton}</span>
-        </button>
+          <span>{t.feedbackHistoryTitle}</span>
+        </Link>
       </div>
-
-      <FeedbackModal isOpen={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
 
       {/* Partner logo + language toggle + logout */}
       <div className="px-4 py-4 border-t border-border space-y-3">
