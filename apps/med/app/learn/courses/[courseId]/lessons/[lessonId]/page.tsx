@@ -186,7 +186,7 @@ export default function LessonPage() {
     )
   }
 
-  if (isGroupMember === false) {
+  if (isGroupMember === false && role !== 'super_admin') {
     return <JoinGroupGate />
   }
 

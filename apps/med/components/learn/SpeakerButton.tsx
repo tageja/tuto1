@@ -7,9 +7,10 @@ interface Props {
   audioUrl?: string
   size?: number
   className?: string
+  onPlay?: () => void
 }
 
-export default function SpeakerButton({ audioUrl, size = 16, className = '' }: Props) {
+export default function SpeakerButton({ audioUrl, size = 16, className = '', onPlay }: Props) {
   const [playing, setPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
@@ -27,10 +28,13 @@ export default function SpeakerButton({ audioUrl, size = 16, className = '' }: P
       audioRef.current.currentTime = 0
       setPlaying(false)
     } else {
-      audioRef.current.play().catch(() => setPlaying(false))
+      audioRef.current
+        .play()
+        .then(() => onPlay?.())
+        .catch(() => setPlaying(false))
       setPlaying(true)
     }
-  }, [audioUrl, playing])
+  }, [audioUrl, playing, onPlay])
 
   if (!audioUrl) return null
 

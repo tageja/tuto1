@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useMemo, useRef } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import {
   DndContext,
   type DragEndEvent,
@@ -50,19 +51,15 @@ interface PoolChipProps {
 }
 
 function PoolChip({ id, text, ghost }: PoolChipProps) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id })
-  const style = transform
-    ? { transform: `translate3d(${transform.x}px,${transform.y}px,0)` }
-    : undefined
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id })
 
   return (
     <span
       ref={setNodeRef}
-      style={style}
       {...listeners}
       {...attributes}
       className={`inline-flex items-center justify-center px-3 py-2 rounded-2xl border border-primary/40 bg-primary-light text-primary text-sm font-medium select-none cursor-grab active:cursor-grabbing touch-none shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all min-h-[44px] ${
-        isDragging || ghost ? 'opacity-30' : 'opacity-100'
+        isDragging || ghost ? 'opacity-0' : 'opacity-100'
       }`}
     >
       {text}
@@ -167,6 +164,9 @@ export default function DragOrderStep({ step, onComplete }: Props) {
   const [activeChipState, setActiveChipState] = useState<{ id: string; text: string } | null>(null)
   const [checked, setChecked] = useState(false)
   const [results, setResults] = useState<boolean[]>([])
+
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -378,9 +378,12 @@ export default function DragOrderStep({ step, onComplete }: Props) {
         </div>
       </div>
 
-      <DragOverlay>
-        {activeChipState && <OverlayChip text={activeChipState.text} />}
-      </DragOverlay>
+      {mounted && createPortal(
+        <DragOverlay>
+          {activeChipState && <OverlayChip text={activeChipState.text} />}
+        </DragOverlay>,
+        document.body,
+      )}
     </DndContext>
   )
 }

@@ -57,7 +57,7 @@ export default function LessonPlayer({
   const resolvedCourseId = courseId ?? params?.courseId ?? ''
   const resolvedCourseSlug = course?.slug ?? resolvedCourseId
   const { t, lang } = useLang()
-  const { user } = useAuth()
+  const { user, role } = useAuth()
   const stepKey = useRef(0)
   const highWaterMark = useRef(0)
   const exitDialogRef = useRef<HTMLDivElement>(null)
@@ -229,8 +229,13 @@ export default function LessonPlayer({
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const isAdminMode = role === 'super_admin'
+
   const handleJumpToStep = (idx: number) => {
-    if (idx >= currentIdx) return
+    if (idx >= currentIdx && !isAdminMode) return
+    if (idx >= currentIdx) {
+      highWaterMark.current = Math.max(highWaterMark.current, idx)
+    }
     setCurrentIdx(idx)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -430,6 +435,21 @@ export default function LessonPlayer({
                 )
               }
 
+              if (isAdminMode) {
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    title={titleAttr}
+                    onClick={() => handleJumpToStep(idx)}
+                    className={`flex-1 min-h-[44px] sm:min-h-[10px] flex items-center justify-center px-0.5 rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 ${isCurrent ? 'cursor-default' : 'cursor-pointer opacity-50 hover:opacity-80'}`}
+                    aria-current={isCurrent ? 'step' : undefined}
+                  >
+                    <div className={`w-full h-1.5 rounded-full transition-all duration-500 ${isCurrent ? 'bg-primary' : 'bg-border'}`} />
+                  </button>
+                )
+              }
+
               return (
                 <div
                   key={s.id}
@@ -453,6 +473,19 @@ export default function LessonPlayer({
             </p>
           )}
         </div>
+
+        {isAdminMode && (
+          <div className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-700">
+            <span className="font-medium">Admin preview — steps unlocked</span>
+            <button
+              type="button"
+              onClick={handleStepComplete}
+              className="font-semibold underline hover:text-amber-900"
+            >
+              Skip step →
+            </button>
+          </div>
+        )}
 
         {steps.map((step, idx) => {
           if (idx > highWaterMark.current) return null

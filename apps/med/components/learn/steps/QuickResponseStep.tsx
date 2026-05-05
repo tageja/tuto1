@@ -85,10 +85,13 @@ export default function QuickResponseStep({ step, onComplete }: Props) {
         </div>
         <div className="flex-1">
           <p className="text-xs font-semibold text-primary mb-1">{speaker} says:</p>
-          <div className="bg-primary/8 border border-primary/20 rounded-2xl rounded-tl-sm px-4 py-3">
+          <div className="bg-primary/8 border border-primary/20 rounded-2xl rounded-tl-sm px-4 py-3 space-y-1">
             <p className="text-sm font-medium text-text leading-relaxed">
-              &ldquo;{prompt}&rdquo;
+              &ldquo;{promptEn}&rdquo;
             </p>
+            {isVi && promptVi && promptVi !== promptEn && (
+              <p className="text-xs text-text-muted italic">&ldquo;{promptVi}&rdquo;</p>
+            )}
           </div>
         </div>
       </div>
@@ -99,7 +102,6 @@ export default function QuickResponseStep({ step, onComplete }: Props) {
       {/* Options */}
       <div className="space-y-2">
         {options.map((opt) => {
-          const text = isVi ? opt.text_vi || opt.text_en : opt.text_en
           const explanation = isVi ? opt.explanation_vi || opt.explanation_en : opt.explanation_en
           const isSelected = selectedId === opt.id
 
@@ -129,7 +131,7 @@ export default function QuickResponseStep({ step, onComplete }: Props) {
                   phase === 'revealed' && opt.rating === 'best' ? 'text-success' :
                   phase === 'revealed' && opt.rating === 'acceptable' ? 'text-warning' :
                   'text-text'
-                }`}>{text}</p>
+                }`}>{opt.text_en}</p>
                 {phase === 'revealed' && explanation && (
                   <p className="text-xs text-text-muted mt-1 italic">{explanation}</p>
                 )}
@@ -170,14 +172,15 @@ export default function QuickResponseStep({ step, onComplete }: Props) {
           >
             <p className="font-semibold text-sm text-text">
               {isCorrect ? '🎉 ' : '💪 '}
-              {isCorrect
-                ? bestFeedback
-                : (isVi ? bestOptions[0]?.text_vi || bestOptions[0]?.text_en : bestOptions[0]?.text_en) ?? bestFeedback}
+              {isCorrect ? bestFeedback : (bestOptions[0]?.text_en ?? bestFeedback)}
             </p>
             {!isCorrect && chosenOption && (
-              <p className="text-xs text-text-muted">
-                {isVi ? chosenOption.explanation_vi || chosenOption.explanation_en : chosenOption.explanation_en}
-              </p>
+              <div className="space-y-0.5">
+                <p className="text-xs font-medium text-text-muted">{bestOptions[0]?.text_en}</p>
+                <p className="text-xs text-text-muted italic">
+                  {isVi ? chosenOption.explanation_vi || chosenOption.explanation_en : chosenOption.explanation_en}
+                </p>
+              </div>
             )}
           </motion.div>
         )}

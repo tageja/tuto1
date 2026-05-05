@@ -76,7 +76,8 @@ const optionItemVariants = {
 }
 
 export default function QuizStep({ step, onComplete, contextAudio }: Props) {
-  const { t } = useLang()
+  const { t, lang } = useLang()
+  const isVi = lang === 'vi'
   const { user } = useAuth()
   const isPreview = useIsPreview()
   const rawQ = step.config?.questions as NursedQuizQuestion[] | undefined
@@ -150,9 +151,14 @@ export default function QuizStep({ step, onComplete, contextAudio }: Props) {
           const correctAnswer = Array.isArray(q.answer) ? q.answer[0] : q.answer
           return (
             <div key={q.id} className="card p-4 space-y-3 overflow-hidden">
-              <p className="font-medium text-text text-sm">
-                {qIdx + 1}. {q.prompt_vi ?? q.prompt_en}
-              </p>
+              <div className="space-y-0.5">
+                <p className="font-medium text-text text-sm">
+                  {qIdx + 1}. {q.prompt_en}
+                </p>
+                {isVi && q.prompt_vi && (
+                  <p className="text-xs text-text-muted italic">{q.prompt_vi}</p>
+                )}
+              </div>
               <motion.div
                 className="space-y-2"
                 variants={optionContainerVariants}
@@ -198,7 +204,7 @@ export default function QuizStep({ step, onComplete, contextAudio }: Props) {
                         <span className="w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center text-xs font-bold border-current">
                           {opt.id.toUpperCase()}
                         </span>
-                        <span className="flex-1">{opt.text_vi ?? opt.text}</span>
+                        <span className="flex-1">{opt.text}</span>
                         {showResult && isCorrect && <CheckCircle size={16} />}
                         {showResult && isSelected && !isCorrect && <XCircle size={16} />}
                       </motion.button>
@@ -215,8 +221,11 @@ export default function QuizStep({ step, onComplete, contextAudio }: Props) {
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
                     className="overflow-hidden"
                   >
-                    <div className="text-sm text-text bg-primary-light rounded-lg p-3 border border-primary/20">
-                      💡 {q.explanation_vi ?? q.explanation_en}
+                    <div className="text-sm text-text bg-primary-light rounded-lg p-3 border border-primary/20 space-y-1">
+                      <p>💡 {q.explanation_en}</p>
+                      {isVi && q.explanation_vi && (
+                        <p className="text-xs text-text-muted italic">{q.explanation_vi}</p>
+                      )}
                     </div>
                   </motion.div>
                 )}

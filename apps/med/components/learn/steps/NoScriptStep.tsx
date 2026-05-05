@@ -24,7 +24,17 @@ interface Props {
   currentIdx?: number
 }
 
-const KNOWN_ROLES = ['Charge Nurse', 'Head Nurse', 'Supervisor', 'Doctor', 'Family', 'Patient', 'Nurse']
+const KNOWN_ROLES = [
+  'Charge Nurse', 'Head Nurse', 'Supervisor', 'Doctor',
+  'Family', 'Parent', 'Mother', 'Father',
+  'Passerby', 'Bystander', 'Witness',
+  'Child', 'Patient', 'Nurse',
+]
+
+function isNurseRoleLabel(role: string): boolean {
+  const r = role.toLowerCase().replace(/\s+|_/g, '')
+  return r === 'nurse' || r === 'chargenurse' || r === 'headnurse' || r === 'supervisor'
+}
 
 function parseDialogue(text: string): ScriptLine[] {
   const byLine = text.split(/\n/).map((l) => l.trim()).filter(Boolean)
@@ -33,10 +43,18 @@ function parseDialogue(text: string): ScriptLine[] {
   for (const line of byLine) {
     let matched = false
     for (const role of KNOWN_ROLES) {
-      if (line.startsWith(`${role}:`)) {
+      if (line.toLowerCase().startsWith(`${role.toLowerCase()}:`)) {
         result.push({ role: role.toLowerCase().replace(/\s+/g, '_'), text: line.slice(role.length + 1).trim() })
         matched = true
         break
+      }
+    }
+    // Generic fallback: any "Word:" prefix at start of line is treated as a role
+    if (!matched) {
+      const generic = line.match(/^([A-Za-z][A-Za-z ]{0,20}):\s*(.+)$/)
+      if (generic) {
+        result.push({ role: generic[1].trim().toLowerCase().replace(/\s+/g, '_'), text: generic[2].trim() })
+        matched = true
       }
     }
     if (!matched && result.length > 0) {
@@ -75,6 +93,9 @@ function getFirstWords(fullPhrase: string, count = 4): string {
   return words.slice(0, count).join(' ') + '...'
 }
 
+/** Pull dialogue lines from prior script_read / audio_shadow steps.
+ *  Only NURSE lines are returned, so cue-to-phrase index pairing
+ *  in `buildGuidedCues` matches the nurse's productive turns only. */
 function extractPhrasesFromPriorSteps(allSteps: NursedLessonStep[], currentIdx: number): ScriptLine[] {
   const lines: ScriptLine[] = []
   for (let i = 0; i < currentIdx; i++) {
@@ -103,7 +124,7 @@ function extractPhrasesFromPriorSteps(allSteps: NursedLessonStep[], currentIdx: 
       }
     }
   }
-  return lines
+  return lines.filter((l) => isNurseRoleLabel(l.role))
 }
 
 function buildGuidedCues(
@@ -118,7 +139,7 @@ function buildGuidedCues(
   let phrases: ScriptLine[] = []
   const ownScript = step.config?.script as string | undefined
   if (ownScript) {
-    phrases = parseDialogue(ownScript)
+    phrases = parseDialogue(ownScript).filter((l) => isNurseRoleLabel(l.role))
   }
   if (phrases.length === 0 && allSteps && currentIdx != null) {
     phrases = extractPhrasesFromPriorSteps(allSteps, currentIdx)

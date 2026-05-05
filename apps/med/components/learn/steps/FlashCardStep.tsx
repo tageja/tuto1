@@ -159,14 +159,14 @@ function SprintFlashCard({ cards, sprintSeconds, onComplete }: SprintProps) {
       <div className="card p-5 bg-surface grid grid-cols-2 gap-4 rounded-2xl min-h-[120px]">
         <div className="space-y-1 border-r border-border pr-4">
           <p className="text-xs font-semibold text-text-muted uppercase tracking-widest">EN</p>
-          <p className="text-sm font-medium text-text leading-snug">{card.front_en}</p>
+          <p className="text-sm font-medium text-text leading-snug">{card.front_en ?? card.front ?? ''}</p>
           {(card as FlashCard & { audio_url?: string }).audio_url && (
             <SpeakerButton audioUrl={(card as FlashCard & { audio_url?: string }).audio_url} size={14} />
-          )}
+                     )}
         </div>
         <div className="space-y-1">
           <p className="text-xs font-semibold text-primary uppercase tracking-widest">VI</p>
-          <p className="text-sm font-medium text-text leading-snug">{card.back_vi}</p>
+          <p className="text-sm font-medium text-text leading-snug">{card.back_vi ?? card.back ?? ''}</p>
         </div>
       </div>
 
@@ -359,7 +359,7 @@ function StudyFlashCard({ cards, onComplete }: StudyProps) {
                 English
               </span>
               <p className="text-base font-medium text-text leading-relaxed">
-                {card.front_en}
+                {card.front_en ?? card.front ?? ''}
               </p>
               <span className="text-xs text-text-muted">{t.flashCardTapToFlip}</span>
 
@@ -380,7 +380,7 @@ function StudyFlashCard({ cards, onComplete }: StudyProps) {
                 Tiếng Việt
               </span>
               <p className="text-base font-medium text-text leading-relaxed">
-                {card.back_vi}
+                {card.back_vi ?? card.back ?? ''}
               </p>
               <span className="text-xs text-text-muted">{t.flashCardTapToFlipBack}</span>
             </div>

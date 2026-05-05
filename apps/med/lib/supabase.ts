@@ -167,7 +167,13 @@ export type StepType =
  * spot_the_mistake: config matches SpotTheMistakeConfig
  */
 export type MatchingPair = { en: string; vi: string }
-export type FlashCard = { front_en: string; back_vi: string; audio_url?: string }
+export type FlashCard = {
+  front_en?: string
+  back_vi?: string
+  front?: string   // legacy — M2/M3/M4 modules stored {front, back}
+  back?: string    // legacy — M2/M3/M4 modules stored {front, back}
+  audio_url?: string
+}
 
 // ─── Quick Response ─────────────────────────────────────────────────────────
 

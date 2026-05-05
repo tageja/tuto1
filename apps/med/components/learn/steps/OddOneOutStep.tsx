@@ -106,8 +106,6 @@ function QuestionCard({ question, qIndex, total, isVi, onAnswer }: QuestionCardP
       <div className="grid grid-cols-2 gap-3">
         {shuffledIndices.map((origIdx) => {
           const w = question.words[origIdx]
-          const text = isVi ? w?.text_vi || w?.text_en : w?.text_en
-
           return (
             <motion.button
               key={origIdx}
@@ -133,10 +131,7 @@ function QuestionCard({ question, qIndex, total, isVi, onAnswer }: QuestionCardP
               {phase === 'revealed' && origIdx === selectedIdx && !w?.is_odd && (
                 <XCircle size={14} className="absolute top-2 right-2 text-error" />
               )}
-              <span>{text}</span>
-              {isVi && w?.text_vi && w?.text_en && (
-                <span className="text-[10px] text-text-muted mt-0.5">{w.text_en}</span>
-              )}
+              <span>{w?.text_en}</span>
             </motion.button>
           )
         })}

@@ -12,6 +12,7 @@ interface Props {
   delay?: number           // stagger entrance delay in ms
   accentColor?: string     // tailwind bg class for bubble
   index: number
+  onAudioPlayed?: () => void
 }
 
 export default function ConversationBubble({
@@ -21,6 +22,7 @@ export default function ConversationBubble({
   isLeft,
   audioUrl,
   delay = 0,
+  onAudioPlayed,
 }: Props) {
   return (
     <div
@@ -75,6 +77,7 @@ export default function ConversationBubble({
                 audioUrl={audioUrl}
                 size={13}
                 className="opacity-60 group-hover:opacity-100"
+                onPlay={onAudioPlayed}
               />
             </div>
           )}
