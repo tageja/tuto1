@@ -87,5 +87,19 @@ export function buildWelcomeTourSteps(
       disableBeacon: true,
       disableScrolling: false,
     },
+    {
+      target: 'body',
+      placement: 'center',
+      title: t.tourWelcomeFinalTitle,
+      content: (
+        <div className="space-y-2 text-left">
+          <p className="text-sm text-gray-600 leading-relaxed">{t.tourWelcomeFinalBody}</p>
+          <p className="text-xs font-semibold text-primary uppercase tracking-wide">
+            → {t.tourWelcomeFinalCta}
+          </p>
+        </div>
+      ),
+      disableBeacon: true,
+    },
   ]
 }

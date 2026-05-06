@@ -5,9 +5,10 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { MotionConfig } from 'framer-motion'
 import { X } from 'lucide-react'
-import type { NursedLesson, NursedLessonStep, LessonStage } from '@/lib/supabase'
+import type { NursedLesson, NursedLessonStep, LessonStage, StepType } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTour } from '@/components/learn/tour/TourContext'
 
 import { renderLessonStep } from './renderLessonStep'
 import LessonFeedbackScreen from './LessonFeedbackScreen'
@@ -58,6 +59,7 @@ export default function LessonPlayer({
   const resolvedCourseSlug = course?.slug ?? resolvedCourseId
   const { t, lang } = useLang()
   const { user, role } = useAuth()
+  const { runLessonTour } = useTour()
   const stepKey = useRef(0)
   const highWaterMark = useRef(0)
   const exitDialogRef = useRef<HTMLDivElement>(null)
@@ -155,6 +157,19 @@ export default function LessonPlayer({
     stepKey.current = 0
     highWaterMark.current = 0
   }, [lesson.id])
+
+  // Trigger the lesson-player onboarding tour once per learner (gated by localStorage in TourProvider).
+  // Delay 600ms so step DOM has time to mount and `data-tour-target` selectors resolve.
+  const presentStepTypes = useMemo<StepType[]>(
+    () => Array.from(new Set(steps.map((s) => s.type))),
+    [steps],
+  )
+
+  useEffect(() => {
+    if (steps.length === 0) return
+    const timer = setTimeout(() => runLessonTour(presentStepTypes), 600)
+    return () => clearTimeout(timer)
+  }, [lesson.id, presentStepTypes, runLessonTour, steps.length])
 
   if (steps.length === 0) {
     return (

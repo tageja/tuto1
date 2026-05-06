@@ -60,5 +60,13 @@ export function buildLessonTourSteps(t: T, presentStepTypes: StepType[]): Step[]
     })
   }
 
+  steps.push({
+    target: 'body',
+    placement: 'center',
+    title: t.tourLessonFinalTitle,
+    content: t.tourLessonFinalBody,
+    disableBeacon: true,
+  })
+
   return steps
 }
