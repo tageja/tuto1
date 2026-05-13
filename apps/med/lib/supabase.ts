@@ -74,6 +74,19 @@ export type NursedProfile = {
   tour_skipped_at: string | null
 }
 
+// Survey response — added in migration 056
+export type NursedSurveyResponse = {
+  id: string
+  survey_id: string
+  name: string
+  email: string
+  age: number | null
+  gender: string | null
+  phone: string | null
+  answers: Record<string, unknown>
+  created_at: string
+}
+
 export type NursedHospital = {
   id: string
   name: string

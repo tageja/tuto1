@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, BookOpen, Building2, Users, BarChart3, Activity, X, Mic, MessageSquare, LogOut, Gift, LineChart } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Building2, Users, BarChart3, Activity, X, Mic, MessageSquare, LogOut, Gift, LineChart, ClipboardList } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -35,6 +35,7 @@ export function AdminSidebar({ isOpen = false, onClose }: Props) {
     { label: tAny.navFeedback ?? 'Feedback',        href: '/admin/feedback',  icon: MessageSquare },
     { label: 'Audio Generation',                    href: '/admin/audio',     icon: Mic },
     { label: tAny.navCoupons ?? 'Coupons',          href: '/admin/coupons',   icon: Gift },
+    { label: tAny.navSurveys ?? 'Surveys',          href: '/admin/surveys',   icon: ClipboardList, superAdminOnly: true },
   ]
 
   const NAV_ITEMS = ALL_NAV_ITEMS.filter(
