@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Send, CheckCircle2 } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
@@ -276,10 +276,11 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
   )
 }
 
-function EmojiScaleInput({ question, value, onChange }: {
+function EmojiScaleInput({ question, value, onChange, onAutoAdvance }: {
   question: EmojiScaleQuestion
   value: string
   onChange: (v: string) => void
+  onAutoAdvance?: () => void
 }) {
   return (
     <div className="flex flex-col gap-3">
@@ -287,7 +288,7 @@ function EmojiScaleInput({ question, value, onChange }: {
         <button
           key={i}
           type="button"
-          onClick={() => onChange(String(i))}
+          onClick={() => { onChange(String(i)); onAutoAdvance?.() }}
           className={[
             'flex items-center gap-4 w-full px-4 py-3.5 rounded-xl border-2 text-left transition-all duration-150',
             value === String(i)
@@ -299,34 +300,52 @@ function EmojiScaleInput({ question, value, onChange }: {
           <span className={`text-sm font-medium ${value === String(i) ? 'text-primary' : 'text-text'}`}>
             {opt.vi}
           </span>
+          {value === String(i) && <CheckCircle2 size={15} className="text-primary ml-auto flex-shrink-0" />}
         </button>
       ))}
     </div>
   )
 }
 
-function MultiSelectInput({ question, values, onChange }: {
+function MultiSelectInput({ question, values, onChange, onAutoAdvance }: {
   question: MultiSelectQuestion
   values: string[]
   onChange: (v: string[]) => void
+  onAutoAdvance?: () => void
 }) {
+  const isEffectivelySingle = question.max === 1
+
   const toggle = (val: string) => {
+    if (isEffectivelySingle) {
+      // single-answer mode: select and auto-advance
+      onChange([val])
+      onAutoAdvance?.()
+      return
+    }
     if (values.includes(val)) {
       onChange(values.filter((v) => v !== val))
     } else if (!question.max || values.length < question.max) {
       onChange([...values, val])
     }
   }
+
   return (
     <div className="flex flex-col gap-2.5">
-      {question.max && (
-        <p className="text-xs text-text-muted mb-1">
-          Chọn tối đa {question.max}
-        </p>
+      {!isEffectivelySingle && question.max && (
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-xs text-text-muted">
+            Chọn tối đa {question.max} đáp án — nhấn <strong>Tiếp theo</strong> khi xong
+          </p>
+          {values.length > 0 && (
+            <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+              {values.length}/{question.max} đã chọn
+            </span>
+          )}
+        </div>
       )}
       {question.options.map((opt) => {
         const selected = values.includes(opt.value)
-        const disabled = !selected && !!question.max && values.length >= question.max
+        const disabled = !selected && !!question.max && !isEffectivelySingle && values.length >= question.max
         return (
           <button
             key={opt.value}
@@ -338,7 +357,7 @@ function MultiSelectInput({ question, values, onChange }: {
               selected
                 ? 'border-primary bg-primary/8 shadow-sm'
                 : disabled
-                  ? 'border-border bg-surface text-text-muted opacity-50 cursor-not-allowed'
+                  ? 'border-border bg-surface text-text-muted opacity-40 cursor-not-allowed'
                   : 'border-border bg-white hover:border-primary/40 hover:bg-surface',
             ].join(' ')}
           >
@@ -354,10 +373,11 @@ function MultiSelectInput({ question, values, onChange }: {
   )
 }
 
-function SingleSelectInput({ question, value, onChange }: {
+function SingleSelectInput({ question, value, onChange, onAutoAdvance }: {
   question: SingleSelectQuestion | { options: { value: string; vi: string; en: string }[] }
   value: string
   onChange: (v: string) => void
+  onAutoAdvance?: () => void
 }) {
   return (
     <div className="flex flex-col gap-2.5">
@@ -368,7 +388,7 @@ function SingleSelectInput({ question, value, onChange }: {
           <button
             key={opt.value}
             type="button"
-            onClick={() => onChange(opt.value)}
+            onClick={() => { onChange(opt.value); onAutoAdvance?.() }}
             className={[
               'flex items-center gap-3 w-full px-4 py-3 rounded-xl border-2 text-left transition-all duration-150',
               selected
@@ -558,6 +578,7 @@ export default function SurveyForm({ onComplete }: Props) {
   const [direction, setDirection] = useState(1)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [personal, setPersonal] = useState<PersonalInfo>({
     name: '', email: '', age: '', gender: '', phone: '',
@@ -576,6 +597,20 @@ export default function SurveyForm({ onComplete }: Props) {
 
   const updateFollowUp = useCallback((id: string, value: string) => {
     setConditionalFollowUps((prev) => ({ ...prev, [id]: value }))
+  }, [])
+
+  // Auto-advance after 450ms for single-answer question types
+  const scheduleAutoAdvance = useCallback(() => {
+    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current)
+    autoAdvanceTimer.current = setTimeout(() => {
+      setStep((s) => {
+        if (s < TOTAL_STEPS - 1) {
+          setDirection(1)
+          return s + 1
+        }
+        return s
+      })
+    }, 450)
   }, [])
 
   const canProceed = (): boolean => {
@@ -598,6 +633,7 @@ export default function SurveyForm({ onComplete }: Props) {
   }
 
   const goNext = () => {
+    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current)
     if (!canProceed()) return
     if (step < TOTAL_STEPS - 1) {
       setDirection(1)
@@ -608,6 +644,7 @@ export default function SurveyForm({ onComplete }: Props) {
   }
 
   const goBack = () => {
+    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current)
     if (step > 0) {
       setDirection(-1)
       setStep((s) => s - 1)
@@ -701,6 +738,7 @@ export default function SurveyForm({ onComplete }: Props) {
                         question={currentQuestion}
                         value={typeof answers[currentQuestion.id] === 'string' ? answers[currentQuestion.id] as string : ''}
                         onChange={(v) => updateAnswer(currentQuestion.id, v)}
+                        onAutoAdvance={scheduleAutoAdvance}
                       />
                     )}
                     {currentQuestion.type === 'multi_select' && (
@@ -708,6 +746,7 @@ export default function SurveyForm({ onComplete }: Props) {
                         question={currentQuestion}
                         values={Array.isArray(answers[currentQuestion.id]) ? answers[currentQuestion.id] as string[] : []}
                         onChange={(v) => updateAnswer(currentQuestion.id, v)}
+                        onAutoAdvance={scheduleAutoAdvance}
                       />
                     )}
                     {currentQuestion.type === 'single_select' && (
@@ -715,6 +754,7 @@ export default function SurveyForm({ onComplete }: Props) {
                         question={currentQuestion}
                         value={typeof answers[currentQuestion.id] === 'string' ? answers[currentQuestion.id] as string : ''}
                         onChange={(v) => updateAnswer(currentQuestion.id, v)}
+                        onAutoAdvance={scheduleAutoAdvance}
                       />
                     )}
                     {currentQuestion.type === 'open_text' && (

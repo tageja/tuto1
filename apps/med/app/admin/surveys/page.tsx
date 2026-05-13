@@ -6,6 +6,7 @@ import { Download, RefreshCw } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLang } from '@/contexts/LanguageContext'
 import SurveyVoucherUploader from '@/components/admin/SurveyVoucherUploader'
+import SurveyAnalytics from '@/components/admin/SurveyAnalytics'
 import type { NursedSurveyResponse } from '@/lib/supabase'
 
 interface SurveySettings {
@@ -112,6 +113,13 @@ export default function SurveysAdminPage() {
           Open survey page ↗
         </a>
       </div>
+
+      {/* Analytics dashboard */}
+      {responses.length > 0 && (
+        <section>
+          <SurveyAnalytics responses={responses} />
+        </section>
+      )}
 
       {/* Voucher settings */}
       <section className="bg-white rounded-2xl border border-border p-6 shadow-card">
