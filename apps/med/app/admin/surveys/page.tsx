@@ -59,10 +59,14 @@ export default function SurveysAdminPage() {
   }, [])
 
   useEffect(() => {
+    if (loading) return
     if (profile?.role === 'super_admin') {
       fetchData()
+    } else {
+      // Not super_admin — redirect is already in flight; unblock the spinner
+      setLoadingData(false)
     }
-  }, [profile, fetchData])
+  }, [profile, loading, fetchData])
 
   const exportCsv = () => {
     if (responses.length === 0) return
