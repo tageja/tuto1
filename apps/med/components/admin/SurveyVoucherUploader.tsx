@@ -13,9 +13,16 @@ interface SurveySettings {
 interface Props {
   initial: SurveySettings
   onSaved: (updated: SurveySettings) => void
+  uploadUrlEndpoint?: string
+  saveEndpoint?: string
 }
 
-export default function SurveyVoucherUploader({ initial, onSaved }: Props) {
+export default function SurveyVoucherUploader({
+  initial,
+  onSaved,
+  uploadUrlEndpoint = '/api/site-settings/survey-hcmute/upload-url',
+  saveEndpoint = '/api/site-settings/survey-hcmute',
+}: Props) {
   const { t } = useLang()
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -35,7 +42,7 @@ export default function SurveyVoucherUploader({ initial, onSaved }: Props) {
 
     try {
       const ext = file.name.split('.').pop()?.toLowerCase() ?? 'png'
-      const urlRes = await fetch(`/api/site-settings/survey-hcmute/upload-url?ext=${ext}`)
+      const urlRes = await fetch(`${uploadUrlEndpoint}?ext=${ext}`)
       if (!urlRes.ok) throw new Error('Failed to get upload URL')
       const { signedUrl, publicUrl } = await urlRes.json()
 
@@ -64,7 +71,7 @@ export default function SurveyVoucherUploader({ initial, onSaved }: Props) {
     setSaving(true)
     setError(null)
     try {
-      const res = await fetch('/api/site-settings/survey-hcmute', {
+      const res = await fetch(saveEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings),
