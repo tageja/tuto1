@@ -97,6 +97,52 @@ npm run test:coverage
 
 ---
 
+## Test Account Reference
+
+Each module has a dedicated pre-seeded learner account. These accounts are permanent fixtures — **never delete or modify their `nursed_progress` rows**. They are the only reliable way to explore a module without fighting the sequential lesson gate.
+
+| Account | Password | Prior completions seeded | Use for |
+|---|---|---|---|
+| `test@test.com` | `password` | None | Smoke tests, regression suite, Module 1 explore |
+| `test-m2@test.com` | `password` | M1 (8 lessons) | Module 2 explore + happy-path |
+| `test-m3@test.com` | `password` | M1–M2 (16 lessons) | Module 3 explore |
+| `test-m4@test.com` | `password` | M1–M3 (24 lessons) | Module 4 explore |
+| `test-m5@test.com` | `password` | M1–M4 (32 lessons) | Module 5 explore |
+| `test-m6@test.com` | `password` | M1–M5 (40 lessons) | Module 6 explore |
+| `test-m7@test.com` | `password` | M1–M6 (48 lessons) | Module 7 explore |
+| `test-m8@test.com` | `password` | M1–M7 (56 lessons) | Module 8 explore |
+| `test-m9@test.com` | `password` | M1–M8 (64 lessons) | Module 9 explore |
+| `test-m10@test.com` | `password` | M1–M9 (72 lessons) | Module 10 explore |
+| `test-m11@test.com` | `password` | M1–M10 (80 lessons) | Module 11 explore |
+| `test-m12@test.com` | `password` | M1–M11 (88 lessons) | Module 12 explore |
+
+**How to use in a `/qa-explore module-N` run:**
+
+```typescript
+// In the spec or explore session, log in as the module-specific account:
+await page.goto('/auth/login');
+await page.getByLabel(/email/i).fill('test-m3@test.com');
+await page.getByLabel(/password/i).fill('password');
+await page.getByRole('button', { name: /sign in/i }).click();
+```
+
+**If progress gets polluted** (e.g. a seed script runs with `--all-mN`), restore with:
+
+```sql
+-- Replace N with the module number, email with the affected account
+DELETE FROM nursed_progress
+WHERE user_id = (SELECT id FROM auth.users WHERE email = 'test-mN@test.com')
+AND lesson_id IN (
+  SELECT l.id FROM nursed_lessons l
+  JOIN nursed_modules m ON l.module_id = m.id
+  WHERE m.order_index = N  -- only delete the target module's rows, keep prior ones
+);
+```
+
+**Never** run a seed script that touches `test@test.com` for anything other than M1 — it's the clean baseline for all regression tests.
+
+---
+
 ## `.env.local` Required Variables
 
 The file lives at `apps/med/.env.local`. Required for all tests to run:

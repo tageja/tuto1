@@ -11,7 +11,13 @@ you find to a findings file.
 
 1. Confirm the dev server is running (`http://localhost:3001`) — start it if not.
 2. Use the **Playwright MCP** (`mcp.playwright.*`) to open a real browser.
-3. Log in as `test@test.com / password` via `/auth/login`.
+3. Log in with the **module-specific test account** via `/auth/login`.
+   Each account has prior modules pre-seeded so you can access the target module immediately:
+   - Module 1 → `test@test.com / password`
+   - Module 2 → `test-m2@test.com / password`
+   - Module 3 → `test-m3@test.com / password`
+   - Module 4–12 → `test-m4@test.com` … `test-m12@test.com / password`
+   Full table in `docs/dev-agent-reviews/HANDOVER_QA_TESTING_AGENT.md → Test Account Reference`.
 4. Navigate to the course containing the requested module.
 5. For **every lesson** in the module, in order:
    a. Open the lesson player.
