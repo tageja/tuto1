@@ -153,9 +153,12 @@ function Section({ title, icon, children, index }: {
 
 // ─── Stat pill ────────────────────────────────────────────────────────────────
 
-function StatPill({ icon, value, label }: { icon: string; value: number | string; label: string }) {
+function StatPill({ icon, value, label, testId }: { icon: string; value: number | string; label: string; testId?: string }) {
   return (
-    <div className="flex-1 min-w-[100px] flex flex-col items-center gap-1 px-4 py-3 bg-surface rounded-xl border border-border">
+    <div
+      className="flex-1 min-w-[100px] flex flex-col items-center gap-1 px-4 py-3 bg-surface rounded-xl border border-border"
+      data-testid={testId}
+    >
       <span className="text-2xl">{icon}</span>
       <span className="text-xl font-bold text-text">{value}</span>
       <span className="text-[11px] text-text-muted text-center leading-tight">{label}</span>
@@ -292,7 +295,7 @@ export default function ProfilePageClient({ data: initialData }: Props) {
       <motion.div custom={1} initial="hidden" animate="visible" variants={fadeUp} className="flex gap-3 flex-wrap">
         <StatPill icon="⭐" value={stats.starBalance} label={t.profileStatsBalance} />
         <StatPill icon="🔥" value={stats.streak} label={t.profileStatsStreak} />
-        <StatPill icon="✅" value={stats.lessonsCompleted} label={t.profileStatsLessons} />
+        <StatPill icon="✅" value={stats.lessonsCompleted} label={t.profileStatsLessons} testId="profile-completed-count" />
         <StatPill icon="🏆" value={stats.starsEarned} label={t.profileStatsEarned} />
       </motion.div>
 

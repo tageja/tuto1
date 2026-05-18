@@ -1,0 +1,105 @@
+---
+description: Strict rules for authoring Playwright tests in apps/med
+globs: apps/med/tests/**/*.{ts,tsx,mjs,js}
+alwaysApply: false
+---
+
+# Playwright Test Authoring Rules (apps/med)
+
+These rules apply to any code under `apps/med/tests/`. They exist because tests
+that violate them become flaky, silently skip, or pass for the wrong reason.
+
+## Selector priority (top first)
+
+1. **`page.getByRole(role, { name })`** — primary. Works in EN and VI.
+2. **`page.getByLabel(/regex/)`** — for form fields.
+3. **`page.getByTestId('foo')`** — fall back to `data-testid` ONLY when 1–2 fail.
+4. **`page.getByText(/regex/i)`** — last resort. Always case-insensitive regex.
+
+NEVER use:
+
+- CSS `.class-name` selectors (Tailwind classes change every build)
+- `nth-child` indices
+- XPath
+- `page.locator('div > span')` chains
+
+If a stable selector doesn't exist in the component, the **fix is to add a
+`data-testid`** to the component in `apps/med/components/`, not to write a
+brittle CSS selector.
+
+## Wait strategy
+
+- ✅ `await expect(locator).toBeVisible()` — auto-retries to default timeout
+- ✅ `await page.waitForURL(/regex/)`
+- ✅ `await page.waitForResponse(...)` for network-dependent assertions
+- ❌ `await page.waitForTimeout(N)` — NEVER except as a brief debounce after a
+  click that triggers an animation (cap at 500ms). Comment WHY.
+
+## Tags are mandatory
+
+Every `test.describe` block MUST declare:
+
+- exactly one **layer** tag (`@smoke`, `@regression`, `@happy-path`, `@exploration`)
+- exactly one **scope** tag (`@module-N` or `@cross-cutting`)
+- at least one **concern** tag (`@a11y`, `@content`, `@state`, `@nav`, `@i18n`,
+  `@visual`, `@data`, `@auth`, `@audio`)
+
+Use `TAG.x` from `tests/e2e/_shared/tags.ts` — never hardcode the strings.
+
+## Bug-traceability
+
+If a test exists to prevent a regression from the user feedback xlsx, its
+filename MUST be `bug-NNN-slug.spec.ts` and the describe block MUST include
+`bugTag(NNN)`. This lets `/qa-triage` map a failure back to a user-reported
+issue automatically.
+
+## DB writes are forbidden in non-data tests
+
+Tests under `tests/e2e/smoke/`, `tests/e2e/regression/` (UI-only), and
+`tests/e2e/module-*/happy-path/` MUST NOT write to Supabase. They may only
+READ via `getSupabaseAdmin()` for assertions.
+
+Tests that DO seed data must:
+
+1. Live under `tests/e2e/regression/` or `tests/e2e/data/`
+2. Always clean up in an `afterEach` or `afterAll` (use try/finally)
+3. Use the test user's UUID, never a hardcoded uuid
+
+## fixme vs skip vs failing
+
+- `test.fixme(...)` — known broken, captures a bug we WANT to fail once the
+  app is fixed. The body still runs in `--grep @smoke` so reviewers see it.
+- `test.skip(...)` — conditionally not applicable (e.g. requires env credentials)
+- `test.fail(...)` — DO NOT USE. It hides real regressions.
+
+## Console errors are failures
+
+Smoke tests MUST register `page.on('pageerror', ...)` and
+`page.on('console', msg => msg.type() === 'error')`, and assert empty at the
+end. Tutorial-tour bugs and the audio-overlap bug both surface as console
+errors first.
+
+## Storage state, not re-login
+
+Authenticated tests MUST start with:
+
+```ts
+import path from 'path';
+const authFile = path.resolve('tests', '.auth', 'learner.json');
+test.use({ storageState: authFile });
+```
+
+Never re-run the login form inside individual specs — that's what
+`global.setup.ts` is for.
+
+## Adding a new spec checklist
+
+Before committing a new `*.spec.ts`:
+
+- [ ] Filename matches `kebab-case.spec.ts` (or `bug-NNN-slug.spec.ts`)
+- [ ] All three tag categories declared (layer / scope / concern)
+- [ ] No `waitForTimeout` beyond 500ms (with a comment)
+- [ ] No CSS class selectors
+- [ ] No DB writes outside `regression/` or `data/`
+- [ ] Runs locally with `npm run test:e2e -- <file>`
+- [ ] `npm run test:coverage` regenerated and the gap row shrunk

@@ -160,12 +160,13 @@ function LoginContent() {
           ) : mode === 'password' ? (
             <form onSubmit={handlePasswordLogin} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[var(--text)] mb-1.5">
+                <label htmlFor="login-email" className="block text-sm font-medium text-[var(--text)] mb-1.5">
                   Email
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                   <input
+                    id="login-email"
                     type="email"
                     required
                     value={email}
@@ -177,12 +178,13 @@ function LoginContent() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--text)] mb-1.5">
+                <label htmlFor="login-password" className="block text-sm font-medium text-[var(--text)] mb-1.5">
                   Mật khẩu / Password
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                   <input
+                    id="login-password"
                     type={showPassword ? 'text' : 'password'}
                     required
                     value={password}
@@ -216,10 +218,11 @@ function LoginContent() {
                 Nhập email — chúng tôi gửi liên kết đăng nhập ngay lập tức, không cần mật khẩu.
               </p>
               <div>
-                <label className="block text-sm font-medium text-[var(--text)] mb-1.5">Email</label>
+                <label htmlFor="magic-email" className="block text-sm font-medium text-[var(--text)] mb-1.5">Email</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                   <input
+                    id="magic-email"
                     type="email"
                     required
                     value={email}

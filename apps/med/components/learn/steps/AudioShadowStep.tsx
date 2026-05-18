@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useMemo } from 'react'
+import { useState, useRef, useMemo, useEffect } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { Pause, Play, ChevronRight, Languages } from 'lucide-react'
 import type { NursedLessonStep } from '@/lib/supabase'
@@ -61,6 +61,14 @@ export default function AudioShadowStep({ step, onComplete }: Props) {
   ]
 
   const currentPhaseIdx = phases.findIndex((p) => p.key === activePhase)
+
+  // Stop audio whenever the user switches to a different phase to prevent overlap.
+  useEffect(() => {
+    if (activePhase !== null && audioRef.current && !audioRef.current.paused) {
+      audioRef.current.pause()
+      setIsPlaying(false)
+    }
+  }, [activePhase])
 
   function togglePlay() {
     if (!audioRef.current) return
@@ -135,11 +143,22 @@ export default function AudioShadowStep({ step, onComplete }: Props) {
             onEnded={() => { setIsPlaying(false); setHasPlayed(true) }}
           />
 
-          {/* Phase stepper */}
-          <div className="flex border-b border-border">
-            {phases.map((phase, i) => (
+          {/* Phase stepper — tabs for listen / read along / speak */}
+          <div className="flex border-b border-border" role="tablist" aria-label={t.audioSubtitle}>
+            {phases.map((phase) => (
               <button
                 key={phase.key}
+                type="button"
+                role="tab"
+                id={`audio-shadow-tab-${phase.key}`}
+                aria-selected={activePhase === phase.key}
+                aria-controls="audio-shadow-tabpanel"
+                tabIndex={
+                  activePhase === phase.key ||
+                  (activePhase === null && phase.key === 'listen')
+                    ? 0
+                    : -1
+                }
                 onClick={() => setActivePhase(phase.key)}
                 className={`flex-1 flex flex-col items-center gap-1 pb-2.5 pt-1 border-b-2 -mb-px transition-all text-center ${
                   activePhase === phase.key
@@ -147,91 +166,101 @@ export default function AudioShadowStep({ step, onComplete }: Props) {
                     : 'border-transparent text-text-muted hover:text-text'
                 }`}
               >
-                <span className="text-base">{phase.icon}</span>
+                <span className="text-base" aria-hidden>
+                  {phase.icon}
+                </span>
                 <span className="text-xs font-medium">{phase.label}</span>
               </button>
             ))}
           </div>
 
-          {/* Progress stepper underbar */}
-          {activePhase && (
-            <div className="flex gap-1 -mt-2">
-              {phases.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-0.5 flex-1 rounded-full transition-all duration-300 ${
-                    i <= currentPhaseIdx ? 'bg-primary' : 'bg-border'
-                  }`}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Fake waveform */}
           <div
-            className="flex items-end gap-px h-10 w-full rounded-lg overflow-hidden cursor-pointer"
-            aria-label={t.audioShadowWaveformLabel}
-            role="slider"
-            aria-valuenow={Math.round(progress)}
-            aria-valuemin={0}
-            aria-valuemax={100}
+            id="audio-shadow-tabpanel"
+            role="tabpanel"
+            aria-labelledby={
+              activePhase ? `audio-shadow-tab-${activePhase}` : 'audio-shadow-tab-listen'
+            }
           >
-            {waveformHeights.map((h, i) => {
-              const barPct = i / BAR_COUNT
-              const isActive = barPct <= progress / 100
-              return (
-                <div
-                  key={i}
-                  onClick={() => handleWaveformClick(i)}
-                  className={`flex-1 rounded-sm transition-colors ${
-                    isActive ? 'bg-primary' : 'bg-border hover:bg-primary/40'
-                  }`}
-                  style={{ height: `${h * 100}%` }}
-                />
-              )
-            })}
-          </div>
+            {/* Progress stepper underbar */}
+            {activePhase ? (
+              <div className="flex gap-1 -mt-2">
+                {phases.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`h-0.5 flex-1 rounded-full transition-all duration-300 ${
+                      i <= currentPhaseIdx ? 'bg-primary' : 'bg-border'
+                    }`}
+                  />
+                ))}
+              </div>
+            ) : null}
 
-          {/* Play button + speed */}
-          <div className="flex items-center justify-between">
-            {/* Circular play button with pulsing ring */}
-            <div className="relative flex items-center justify-center">
-              {isPlaying && !shouldReduceMotion && (
-                <motion.div
-                  className="absolute rounded-full border-2 border-primary/30"
-                  animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                  transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-                  style={{ width: 52, height: 52 }}
-                />
-              )}
-              <button
-                onClick={togglePlay}
-                className="relative z-10 w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary-dark transition-colors shadow-md"
-                aria-label={isPlaying ? 'Pause' : 'Play'}
-              >
-                {isPlaying ? <Pause size={20} /> : <Play size={20} className="ml-0.5" />}
-              </button>
+            {/* Fake waveform */}
+            <div
+              className="flex items-end gap-px h-10 w-full rounded-lg overflow-hidden cursor-pointer mt-2"
+              aria-label={t.audioShadowWaveformLabel}
+              role="slider"
+              aria-valuenow={Math.round(progress)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              {waveformHeights.map((h, i) => {
+                const barPct = i / BAR_COUNT
+                const isActive = barPct <= progress / 100
+                return (
+                  <div
+                    key={i}
+                    onClick={() => handleWaveformClick(i)}
+                    className={`flex-1 rounded-sm transition-colors ${
+                      isActive ? 'bg-primary' : 'bg-border hover:bg-primary/40'
+                    }`}
+                    style={{ height: `${h * 100}%` }}
+                  />
+                )
+              })}
             </div>
 
-            {/* Speed selector */}
-            <div className="flex gap-1">
-              {SPEEDS.map((s) => (
+            {/* Play button + speed */}
+            <div className="flex items-center justify-between mt-4">
+              <div className="relative flex items-center justify-center">
+                {isPlaying && !shouldReduceMotion && (
+                  <motion.div
+                    className="absolute rounded-full border-2 border-primary/30"
+                    animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                    transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+                    style={{ width: 52, height: 52 }}
+                  />
+                )}
                 <button
-                  key={s}
-                  onClick={() => handleSpeedChange(s)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${
-                    speed === s
-                      ? 'bg-primary text-white border-primary'
-                      : 'bg-bg border-border text-text-muted hover:bg-surface'
-                  }`}
+                  type="button"
+                  onClick={togglePlay}
+                  className="relative z-10 w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary-dark transition-colors shadow-md"
+                  aria-label={isPlaying ? 'Pause' : 'Play'}
                 >
-                  {s}x
+                  {isPlaying ? <Pause size={20} /> : <Play size={20} className="ml-0.5" />}
                 </button>
-              ))}
-            </div>
-          </div>
+              </div>
 
-          {/* TODO Agent R: pronunciation scoring lands here */}
+              <div className="flex gap-1">
+                {SPEEDS.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => handleSpeedChange(s)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${
+                      speed === s
+                        ? 'bg-primary text-white border-primary'
+                        : 'bg-bg border-border text-text-muted hover:bg-surface'
+                    }`}
+                  >
+                    {s}x
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* TODO Agent R: pronunciation scoring lands here */}
+          </div>
         </div>
       ) : (
         <div className="card p-8 text-center bg-surface">

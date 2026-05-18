@@ -160,13 +160,15 @@ export default function CourseCatalog() {
 }
 
 function CourseCard({ course }: { course: NursedCourse }) {
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const icon = COURSE_ICONS[course.title] ?? '📖'
   const colors = COURSE_COLOR[course.title] ?? { icon: 'bg-surface ring-border', bar: 'from-primary/30 to-primary' }
   const isComingSoon = !course.published
 
   return (
-    <div className={`group rounded-2xl border bg-white overflow-hidden flex flex-col transition-all duration-200 ${
+    <div
+      data-testid="course-card"
+      className={`group rounded-2xl border bg-white overflow-hidden flex flex-col transition-all duration-200 ${
       isComingSoon
         ? 'border-[var(--border)] opacity-70'
         : 'border-[var(--border)] hover:shadow-lg hover:-translate-y-1 hover:border-[var(--primary)]/30 cursor-pointer'
@@ -193,18 +195,18 @@ function CourseCard({ course }: { course: NursedCourse }) {
           </div>
         </div>
 
-        {/* Title */}
+        {/* Title — show VI subtitle only in VI mode */}
         <div>
           <h3 className="font-semibold text-[var(--text)] text-sm leading-snug">{course.title}</h3>
-          {course.title_vi && (
+          {course.title_vi && lang === 'vi' && (
             <p className="text-xs text-[var(--text-muted)] mt-0.5">{course.title_vi}</p>
           )}
         </div>
 
-        {/* Description */}
+        {/* Description — respects language toggle */}
         {(course.description_vi || course.description) && (
           <p className="text-xs text-[var(--text-muted)] line-clamp-2 leading-relaxed flex-1">
-            {course.description_vi ?? course.description}
+            {lang === 'vi' ? (course.description_vi ?? course.description) : (course.description ?? course.description_vi)}
           </p>
         )}
 
@@ -218,6 +220,7 @@ function CourseCard({ course }: { course: NursedCourse }) {
           ) : (
             <Link
               href={`/learn/courses/${course.slug ?? course.id}`}
+              aria-label={course.title}
               className="flex items-center justify-center gap-1.5 text-sm font-medium text-[var(--primary)] py-2 rounded-xl bg-[var(--primary-light)] hover:bg-[var(--primary)] hover:text-white transition-all"
             >
               {t.btnStart} <Clock size={12} className="opacity-0 group-hover:opacity-100" />

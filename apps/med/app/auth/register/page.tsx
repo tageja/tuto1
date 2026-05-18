@@ -121,12 +121,13 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Full name */}
             <div>
-              <label className="block text-sm font-medium text-[var(--text)] mb-1.5">
+              <label htmlFor="register-fullname" className="block text-sm font-medium text-[var(--text)] mb-1.5">
                 Họ và tên / Full name
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                 <input
+                  id="register-fullname"
                   type="text"
                   required
                   value={fullName}
@@ -139,10 +140,11 @@ export default function RegisterPage() {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-[var(--text)] mb-1.5">Email</label>
+              <label htmlFor="register-email" className="block text-sm font-medium text-[var(--text)] mb-1.5">Email</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                 <input
+                  id="register-email"
                   type="email"
                   required
                   value={email}
@@ -155,12 +157,13 @@ export default function RegisterPage() {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-[var(--text)] mb-1.5">
+              <label htmlFor="register-password" className="block text-sm font-medium text-[var(--text)] mb-1.5">
                 Mật khẩu / Password
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                 <input
+                  id="register-password"
                   type={showPassword ? 'text' : 'password'}
                   required
                   minLength={8}
@@ -183,13 +186,14 @@ export default function RegisterPage() {
 
             {/* Invite code (optional) */}
             <div>
-              <label className="block text-sm font-medium text-[var(--text)] mb-1.5">
+              <label htmlFor="register-invite-code" className="block text-sm font-medium text-[var(--text)] mb-1.5">
                 Mã mời bệnh viện{' '}
                 <span className="text-[var(--text-muted)] font-normal">(tùy chọn / optional)</span>
               </label>
               <div className="relative">
                 <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                 <input
+                  id="register-invite-code"
                   type="text"
                   value={inviteCode}
                   onChange={(e) => setInviteCode(e.target.value)}

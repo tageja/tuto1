@@ -80,3 +80,4 @@ functions/lib/
 *.log
 *.tmp
 .vercel
+.env*.local

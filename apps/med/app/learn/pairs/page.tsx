@@ -572,6 +572,7 @@ function OnboardingSection({
                 className="input font-mono"
                 maxLength={10}
                 disabled={!isAuthenticated}
+                data-testid="join-code-input"
               />
             </div>
             {joinError && <p className="text-sm text-error">{joinError}</p>}

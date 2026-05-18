@@ -9,7 +9,25 @@ import { useIsPreview } from '@/contexts/PreviewContext'
 import { useAuth } from '@/contexts/AuthContext'
 import PeerRecordingsPanel from './PeerRecordingsPanel'
 
-type RecordState = 'idle' | 'recording' | 'recorded' | 'submitted'
+type RecordState = 'idle' | 'recording' | 'checking' | 'recorded' | 'submitted'
+
+const SILENCE_RMS_THRESHOLD = 0.005
+
+async function isSilentBlob(blob: Blob): Promise<boolean> {
+  try {
+    const arrayBuffer = await blob.arrayBuffer()
+    const audioCtx = new AudioContext()
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer)
+    const data = audioBuffer.getChannelData(0)
+    let sum = 0
+    for (let i = 0; i < data.length; i++) sum += data[i] * data[i]
+    const rms = Math.sqrt(sum / data.length)
+    await audioCtx.close()
+    return rms < SILENCE_RMS_THRESHOLD
+  } catch {
+    return false
+  }
+}
 
 interface ScriptLine {
   role: string
@@ -118,11 +136,18 @@ export default function RecordingStep({ step, onComplete, allSteps, currentIdx, 
       mr.ondataavailable = (e) => {
         if (e.data.size > 0) chunksRef.current.push(e.data)
       }
-      mr.onstop = () => {
+      mr.onstop = async () => {
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
+        stream.getTracks().forEach((t) => t.stop())
+        setState('checking')
+        const silent = await isSilentBlob(blob)
+        if (silent) {
+          setState('idle')
+          setError(t.errorSilentRecording)
+          return
+        }
         setAudioBlob(blob)
         setAudioUrl(URL.createObjectURL(blob))
-        stream.getTracks().forEach((t) => t.stop())
         setState('recorded')
       }
 
@@ -240,6 +265,15 @@ export default function RecordingStep({ step, onComplete, allSteps, currentIdx, 
 
       {error && (
         <div className="card p-3 bg-red-50 border-error text-error text-sm">{error}</div>
+      )}
+
+      {state === 'checking' && (
+        <div className="card p-8 flex flex-col items-center gap-4">
+          <div className="w-20 h-20 rounded-full bg-surface flex items-center justify-center animate-pulse">
+            <Mic size={36} className="text-text-muted" />
+          </div>
+          <p className="text-text-muted text-sm">{t.recordingChecking}</p>
+        </div>
       )}
 
       {state === 'idle' && (

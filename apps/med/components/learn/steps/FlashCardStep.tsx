@@ -218,6 +218,17 @@ function StudyFlashCard({ cards, onComplete }: StudyProps) {
     setRatingPulse(rating)
     setTimeout(() => setRatingPulse(null), 300)
     setRatings((prev) => ({ ...prev, [currentIdx]: rating }))
+    // "Got it" auto-advances to avoid requiring a separate Next click (bug #10)
+    if (rating === 'got_it') {
+      setTimeout(() => {
+        if (currentIdx >= cards.length - 1) {
+          setShowSummary(true)
+        } else {
+          setFlipped(false)
+          setCurrentIdx((i) => i + 1)
+        }
+      }, 320)
+    }
   }
 
   function handleNext() {
@@ -292,7 +303,13 @@ function StudyFlashCard({ cards, onComplete }: StudyProps) {
         <p className="text-sm text-text-muted mt-1">{t.flashCardSubtitle}</p>
       </div>
 
-      {/* Progress dots */}
+      {/* Card counter + progress dots */}
+      <p
+        data-testid="flashcard-index"
+        className="text-xs text-center text-text-muted font-medium"
+      >
+        {currentIdx + 1} / {cards.length}
+      </p>
       <div className="flex gap-1.5 justify-center">
         {cards.map((_, i) => {
           const rated = ratings[i]

@@ -63,11 +63,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [fetchProfile])
 
   const signOut = useCallback(async () => {
-    const supabase = getBrowserClient()
-    await supabase.auth.signOut()
     setUser(null)
     setProfile(null)
-    window.location.href = '/auth/login'
+    // Delegate to the server-side signout route which clears Supabase auth
+    // cookies in the response before redirecting to /auth/login. This prevents
+    // the middleware from redirecting an "authenticated" user back to /learn.
+    window.location.href = '/api/auth/signout'
   }, [])
 
   return (

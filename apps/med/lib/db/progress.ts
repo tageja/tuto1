@@ -14,9 +14,31 @@ export async function getProgress(userId: string, lessonId: string) {
 
 export async function upsertProgress(userId: string, lessonId: string, payload: Partial<NursedProgress>) {
   const db = getServiceClient()
+
+  // Fetch existing row so we never regress completion (Bug #16)
+  const { data: existing } = await db
+    .from('nursed_progress')
+    .select('completion_pct, completed, current_step_index')
+    .eq('user_id', userId)
+    .eq('lesson_id', lessonId)
+    .single()
+
+  const merged: Partial<NursedProgress> = { ...payload }
+
+  if (existing) {
+    // Preserve the highest completion_pct ever reached
+    if (typeof payload.completion_pct === 'number' && typeof existing.completion_pct === 'number') {
+      merged.completion_pct = Math.max(existing.completion_pct, payload.completion_pct)
+    }
+    // Never roll back completed: true → false
+    if (existing.completed === true) {
+      merged.completed = true
+    }
+  }
+
   const { data, error } = await db
     .from('nursed_progress')
-    .upsert({ user_id: userId, lesson_id: lessonId, ...payload }, { onConflict: 'user_id,lesson_id' })
+    .upsert({ user_id: userId, lesson_id: lessonId, ...merged }, { onConflict: 'user_id,lesson_id' })
     .select()
     .single()
   if (error) throw error

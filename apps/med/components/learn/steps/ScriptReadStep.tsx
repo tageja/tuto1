@@ -127,6 +127,8 @@ function PhaseIndicator({ current, labels }: { current: Phase; labels: [string, 
       {phases.map((p, i) => (
         <div key={p} className="flex items-center gap-1.5 flex-1">
           <div
+            role="tab"
+            aria-selected={i === currentIdx}
             className={`flex-1 text-center py-1 px-2 rounded-lg text-xs font-medium truncate transition-colors ${
               i === currentIdx
                 ? 'bg-primary text-white'

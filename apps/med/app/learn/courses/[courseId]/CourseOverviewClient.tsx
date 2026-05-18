@@ -403,6 +403,7 @@ export default function CourseOverviewClient({ course, courseId }: Props) {
                                 {status === 'completed' && (
                                   <Link
                                     href={lessonHref}
+                                    aria-label={`Lesson ${lIdx + 1}: ${lesson.title}`}
                                     className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-success/30 text-success bg-white hover:bg-green-50 transition-colors flex-shrink-0 font-medium"
                                     onMouseEnter={() => prefetch(lessonHref)}
                                   >
@@ -413,6 +414,7 @@ export default function CourseOverviewClient({ course, courseId }: Props) {
                                 {status === 'unlocked' && (
                                   <Link
                                     href={lessonHref}
+                                    aria-label={`Lesson ${lIdx + 1}: ${lesson.title}`}
                                     className="btn-primary text-xs px-3 py-1.5 flex-shrink-0"
                                     onMouseEnter={() => prefetch(lessonHref)}
                                   >

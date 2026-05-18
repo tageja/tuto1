@@ -1,0 +1,91 @@
+name: E2E (Playwright)
+
+on:
+  pull_request:
+    branches: [agent-x-integration, main, nursemed]
+    paths:
+      - 'apps/med/**'
+      - '.github/workflows/e2e.yml'
+  push:
+    branches: [agent-x-integration]
+    paths:
+      - 'apps/med/**'
+
+# WEEK-1 POLICY: this workflow runs the SMOKE suite as a required gate, and
+# the REGRESSION suite as a non-blocking job. Flip the `continue-on-error`
+# flag on the regression job to `false` once you've had 14 consecutive days
+# of green regression runs.
+
+jobs:
+  smoke:
+    name: Smoke (required)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/med
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_AUTH_DISABLED: 'true'
+      NEXT_PUBLIC_SITE_URL: http://localhost:3001
+      NEXT_PUBLIC_APP_URL: http://localhost:3001
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: apps/med/package-lock.json
+      - name: Install workspace deps
+        working-directory: .
+        run: npm ci --ignore-scripts || npm install --ignore-scripts
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run smoke suite
+        run: npm run test:smoke
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-report
+          path: apps/med/tests/reports
+          retention-days: 7
+
+  regression:
+    name: Regression (advisory, week-1 non-blocking)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: smoke
+    continue-on-error: true # flip to false after 14 days of green
+    defaults:
+      run:
+        working-directory: apps/med
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_PUBLIC_AUTH_DISABLED: 'true'
+      NEXT_PUBLIC_SITE_URL: http://localhost:3001
+      NEXT_PUBLIC_APP_URL: http://localhost:3001
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: apps/med/package-lock.json
+      - run: npm ci --ignore-scripts || npm install --ignore-scripts
+        working-directory: .
+      - run: npx playwright install --with-deps chromium
+      - name: Run regression suite
+        run: npm run test:regression
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-report
+          path: apps/med/tests/reports
+          retention-days: 14

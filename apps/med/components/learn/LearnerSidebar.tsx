@@ -51,8 +51,8 @@ export default function LearnerSidebar({ isOpen = false, onClose }: Props) {
     >
       {/* Logo */}
       <div className="px-4 py-5 border-b border-border flex items-center justify-between">
-        <Link href="/learn" className="block" onClick={onClose}>
-          <img src="/images/tuto-logo.png" alt="tuto." className="h-9 w-auto" />
+        <Link href="/" className="block" onClick={onClose}>
+          <img src="/images/tuto-logo.png" alt="tuto." data-testid="logo" className="h-9 w-auto" />
           <span className="text-xs font-semibold text-text-muted tracking-wide mt-1 block">{t.logoSub}</span>
         </Link>
         {/* Mobile close button */}
