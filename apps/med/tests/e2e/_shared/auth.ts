@@ -9,6 +9,12 @@ export const TEST_M3_USER = {
   password: 'password',
 };
 
+/** Module 4 exploration account — M1+M2+M3 pre-seeded (24 lessons); never mutate progress in tests. */
+export const TEST_M4_USER = {
+  email: 'test-m4@test.com',
+  password: 'password',
+};
+
 /**
  * Login the test learner via the public /auth/login form.
  *
@@ -34,6 +40,20 @@ export async function loginAsTestM3Learner(page: Page): Promise<void> {
   await page.goto('/auth/login', { waitUntil: 'domcontentloaded' });
   await loginEmailField(page).fill(TEST_M3_USER.email);
   await loginPasswordField(page).fill(TEST_M3_USER.password);
+  await page.getByRole('button', { name: /sign in|đăng nhập/i }).click();
+  await page.waitForFunction(() => window.location.pathname.startsWith('/learn'), {
+    timeout: 30_000,
+  });
+  await page.evaluate(() => localStorage.setItem('nursed_lesson_tour_seen', '1')).catch(() => {});
+}
+
+export async function loginAsTestM4Learner(page: Page): Promise<void> {
+  if (AUTH_DISABLED) return;
+
+  await page.context().clearCookies();
+  await page.goto('/auth/login', { waitUntil: 'domcontentloaded' });
+  await loginEmailField(page).fill(TEST_M4_USER.email);
+  await loginPasswordField(page).fill(TEST_M4_USER.password);
   await page.getByRole('button', { name: /sign in|đăng nhập/i }).click();
   await page.waitForFunction(() => window.location.pathname.startsWith('/learn'), {
     timeout: 30_000,
