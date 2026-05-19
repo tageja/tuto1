@@ -12,7 +12,7 @@ You are a **Senior QA Automation Engineer** specialising in Playwright, Next.js,
 
 ---
 
-## Current Test System State (as of 2026-05-17)
+## Current Test System State (as of 2026-05-18)
 
 ### Infrastructure
 The Playwright QA system is fully installed and operational. See `tests/TEST_AGENT_INSTRUCTIONS.md` for the setup checklist. All dependencies are installed; Chromium is downloaded.
@@ -48,7 +48,9 @@ From `tests/COVERAGE.md`, Module 1 is missing:
 - **visual** — screenshot guards for lesson player states
 - **auth** — unauthenticated access patterns for Module 1 lessons
 
-And NOTHING has been written for **Modules 2–12** or **proactive happy-path exploration** of Module 1.
+**Module 1** now has `@auth`, `@a11y`, and `module-01-emergency/lesson-1-happy-path` (see “Module 1 Done” below).
+
+**Modules 2–12:** coverage is **not** blanket yet. Module 2 has **partial** automated coverage (e.g. `@module-2` specs such as `bug-020`, `bug-021`, `bug-022`, `module-02-triage-intake/lesson-1-happy-path`) and **`tests/exploration/findings-module-2.md`** from an incomplete `/qa-explore` pass — orchestrator status: **Module 2 QA loop not closed** until exploration + full `npm run test:e2e` are green after learner-state hygiene (see `tests/reports/triage-2026-05-18.md`).
 
 ---
 
@@ -73,10 +75,10 @@ These `.cursor/commands/` files drive the loop. Read them before you start:
 All commands run from `apps/med/`:
 
 ```powershell
-# 7-test smoke gate (~30s) — must always be green
+# Smoke gate — **7 scenarios** × **chromium-desktop + chromium-mobile** + **setup** project → **15** Playwright tests; ~2–5 min locally with Turbopack — must always be green
 npm run test:smoke
 
-# Full 17-bug regression suite (~3-5 min)
+# All specs whose `test.describe` is tagged `@regression` (17 nurse bugs + newer module/a11y specs — count grows over time)
 npm run test:regression
 
 # Run only one module's tests
@@ -209,14 +211,14 @@ When running `/qa-explore module-1`, walk through every step type in **Emergency
 
 ### Priority 1 — Module 1 auth tests (`@auth @module-1`)
 
+**Implemented:** `tests/e2e/regression/bug-018-unauthenticated-lesson-access.spec.ts`. Extend it if you discover new unauthenticated edge routes.
+
 ```
 Scenario: Unauthenticated user visits a lesson URL directly
   → /learn/courses/emergency-nursing-communication/lessons/<slug>
   Expected: redirect to /auth/login OR preview mode loads
   NOT expected: blank page, 500 error, or auth-gated content with no fallback
 ```
-
-Write as `bug-018-unauthenticated-lesson-access.spec.ts` (if it's a bug) or a happy-path spec.
 
 ### Priority 2 — Module 1 happy path (`@happy-path @module-1`)
 
@@ -280,6 +282,8 @@ From `.cursor/rules/playwright.mdc` — **read the full file before writing any 
 | Issue | Workaround |
 |---|---|
 | Full parallel suite (all projects) had intermittent failures under Turbopack dev | **Local default:** `workers: 1`, `fullyParallel` only when `CI` — reduces chunk/hydration flake. Module-1 lesson flow retries on `main h1` (`emergency-m1-l1-flow.ts`). |
+| Long `next dev` session → **Node heap OOM**; `/learn/courses` desktop smoke flake (empty catalog / missing cards) | **`apps/med` `npm run dev`** uses **`NODE_OPTIONS=--max-old-space-size=8192`** via `cross-env`. Smoke **`learner-overview`** waits for **`GET /api/courses` 200** and retries **goto/reload** (see `tests/e2e/smoke/learner-overview.spec.ts`). |
+| **`ChunkLoadError`** / **`ERR_CONNECTION_REFUSED`** on navigation | Retry patterns in `emergency-m1-l1-flow.ts`, `emergency-m2-l1-flow.ts` (reload with **fallback `goto`**). Do not assume a single `page.goto` is enough in dev. |
 | `getTestUserId()` returns null if `SUPABASE_SERVICE_ROLE_KEY` is missing | Ensure `.env.local` has the key. The function uses an RPC `get_auth_user_id_by_email` with a fallback to `auth.admin.listUsers`. |
 | Bug-015 (VAD) must use `--use-fake-device-for-media-stream` flag + `AudioContext` mock | Already handled in the spec. Do not remove the `page.addInitScript` that patches `AudioContext` — that's what makes it parallel-safe. |
 | Bug-006 (tutorial next button) is `test.fixme` | Root cause: Joyride's Next button timing vs React reconciliation + `JoinGroupGate` blocking. To fix: clear `localStorage.nursed_lesson_tour_seen` before the test, mock `/api/pairs/membership` to return `{inGroup:true}`, then wait for the tour spotlight to be fully mounted before clicking. |
@@ -299,7 +303,7 @@ Bug #15 introduced real Voice Activity Detection. **Do not change this logic wit
 
 ---
 
-## Course / Data State (as of 2026-05-17)
+## Course / Data State (as of 2026-05-18)
 
 | Course | Level | Published | Active Learners | Notes |
 |---|---|---|---|---|
@@ -317,13 +321,13 @@ Bug #15 introduced real Voice Activity Detection. **Do not change this logic wit
 ## What "Module 1 Done" Looks Like
 
 Module 1 (`@module-1`) is done when:
-- [ ] All 17 bug specs pass (**15 pass + bug-006 fixme** as of 2026-05-17 qa-loop)
+- [ ] All **17 nurse bug** specs pass with **`bug-006` the only `test.fixme`** (16 active + 1 fixme)
 - [x] At least one `@auth @module-1` test exists and passes (`bug-018-unauthenticated-lesson-access`)
 - [x] At least one `@a11y @module-1` test exists and passes (`bug-019-audio-shadow-phase-tabs-a11y`)
 - [x] A `module-01-emergency/lesson-1-happy-path.spec.ts` exists and passes
 - [x] `npm run test:coverage` shows no empty cells in the Module 1 row of `tests/COVERAGE.md`
-- [x] Full suite (`npm run test:e2e`) runs with 0 failures and ≤2 skipped (only bug-006 fixme)
-- [x] Orchestrator handover updated with the session outcome
+- [ ] Full suite (`npm run test:e2e`) runs with **0 failures** and **≤2 skipped** (only `bug-006` fixme) — **re-verify after each major change;** Turbopack + shared learner state can still produce flakes (see `tests/reports/triage-2026-05-18.md`)
+- [ ] Orchestrator handover updated when a qa-loop session completes
 
 ---
 
@@ -354,9 +358,9 @@ Used by `_shared/supabase-admin.ts → getTestUserId()`. If you need a new RPC, 
 
 A fresh QA agent using this document should be able to:
 
-1. Run `npm run test:smoke` → 7 green tests with no setup beyond `.env.local`
-2. Run `npm run test:regression` → 24 tests, 1 skipped (bug-006), 0 failed
-3. Run `/qa-loop module-1` → find the auth/a11y/happy-path gaps, codify them, fix any real bugs found, leave Module 1 with a full green row in `COVERAGE.md`
-4. Continue `/qa-loop module-2` through `/qa-loop module-12` in sequence
+1. Run `npm run test:smoke` → **15** passed (setup + 7 scenarios × 2 browser projects) with only `.env.local` + dev server
+2. Run `npm run test:regression` → **0 failed**, **`bug-006` skipped/fixme** as the only intentional gap in the original 17-bug set (total test count increases as new specs land)
+3. Run `/qa-loop module-1` → close remaining Module 1 gaps, refresh `COVERAGE.md`
+4. Continue `/qa-loop module-2` onward — use **`test-mN@test.com`** accounts (see Test Account Reference) so you do not poison **`test@test.com`** progress used by CI and smoke/regression
 
 The loop is designed to be self-documenting — each `/qa-loop` run updates the orchestrator handover, so the next agent always knows the current state.

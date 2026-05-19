@@ -25,11 +25,29 @@ test.describe('Smoke — learner overview', { tag: [TAG.smoke, TAG.nav] }, () =>
   });
 
   test('/learn/courses lists at least one course card', async ({ page }) => {
-    await page.goto('/learn/courses', { waitUntil: 'domcontentloaded', timeout: 120_000 });
     const cards = page.locator('[data-testid="course-card"], a[href*="/learn/courses/"]');
-    if (!(await cards.first().isVisible({ timeout: 5_000 }).catch(() => false))) {
-      await page.reload({ waitUntil: 'domcontentloaded', timeout: 120_000 });
+
+    for (let attempt = 0; attempt < 6; attempt++) {
+      const apiWait = page.waitForResponse((r) => /\/api\/courses(\?|$)/.test(r.url()) && r.status() === 200, {
+        timeout: 90_000,
+      });
+      await page.goto('/learn/courses', { waitUntil: 'domcontentloaded', timeout: 120_000 });
+      await apiWait.catch(() => {});
+
+      await page.getByRole('heading', { level: 1 }).waitFor({ state: 'visible', timeout: 30_000 });
+
+      try {
+        await expect(cards.first()).toBeVisible({ timeout: 20_000 });
+        return;
+      } catch {}
+
+      try {
+        await page.reload({ waitUntil: 'domcontentloaded', timeout: 120_000 });
+      } catch {
+        /* dev server briefly unavailable — retry full navigation */
+      }
     }
-    await expect(cards.first()).toBeVisible({ timeout: 45_000 });
+
+    await expect(cards.first()).toBeVisible({ timeout: 30_000 });
   });
 });

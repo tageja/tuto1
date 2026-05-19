@@ -24,7 +24,7 @@ test.describe('Bug #8 — pairs page has a join-with-code input', {
 }, () => {
   test('/learn/pairs shows an input to enter an invite code', async ({ page }) => {
     // Ensure user appears to not be in any group so the OnboardingSection renders
-    await page.route('/api/pairs', (route) => {
+    await page.route('**/api/pairs**', (route) => {
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: [] }) });
     });
 
@@ -32,9 +32,10 @@ test.describe('Bug #8 — pairs page has a join-with-code input', {
 
     const joinInput = page.locator('[data-testid="join-code-input"]');
     if (!(await joinInput.isVisible({ timeout: 5_000 }).catch(() => false))) {
-      await page.reload({ waitUntil: 'domcontentloaded', timeout: 120_000 });
+      await page.reload({ waitUntil: 'domcontentloaded', timeout: 120_000 }).catch(() => {});
     }
 
+    await joinInput.scrollIntoViewIfNeeded().catch(() => {});
     await expect(joinInput).toBeVisible({ timeout: 30_000 });
   });
 });

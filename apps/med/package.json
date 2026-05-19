@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3001",
+    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next dev -p 3001",
+    "dev:webpack": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next dev -p 3001 --webpack",
     "build": "next build",
     "start": "next start -p 3001",
     "lint": "next lint",
@@ -51,6 +52,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.20",
+    "cross-env": "^10.1.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
