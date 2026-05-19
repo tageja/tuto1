@@ -1,6 +1,7 @@
 import { test as setup } from '@playwright/test';
 import path from 'path';
 import fs from 'fs';
+import { loginEmailField, loginPasswordField } from './_shared/auth-login-fields';
 import { AUTH_DISABLED, TEST_USER } from './_shared/env';
 
 const authDir = path.resolve('tests', '.auth');
@@ -63,10 +64,10 @@ setup('authenticate test learner', async ({ page, context }) => {
     // Clear any stale cookies left from the session-reuse attempt above.
     await context.clearCookies();
     await page.goto('/auth/login', { timeout: 15_000, waitUntil: 'domcontentloaded' });
-    const emailField = page.getByLabel(/email/i);
+    const emailField = loginEmailField(page);
     if (await emailField.isVisible({ timeout: 5_000 }).catch(() => false)) {
       await emailField.fill(TEST_USER.email);
-      await page.getByLabel(/password|mật khẩu/i).fill(TEST_USER.password);
+      await loginPasswordField(page).fill(TEST_USER.password);
       await page.getByRole('button', { name: /sign in|đăng nhập/i }).click();
       // waitForFunction polls window.location rather than waiting for page-load
       // events, which avoids Turbopack dev-mode chunk fetches keeping the

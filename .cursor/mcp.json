@@ -2,7 +2,14 @@
   "mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": ["@playwright/mcp@latest", "--isolated", "--output-dir", "./apps/med/tests/reports/mcp"]
+      "args": [
+        "@playwright/mcp@0.0.75",
+        "--browser", "chromium",
+        "--headless",
+        "--isolated",
+        "--viewport-size", "1440,900",
+        "--output-dir", "./apps/med/tests/reports/mcp"
+      ]
     }
   }
 }

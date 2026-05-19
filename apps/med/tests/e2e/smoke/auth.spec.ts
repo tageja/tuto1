@@ -1,19 +1,25 @@
 import { expect, test } from '@playwright/test';
+import {
+  loginEmailField,
+  loginPasswordField,
+  registerEmailField,
+  registerPasswordField,
+} from '../_shared/auth-login-fields';
 import { AUTH_DISABLED } from '../_shared/env';
 import { TAG } from '../_shared/tags';
 
 test.describe('Smoke — auth pages render', { tag: [TAG.smoke, TAG.auth] }, () => {
   test('/auth/login renders form', async ({ page }) => {
     await page.goto('/auth/login', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByLabel(/email/i)).toBeVisible();
-    await expect(page.getByLabel(/password|mật khẩu/i)).toBeVisible();
+    await expect(loginEmailField(page)).toBeVisible();
+    await expect(loginPasswordField(page)).toBeVisible();
     await expect(page.getByRole('button', { name: /sign in|đăng nhập/i })).toBeVisible();
   });
 
   test('/auth/register renders form', async ({ page }) => {
     await page.goto('/auth/register', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByLabel(/email/i)).toBeVisible();
-    await expect(page.getByLabel(/password|mật khẩu/i).first()).toBeVisible();
+    await expect(registerEmailField(page)).toBeVisible();
+    await expect(registerPasswordField(page)).toBeVisible();
   });
 
   test('protected /learn redirects to /auth/login when logged out', async ({ page }) => {
