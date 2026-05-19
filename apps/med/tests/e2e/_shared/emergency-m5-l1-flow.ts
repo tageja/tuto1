@@ -291,7 +291,7 @@ export const M5_L1_CLOZE_ANSWER_PHRASES = [
 
 export async function answerM5Lesson1RecognitionQuizWrongThenSkip(page: Page) {
   await expect(
-    page.getByRole('heading', { level: 3 }).filter({ hasText: /Recognition|Kiểm tra|vital|SBAR|deteriorat/i }),
+    page.getByRole('heading', { level: 3 }).filter({ hasText: /Recognition|scenario check|Check Your Understanding|Kiểm tra|vital|SBAR|deteriorat/i }),
   ).toBeVisible({ timeout: 30_000 });
   const qs = page.locator('main div.card.p-4.space-y-3').filter({
     has: page.locator('p.font-medium'),

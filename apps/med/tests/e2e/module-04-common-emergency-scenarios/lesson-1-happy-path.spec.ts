@@ -17,11 +17,6 @@ test.describe('Emergency M4 Lesson 1 — happy path milestones', {
   test.describe.configure({ timeout: 300_000 });
 
   test('reaches script_read after early lesson steps', async ({ page }) => {
-    // Prod: legacy FlashCard UI + test-m4 auth may block automation until promote of agent-x-integration.
-    test.fixme(
-      process.env.BASE_URL?.includes('pro.tuto.asia') ?? false,
-      'Prod FlashCard step blocks headed happy path — run on preview after promote',
-    );
     await wireEmergencyM4L1LessonGates(page);
     await gotoEmergencyM4Lesson1(page);
     await dismissLessonTourIfPresent(page);

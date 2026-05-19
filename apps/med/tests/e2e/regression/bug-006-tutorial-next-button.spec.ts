@@ -19,6 +19,9 @@ test.use({ storageState: authFile });
 test.describe('Bug #6 — lesson tour Next button advances steps', {
   tag: [TAG.regression, TAG.nav, TAG.module1, bugTag(6)],
 }, () => {
+  // 2026-05-19 prod: tour never mounts — global.setup sets localStorage `nursed_lesson_tour_seen=1`
+  // on session reuse; spec also lacks JoinGroupGate mock + lesson deep-link. Unblocks when spec clears
+  // tour flag before navigation and stubs `/api/pairs/membership` (see HANDOVER_QA_TESTING_AGENT.md).
   test.fixme('clicking tour Next advances to step 2', async ({ page }) => {
     await page.goto('/learn/courses');
     await page.getByRole('link', { name: /emergency|cấp cứu/i }).first().click();

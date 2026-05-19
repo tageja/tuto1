@@ -17,11 +17,6 @@ test.describe('Emergency M5 Lesson 1 — happy path milestones', {
   test.describe.configure({ timeout: 300_000 });
 
   test('reaches script_read after early lesson steps', async ({ page }) => {
-    // Prod: legacy FlashCard deck UI blocks reliable automation; use test-m5@test.com on preview after promote.
-    test.fixme(
-      process.env.BASE_URL?.includes('pro.tuto.asia') ?? false,
-      'Prod FlashCard step blocks headed happy path — run on preview after promote',
-    );
     await wireEmergencyM5L1LessonGates(page);
     await gotoEmergencyM5Lesson1(page);
     await dismissLessonTourIfPresent(page);
