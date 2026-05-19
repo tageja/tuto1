@@ -1,12 +1,12 @@
 /**
- * Bug #102 — M9 `quiz` MCQ structure (L1–L3; L4 has no quiz — in-progress lesson).
+ * Bug #102 — M9 `quiz` MCQ structure (all lessons with quiz steps).
  */
 
 import { expect, test } from '@playwright/test';
 import { getSupabaseAdmin } from '../_shared/supabase-admin';
 import { requireSupabaseAdmin } from '../_shared/env';
 import { TAG, bugTag } from '../_shared/tags';
-import { loadM9Steps, M9_LESSON_SLUG_NO_QUIZ } from '../_shared/m9-simulation-emergency-review-linter';
+import { loadM9Steps } from '../_shared/m9-simulation-emergency-review-linter';
 
 test.beforeAll(() => requireSupabaseAdmin('bug-102-m9-quiz-options-and-answers'));
 
@@ -25,7 +25,7 @@ test.describe('Bug #102 — M9 quiz MCQ structure and answers', {
     const steps = await loadM9Steps(sb);
     const violations: string[] = [];
 
-    for (const row of steps.filter((s) => s.type === 'quiz' && s.lesson_slug !== M9_LESSON_SLUG_NO_QUIZ)) {
+    for (const row of steps.filter((s) => s.type === 'quiz')) {
       const cfg = row.config ?? {};
       const questions = (Array.isArray(cfg.questions) ? cfg.questions : []) as QuizQuestion[];
       const base = `${row.lesson_slug} (${row.id})`;

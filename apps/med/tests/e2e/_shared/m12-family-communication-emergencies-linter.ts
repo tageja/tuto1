@@ -8,12 +8,11 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export const EMERGENCY_COURSE_SLUG = 'emergency-nursing-communication';
 export const M12_MODULE_SLUG = 'family-communication-in-emergencies';
 
-/** L4 in-progress — no quiz step. */
-export const M12_LESSON_SLUG_NO_QUIZ = 'discussing-cpr-and-resuscitation-decisions';
-
-/** L1 and L4 have audio_shadow on current prod curriculum; L2/L3/L5/L6 do not. */
+/** Lessons with `audio_shadow` in M12 (L1–L4). */
 export const M12_LESSON_SLUGS_WITH_AUDIO_SHADOW = new Set([
   'explaining-a-cardiac-arrest-to-the-family',
+  'informing-family-that-condition-has-worsened',
+  'answering-will-they-survive-professionally',
   'discussing-cpr-and-resuscitation-decisions',
 ]);
 

@@ -1,7 +1,7 @@
 /**
  * Bug #097 — M9 lessons 1–8 step-type blueprint (`simulation-and-emergency-review`).
  *
- * L1–L4 are in-progress video-first / shortened sequences (simulation debrief module).
+ * L1 video-first; L2–L3 include `audio_shadow` warm-up; L4 has `quiz` at position 5.
  * L7 places script_read before video — intentional read-then-watch pedagogy for pair practice.
  */
 
@@ -22,6 +22,7 @@ const BLUEPRINT: Record<string, readonly string[]> = {
   ],
   'discussing-a-near-miss-with-a-supervisor': [
     'flash_card',
+    'audio_shadow',
     'video',
     'flash_card',
     'script_read',
@@ -31,6 +32,7 @@ const BLUEPRINT: Record<string, readonly string[]> = {
   ],
   'presenting-a-case-to-the-ward-team': [
     'flash_card',
+    'audio_shadow',
     'video',
     'flash_card',
     'script_read',
@@ -43,6 +45,7 @@ const BLUEPRINT: Record<string, readonly string[]> = {
     'video',
     'audio_shadow',
     'flash_card',
+    'quiz',
     'script_read',
     'cloze',
     'matching',

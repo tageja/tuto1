@@ -22,6 +22,7 @@ const BLUEPRINT: Record<string, readonly string[]> = {
   ],
   'explaining-oxygen-mask-vs-nasal-cannula': [
     'flash_card',
+    'audio_shadow',
     'video',
     'flash_card',
     'script_read',
@@ -31,6 +32,7 @@ const BLUEPRINT: Record<string, readonly string[]> = {
   ],
   'explaining-defibrillator-pads-to-a-conscious-patient': [
     'flash_card',
+    'audio_shadow',
     'video',
     'flash_card',
     'script_read',
@@ -43,6 +45,7 @@ const BLUEPRINT: Record<string, readonly string[]> = {
     'video',
     'audio_shadow',
     'flash_card',
+    'quiz',
     'script_read',
     'cloze',
     'matching',

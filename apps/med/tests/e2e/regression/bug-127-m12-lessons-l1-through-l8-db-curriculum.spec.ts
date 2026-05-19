@@ -20,6 +20,7 @@ const BLUEPRINT: Record<string, readonly string[]> = {
   ],
   'informing-family-that-condition-has-worsened': [
     'flash_card',
+    'audio_shadow',
     'video',
     'flash_card',
     'script_read',
@@ -29,6 +30,7 @@ const BLUEPRINT: Record<string, readonly string[]> = {
   ],
   'answering-will-they-survive-professionally': [
     'flash_card',
+    'audio_shadow',
     'video',
     'flash_card',
     'script_read',
@@ -41,6 +43,7 @@ const BLUEPRINT: Record<string, readonly string[]> = {
     'video',
     'audio_shadow',
     'flash_card',
+    'quiz',
     'script_read',
     'cloze',
     'matching',

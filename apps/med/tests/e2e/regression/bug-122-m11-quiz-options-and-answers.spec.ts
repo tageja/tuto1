@@ -6,7 +6,7 @@ import { expect, test } from '@playwright/test';
 import { getSupabaseAdmin } from '../_shared/supabase-admin';
 import { requireSupabaseAdmin } from '../_shared/env';
 import { TAG, bugTag } from '../_shared/tags';
-import { loadM11Steps, M11_LESSON_SLUG_NO_QUIZ } from '../_shared/m11-trauma-acute-injuries-linter';
+import { loadM11Steps } from '../_shared/m11-trauma-acute-injuries-linter';
 
 test.beforeAll(() => requireSupabaseAdmin('bug-122-m11-quiz-options-and-answers'));
 
@@ -25,7 +25,7 @@ test.describe('Bug #122 — M11 quiz MCQ structure and answers', {
     const steps = await loadM11Steps(sb);
     const violations: string[] = [];
 
-    for (const row of steps.filter((s) => s.type === 'quiz' && s.lesson_slug !== M11_LESSON_SLUG_NO_QUIZ)) {
+    for (const row of steps.filter((s) => s.type === 'quiz')) {
       const cfg = row.config ?? {};
       const questions = (Array.isArray(cfg.questions) ? cfg.questions : []) as QuizQuestion[];
       const base = `${row.lesson_slug} (${row.id})`;

@@ -8,11 +8,12 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export const EMERGENCY_COURSE_SLUG = 'emergency-nursing-communication';
 export const M9_MODULE_SLUG = 'simulation-and-emergency-review';
 
-/** L4 in-progress — no quiz step. */
-export const M9_LESSON_SLUG_NO_QUIZ = 'asking-a-senior-colleague-for-feedback';
-
-/** L1–L3 have no audio_shadow; only L4 in current prod curriculum. */
-export const M9_LESSON_SLUGS_WITH_AUDIO_SHADOW = new Set(['asking-a-senior-colleague-for-feedback']);
+/** Lessons with `audio_shadow` in M9 (L2–L4; L1 has no audio_shadow). */
+export const M9_LESSON_SLUGS_WITH_AUDIO_SHADOW = new Set([
+  'discussing-a-near-miss-with-a-supervisor',
+  'presenting-a-case-to-the-ward-team',
+  'asking-a-senior-colleague-for-feedback',
+]);
 
 export const MULTI_WORD_NURSE_ROLE = /^(charge\s+nurse|senior\s+nurse|head\s+nurse|ward\s+nurse)\s*:/i;
 

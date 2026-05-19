@@ -544,7 +544,7 @@ Command: `BASE_URL=https://pro.tuto.asia npx playwright test --workers=2` (~7.7 
 | Metric | Value |
 |---|---|
 | **Total Playwright specs** | **149** (`tests/COVERAGE.md`, `npm run test:coverage`) |
-| **Module regression specs** | `bug-001`–`bug-135` (+ course-wide `bug-013`, `bug-063`–`bug-065`) |
+| **Module regression specs** | `bug-001`–`bug-137` (+ course-wide `bug-013`, `bug-063`–`bug-065`; `bug-137` fixme pending batch audio) |
 | **Module happy-path specs** | M1–M12 L1 (`module-01-emergency` … `module-12-family`) |
 | **Exploration findings** | `findings-module-1.md` … `findings-module-12.md` |
 
@@ -576,6 +576,7 @@ Append a one-line entry every session so the next orchestrator can see what the 
 
 | Date | Orchestrator | What happened |
 |---|---|---|
+| 2026-05-19 | (qa-verify) | **M9–M12 L2/L3 `audio_shadow` + L4 `quiz` inserts verified:** Supabase structural audit (12×8 steps, sequences, MCQ 3×4, no dup indices). New specs `bug-136` (DB regression) + `bug-137` (`test.fixme` — `audioUrl` still `PLACEHOLDER`). Blueprints `bug-097`/`107`/`117`/`127` L2–L4 updated; linters + `bug-102`/`112`/`122`/`132` include L4 quizzes. **Prod `@module-9`…`@module-12` desktop:** 49 passed / 1 skipped (`bug-137`). **Full sweep:** **325 passed / 4 skipped** (`bug-006`×2, `bug-137`×2) / 0 failed. Coverage: **151 specs**. `npm run build` clean. |
 | 2026-05-19 | (qa-loop) | **Module 12 closed — COURSE COMPLETE (12/12):** 10 new specs `bug-126`–`bug-135`, `findings-module-12.md`, `m12-family-communication-emergencies-linter.ts`, `emergency-m12-l1-flow.ts` (identical structure to M11). L7 mission copy fixed (`fix-m12-l7-mission-copy.mjs`). **Prod `@module-12`:** 23 passed, 0 failed. **Final full sweep:** **317 passed / 2 fixme / 0 failed**. Coverage: **149 specs**. `npm run build` clean. Account **test-m12@test.com**. |
 | 2026-05-19 | (qa-loop) | **Module 11 closed (DB + auth specs):** 10 new specs `bug-116`–`bug-125`, `findings-module-11.md`, `m11-trauma-acute-injuries-linter.ts`, `emergency-m11-l1-flow.ts` (video-first L1, same template as M10). L7 mission copy fixed (`fix-m11-l7-mission-copy.mjs`). L7 **cloze → mission** (reversed vs M10) and L8 assessment order encoded in `bug-117`. **Prod `@module-11`:** 23 passed, 0 failed. Coverage: 138 specs. `npm run build` clean. Account **test-m11@test.com**. |
 | 2026-05-19 | (qa-loop) | **Module 10 closed (DB + auth specs):** 10 new specs `bug-106`–`bug-115`, `findings-module-10.md`, `m10-emergency-procedures-communication-linter.ts`, `emergency-m10-l1-flow.ts` (L1 video-first, no `scenario_intro`). L7 mission copy fixed (`fix-m10-l7-mission-copy.mjs`). L1 video-first, L5/L6 cloze-after-recording, L7 mission-before-cloze, L8 reordered assessment encoded in `bug-107` (intentional). **Pre-flight:** `bug-036` + `bug-011` mobile re-run both passed (confirmed flakes). **Prod `@module-10`:** 23 passed, 0 failed. Coverage: 127 specs. `npm run build` clean. Account **test-m10@test.com**. |
