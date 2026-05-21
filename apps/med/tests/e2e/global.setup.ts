@@ -66,18 +66,23 @@ setup('authenticate test learner', async ({ page, context }) => {
     await page.goto('/auth/login', { timeout: 15_000, waitUntil: 'domcontentloaded' });
     const emailField = loginEmailField(page);
     if (await emailField.isVisible({ timeout: 5_000 }).catch(() => false)) {
-      await emailField.fill(TEST_USER.email);
-      await loginPasswordField(page).fill(TEST_USER.password);
-      await page.getByRole('button', { name: /sign in|đăng nhập/i }).click();
-      // waitForFunction polls window.location rather than waiting for page-load
-      // events, which avoids Turbopack dev-mode chunk fetches keeping the
-      // navigation open and causing waitForURL to timeout.
-      await page.waitForFunction(
-        () => window.location.pathname.startsWith('/learn'),
-        { timeout: 30_000 },
-      );
-      loginSucceeded = true;
-      console.log('[setup] fresh login succeeded');
+      for (let attempt = 0; attempt < 3 && !loginSucceeded; attempt++) {
+        await emailField.fill(TEST_USER.email);
+        await loginPasswordField(page).fill(TEST_USER.password);
+        await page.getByRole('button', { name: /sign in|đăng nhập/i }).click();
+        try {
+          await page.waitForFunction(
+            () => window.location.pathname.startsWith('/learn'),
+            { timeout: 35_000 },
+          );
+          loginSucceeded = true;
+          console.log('[setup] fresh login succeeded');
+        } catch {
+          const errText = await page.locator('.text-red-700').innerText().catch(() => '');
+          if (!/failed to fetch|network|timeout/i.test(errText) || attempt === 2) break;
+          await page.waitForTimeout(1500);
+        }
+      }
     }
   } catch (err) {
     console.warn(`[setup] login skipped: ${(err as Error).message}`);

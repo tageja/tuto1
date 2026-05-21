@@ -16,7 +16,7 @@ interface SurveySettings {
 }
 
 export default function SurveyLanding({ onStart }: Props) {
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const [settings, setSettings] = useState<SurveySettings | null>(null)
 
   useEffect(() => {
@@ -117,7 +117,7 @@ export default function SurveyLanding({ onStart }: Props) {
                 <span className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <Icon size={14} className="text-primary" />
                 </span>
-                <span>{text('vi')}</span>
+                <span>{text(lang)}</span>
               </motion.li>
             ))}
           </ul>

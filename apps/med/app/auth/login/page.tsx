@@ -194,6 +194,8 @@ function LoginContent() {
                   />
                   <button
                     type="button"
+                    data-testid="login-password-toggle"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                     onClick={() => setShowPassword((v) => !v)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text)]"
                     tabIndex={-1}

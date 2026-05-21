@@ -67,7 +67,12 @@ export default function RegisterPage() {
 
     setLoading(false)
     if (authError) {
-      setError(authError.message)
+      const msg = authError.message ?? ''
+      setError(
+        /already registered|already exists|user already/i.test(msg)
+          ? 'Email này đã được đăng ký. / This email is already registered.'
+          : msg,
+      )
       return
     }
     setSuccess(true)

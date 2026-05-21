@@ -16,10 +16,17 @@ export const TEST_USER = {
   fullName: 'Test User',
 };
 
+/** Super-admin fixture for /admin/* specs (seeded in Supabase when missing). */
+export const TEST_ADMIN_USER = {
+  email: process.env.TEST_ADMIN_EMAIL ?? 'admin@test.com',
+  password: process.env.TEST_ADMIN_PASSWORD ?? 'password',
+};
+
 export const AUTH_DISABLED =
   (process.env.NEXT_PUBLIC_AUTH_DISABLED ?? 'false').toLowerCase() === 'true';
 
 export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 export const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
 
 export function requireSupabaseAdmin(testName: string): void {

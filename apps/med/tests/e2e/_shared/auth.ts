@@ -43,12 +43,33 @@ export async function loginAsTestLearner(page: Page): Promise<void> {
   if (AUTH_DISABLED) return;
 
   await page.goto('/auth/login', { waitUntil: 'domcontentloaded' });
-  await loginEmailField(page).fill(TEST_USER.email);
-  await loginPasswordField(page).fill(TEST_USER.password);
-  await page.getByRole('button', { name: /sign in|đăng nhập/i }).click();
 
-  await page.waitForURL(/\/learn(\/|$)/, { timeout: 15_000 });
-  await expect(page).toHaveURL(/\/learn/);
+  const maxAttempts = 3;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    await loginEmailField(page).fill(TEST_USER.email);
+    await loginPasswordField(page).fill(TEST_USER.password);
+    await expect(loginEmailField(page)).toHaveValue(TEST_USER.email);
+    await page.getByRole('button', { name: /sign in|đăng nhập/i }).click();
+
+    try {
+      await page.waitForFunction(
+        () => window.location.pathname.startsWith('/learn'),
+        { timeout: 30_000 },
+      );
+      await expect(page).toHaveURL(/\/learn/);
+      return;
+    } catch {
+      const errText = await page.locator('.text-red-700').innerText().catch(() => '');
+      const retriable = /failed to fetch|network|timeout|missing email/i.test(errText);
+      if (!retriable || attempt === maxAttempts - 1) {
+        throw new Error(
+          `Login did not reach /learn (attempt ${attempt + 1}/${maxAttempts}). ` +
+            `URL=${page.url()} error=${errText || 'none'}`,
+        );
+      }
+      await page.waitForTimeout(1500);
+    }
+  }
 }
 
 export async function loginAsTestM3Learner(page: Page): Promise<void> {

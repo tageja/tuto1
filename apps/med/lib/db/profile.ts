@@ -243,7 +243,43 @@ export async function getFullProfile(userId: string): Promise<ProfileAggregate> 
     .eq('id', userId)
     .single()
 
-  if (profileRes.error) throw profileRes.error
+  if (profileRes.error) {
+    // Authenticated user without a nursed_profiles row — avoid crashing /learn/profile.
+    if (profileRes.error.code === 'PGRST116') {
+      return {
+        profile: {
+          id: userId,
+          full_name: null,
+          avatar_url: null,
+          position: null,
+          date_of_birth: null,
+          bio: null,
+          role: 'learner',
+          learning_intensity: null,
+          preferred_days: null,
+          onboarding_done: false,
+          created_at: new Date().toISOString(),
+          hospital: null,
+        },
+        stats: {
+          starBalance: 0,
+          starsEarned: 0,
+          starsSpent: 0,
+          streak: 0,
+          lessonsCompleted: 0,
+        },
+        badges: [],
+        allBadgeDefinitions: [],
+        earnedBadgeIds: [],
+        coursesInProgress: [],
+        coursesCompleted: [],
+        recentRedemptions: [],
+        groupsJoined: [],
+        endorsementsReceived: [],
+      }
+    }
+    throw profileRes.error
+  }
   const p = profileRes.data
 
   const [
