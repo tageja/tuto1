@@ -1,0 +1,32 @@
+feat(hcmute): HCMUTE pilot homepage, scarcity system, and QA suite
+
+Homepage (app/page.tsx):
+- i18n: wired all 76+ translation keys via useLang(); EN/VI toggle fully functional
+- Reordered future courses by survey demand (Workplace English 40%, Internship 35%, Technical Reports 30%)
+- Rewrote course descriptions as pain-point driven copy
+- Nurse shortcut: hero anchor link + id="nursing-course" on Emergency card
+- Scarcity system: live /api/pilot-spots fetch; hero badge + FeaturedPilotCard progress bar escalate green to orange to red as spots fill; badge is a clickable button that opens enrollment modal
+- Enrollment modal: client-side field validation (name/email); network error mapped to hpModalError
+- Added id="hcmute-pilot" to FeaturedPilotCard for deep-link anchor
+
+API (app/api/):
+- New GET /api/pilot-spots: live Supabase count of HCMUTE pilot registrations
+- POST /api/enrollments: enforces 50-spot hard limit; returns 409 SPOTS_FULL when full
+
+Footer (LandingFooter.tsx):
+- Emergency Nursing and HCMUTE Pilot added as indented sub-links under Courses
+
+Translations (lib/i18n/translations.ts):
+- Added scarcity, validation, and footer keys (EN + VI)
+- Fixed 2 missing VI translations: hpPathsEyebrow, hpLiveTitle
+- Removed all em dashes from homepage and courses-page strings
+
+Build (next.config.ts, learn/layout.tsx):
+- react-joyride React 18 compat: exportsPresence:warn webpack rule
+- ClientTourProvider.tsx dynamic import with ssr:false
+
+QA (tests/e2e/regression/):
+- 17 new specs: bug-138 through bug-154
+- Shared helper: tests/e2e/_shared/hcmute-home.ts
+- Exploration notes: tests/exploration/findings-hcmute-homepage.md
+- Result: 34 passed / 1 fixme (focus-trap bug-149) / 325 regression baseline held

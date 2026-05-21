@@ -1,12 +1,18 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  // Vercel runs Next 16 with Turbopack by default. Declaring an explicit (empty)
+  // turbopack key satisfies the check that rejects a webpack-only config.
+  // react-joyride's missing React 18 exports are tolerated by Turbopack natively
+  // (no exportsPresence enforcement); the ClientTourProvider ssr:false boundary
+  // ensures joyride never enters the server bundle either way.
+  turbopack: {},
   webpack(config) {
+    // Local dev only (npm run dev --webpack).
     // react-joyride@2.9.3 statically imports unmountComponentAtNode +
     // unstable_renderSubtreeIntoContainer from react-dom, both removed in React 18.
     // Webpack ESM strict mode treats missing named exports as hard errors.
-    // Setting exportsPresence:'warn' for the joyride file downgrades this to a warning
-    // so the rest of the build (including the homepage) is not blocked.
+    // Setting exportsPresence:'warn' for the joyride file downgrades this to a warning.
     config.module.rules.push({
       include: /node_modules[\\/]react-joyride/,
       parser: { exportsPresence: 'warn' },
