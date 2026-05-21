@@ -364,3 +364,11 @@ A fresh QA agent using this document should be able to:
 4. Continue `/qa-loop module-2` onward — use **`test-mN@test.com`** accounts (see Test Account Reference) so you do not poison **`test@test.com`** progress used by CI and smoke/regression
 
 The loop is designed to be self-documenting — each `/qa-loop` run updates the orchestrator handover, so the next agent always knows the current state.
+
+---
+
+## Handover History (append every session)
+
+| Date (UTC+7) | Agent | Summary |
+|---|---|---|
+| 2026-05-21 10:15 | QA Agent | **HCMUTE homepage E2E complete.** `tests/exploration/findings-hcmute-homepage.md` written. **17 spec files** bug-138–154 under `tests/e2e/regression/` (all tagged `@regression` + `@hcmute`). Code fixes: client-side enrollment validation (`hpModalNameRequired` etc.), network-failure maps to `hpModalError`. **Results:** `npx playwright test --grep "@hcmute" --project=chromium-desktop` → **34 passed, 1 skipped** (`bug-149` focus-trap fixme). `npm run test:regression` → **325 passed** (matches pre-existing baseline; ~30m run; some mobile/auth flakes unrelated to homepage). **Known product gaps (not blocking):** modal focus trap, `hpPathsEyebrow`/`hpLiveTitle` not fully VI-translated, dev hydration warning in `LandingNav`. **Re-run:** `cd apps/med && npx playwright test --grep "@hcmute" --project=chromium-desktop` |

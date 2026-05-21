@@ -40,6 +40,7 @@ export const TAG = {
   module11: '@module-11',
   module12: '@module-12',
   crossCutting: '@cross-cutting',
+  hcmute: '@hcmute',
 } as const;
 
 /** Helper to build a per-bug tag like @bug-11 */

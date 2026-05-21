@@ -21,6 +21,12 @@ export function LandingFooter() {
             <h4 className="font-semibold mb-4">{t.footerPlatform}</h4>
             <ul className="space-y-2 text-sm text-[var(--text-muted)]">
               <li><Link href="/learn/courses" className="hover:text-[var(--text)] transition-colors">{t.footerCourses}</Link></li>
+              <li className="pl-3 border-l-2 border-[var(--border)]">
+                <Link href="/learn/courses/emergency-nursing-communication" className="hover:text-[var(--text)] transition-colors">{t.footerCourseEmergency}</Link>
+              </li>
+              <li className="pl-3 border-l-2 border-[var(--border)]">
+                <Link href="/#hcmute-pilot" className="hover:text-[var(--text)] transition-colors">{t.footerCourseHCMUTE}</Link>
+              </li>
               <li><Link href="/learn" className="hover:text-[var(--text)] transition-colors">{t.footerDashboard}</Link></li>
               <li><Link href="/learn/pairs" className="hover:text-[var(--text)] transition-colors">{t.footerPairPractice}</Link></li>
             </ul>

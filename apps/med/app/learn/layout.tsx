@@ -2,11 +2,21 @@
 
 import { useState, useCallback } from 'react'
 import { Menu, Languages } from 'lucide-react'
+import dynamic from 'next/dynamic'
 import LearnerSidebar from '@/components/learn/LearnerSidebar'
 import FeedbackButton from '@/components/learn/FeedbackButton'
 import FeedbackModal from '@/components/learn/FeedbackModal'
-import TourProvider from '@/components/learn/tour/TourProvider'
 import { useLang } from '@/contexts/LanguageContext'
+import type React from 'react'
+import type { ComponentProps } from 'react'
+import type TourProviderType from '@/components/learn/tour/TourProvider'
+
+// Dynamic import keeps react-joyride out of the server bundle entirely.
+// TourContext defaults (no-ops) ensure useTour() is safe before TourProvider loads.
+const TourProvider = dynamic(
+  () => import('@/components/learn/tour/ClientTourProvider'),
+  { ssr: false }
+) as React.ComponentType<ComponentProps<typeof TourProviderType>>
 
 export default function LearnLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)

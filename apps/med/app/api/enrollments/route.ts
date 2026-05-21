@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServiceClient } from '@/lib/supabase'
 
 const PILOT_INTEREST_SURVEY_ID = 'course_enrollment_interest_2026'
+const HCMUTE_PILOT_COURSE_KEY = 'hcmute-technical-presentation'
+const HCMUTE_PILOT_SPOT_LIMIT = 50
 
 type PilotInterestPayload = {
   mode: 'pilot_interest'
@@ -71,6 +73,26 @@ async function createPilotInterest(req: NextRequest, body: PilotInterestPayload)
   }
 
   const db = getServiceClient()
+
+  // Enforce spot limit for the HCMUTE pilot course
+  if (intent === 'pilot' && courseKey === HCMUTE_PILOT_COURSE_KEY) {
+    const { count, error: countError } = await db
+      .from('nursed_survey_responses')
+      .select('id', { count: 'exact', head: true })
+      .eq('survey_id', PILOT_INTEREST_SURVEY_ID)
+      .filter('answers->>course_key', 'eq', HCMUTE_PILOT_COURSE_KEY)
+      .filter('answers->>intent', 'eq', 'pilot')
+
+    if (countError) {
+      console.error('[enrollments spot-check]', countError)
+    } else if ((count ?? 0) >= HCMUTE_PILOT_SPOT_LIMIT) {
+      return NextResponse.json(
+        { success: false, error: 'SPOTS_FULL', spotsLeft: 0 },
+        { status: 409 }
+      )
+    }
+  }
+
   const { data, error } = await db
     .from('nursed_survey_responses')
     .insert({
