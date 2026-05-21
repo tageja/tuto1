@@ -232,7 +232,11 @@ export default function LessonBuilderPage() {
     }
     const reordered = [...steps]
     const [moved] = reordered.splice(dragIndex, 1)
-    reordered.splice(dragOverIndex, 0, moved)
+    // After splicing out the dragged element, indices above dragIndex shift down
+    // by one. When dragging downward (dragIndex < dragOverIndex) the effective
+    // insertion point is therefore dragOverIndex - 1, not dragOverIndex.
+    const insertAt = dragIndex < dragOverIndex ? dragOverIndex - 1 : dragOverIndex
+    reordered.splice(insertAt, 0, moved)
     const withNewOrder = reordered.map((s, i) => ({ ...s, order_index: i + 1 }))
     setSteps(withNewOrder)
     setDragIndex(null)
