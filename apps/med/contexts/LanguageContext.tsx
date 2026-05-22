@@ -23,18 +23,15 @@ const LanguageContext = createContext<LanguageContextType>({
   togglePhraseTranslation: () => {},
 })
 
-function readSavedLang(): Lang {
-  if (typeof window === 'undefined') return 'vi'
-  const saved = localStorage.getItem('nursed_lang')
-  return saved === 'en' || saved === 'vi' ? saved : 'vi'
-}
-
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(readSavedLang)
+  // Always start with 'vi' so server and client produce identical HTML.
+  // useEffect then silently swaps to the user's saved preference after hydration.
+  const [lang, setLangState] = useState<Lang>('vi')
   const [phraseTranslationEnabled, setPhraseTranslationEnabled] = useState(true)
 
   useEffect(() => {
-    setLangState(readSavedLang())
+    const savedLang = localStorage.getItem('nursed_lang')
+    if (savedLang === 'en' || savedLang === 'vi') setLangState(savedLang)
 
     const savedPhrase = localStorage.getItem(PHRASE_TRANSLATION_KEY)
     if (savedPhrase === 'false') setPhraseTranslationEnabled(false)
