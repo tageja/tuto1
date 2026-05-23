@@ -1,4 +1,3 @@
-import path from 'path'
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
@@ -12,9 +11,11 @@ const nextConfig: NextConfig = {
   // When @ai-sdk/react is used in a client component, Turbopack bundles the
   // entire ai package including @ai-sdk/gateway. Without an explicit alias,
   // Turbopack fails to resolve 'zod' in the client bundle context.
+  // Use a relative path (not absolute) — Turbopack does not support Windows
+  // absolute paths in resolveAlias values.
   turbopack: {
     resolveAlias: {
-      zod: path.resolve(__dirname, 'node_modules/zod'),
+      zod: './node_modules/zod',
     },
   },
   webpack(config) {
