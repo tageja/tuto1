@@ -106,7 +106,6 @@ const ROLE_LABELS: Record<string, string> = {
   bystander: 'Bystander',
   witness: 'Witness',
   child: 'Child',
-  supervisor: 'Supervisor',
 }
 
 const EXAMPLE_LINES: ScriptLine[] = [

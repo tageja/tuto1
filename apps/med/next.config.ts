@@ -1,3 +1,4 @@
+import path from 'path'
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
@@ -6,7 +7,16 @@ const nextConfig: NextConfig = {
   // react-joyride's missing React 18 exports are tolerated by Turbopack natively
   // (no exportsPresence enforcement); the ClientTourProvider ssr:false boundary
   // ensures joyride never enters the server bundle either way.
-  turbopack: {},
+  //
+  // resolveAlias: ai@6 imports @ai-sdk/gateway which has zod as a peer dep.
+  // When @ai-sdk/react is used in a client component, Turbopack bundles the
+  // entire ai package including @ai-sdk/gateway. Without an explicit alias,
+  // Turbopack fails to resolve 'zod' in the client bundle context.
+  turbopack: {
+    resolveAlias: {
+      zod: path.resolve(__dirname, 'node_modules/zod'),
+    },
+  },
   webpack(config) {
     // Local dev only (npm run dev --webpack).
     // react-joyride@2.9.3 statically imports unmountComponentAtNode +
