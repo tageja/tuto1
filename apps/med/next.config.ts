@@ -7,15 +7,19 @@ const nextConfig: NextConfig = {
   // (no exportsPresence enforcement); the ClientTourProvider ssr:false boundary
   // ensures joyride never enters the server bundle either way.
   //
-  // resolveAlias: ai@6 imports @ai-sdk/gateway which has zod as a peer dep.
+  // resolveAlias: ai@6 imports @ai-sdk/gateway at the top of its index bundle.
+  // @ai-sdk/gateway is server-only and has zod as a peer dependency.
   // When @ai-sdk/react is used in a client component, Turbopack bundles the
-  // entire ai package including @ai-sdk/gateway. Without an explicit alias,
-  // Turbopack fails to resolve 'zod' in the client bundle context.
-  // Use a relative path (not absolute) — Turbopack does not support Windows
-  // absolute paths in resolveAlias values.
+  // entire ai package including @ai-sdk/gateway, which then fails to find
+  // 'zod' in the client bundle context with "Module not found: Can't resolve".
+  // Fix: replace @ai-sdk/gateway with a browser stub in the client bundle.
+  // The stub exports the same symbols as empty/null values so the ai package
+  // initialises without errors; gateway features are never invoked client-side.
   turbopack: {
     resolveAlias: {
-      zod: './node_modules/zod',
+      '@ai-sdk/gateway': {
+        browser: './src/stubs/ai-sdk-gateway',
+      },
     },
   },
   webpack(config) {
