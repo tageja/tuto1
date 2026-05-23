@@ -48,7 +48,7 @@
     "react-joyride": "^2.9.3",
     "recharts": "^2.13.3",
     "tailwind-merge": "^2.5.4",
-    "zod": "^3.25.76"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
