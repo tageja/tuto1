@@ -4,7 +4,10 @@ import { attachConsoleHygiene } from './auth-pages';
 
 export const learnerAuthFile = path.resolve('tests', '.auth', 'learner.json');
 
-export const EMERGENCY_COURSE_PATH = '/learn/courses/emergency-nursing-communication';
+export const EMERGENCY_COURSE_ID = '9113d5cb-cedb-4bea-9678-7321020230e8';
+export const EMERGENCY_COURSE_SLUG = 'emergency-nursing-communication';
+export const EMERGENCY_COURSE_TITLE = /emergency nursing communication/i;
+export const EMERGENCY_COURSE_PATH = `/learn/courses/${EMERGENCY_COURSE_SLUG}`;
 export const EMERGENCY_MODULE_1_PATH =
   '/learn/courses/emergency-nursing-communication/modules/first-contact-in-an-emergency';
 export const EMERGENCY_M1_LESSON_1_PATH =

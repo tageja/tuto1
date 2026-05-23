@@ -1,8 +1,9 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, BookOpen, Building2, Users, BarChart3, Activity, X, Mic, MessageSquare, LogOut, Gift, LineChart, ClipboardList } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Building2, Users, BarChart3, Activity, X, Mic, MessageSquare, LogOut, Gift, LineChart, ClipboardList, UserCheck, Clapperboard } from 'lucide-react'
 import { useLang } from '@/contexts/LanguageContext'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -23,6 +24,23 @@ export function AdminSidebar({ isOpen = false, onClose }: Props) {
   const { t, lang, toggleLang } = useLang()
   const { profile, signOut } = useAuth()
   const tAny = t as Record<string, string>
+  const [pendingReviewCount, setPendingReviewCount] = useState(0)
+
+  useEffect(() => {
+    if (profile?.role !== 'super_admin') return
+
+    async function loadPendingCount() {
+      try {
+        const res = await fetch('/api/admin/courses/pending-count')
+        const json = await res.json()
+        if (res.ok) setPendingReviewCount(json.count ?? 0)
+      } catch {
+        setPendingReviewCount(0)
+      }
+    }
+
+    loadPendingCount()
+  }, [profile?.role])
 
   const ALL_NAV_ITEMS: NavItem[] = [
     { label: t.navOverview,                         href: '/admin',           icon: LayoutDashboard },
@@ -31,6 +49,8 @@ export function AdminSidebar({ isOpen = false, onClose }: Props) {
     { label: tAny.navHospitalDashboard ?? 'Hospital Dashboard', href: '/admin/hospital', icon: Activity },
     { label: t.navStudents,                         href: '/admin/students',  icon: Users },
     { label: tAny.navMetrics ?? 'Metrics',          href: '/admin/metrics',   icon: LineChart, superAdminOnly: true },
+    { label: t.navCreators,                         href: '/admin/creators',  icon: UserCheck, superAdminOnly: true },
+    { label: tAny.adminMediaQueue ?? 'Media Queue', href: '/admin/media-queue', icon: Clapperboard, superAdminOnly: true },
     { label: t.navAnalytics,                        href: '/admin/analytics', icon: BarChart3 },
     { label: tAny.navFeedback ?? 'Feedback',        href: '/admin/feedback',  icon: MessageSquare },
     { label: 'Audio Generation',                    href: '/admin/audio',     icon: Mic },
@@ -84,7 +104,12 @@ export function AdminSidebar({ isOpen = false, onClose }: Props) {
             className={isActive(href) ? 'sidebar-item-active' : 'sidebar-item-inactive'}
           >
             <Icon size={18} />
-            <span>{label}</span>
+            <span className="flex-1">{label}</span>
+            {href === '/admin/courses' && pendingReviewCount > 0 && (
+              <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                {pendingReviewCount > 99 ? '99+' : pendingReviewCount}
+              </span>
+            )}
           </Link>
         ))}
       </nav>

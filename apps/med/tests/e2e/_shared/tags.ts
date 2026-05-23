@@ -45,6 +45,12 @@ export const TAG = {
   authPages: '@auth-pages',
   learnerPages: '@learner-pages',
   adminPages: '@admin-pages',
+  studio: '@studio',
+  mediaQueue: '@media-queue',
+  template: '@template',
+  review: '@review',
+  e2e: '@e2e',
+  learner: '@learner',
 } as const;
 
 /** Helper to build a per-bug tag like @bug-11 */

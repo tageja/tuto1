@@ -25,6 +25,9 @@ export function LandingNav() {
               <Link href="/about" className="text-sm text-[var(--text-muted)] hover:text-[var(--text)] transition-colors">
                 {t.navAbout}
               </Link>
+              <Link href="/become-creator" className="text-sm text-[var(--text-muted)] hover:text-[var(--text)] transition-colors">
+                {t.navBecomeCreator}
+              </Link>
             </div>
             <div className="hidden md:flex items-center">
               <img src="/images/chir-logo.jpg" alt="CHIR" className="h-10 w-auto object-contain" style={{ maxWidth: 80 }} />
@@ -42,6 +45,9 @@ export function LandingNav() {
             </button>
             <Link href="/admin" className="text-sm text-[var(--text-muted)] hover:text-[var(--text)] transition-colors hidden sm:inline">
               {t.navAdmin}
+            </Link>
+            <Link href="/studio" className="text-sm text-[var(--text-muted)] hover:text-[var(--text)] transition-colors hidden sm:inline">
+              {t.navStudio}
             </Link>
             <Link
               href="/learn"

@@ -47,11 +47,16 @@ export type Database = {
       nursed_pair_sessions: { Row: NursedPairSession; Insert: Omit<NursedPairSession, 'id' | 'created_at'>; Update: Partial<NursedPairSession> }
       nursed_peer_reviews: { Row: NursedPeerReview; Insert: Omit<NursedPeerReview, 'id' | 'created_at'>; Update: Partial<NursedPeerReview> }
       nursed_feedback: { Row: NursedFeedback; Insert: Omit<NursedFeedback, 'id' | 'created_at' | 'updated_at'>; Update: Partial<NursedFeedback> }
+      creator_applications: { Row: CreatorApplication; Insert: Omit<CreatorApplication, 'id' | 'created_at' | 'updated_at' | 'reviewed_at' | 'reviewed_by' | 'review_notes' | 'status'> & Partial<Pick<CreatorApplication, 'status' | 'review_notes'>>; Update: Partial<CreatorApplication> }
+      course_categories: { Row: CourseCategory; Insert: Omit<CourseCategory, 'id' | 'created_at' | 'updated_at'>; Update: Partial<CourseCategory> }
+      course_category_suggestions: { Row: CourseCategorySuggestion; Insert: Omit<CourseCategorySuggestion, 'id' | 'created_at' | 'updated_at' | 'reviewed_at' | 'reviewed_by' | 'review_notes' | 'status' | 'approved_category_id'> & Partial<Pick<CourseCategorySuggestion, 'status' | 'review_notes' | 'approved_category_id'>>; Update: Partial<CourseCategorySuggestion> }
+      course_drafts: { Row: CourseDraft; Insert: Omit<CourseDraft, 'id' | 'created_at' | 'updated_at' | 'synopsis' | 'chat_history' | 'course_id' | 'status'> & Partial<Pick<CourseDraft, 'synopsis' | 'chat_history' | 'course_id' | 'status'>>; Update: Partial<CourseDraft> }
+      media_queue: { Row: MediaQueueItem; Insert: Omit<MediaQueueItem, 'id' | 'created_at' | 'updated_at' | 'provider_job_id' | 'output_url' | 'error' | 'status'> & Partial<Pick<MediaQueueItem, 'provider_job_id' | 'output_url' | 'error' | 'status'>>; Update: Partial<MediaQueueItem> }
     }
   }
 }
 
-export type UserRole = 'learner' | 'teacher' | 'hospital_admin' | 'super_admin'
+export type UserRole = 'learner' | 'teacher' | 'hospital_admin' | 'super_admin' | 'course_creator'
 
 export type NursedProfile = {
   id: string
@@ -118,6 +123,14 @@ export type NursedCourse = {
   cover_image_url: string | null
   published: boolean
   hospital_id: string | null
+  creator_id: string | null
+  source_draft_id: string | null
+  category_id: string | null
+  review_status: 'admin_created' | 'draft' | 'submitted' | 'approved' | 'rejected' | 'published'
+  review_notes: string | null
+  submitted_at: string | null
+  approved_at: string | null
+  approved_by: string | null
   created_at: string
   updated_at: string
 }
@@ -393,6 +406,122 @@ export type NursedFeedback = {
   page_context: string | null
   status: FeedbackStatus
   admin_response: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CreatorApplicationStatus = 'pending' | 'approved' | 'rejected'
+export type OrganisationType = 'hospital' | 'university' | 'company' | 'independent' | 'other'
+
+export type CreatorApplication = {
+  id: string
+  user_id: string
+  full_name: string
+  profession: string
+  organisation: string | null
+  organisation_type: OrganisationType | null
+  topic_area: string
+  why_create: string
+  status: CreatorApplicationStatus
+  reviewed_at: string | null
+  reviewed_by: string | null
+  review_notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CourseCategoryStatus = 'approved' | 'archived'
+
+export type CourseCategory = {
+  id: string
+  parent_id: string | null
+  name: string
+  name_vi: string | null
+  slug: string
+  description: string | null
+  sort_order: number
+  status: CourseCategoryStatus
+  created_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CategorySuggestionStatus = 'pending' | 'approved' | 'rejected'
+
+export type CourseCategorySuggestion = {
+  id: string
+  creator_id: string
+  parent_id: string | null
+  suggested_path: string
+  suggested_name: string
+  reason: string | null
+  status: CategorySuggestionStatus
+  approved_category_id: string | null
+  reviewed_at: string | null
+  reviewed_by: string | null
+  review_notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CourseSize = 'starter' | 'standard' | 'full'
+export type CourseTemplateId =
+  | 'professional_communication'
+  | 'organisational_training'
+  | 'student_english'
+  | 'safety_procedures'
+  | 'technical_skills'
+  | 'customer_service'
+
+export type CourseDraftStatus =
+  | 'intake'
+  | 'brainstorming'
+  | 'refining'
+  | 'approved'
+  | 'generating'
+  | 'complete'
+  | 'failed'
+  | 'submitted'
+  | 'rejected'
+
+export type CourseDraft = {
+  id: string
+  creator_id: string
+  course_size: CourseSize
+  category_id: string | null
+  category_suggestion_id: string | null
+  template_id: CourseTemplateId
+  template_version: number
+  intake_form: Record<string, unknown>
+  synopsis: Record<string, unknown> | null
+  chat_history: Array<Record<string, unknown>>
+  status: CourseDraftStatus
+  course_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type MediaQueueStatus =
+  | 'pending'
+  | 'submitted'
+  | 'generating'
+  | 'complete'
+  | 'failed'
+  | 'cancelled'
+
+export type MediaQueueItem = {
+  id: string
+  creator_id: string | null
+  course_id: string | null
+  step_id: string | null
+  media_type: 'video_request' | 'audio_generation'
+  script: string
+  provider: 'manual' | 'fish_audio' | 'heygen'
+  status: MediaQueueStatus
+  provider_job_id: string | null
+  output_url: string | null
+  error: string | null
+  creator_notes: string | null
   created_at: string
   updated_at: string
 }

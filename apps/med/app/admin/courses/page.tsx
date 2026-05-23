@@ -4,6 +4,7 @@ import { useEffect, useState, FormEvent } from 'react'
 import Link from 'next/link'
 import { Plus, Trash2, Search, X } from 'lucide-react'
 import { useToast } from '@/components/ui/Toast'
+import type { AdminReviewQueueCourse } from '@/app/api/admin/courses/review-queue/route'
 import type { NursedCourse, NursedHospital } from '@/lib/supabase'
 import { useLang } from '@/contexts/LanguageContext'
 
@@ -13,6 +14,8 @@ const LEVEL_CLASS: Record<string, string> = {
   B1: 'badge-yellow',
   B2: 'badge-red',
 }
+
+type CourseTab = 'all' | 'pending' | 'published' | 'drafts'
 
 interface CreateCourseForm {
   title: string
@@ -34,12 +37,17 @@ export default function CoursesPage() {
   const { t } = useLang()
   const { toast } = useToast()
   const [courses, setCourses] = useState<NursedCourse[]>([])
+  const [pendingCourses, setPendingCourses] = useState<AdminReviewQueueCourse[]>([])
   const [hospitals, setHospitals] = useState<NursedHospital[]>([])
   const [search, setSearch] = useState('')
+  const [tab, setTab] = useState<CourseTab>('all')
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState<CreateCourseForm>(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
+  const [reviewSavingId, setReviewSavingId] = useState<string | null>(null)
+  const [rejectingId, setRejectingId] = useState<string | null>(null)
+  const [rejectNotes, setRejectNotes] = useState<Record<string, string>>({})
 
   useEffect(() => {
     loadData()
@@ -48,24 +56,44 @@ export default function CoursesPage() {
   async function loadData() {
     setLoading(true)
     try {
-      const [coursesRes, hospitalsRes] = await Promise.all([
+      const [coursesRes, hospitalsRes, pendingRes] = await Promise.all([
         fetch('/api/courses'),
         fetch('/api/hospitals'),
+        fetch('/api/admin/courses/review-queue'),
       ])
       const c = await coursesRes.json()
       const h = await hospitalsRes.json()
+      const pending = await pendingRes.json()
       setCourses(c.data ?? [])
       setHospitals(h.data ?? [])
+      setPendingCourses(pending.data ?? [])
     } finally {
       setLoading(false)
     }
   }
 
-  const filtered = courses.filter(
+  const pendingCount = pendingCourses.length
+
+  const tabCourses = courses.filter((course) => {
+    if (tab === 'pending') return course.review_status === 'submitted'
+    if (tab === 'published') return course.published || course.review_status === 'published'
+    if (tab === 'drafts') {
+      return !course.published && ['draft', 'rejected', 'admin_created'].includes(course.review_status)
+    }
+    return true
+  })
+
+  const filtered = tabCourses.filter(
     (c) =>
       c.title.toLowerCase().includes(search.toLowerCase()) ||
       (c.title_vi ?? '').toLowerCase().includes(search.toLowerCase()),
   )
+
+  const sortedPending = [...pendingCourses].sort((a, b) => {
+    const aTime = a.submitted_at ? new Date(a.submitted_at).getTime() : 0
+    const bTime = b.submitted_at ? new Date(b.submitted_at).getTime() : 0
+    return aTime - bTime
+  })
 
   async function handleTogglePublished(course: NursedCourse) {
     const updated = { published: !course.published }
@@ -121,6 +149,52 @@ export default function CoursesPage() {
     }
   }
 
+  async function handleReview(courseId: string, action: 'approve' | 'reject') {
+    if (action === 'reject') {
+      const notes = (rejectNotes[courseId] ?? '').trim()
+      if (!notes) {
+        toast(t.adminReviewRejectNotes, 'error')
+        return
+      }
+    }
+
+    setReviewSavingId(courseId)
+    try {
+      const res = await fetch(`/api/admin/courses/${courseId}/review`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action,
+          review_notes: action === 'reject' ? rejectNotes[courseId] : undefined,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        toast(json.error ?? t.toastUpdateError, 'error')
+        return
+      }
+      toast(action === 'approve' ? t.adminReviewApprove : t.adminReviewReject, 'success')
+      setRejectingId(null)
+      setRejectNotes((prev) => {
+        const next = { ...prev }
+        delete next[courseId]
+        return next
+      })
+      await loadData()
+    } finally {
+      setReviewSavingId(null)
+    }
+  }
+
+  function formatDate(iso: string | null) {
+    if (!iso) return '—'
+    return new Date(iso).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
+  }
+
   return (
     <div>
       <div className="page-header">
@@ -132,6 +206,34 @@ export default function CoursesPage() {
           <Plus size={16} />
           {t.btnCreateCourse}
         </button>
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-4">
+        {([
+          ['all', 'All'],
+          ['pending', t.adminReviewPendingTab],
+          ['published', t.statusPublished],
+          ['drafts', t.statusDraft],
+        ] as const).map(([tabId, label]) => (
+          <button
+            key={tabId}
+            type="button"
+            onClick={() => setTab(tabId)}
+            className={[
+              'px-4 py-2 rounded-lg text-sm font-medium border transition-colors',
+              tab === tabId
+                ? 'border-primary bg-primary/10 text-primary'
+                : 'border-border text-text-muted hover:text-text',
+            ].join(' ')}
+          >
+            {label}
+            {tabId === 'pending' && pendingCount > 0 && (
+              <span className="ml-2 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                {pendingCount}
+              </span>
+            )}
+          </button>
+        ))}
       </div>
 
       <div className="card p-4 mb-4">
@@ -146,71 +248,159 @@ export default function CoursesPage() {
         </div>
       </div>
 
-      <div className="card overflow-hidden">
-        {loading ? (
-          <div className="p-6 space-y-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-14 rounded-lg bg-surface animate-pulse" />
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <p className="text-center text-text-muted py-12">{t.emptySearchCourses}</p>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-surface border-b border-border">
-              <tr>
-                <th className="text-left px-4 py-3 font-medium text-text-muted">{t.tableColName}</th>
-                <th className="text-left px-4 py-3 font-medium text-text-muted w-20">{t.tableColLevel}</th>
-                <th className="text-left px-4 py-3 font-medium text-text-muted w-28">{t.tableColStatus}</th>
-                <th className="text-right px-4 py-3 font-medium text-text-muted w-32">{t.tableColActions}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {filtered.map((course) => (
-                <tr key={course.id} className="hover:bg-surface/50 transition-colors">
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-text">{course.title}</p>
-                    {course.title_vi && (
-                      <p className="text-xs text-text-muted">{course.title_vi}</p>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={LEVEL_CLASS[course.level] ?? 'badge-gray'}>{course.level}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <button
-                      onClick={() => handleTogglePublished(course)}
-                      className={`badge cursor-pointer transition-colors ${
-                        course.published
-                          ? 'badge-green hover:bg-red-100 hover:text-red-700'
-                          : 'badge-gray hover:bg-green-100 hover:text-green-700'
-                      }`}
-                    >
-                      {course.published ? t.statusPublished : t.statusDraft}
-                    </button>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link
-                        href={`/admin/courses/${course.slug ?? course.id}`}
-                        className="btn-secondary !py-1 !px-3 text-xs"
+      {tab === 'pending' ? (
+        <div className="space-y-4">
+          {loading ? (
+            <div className="card p-6 space-y-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-24 rounded-lg bg-surface animate-pulse" />
+              ))}
+            </div>
+          ) : sortedPending.length === 0 ? (
+            <p className="text-center text-text-muted py-12">{t.emptySearchCourses}</p>
+          ) : (
+            sortedPending.map((course) => {
+              const previewSlug = course.slug ?? course.id
+              const isRejecting = rejectingId === course.id
+              return (
+                <article key={course.id} className="card p-5 space-y-4">
+                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                    <div className="min-w-0">
+                      <h2 className="text-lg font-semibold">{course.title}</h2>
+                      {course.title_vi && (
+                        <p className="text-sm text-text-muted">{course.title_vi}</p>
+                      )}
+                      <p className="text-sm text-text-muted mt-2">
+                        {[course.creator_name, course.creator_email].filter(Boolean).join(' · ')}
+                      </p>
+                      <p className="text-sm mt-2">
+                        {course.template_name ?? course.template_id ?? '—'}
+                      </p>
+                      <p className="text-xs text-text-muted mt-1">
+                        {course.modules_count} modules · {course.lessons_count} lessons ·{' '}
+                        {t.adminReviewSubmittedOn} {formatDate(course.submitted_at)}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2 shrink-0">
+                      <a
+                        href={`/learn/courses/${previewSlug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-secondary text-xs"
                       >
-                        {t.btnViewDetail}
-                      </Link>
+                        {t.adminReviewPreview}
+                      </a>
                       <button
-                        onClick={() => handleDelete(course.id)}
-                        className="btn-ghost !py-1 !px-2 text-error hover:bg-red-50"
+                        type="button"
+                        className="btn-primary text-xs"
+                        disabled={reviewSavingId === course.id}
+                        onClick={() => handleReview(course.id, 'approve')}
                       >
-                        <Trash2 size={14} />
+                        {t.adminReviewApprove}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-secondary text-xs text-error"
+                        disabled={reviewSavingId === course.id}
+                        onClick={() => setRejectingId(isRejecting ? null : course.id)}
+                      >
+                        {t.adminReviewReject}
                       </button>
                     </div>
-                  </td>
-                </tr>
+                  </div>
+                  {isRejecting && (
+                    <div className="border-t border-border pt-4 space-y-3">
+                      <label className="label">{t.adminReviewRejectNotes}</label>
+                      <textarea
+                        className="input resize-none"
+                        rows={3}
+                        value={rejectNotes[course.id] ?? ''}
+                        onChange={(e) =>
+                          setRejectNotes((prev) => ({ ...prev, [course.id]: e.target.value }))
+                        }
+                      />
+                      <button
+                        type="button"
+                        className="btn-secondary text-error"
+                        disabled={reviewSavingId === course.id}
+                        onClick={() => handleReview(course.id, 'reject')}
+                      >
+                        {t.adminReviewConfirmReject}
+                      </button>
+                    </div>
+                  )}
+                </article>
+              )
+            })
+          )}
+        </div>
+      ) : (
+        <div className="card overflow-hidden">
+          {loading ? (
+            <div className="p-6 space-y-3">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="h-14 rounded-lg bg-surface animate-pulse" />
               ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+            </div>
+          ) : filtered.length === 0 ? (
+            <p className="text-center text-text-muted py-12">{t.emptySearchCourses}</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="bg-surface border-b border-border">
+                <tr>
+                  <th className="text-left px-4 py-3 font-medium text-text-muted">{t.tableColName}</th>
+                  <th className="text-left px-4 py-3 font-medium text-text-muted w-20">{t.tableColLevel}</th>
+                  <th className="text-left px-4 py-3 font-medium text-text-muted w-28">{t.tableColStatus}</th>
+                  <th className="text-right px-4 py-3 font-medium text-text-muted w-32">{t.tableColActions}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filtered.map((course) => (
+                  <tr key={course.id} className="hover:bg-surface/50 transition-colors">
+                    <td className="px-4 py-3">
+                      <p className="font-medium text-text">{course.title}</p>
+                      {course.title_vi && (
+                        <p className="text-xs text-text-muted">{course.title_vi}</p>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={LEVEL_CLASS[course.level] ?? 'badge-gray'}>{course.level}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => handleTogglePublished(course)}
+                        className={`badge cursor-pointer transition-colors ${
+                          course.published
+                            ? 'badge-green hover:bg-red-100 hover:text-red-700'
+                            : 'badge-gray hover:bg-green-100 hover:text-green-700'
+                        }`}
+                      >
+                        {course.published ? t.statusPublished : t.statusDraft}
+                      </button>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link
+                          href={`/admin/courses/${course.slug ?? course.id}`}
+                          className="btn-secondary !py-1 !px-3 text-xs"
+                        >
+                          {t.btnViewDetail}
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(course.id)}
+                          className="btn-ghost !py-1 !px-2 text-error hover:bg-red-50"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-fade-in">

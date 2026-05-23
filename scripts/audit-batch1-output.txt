@@ -1,0 +1,8 @@
+﻿python : Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut 
+from Settings > Apps > Advanced app settings > App execution aliases.
+At C:\Users\ASUS\AppData\Local\Temp\ps-script-1fb92e41-b1b0-4bb3-a65d-4ade438af1ef.ps1:7 char:1
++ python "c:\Users\ASUS\tuto-nursemed-practice-pilot\scripts\audit-batc ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Python was not ...cution aliases.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 

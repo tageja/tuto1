@@ -156,11 +156,17 @@ export default function ScriptReadStep({ step, onComplete }: Props) {
   const isPreview = useIsPreview()
 
   // ── Resolve lines ─────────────────────────────────────────────
-  const rawLines = step.config?.lines as ScriptLine[] | undefined
+  const rawLines = step.config?.lines as (ScriptLine & Record<string, unknown>)[] | undefined
   const scriptStr = step.config?.script as string | undefined
   const parsedFromScript = scriptStr ? parseScriptString(scriptStr) : []
-  const lines = (rawLines && rawLines.length > 0)
-    ? rawLines
+  // Normalise: AI may generate {speaker, text_en} instead of {role, text}
+  const normalisedRaw: ScriptLine[] | undefined = rawLines?.map((l) => ({
+    role: (l.role as string | undefined) ?? (l.speaker as string | undefined) ?? 'nurse',
+    text: (l.text as string | undefined) ?? (l.text_en as string | undefined) ?? '',
+    text_vi: (l.text_vi as string | undefined) ?? '',
+  }))
+  const lines = (normalisedRaw && normalisedRaw.length > 0)
+    ? normalisedRaw
     : parsedFromScript.length > 0
     ? parsedFromScript
     : EXAMPLE_LINES

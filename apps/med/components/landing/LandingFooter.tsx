@@ -29,6 +29,7 @@ export function LandingFooter() {
               </li>
               <li><Link href="/learn" className="hover:text-[var(--text)] transition-colors">{t.footerDashboard}</Link></li>
               <li><Link href="/learn/pairs" className="hover:text-[var(--text)] transition-colors">{t.footerPairPractice}</Link></li>
+              <li><Link href="/become-creator" className="hover:text-[var(--text)] transition-colors">{t.footerBecomeCreator}</Link></li>
             </ul>
           </div>
 

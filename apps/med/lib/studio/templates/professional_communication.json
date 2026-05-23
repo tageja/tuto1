@@ -1,0 +1,79 @@
+{
+  "id": "professional_communication",
+  "version": 1,
+  "name": "Professional Communication",
+  "description": "Workplace English for real conversations with patients, customers, colleagues, or clients.",
+  "recommendedFor": ["Healthcare", "Hospitality", "Customer Service", "Consulting"],
+  "lessons": {
+    "1": { "stage": "heads_up", "steps": [
+      { "type": "scenario_intro", "fillFields": ["title_en", "title_vi", "body_en", "body_vi"] },
+      { "type": "flash_card", "fillFields": ["cards[5]"] },
+      { "type": "audio_shadow", "fillFields": ["transcript_en", "transcript_vi", "transcriptSegments"], "hasAudioScript": true },
+      { "type": "video", "fillFields": ["key_phrases", "line_1_en thru line_8_en", "line_1_vi thru line_8_vi"], "hasVideoScript": true },
+      { "type": "quick_response", "fillFields": ["prompt_en", "prompt_vi", "options[4]"] },
+      { "type": "quiz", "fillFields": ["questions[3]"] },
+      { "type": "matching", "fillFields": ["pairs[6]"] }
+    ] },
+    "2": { "stage": "heads_up", "steps": [
+      { "type": "flash_card", "fillFields": ["cards[5]"] },
+      { "type": "audio_shadow", "fillFields": ["transcript_en", "transcript_vi", "transcriptSegments"] },
+      { "type": "spot_the_mistake", "fillFields": ["questions[2]"] },
+      { "type": "quiz", "fillFields": ["questions[3]"] },
+      { "type": "script_read", "fillFields": ["lines[6]"] },
+      { "type": "drag_order", "fillFields": ["items[5]", "correct_order"] },
+      { "type": "cloze", "fillFields": ["clozeText", "decoyPool[10]"] }
+    ] },
+    "3": { "stage": "heads_down", "steps": [
+      { "type": "flash_card", "fillFields": ["cards[5]"] },
+      { "type": "audio_shadow", "fillFields": ["transcript_en", "transcript_vi", "transcriptSegments"], "hasAudioScript": true },
+      { "type": "cloze", "fillFields": ["clozeText", "decoyPool[10]"] },
+      { "type": "script_read", "fillFields": ["lines[6]"] },
+      { "type": "quick_response", "fillFields": ["prompt_en", "prompt_vi", "options[4]"] },
+      { "type": "quiz", "fillFields": ["questions[3]"] },
+      { "type": "spot_the_mistake", "fillFields": ["questions[2]"] }
+    ] },
+    "4": { "stage": "heads_down", "steps": [
+      { "type": "flash_card", "fillFields": ["cards[5]"] },
+      { "type": "video", "fillFields": ["key_phrases", "line_1_en thru line_8_en", "line_1_vi thru line_8_vi"], "hasVideoScript": true },
+      { "type": "cloze", "fillFields": ["clozeText", "decoyPool[10]"] },
+      { "type": "script_read", "fillFields": ["lines[6]"] },
+      { "type": "drag_order", "fillFields": ["items[5]", "correct_order"] },
+      { "type": "matching", "fillFields": ["pairs[6]"] }
+    ] },
+    "5": { "stage": "heads_down", "steps": [
+      { "type": "flash_card", "fillFields": ["cards[5]"] },
+      { "type": "cloze", "fillFields": ["clozeText", "decoyPool[10]"] },
+      { "type": "script_read", "fillFields": ["lines[6]"] },
+      { "type": "no_script", "fillFields": ["cues[3]", "context_en", "context_vi"] },
+      { "type": "recording_submit", "fillFields": ["_instructions", "rubric"] },
+      { "type": "matching", "fillFields": ["pairs[6]"] }
+    ] },
+    "6": { "stage": "heads_together", "steps": [
+      { "type": "flash_card", "fillFields": ["cards[4]"] },
+      { "type": "video", "fillFields": ["key_phrases", "line_1_en thru line_8_en", "line_1_vi thru line_8_vi"], "hasVideoScript": true },
+      { "type": "script_read", "fillFields": ["lines[6]"] },
+      { "type": "cloze", "fillFields": ["clozeText", "decoyPool[10]"] },
+      { "type": "no_script", "fillFields": ["cues[3]", "context_en", "context_vi"] },
+      { "type": "recording_submit", "fillFields": ["_instructions", "rubric"] },
+      { "type": "matching", "fillFields": ["pairs[6]"] }
+    ] },
+    "7": { "stage": "heads_together", "steps": [
+      { "type": "flash_card", "fillFields": ["cards[4]"] },
+      { "type": "script_read", "fillFields": ["lines[6]"] },
+      { "type": "cloze", "fillFields": ["clozeText", "decoyPool[10]"] },
+      { "type": "no_script", "fillFields": ["cues[3]", "context_en", "context_vi"] },
+      { "type": "recording_submit", "fillFields": ["_instructions", "rubric"] },
+      { "type": "mission", "fillFields": ["missionEn", "missionVi"] },
+      { "type": "matching", "fillFields": ["pairs[8]"] }
+    ] },
+    "8": { "stage": "assessment", "steps": [
+      { "type": "quiz", "fillFields": ["questions[5]"] },
+      { "type": "spot_the_mistake", "fillFields": ["questions[3]"] },
+      { "type": "cloze", "fillFields": ["clozeText", "decoyPool[10]"] },
+      { "type": "drag_order", "fillFields": ["items[5]", "correct_order"] },
+      { "type": "matching", "fillFields": ["pairs[8]"] },
+      { "type": "recording_submit", "fillFields": ["_instructions", "rubric"] },
+      { "type": "self_reflection", "fillFields": ["prompts[4_sliders+1_text]"] }
+    ] }
+  }
+}
