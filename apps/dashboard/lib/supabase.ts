@@ -67,8 +67,16 @@ const rememberMeStorage = {
   },
 };
 
-// Create Supabase client for browser
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+// Create Supabase client for browser.
+// Fall back to harmless placeholders when env is absent so that
+// `next build` page-data collection (which evaluates this module via any
+// route that imports it) doesn't crash with "supabaseUrl is required" on
+// projects/builds where NEXT_PUBLIC_SUPABASE_* aren't injected. Real env is
+// used at runtime and on properly-configured deployments.
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-anon-key',
+  {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
