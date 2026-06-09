@@ -102,7 +102,7 @@ Deno.serve(async (req: Request) => {
         .in('id', ids);
 
       if (error) return errorResponse(500, error.message);
-      return jsonResponse(200, { success: true, data: profiles ?? []);
+      return jsonResponse(200, { success: true, data: profiles ?? [] });
     }
 
     // ------------------------------------------------------------------
@@ -133,7 +133,7 @@ Deno.serve(async (req: Request) => {
         .in('id', ids);
 
       if (error) return errorResponse(500, error.message);
-      return jsonResponse(200, { success: true, data: profiles ?? []);
+      return jsonResponse(200, { success: true, data: profiles ?? [] });
     }
 
     // ------------------------------------------------------------------

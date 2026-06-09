@@ -12,7 +12,8 @@
     ]
   },
   "exclude": [
-    "functions/**"
+    "functions/**",
+    "supabase/functions/**"
   ],
   "include": [
     "next-env.d.ts",
