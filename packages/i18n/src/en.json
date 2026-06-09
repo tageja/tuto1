@@ -25,490 +25,6 @@
     "created": "Created",
     "newest": "Newest"
   },
-  "dashboard": "Dashboard",
-  "teachers": "Teachers",
-  "classes": "Classes",
-  "students": "Students",
-  "announcements": "Announcements",
-  "messages": "Messages",
-  "attendance": "Attendance",
-  "homework": "Homework",
-  "progressReports": "Progress Reports",
-  "events": "Events",
-  "photoAlbums": "Photo Albums",
-  "healthRecords": "Health Records",
-  "medicine": "Medicine",
-  "extracurricular": "Extracurricular",
-  "payments": "Fees",
-  "feedback": "Feedback",
-  "settings": {
-    "title": "Settings",
-    "subtitle": "Manage your profile, preferences, and integrations",
-    "parentSubtitle": "Manage your profile, preferences, and notifications",
-    "lastSaved": "Last saved",
-    "tabs": {
-      "profile": "Profile",
-      "preferences": "Preferences",
-      "integrations": "Integrations",
-      "notifications": "Notifications",
-      "privacy": "Privacy"
-    },
-    "profile": {
-      "title": "Profile Information",
-      "fullName": "Full Name",
-      "fullNamePlaceholder": "Enter your full name",
-      "email": "Email",
-      "emailManaged": "Email is managed by your authentication provider",
-      "phone": "Phone Number",
-      "bio": "Bio",
-      "bioPlaceholder": "Tell us a little about yourself...",
-      "avatarHint": "Click to upload (max 1.5MB)",
-      "invalidFileType": "Invalid file type. Please upload a JPEG, PNG, or WebP image.",
-      "fileTooLarge": "File is too large. Maximum size is 1.5MB.",
-      "uploadError": "Failed to upload avatar",
-      "password": "Password",
-      "passwordHint": "Password is managed by your authentication provider (Google)",
-      "resetPassword": "Reset via Google Account",
-      "editProfile": "Edit Profile",
-      "avatarPermissionDenied": "Please allow photo library access to upload avatar.",
-      "avatarUploadSuccess": "Avatar updated successfully",
-      "updateSuccess": "Profile updated successfully",
-      "phonePlaceholder": "+84...",
-      "twoFactor": "Two-Factor Authentication",
-      "twoFactorHint": "Add an extra layer of security to your account",
-      "enabled": "Enabled",
-      "disabled": "Disabled"
-    },
-    "preferences": {
-      "title": "Preferences",
-      "language": "Language",
-      "theme": "Theme",
-      "themeHint": "System will follow your device settings",
-      "system": "System",
-      "light": "Light",
-      "dark": "Dark",
-      "timezone": "Timezone",
-      "themeUpdated": "Theme updated",
-      "timezoneUpdated": "Timezone updated"
-    },
-    "notifications": {
-      "title": "Notification Preferences",
-      "description": "Choose how you want to be notified about different types of updates",
-      "topic": "Topic",
-      "enablePush": "Enable Push Notifications",
-      "pushEnabled": "Push Enabled",
-      "pushError": "Failed to enable push notifications",
-      "pushDescription": "Push notifications are enabled on this device",
-      "topics": {
-        "announcements": "Announcements",
-        "homework": "Homework",
-        "events": "Events",
-        "payments": "Fees",
-        "messages": "Messages",
-        "health": "Health"
-      },
-      "channels": {
-        "email": "Email",
-        "push": "Push",
-        "sms": "SMS"
-      }
-    },
-    "devices": {
-      "title": "Active Sessions",
-      "description": "Manage devices where you're currently signed in",
-      "noDevices": "No active sessions",
-      "revoke": "Revoke",
-      "revokeError": "Failed to revoke device",
-      "on": "on",
-      "justNow": "Just now",
-      "minutesAgo": "min ago",
-      "hoursAgo": "hours ago",
-      "daysAgo": "days ago"
-    },
-    "branding": {
-      "title": "School Branding",
-      "preview": "Preview",
-      "schoolName": "School Name",
-      "tagline": "Education Excellence",
-      "schoolInfo": "School Information",
-      "schoolNameLabel": "School Name",
-      "schoolNamePlaceholder": "Enter your school name",
-      "schoolEmail": "School Email",
-      "schoolPhone": "School Phone",
-      "schoolAddress": "School Address",
-      "schoolAddressPlaceholder": "Enter your school address",
-      "logo": "Logo",
-      "logoHint": "Square image, at least 200x200px",
-      "fileTypes": "JPEG, PNG, or WebP",
-      "primaryColor": "Primary Color",
-      "accentColor": "Accent Color",
-      "headerImage": "Header Image",
-      "headerHint": "Click to upload header image",
-      "invalidFileType": "Invalid file type",
-      "uploadError": "Failed to upload"
-    },
-    "integrations": {
-      "title": "Integrations",
-      "description": "Connect third-party services to enhance your school's capabilities",
-      "selectProvider": "Select Provider",
-      "connect": "Connect",
-      "connecting": "Connecting...",
-      "disconnect": "Disconnect",
-      "connectError": "Failed to connect integration",
-      "disconnectError": "Failed to disconnect integration",
-      "connectedOn": "Connected on",
-      "testMode": "Test Mode",
-      "fromNumber": "From Number",
-      "payments": "Fees",
-      "pushNotifications": "Push Notifications",
-      "sms": "SMS",
-      "connected": "Connected",
-      "notConnected": "Not Connected",
-      "paymentsDetail": {
-        "title": "Payments",
-        "description": "Accept payments from parents via Stripe or MoMo"
-      },
-      "push": {
-        "title": "Push Notifications",
-        "description": "Send push notifications to mobile devices"
-      },
-      "sms": {
-        "title": "SMS",
-        "description": "Send SMS notifications to parents"
-      }
-    },
-    "privacy": {
-      "title": "Privacy Settings",
-      "description": "Manage your data and privacy preferences",
-      "matters": "Your Privacy Matters",
-      "dataVisibility": "Data Visibility",
-      "dataVisibilityDescription": "Choose who can see your information",
-      "schoolOnly": "School Only",
-      "exportData": {
-        "title": "Export Your Data",
-        "description": "Download a copy of all your data",
-        "button": "Export Data",
-        "comingSoon": "Data export is coming soon"
-      },
-      "deleteAccount": {
-        "title": "Delete Account",
-        "description": "Permanently delete your account and all data",
-        "warning": "This action cannot be undone",
-        "warningDescription": "All your data will be permanently deleted",
-        "contactAdmin": "Contact School Admin"
-      },
-      "legalDocuments": "Legal Documents",
-      "privacyPolicy": "Privacy Policy",
-      "termsOfService": "Terms of Service",
-      "dataRetentionPolicy": "Data Retention Policy",
-      "yourRights": "Your Privacy Rights",
-      "rightsDescription": "You have the right to access, correct, or delete your personal data. Contact us for assistance.",
-      "openUrlError": "Could not open link",
-      "mailtoError": "Could not open email client"
-    },
-    "toasts": {
-      "saved": "Settings saved successfully",
-      "error": "Failed to save settings. Please try again."
-    },
-    "role": {
-      "admin": "Admin",
-      "parent": "Parent"
-    },
-    "signOut": {
-      "title": "Sign Out",
-      "message": "Are you sure you want to sign out?",
-      "confirm": "Sign Out",
-      "button": "Sign Out"
-    },
-    "device": {
-      "title": "Device & App",
-      "security": "Security & Authentication",
-      "biometricHint": "Use Face ID or fingerprint to unlock the app",
-      "notifications": "Notifications & Alerts",
-      "pushNotifications": "Push Notifications",
-      "pushDescription": "Receive push notifications on this device",
-      "soundAlerts": "Sound Alerts",
-      "soundDescription": "Play sounds for in-app notifications",
-      "vibrationAlerts": "Vibration Alerts",
-      "vibrationDescription": "Vibrate for in-app notifications",
-      "dataUsage": "Data Usage",
-      "dataSaver": "Data Saver",
-      "dataSaverDescription": "Load lower-resolution images to save data",
-      "wifiOnly": "Download over Wi-Fi Only",
-      "wifiOnlyDescription": "Only download heavy media when on Wi-Fi",
-      "dataUsageTip": "These settings help you save data and reduce your mobile data usage."
-    },
-    "about": {
-      "title": "About & Legal",
-      "tagline": "Connecting schools, teachers, and families",
-      "appInfo": "App Information",
-      "version": "Version",
-      "buildNumber": "Build Number",
-      "platform": "Platform",
-      "lastUpdated": "Last Updated",
-      "legalDocuments": "Legal Documents",
-      "resources": "Resources & Support",
-      "helpCenter": "Help Center",
-      "contactSupport": "Contact Support",
-      "openSource": "Open Source Licenses",
-      "madeWith": "Made with ❤️ for education"
-    }
-  },
-  "dailyActivities": "Daily Activities",
-  "totalStudents": "Total Students",
-  "activeTeachers": "Active Teachers",
-  "attendanceRate": "Attendance Rate",
-  "upcomingEvents": "Upcoming Events",
-  "feeCollection": "Fee Collection",
-  "averageRating": "Average Rating",
-  "recentAnnouncements": "Recent Announcements",
-  "noAnnouncementsYet": "No announcements yet",
-  "unreadMessages": "Unread Messages",
-  "noUnreadMessages": "No unread messages",
-  "upcomingHomework": "Upcoming Homework",
-  "noUpcomingHomework": "No upcoming homework",
-  "aiInsights": "AI Insights",
-  "attendancePrediction": "Attendance Prediction",
-  "dashboard": {
-    "activities": {
-      "title": "Daily Activities",
-      "subtitle": "Track daily activities, meals, and learning progress",
-      "loading": "Loading activities...",
-      "filters": {
-        "date": "Date",
-        "class": "Class",
-        "type": "Type",
-        "status": "Status",
-        "search": "Search",
-        "searchPlaceholder": "Search activities...",
-        "clear": "Clear Filters"
-      },
-      "kpis": {
-        "total": "Total Activities",
-        "completed": "Completed",
-        "inProgress": "In Progress",
-        "pending": "Pending",
-        "lastUpdated": "Last updated",
-        "justNow": "Just now",
-        "minAgo": "m ago",
-        "hourAgo": "h ago"
-      },
-      "add": {
-        "title": "Add Activity",
-        "editTitle": "Edit Activity",
-        "date": "Date",
-        "time": "Time",
-        "class": "Class",
-        "grade": "Grade",
-        "type": "Type",
-        "status": "Status",
-        "description": "Description",
-        "menuDetails": "Menu Details",
-        "outdoorDetail": "Outdoor Details",
-        "save": "Save",
-        "cancel": "Cancel",
-        "create": "Create Activity",
-        "update": "Update Activity",
-        "saving": "Saving...",
-        "selectClass": "Select a class",
-        "selectTeacher": "Select a teacher (optional)",
-        "titlePlaceholder": "e.g., Morning Circle Time",
-        "descriptionPlaceholder": "Activity details...",
-        "menuPlaceholder": "What's on the menu?",
-        "outdoorPlaceholder": "Outdoor activity details..."
-      },
-      "modal": {
-        "addTitle": "Add Activity",
-        "editTitle": "Edit Activity",
-        "date": "Date",
-        "time": "Time",
-        "class": "Class",
-        "teacher": "Teacher",
-        "grade": "Grade",
-        "title": "Title",
-        "type": "Type",
-        "status": "Status",
-        "description": "Description",
-        "menuDetails": "Menu Details",
-        "outdoorDetail": "Outdoor Details",
-        "save": "Save",
-        "cancel": "Cancel",
-        "create": "Create Activity",
-        "update": "Update Activity",
-        "saving": "Saving...",
-        "selectClass": "Select a class",
-        "selectTeacher": "Select a teacher (optional)",
-        "titlePlaceholder": "e.g., Morning Circle Time",
-        "descriptionPlaceholder": "Activity details...",
-        "menuPlaceholder": "What's on the menu?",
-        "outdoorPlaceholder": "Outdoor activity details..."
-      },
-      "drawer": {
-        "title": "Activity Details",
-        "details": "Details",
-        "edit": "Edit",
-        "delete": "Delete",
-        "close": "Close",
-        "date": "Date",
-        "time": "Time",
-        "class": "Class",
-        "teacher": "Teacher",
-        "type": "Type",
-        "menuDetails": "Menu Details",
-        "outdoorDetail": "Outdoor Details",
-        "attachments": "Attachments",
-        "noAttachments": "No attachments"
-      },
-      "toast": {
-        "created": "Activity created successfully",
-        "updated": "Activity updated successfully",
-        "deleted": "Activity deleted successfully",
-        "statusUpdated": "Status updated successfully",
-        "bulkCreated": "Activities created successfully",
-        "suggestSubmitted": "Suggestion submitted successfully! Thank you.",
-        "error": "An error occurred"
-      },
-      "empty": {
-        "noActivities": "No activities scheduled",
-        "tryDifferentFilters": "Try selecting a different date or adjusting your filters"
-      },
-      "status": {
-        "label": "Status",
-        "pending": "Pending",
-        "inprogress": "In Progress",
-        "completed": "Completed"
-      },
-      "type": {
-        "meal": "Meal",
-        "learning": "Learning",
-        "play": "Play",
-        "rest": "Rest"
-      },
-      "timeline": {
-        "class": "Class",
-        "teacher": "Teacher",
-        "todaysTimeline": "Today's Timeline"
-      },
-      "actions": {
-        "edit": "Edit",
-        "duplicate": "Duplicate",
-        "delete": "Delete",
-        "changeStatus": "Click to change status"
-      },
-      "confirmDelete": "Are you sure you want to delete this activity?",
-      "buttons": {
-        "addActivity": "Add Activity",
-        "addDayActivities": "Add Day's Activities",
-        "addWeekActivities": "Add Week (Timetable)",
-        "suggestActivity": "Suggest an Activity"
-      },
-      "suggest": {
-        "title": "Suggest an Activity",
-        "description": "Share your ideas for activities",
-        "placeholder": "Describe the activity you'd like to suggest...",
-        "submit": "Submit Suggestion",
-        "success": "Suggestion submitted successfully",
-        "thankYou": "Thank you for your suggestion!",
-        "attachments": "Attachments"
-      },
-      "dayModal": {
-        "title": "Add Day's Activities",
-        "date": "Date",
-        "class": "Class",
-        "addRow": "Add Row",
-        "removeRow": "Remove",
-        "duplicateRow": "Duplicate",
-        "save": "Create Activities",
-        "time": "Time",
-        "activityTitle": "Title",
-        "type": "Type",
-        "status": "Status",
-        "teacher": "Teacher"
-      },
-      "weekModal": {
-        "title": "Add Week (Timetable)",
-        "weekStart": "Week Starting (Monday)",
-        "class": "Class",
-        "addSlot": "Add Time Slot",
-        "save": "Create Week",
-        "monday": "Monday",
-        "tuesday": "Tuesday",
-        "wednesday": "Wednesday",
-        "thursday": "Thursday",
-        "friday": "Friday",
-        "saturday": "Saturday",
-        "sunday": "Sunday",
-        "time": "Time"
-      },
-      "validations": {
-        "required": "This field is required",
-        "timeRequired": "Time is required",
-        "titleRequired": "Title is required",
-        "classRequired": "Please select a class",
-        "invalidTime": "Invalid time format"
-      },
-      "error": {
-        "loadError": "Error Loading Activities",
-        "fetchClasses": "Failed to fetch classes",
-        "fetchActivities": "Failed to fetch activities"
-      }
-    }
-  },
-  "web": {
-    "about": {"title": "About Tuto", "lead": "A platform connecting teachers, parents, and students for effective learning."},
-    "trustSafety": {"title": "Trust & Safety", "lead": "Verification processes, community standards, and data protection."},
-    "howItWorks": {"title": "How it Works", "lead": "Find the right teacher, book sessions, learn, and track progress."},
-    "impact": {"title": "Impact", "lead": "Improving learning outcomes and connecting education communities."},
-    "newsroom": {"title": "Newsroom", "lead": "News, press releases, and product updates."},
-    "careers": {"title": "Careers", "lead": "Join Tuto to build the future of education."},
-    "investors": {"title": "Investors", "lead": "Vision, key metrics, and contact information."},
-    "contact": {"title": "Contact", "lead": "Need help? Get in touch with the Tuto team."},
-
-    "findTeacher": {"title": "Find Teacher", "lead": "Search teachers by subject, location, and rating."},
-    "trial": {"title": "Trial Lesson", "lead": "Experience for free before committing."},
-    "pricing": {"title": "Pricing", "lead": "Transparent fees and flexible plans."},
-    "ratingsPolicy": {"title": "Ratings Policy", "lead": "Guidelines for fair and useful reviews."},
-    "roadmaps": {"title": "Learning Roadmaps", "lead": "Plans by subject and level."},
-    "safeguarding": {"title": "Safeguarding", "lead": "Standards to protect students and learning."},
-    "helpParents": {"title": "Help for Parents", "lead": "FAQs and quick guides."},
-    "download": {"title": "Download App", "lead": "Get Tuto on iOS and Android."},
-
-    "adaptiveHomework": {"title": "Adaptive Homework", "lead": "Personalized content by level."},
-    "practice": {"title": "Practice", "lead": "Daily and topical exercises."},
-    "events": {"title": "Events", "lead": "Competitions, webinars, and community activities."},
-    "planner": {"title": "Learning Planner", "lead": "Manage schedule and goals."},
-    "scholarships": {"title": "Scholarships", "lead": "Financial support opportunities."},
-    "badges": {"title": "Badges", "lead": "Achievements and motivation."},
-    "helpStudents": {"title": "Help for Students", "lead": "How-tos and study tips."},
-    "codeOfConduct": {"title": "Code of Conduct", "lead": "Respectful, positive learning environment."},
-
-    "institutesPartner": {"title": "Partners", "lead": "Collaborate with institutes and centers."},
-    "institutesCrm": {"title": "CRM", "lead": "Manage customers and contacts."},
-    "institutesScheduling": {"title": "Scheduling", "lead": "Class and resource scheduling."},
-    "institutesAds": {"title": "Ads", "lead": "Campaigns to attract learners."},
-    "institutesRecruit": {"title": "Recruit", "lead": "Teacher and contributor recruitment."},
-    "institutesReviews": {"title": "Reviews", "lead": "Manage feedback and reputation."},
-    "institutesBilling": {"title": "Billing", "lead": "Invoices and reconciliation for orgs."},
-    "helpPartners": {"title": "Help for Partners", "lead": "Docs and deployment support."},
-
-    "teachersApply": {"title": "Apply as Teacher", "lead": "Join Tuto's teacher network."},
-    "teachersOnboarding": {"title": "Teacher Onboarding", "lead": "Set up profile and schedule."},
-    "teachersPayments": {"title": "Payments", "lead": "Track income and payouts."},
-    "teachersCalendar": {"title": "Teaching Calendar", "lead": "Manage schedule and classes."},
-    "teachersResources": {"title": "Resources", "lead": "Teaching materials and templates."},
-    "teachersCommunity": {"title": "Community", "lead": "Connect and share experience."},
-    "teachersQuality": {"title": "Quality", "lead": "Standards and feedback."},
-    "helpTeachers": {"title": "Help for Teachers", "lead": "Guides and FAQs."},
-
-    "help": {"title": "Help", "lead": "Support center for users."},
-    "blog": {"title": "Blog", "lead": "Articles, tips, and stories."},
-    "developers": {"title": "Developers", "lead": "Integration docs and APIs."},
-    "status": {"title": "System Status", "lead": "Current service health."},
-    "legalTerms": {"title": "Terms", "lead": "Terms of service."},
-    "legalPrivacy": {"title": "Privacy", "lead": "Privacy policy."},
-    "legalCookies": {"title": "Cookies", "lead": "Cookie policy."},
-    "sitemap": {"title": "Sitemap", "lead": "Website overview links."}
-  },
   "dashboard": {
     "teachers": {
       "title": "Teachers",
@@ -1631,15 +1147,453 @@
       }
     }
   },
+  "teachers": "Teachers",
+  "classes": "Classes",
+  "students": "Students",
+  "announcements": "Announcements",
+  "messages": "Messages",
+  "attendance": "Attendance",
+  "homework": "Homework",
+  "progressReports": "Progress Reports",
+  "events": "Events",
+  "photoAlbums": "Photo Albums",
+  "healthRecords": "Health Records",
+  "medicine": "Medicine",
+  "extracurricular": "Extracurricular",
+  "payments": "Fees",
+  "feedback": "Feedback",
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your profile, preferences, and integrations",
+    "parentSubtitle": "Manage your profile, preferences, and notifications",
+    "lastSaved": "Last saved",
+    "tabs": {
+      "profile": "Profile",
+      "preferences": "Preferences",
+      "integrations": "Integrations",
+      "notifications": "Notifications",
+      "privacy": "Privacy"
+    },
+    "profile": {
+      "title": "Profile Information",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "Enter your full name",
+      "email": "Email",
+      "emailManaged": "Email is managed by your authentication provider",
+      "phone": "Phone Number",
+      "bio": "Bio",
+      "bioPlaceholder": "Tell us a little about yourself...",
+      "avatarHint": "Click to upload (max 1.5MB)",
+      "invalidFileType": "Invalid file type. Please upload a JPEG, PNG, or WebP image.",
+      "fileTooLarge": "File is too large. Maximum size is 1.5MB.",
+      "uploadError": "Failed to upload avatar",
+      "password": "Password",
+      "passwordHint": "Password is managed by your authentication provider (Google)",
+      "resetPassword": "Reset via Google Account",
+      "editProfile": "Edit Profile",
+      "avatarPermissionDenied": "Please allow photo library access to upload avatar.",
+      "avatarUploadSuccess": "Avatar updated successfully",
+      "updateSuccess": "Profile updated successfully",
+      "phonePlaceholder": "+84...",
+      "twoFactor": "Two-Factor Authentication",
+      "twoFactorHint": "Add an extra layer of security to your account",
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "preferences": {
+      "title": "Preferences",
+      "language": "Language",
+      "theme": "Theme",
+      "themeHint": "System will follow your device settings",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark",
+      "timezone": "Timezone",
+      "themeUpdated": "Theme updated",
+      "timezoneUpdated": "Timezone updated"
+    },
+    "notifications": {
+      "title": "Notification Preferences",
+      "description": "Choose how you want to be notified about different types of updates",
+      "topic": "Topic",
+      "enablePush": "Enable Push Notifications",
+      "pushEnabled": "Push Enabled",
+      "pushError": "Failed to enable push notifications",
+      "pushDescription": "Push notifications are enabled on this device",
+      "topics": {
+        "announcements": "Announcements",
+        "homework": "Homework",
+        "events": "Events",
+        "payments": "Fees",
+        "messages": "Messages",
+        "health": "Health"
+      },
+      "channels": {
+        "email": "Email",
+        "push": "Push",
+        "sms": "SMS"
+      }
+    },
+    "devices": {
+      "title": "Active Sessions",
+      "description": "Manage devices where you're currently signed in",
+      "noDevices": "No active sessions",
+      "revoke": "Revoke",
+      "revokeError": "Failed to revoke device",
+      "on": "on",
+      "justNow": "Just now",
+      "minutesAgo": "min ago",
+      "hoursAgo": "hours ago",
+      "daysAgo": "days ago"
+    },
+    "branding": {
+      "title": "School Branding",
+      "preview": "Preview",
+      "schoolName": "School Name",
+      "tagline": "Education Excellence",
+      "schoolInfo": "School Information",
+      "schoolNameLabel": "School Name",
+      "schoolNamePlaceholder": "Enter your school name",
+      "schoolEmail": "School Email",
+      "schoolPhone": "School Phone",
+      "schoolAddress": "School Address",
+      "schoolAddressPlaceholder": "Enter your school address",
+      "logo": "Logo",
+      "logoHint": "Square image, at least 200x200px",
+      "fileTypes": "JPEG, PNG, or WebP",
+      "primaryColor": "Primary Color",
+      "accentColor": "Accent Color",
+      "headerImage": "Header Image",
+      "headerHint": "Click to upload header image",
+      "invalidFileType": "Invalid file type",
+      "uploadError": "Failed to upload"
+    },
+    "integrations": {
+      "title": "Integrations",
+      "description": "Connect third-party services to enhance your school's capabilities",
+      "selectProvider": "Select Provider",
+      "connect": "Connect",
+      "connecting": "Connecting...",
+      "disconnect": "Disconnect",
+      "connectError": "Failed to connect integration",
+      "disconnectError": "Failed to disconnect integration",
+      "connectedOn": "Connected on",
+      "testMode": "Test Mode",
+      "fromNumber": "From Number",
+      "payments": "Fees",
+      "pushNotifications": "Push Notifications",
+      "sms": {
+        "title": "SMS",
+        "description": "Send SMS notifications to parents"
+      },
+      "connected": "Connected",
+      "notConnected": "Not Connected",
+      "paymentsDetail": {
+        "title": "Payments",
+        "description": "Accept payments from parents via Stripe or MoMo"
+      },
+      "push": {
+        "title": "Push Notifications",
+        "description": "Send push notifications to mobile devices"
+      }
+    },
+    "privacy": {
+      "title": "Privacy Settings",
+      "description": "Manage your data and privacy preferences",
+      "matters": "Your Privacy Matters",
+      "dataVisibility": "Data Visibility",
+      "dataVisibilityDescription": "Choose who can see your information",
+      "schoolOnly": "School Only",
+      "exportData": {
+        "title": "Export Your Data",
+        "description": "Download a copy of all your data",
+        "button": "Export Data",
+        "comingSoon": "Data export is coming soon"
+      },
+      "deleteAccount": {
+        "title": "Delete Account",
+        "description": "Permanently delete your account and all data",
+        "warning": "This action cannot be undone",
+        "warningDescription": "All your data will be permanently deleted",
+        "contactAdmin": "Contact School Admin"
+      },
+      "legalDocuments": "Legal Documents",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "dataRetentionPolicy": "Data Retention Policy",
+      "yourRights": "Your Privacy Rights",
+      "rightsDescription": "You have the right to access, correct, or delete your personal data. Contact us for assistance.",
+      "openUrlError": "Could not open link",
+      "mailtoError": "Could not open email client"
+    },
+    "toasts": {
+      "saved": "Settings saved successfully",
+      "error": "Failed to save settings. Please try again."
+    },
+    "role": {
+      "admin": "Admin",
+      "parent": "Parent"
+    },
+    "signOut": {
+      "title": "Sign Out",
+      "message": "Are you sure you want to sign out?",
+      "confirm": "Sign Out",
+      "button": "Sign Out"
+    },
+    "device": {
+      "title": "Device & App",
+      "security": "Security & Authentication",
+      "biometricHint": "Use Face ID or fingerprint to unlock the app",
+      "notifications": "Notifications & Alerts",
+      "pushNotifications": "Push Notifications",
+      "pushDescription": "Receive push notifications on this device",
+      "soundAlerts": "Sound Alerts",
+      "soundDescription": "Play sounds for in-app notifications",
+      "vibrationAlerts": "Vibration Alerts",
+      "vibrationDescription": "Vibrate for in-app notifications",
+      "dataUsage": "Data Usage",
+      "dataSaver": "Data Saver",
+      "dataSaverDescription": "Load lower-resolution images to save data",
+      "wifiOnly": "Download over Wi-Fi Only",
+      "wifiOnlyDescription": "Only download heavy media when on Wi-Fi",
+      "dataUsageTip": "These settings help you save data and reduce your mobile data usage."
+    },
+    "about": {
+      "title": "About & Legal",
+      "tagline": "Connecting schools, teachers, and families",
+      "appInfo": "App Information",
+      "version": "Version",
+      "buildNumber": "Build Number",
+      "platform": "Platform",
+      "lastUpdated": "Last Updated",
+      "legalDocuments": "Legal Documents",
+      "resources": "Resources & Support",
+      "helpCenter": "Help Center",
+      "contactSupport": "Contact Support",
+      "openSource": "Open Source Licenses",
+      "madeWith": "Made with ❤️ for education"
+    }
+  },
+  "dailyActivities": "Daily Activities",
+  "totalStudents": "Total Students",
+  "activeTeachers": "Active Teachers",
+  "attendanceRate": "Attendance Rate",
+  "upcomingEvents": "Upcoming Events",
+  "feeCollection": "Fee Collection",
+  "averageRating": "Average Rating",
+  "recentAnnouncements": "Recent Announcements",
+  "noAnnouncementsYet": "No announcements yet",
+  "unreadMessages": "Unread Messages",
+  "noUnreadMessages": "No unread messages",
+  "upcomingHomework": "Upcoming Homework",
+  "noUpcomingHomework": "No upcoming homework",
+  "aiInsights": "AI Insights",
+  "attendancePrediction": "Attendance Prediction",
+  "web": {
+    "about": {
+      "title": "About Tuto",
+      "lead": "A platform connecting teachers, parents, and students for effective learning."
+    },
+    "trustSafety": {
+      "title": "Trust & Safety",
+      "lead": "Verification processes, community standards, and data protection."
+    },
+    "howItWorks": {
+      "title": "How it Works",
+      "lead": "Find the right teacher, book sessions, learn, and track progress."
+    },
+    "impact": {
+      "title": "Impact",
+      "lead": "Improving learning outcomes and connecting education communities."
+    },
+    "newsroom": {
+      "title": "Newsroom",
+      "lead": "News, press releases, and product updates."
+    },
+    "careers": {
+      "title": "Careers",
+      "lead": "Join Tuto to build the future of education."
+    },
+    "investors": {
+      "title": "Investors",
+      "lead": "Vision, key metrics, and contact information."
+    },
+    "contact": {
+      "title": "Contact",
+      "lead": "Need help? Get in touch with the Tuto team."
+    },
+    "findTeacher": {
+      "title": "Find Teacher",
+      "lead": "Search teachers by subject, location, and rating."
+    },
+    "trial": {
+      "title": "Trial Lesson",
+      "lead": "Experience for free before committing."
+    },
+    "pricing": {
+      "title": "Pricing",
+      "lead": "Transparent fees and flexible plans."
+    },
+    "ratingsPolicy": {
+      "title": "Ratings Policy",
+      "lead": "Guidelines for fair and useful reviews."
+    },
+    "roadmaps": {
+      "title": "Learning Roadmaps",
+      "lead": "Plans by subject and level."
+    },
+    "safeguarding": {
+      "title": "Safeguarding",
+      "lead": "Standards to protect students and learning."
+    },
+    "helpParents": {
+      "title": "Help for Parents",
+      "lead": "FAQs and quick guides."
+    },
+    "download": {
+      "title": "Download App",
+      "lead": "Get Tuto on iOS and Android."
+    },
+    "adaptiveHomework": {
+      "title": "Adaptive Homework",
+      "lead": "Personalized content by level."
+    },
+    "practice": {
+      "title": "Practice",
+      "lead": "Daily and topical exercises."
+    },
+    "events": {
+      "title": "Events",
+      "lead": "Competitions, webinars, and community activities."
+    },
+    "planner": {
+      "title": "Learning Planner",
+      "lead": "Manage schedule and goals."
+    },
+    "scholarships": {
+      "title": "Scholarships",
+      "lead": "Financial support opportunities."
+    },
+    "badges": {
+      "title": "Badges",
+      "lead": "Achievements and motivation."
+    },
+    "helpStudents": {
+      "title": "Help for Students",
+      "lead": "How-tos and study tips."
+    },
+    "codeOfConduct": {
+      "title": "Code of Conduct",
+      "lead": "Respectful, positive learning environment."
+    },
+    "institutesPartner": {
+      "title": "Partners",
+      "lead": "Collaborate with institutes and centers."
+    },
+    "institutesCrm": {
+      "title": "CRM",
+      "lead": "Manage customers and contacts."
+    },
+    "institutesScheduling": {
+      "title": "Scheduling",
+      "lead": "Class and resource scheduling."
+    },
+    "institutesAds": {
+      "title": "Ads",
+      "lead": "Campaigns to attract learners."
+    },
+    "institutesRecruit": {
+      "title": "Recruit",
+      "lead": "Teacher and contributor recruitment."
+    },
+    "institutesReviews": {
+      "title": "Reviews",
+      "lead": "Manage feedback and reputation."
+    },
+    "institutesBilling": {
+      "title": "Billing",
+      "lead": "Invoices and reconciliation for orgs."
+    },
+    "helpPartners": {
+      "title": "Help for Partners",
+      "lead": "Docs and deployment support."
+    },
+    "teachersApply": {
+      "title": "Apply as Teacher",
+      "lead": "Join Tuto's teacher network."
+    },
+    "teachersOnboarding": {
+      "title": "Teacher Onboarding",
+      "lead": "Set up profile and schedule."
+    },
+    "teachersPayments": {
+      "title": "Payments",
+      "lead": "Track income and payouts."
+    },
+    "teachersCalendar": {
+      "title": "Teaching Calendar",
+      "lead": "Manage schedule and classes."
+    },
+    "teachersResources": {
+      "title": "Resources",
+      "lead": "Teaching materials and templates."
+    },
+    "teachersCommunity": {
+      "title": "Community",
+      "lead": "Connect and share experience."
+    },
+    "teachersQuality": {
+      "title": "Quality",
+      "lead": "Standards and feedback."
+    },
+    "helpTeachers": {
+      "title": "Help for Teachers",
+      "lead": "Guides and FAQs."
+    },
+    "help": {
+      "title": "Help",
+      "lead": "Support center for users."
+    },
+    "blog": {
+      "title": "Blog",
+      "lead": "Articles, tips, and stories."
+    },
+    "developers": {
+      "title": "Developers",
+      "lead": "Integration docs and APIs."
+    },
+    "status": {
+      "title": "System Status",
+      "lead": "Current service health."
+    },
+    "legalTerms": {
+      "title": "Terms",
+      "lead": "Terms of service."
+    },
+    "legalPrivacy": {
+      "title": "Privacy",
+      "lead": "Privacy policy."
+    },
+    "legalCookies": {
+      "title": "Cookies",
+      "lead": "Cookie policy."
+    },
+    "sitemap": {
+      "title": "Sitemap",
+      "lead": "Website overview links."
+    }
+  },
   "landing": {
     "nav": {
       "home": "Home",
-      "findSchool": "Find a School/Center",
       "findTeacher": "Find Teacher",
       "communityFeed": "Community Feed",
       "schoolDashboard": "School Dashboard",
       "dashboard": "Dashboard",
-      "login": "Login"
+      "mySchedule": "My Schedule",
+      "messages": "Messages",
+      "login": "Login",
+      "community": "Community"
     },
     "hero": {
       "title": "Empowering families, teachers, and schools.",
@@ -1736,16 +1690,6 @@
       "privacyPolicy": "Privacy Policy",
       "termsOfService": "Terms of Service",
       "contactUs": "Contact Us"
-    },
-    "nav": {
-      "home": "Home",
-      "findTeacher": "Find Teacher",
-      "communityFeed": "Community Feed",
-      "schoolDashboard": "School Dashboard",
-      "dashboard": "Dashboard",
-      "mySchedule": "My Schedule",
-      "messages": "Messages",
-      "login": "Login"
     }
   },
   "parentDashboard": {

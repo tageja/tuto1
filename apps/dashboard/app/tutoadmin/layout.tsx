@@ -41,7 +41,7 @@ export default function TutoAdminLayout({ children }: { children: React.ReactNod
         
         if (!session?.user?.email) {
           console.log('[TutoAdmin] No session, redirecting to login');
-          router.push('/login?redirect=/tutoadmin');
+          router.push('/login?redirectTo=/tutoadmin');
           return;
         }
 
@@ -59,7 +59,7 @@ export default function TutoAdminLayout({ children }: { children: React.ReactNod
       } catch (error) {
         console.error('[TutoAdmin] Auth check error:', error);
         if (mounted) {
-          router.push('/login?redirect=/tutoadmin');
+          router.push('/login?redirectTo=/tutoadmin');
         }
       } finally {
         if (mounted) {
@@ -80,7 +80,7 @@ export default function TutoAdminLayout({ children }: { children: React.ReactNod
         checkAuth();
       } else if (event === 'SIGNED_OUT') {
         if (mounted) {
-          router.push('/login?redirect=/tutoadmin');
+          router.push('/login?redirectTo=/tutoadmin');
         }
       }
     });

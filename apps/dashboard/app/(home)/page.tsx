@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '../../contexts/I18nContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
 import { Menu, X } from 'lucide-react';
-import { useState } from 'react';
+
+const SOCIAL_URL = process.env.NEXT_PUBLIC_SOCIAL_URL ?? 'http://localhost:3001';
 
 import Hero from "../../components/landing/Hero";
 import OpenAppShowcase from "../../components/landing/OpenAppShowcase";
@@ -23,6 +25,20 @@ export default function WebHomePage() {
   const { user } = useAuth();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleCommunityClick = useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      router.push('/login?redirectTo=/community');
+      return;
+    }
+    const params = new URLSearchParams({
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
+    });
+    window.location.href = `${SOCIAL_URL}/auth/sso?${params.toString()}`;
+  }, [router]);
 
   // Teachers should go to teacher dashboard, not landing page
   useEffect(() => {
@@ -53,9 +69,14 @@ export default function WebHomePage() {
             <Link href="/find-teacher" className="text-sm font-semibold text-gray-600 hover:text-primary transition-colors">
               {t('landing.nav.findTeacher')}
             </Link>
-            <Link href="/feed" className="text-sm font-semibold text-gray-600 hover:text-primary transition-colors">
-              {t('landing.nav.communityFeed')}
-            </Link>
+            <a
+              href={`${SOCIAL_URL}/auth/sso`}
+              onClick={handleCommunityClick}
+              className="text-sm font-semibold text-gray-600 hover:text-primary transition-colors flex items-center gap-1.5 cursor-pointer"
+            >
+              <span className="inline-block w-2 h-2 rounded-full bg-primary animate-pulse" />
+              {t('landing.nav.community')}
+            </a>
             <Link href="/school" className="text-sm font-semibold text-gray-600 hover:text-primary transition-colors">
               {t('landing.nav.schoolDashboard')}
             </Link>
@@ -112,9 +133,14 @@ export default function WebHomePage() {
               <Link href="/find-teacher" className="block text-base font-semibold text-gray-600">
                 {t('landing.nav.findTeacher')}
               </Link>
-              <Link href="/feed" className="block text-base font-semibold text-gray-600">
-                {t('landing.nav.communityFeed')}
-              </Link>
+              <a
+                href={`${SOCIAL_URL}/auth/sso`}
+                onClick={handleCommunityClick}
+                className="block text-base font-semibold text-gray-600 flex items-center gap-2 cursor-pointer"
+              >
+                <span className="inline-block w-2 h-2 rounded-full bg-primary" />
+                {t('landing.nav.community')}
+              </a>
               <Link href="/school" className="block text-base font-semibold text-gray-600">
                 {t('landing.nav.schoolDashboard')}
               </Link>

@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* tuto.social design tokens as CSS variables */
+:root {
+  --color-primary:        #0B5FFF;
+  --color-primary-dark:   #0047CC;
+  --color-accent:         #6366F1;
+  --color-background:     #FFFFFF;
+  --color-surface:        #F9FAFC;
+  --color-text-primary:   #111827;
+  --color-text-secondary: #6B7280;
+  --color-success:        #10B981;
+  --color-achievement:    #F59E0B;
+  --color-border:         #E5E7EB;
+
+  /* Role badge colors */
+  --color-role-student:     #0B5FFF;
+  --color-role-parent:      #10B981;
+  --color-role-teacher:     #8B5CF6;
+  --color-role-schoolAdmin: #F97316;
+
+  /* Border radii */
+  --radius-card:   16px;
+  --radius-button: 12px;
+  --radius-pill:   9999px;
+  --radius-modal:  24px;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    line-height: 1.5;
+  }
+}
+
+@layer components {
+  /* Tuto primary button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-button
+           bg-primary text-white font-semibold text-sm
+           transition-colors hover:bg-primary-dark active:scale-95;
+  }
+
+  /* Ghost / outline button */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-button
+           border border-gray-200 text-text-primary font-semibold text-sm bg-white
+           transition-colors hover:bg-surface active:scale-95;
+  }
+
+  /* Card surface */
+  .card {
+    @apply bg-white rounded-card shadow-sm border border-gray-100 overflow-hidden;
+  }
+
+  /* Role badge pill */
+  .role-badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-xs font-medium text-white;
+  }
+
+  /* Moderation badge */
+  .mod-badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-[11px] font-medium;
+  }
+}

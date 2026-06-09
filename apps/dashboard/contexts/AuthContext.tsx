@@ -95,13 +95,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           try {
             result = await withTimeout(profileQuery(), 8000, 'Profile fetch retry timed out');
           } catch (retryErr: any) {
-            // Both attempts timed out — sign out and let user retry (DB is cold-starting)
-            console.error('❌ Profile fetch timed out twice. Database may be cold-starting. Signing out.');
-            await supabase.auth.signOut();
-            setSupabaseUser(null);
-            setUser(null);
-            setAccessToken(null);
-            setError('Connection to database timed out. Please sign in again — it should work now.');
+            // Both attempts timed out — session is valid, only DB profile lookup is slow.
+            // Do NOT sign out. Proceed with no profile; display name falls back to email.
+            console.warn('⚠️ Profile fetch timed out twice (DB cold-starting). Proceeding without profile.');
             return;
           }
         } else {
@@ -245,15 +241,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         stack: err?.stack?.substring(0, 200),
       });
       
-      // Timeout errors are now handled inside the inner try/catch above (sign out + error message).
-      // If we reach here with a timeout-like error, it means the inner handler didn't fire — sign out cleanly.
+      // Timeout errors: session is valid, only DB is slow — do NOT sign out.
       if (err?.message?.includes('timed out')) {
-        console.error('❌ Profile fetch timed out (outer catch). Signing out for clean retry.');
-        await supabase.auth.signOut();
-        setSupabaseUser(null);
-        setUser(null);
-        setAccessToken(null);
-        setError('Connection to database timed out. Please sign in again — it should work now.');
+        console.warn('⚠️ Profile fetch timed out (outer catch). Proceeding without profile.');
         return;
       }
       
@@ -286,22 +276,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    */
   useEffect(() => {
     let mounted = true;
-    
+
     // Get initial session and validate it
     const initSession = async () => {
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
+        // getSession() can hang indefinitely when a stored session requires a
+        // token refresh and the Supabase auth server is unreachable or slow.
+        // Race with an 8 s timeout so setLoading(false) is always guaranteed.
+        const { data: { session }, error: sessionError } = await Promise.race([
+          supabase.auth.getSession(),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('getSession timeout after 20s')), 20000)
+          ),
+        ]);
+
         if (!mounted) return;
         
         if (sessionError) {
           console.warn('⚠️ Session error (clearing):', sessionError.message);
-          // Invalid/expired refresh token or similar - clear and show login
           await supabase.auth.signOut();
           setSupabaseUser(null);
           setUser(null);
           setError(sessionError.message?.includes('Refresh Token') ? null : sessionError.message);
-          setLoading(false);
           return;
         }
         
@@ -309,9 +305,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log('✅ Valid session found, fetching user profile...');
           setSupabaseUser(session.user);
           setAccessToken(session.access_token ?? null);
-          
-          // Validate session is not expired by trying to fetch profile
-          await fetchUserProfile(session.user);
+          // Profile fetch is best-effort: a failure must NOT block loading
+          try {
+            await fetchUserProfile(session.user);
+          } catch {
+            console.warn('⚠️ initSession: fetchUserProfile failed, proceeding without profile');
+          }
         } else {
           console.log('ℹ️ No active session found');
           setSupabaseUser(null);
@@ -320,21 +319,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } catch (err: any) {
         const msg = err?.message ?? '';
+        const isTimeout = msg.includes('getSession timeout after 20s');
         const isRefreshTokenError = msg.includes('Refresh Token') || msg.includes('AuthApiError') || err?.name === 'AuthApiError';
-        if (isRefreshTokenError) {
+        if (isTimeout) {
+          console.warn('⚠️ getSession timed out — Supabase auth server unreachable, clearing session');
+        } else if (isRefreshTokenError) {
           console.warn('⚠️ Invalid or missing refresh token, clearing session');
         } else {
           console.error('❌ Error initializing session:', err);
         }
-        // Clear invalid session so user can sign in again
-        await supabase.auth.signOut();
+        if (!isTimeout) {
+          // Only sign out on real auth errors, not network timeouts
+          await supabase.auth.signOut();
+        }
         setSupabaseUser(null);
         setUser(null);
-        setError(isRefreshTokenError ? null : (msg || 'Session expired'));
+        setError(isTimeout || isRefreshTokenError ? null : (msg || 'Session expired'));
       } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+        // Unconditional: calling setState on an unmounted component is a no-op
+        // in React 18 and must never block loading from resolving.
+        setLoading(false);
       }
     };
     
@@ -372,8 +376,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (session?.user) {
           console.log('📥 Session user found, fetching profile...');
-          await fetchUserProfile(session.user);
-          console.log('✅ Profile fetch completed, auth loading finished');
+          // Profile fetch is best-effort: a hang or throw must NOT block loading
+          try {
+            await fetchUserProfile(session.user);
+            console.log('✅ Profile fetch completed, auth loading finished');
+          } catch {
+            console.warn('⚠️ onAuthStateChange: fetchUserProfile failed, proceeding without profile');
+          }
         } else {
           setUser(null);
         }
@@ -388,7 +397,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSupabaseUser(null);
         setUser(null);
       } finally {
-        if (mounted) setLoading(false);
+        // Unconditional: safe in React 18 (no-op on unmounted), prevents loading
+        // from getting stuck when component remounts during fetchUserProfile await
+        setLoading(false);
       }
     });
 
@@ -433,9 +444,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('No user returned from sign in');
       }
       
-      await fetchUserProfile(user);
-      router.push('/home');
-      console.log('✅ Sign in successful');
+      // Profile fetch is best-effort — auth succeeded regardless
+      try {
+        await fetchUserProfile(user);
+      } catch (profileErr) {
+        console.warn('⚠️ Profile load failed after auth success, proceeding with redirect:', profileErr);
+      }
+
+      // Navigation is handled by the login page's useEffect([user, router]).
+      // window.location.href does not navigate in Next.js App Router (it is
+      // intercepted client-side); router.replace() in the consumer is correct.
+      console.log('✅ Sign in successful, profile loaded — login page useEffect will redirect');
     } catch (err: any) {
       console.error('❌ Sign in failed:', err);
       

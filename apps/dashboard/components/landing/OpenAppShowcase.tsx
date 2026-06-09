@@ -1,15 +1,35 @@
 "use client";
 
+import { useCallback } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useI18n } from "../../contexts/I18nContext";
+import { supabase } from "../../lib/supabase";
 import { demoFeed, demoNearby } from "../../lib/demoData";
 import FiltersBar from "./FiltersBar";
 import { MapPin, Star, ArrowRight } from "lucide-react";
 
+const SOCIAL_URL = process.env.NEXT_PUBLIC_SOCIAL_URL ?? "http://localhost:3001";
+
 export default function OpenAppShowcase() {
   const { t } = useI18n();
+  const router = useRouter();
+
+  const handleCommunityClick = useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      router.push("/login?redirectTo=/community");
+      return;
+    }
+    const params = new URLSearchParams({
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
+    });
+    window.location.href = `${SOCIAL_URL}/auth/sso?${params.toString()}`;
+  }, [router]);
 
   return (
     <section className="py-20 bg-surface">
@@ -21,9 +41,13 @@ export default function OpenAppShowcase() {
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900">{t("landing.openApp.highlightsTitle")}</h2>
-                <Link href="/feed" className="text-primary font-semibold flex items-center gap-1 hover:underline">
+                <a
+                  href={`${SOCIAL_URL}/auth/sso`}
+                  onClick={handleCommunityClick}
+                  className="text-primary font-semibold flex items-center gap-1 hover:underline cursor-pointer"
+                >
                   {t("landing.openApp.viewAll")} <ArrowRight className="w-4 h-4" />
-                </Link>
+                </a>
               </div>
               <p className="text-gray-600">{t("landing.openApp.highlightsSubtitle")}</p>
             </div>

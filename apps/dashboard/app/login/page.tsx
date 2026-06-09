@@ -14,6 +14,8 @@ import {
 } from '../../components/ui/Select';
 import { useRouter } from 'next/navigation';
 
+const SOCIAL_URL = process.env.NEXT_PUBLIC_SOCIAL_URL ?? 'http://localhost:3001';
+
 const styles = {
   container: {
     minHeight: '100vh',
@@ -309,9 +311,39 @@ export default function LoginPage() {
     setIsClient(true);
   }, []);
 
-  // Redirect by role as soon as profile is loaded (session recovered or fresh sign-in)
+  // Redirect as soon as profile is loaded (session recovered or fresh sign-in).
+  // window.location.href does not navigate in Next.js App Router (intercepted by
+  // the client router), so we use router.replace() for internal paths.
+  // The community SSO flow is special: redirectTo=/community means we need to
+  // exchange the Supabase session tokens for the social app's SSO endpoint.
   useEffect(() => {
     if (!user) return;
+
+    const redirectTo = new URLSearchParams(window.location.search).get('redirectTo');
+
+    if (redirectTo === '/community') {
+      // SSO handoff: get current session tokens and redirect to social app
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          const params = new URLSearchParams({
+            access_token:  session.access_token,
+            refresh_token: session.refresh_token,
+          });
+          window.location.href = `${SOCIAL_URL}/auth/sso?${params.toString()}`;
+        } else {
+          router.replace('/home');
+        }
+      });
+      return;
+    }
+
+    if (redirectTo) {
+      // Generic internal redirect (e.g. /school/admin after deep link)
+      router.replace(redirectTo);
+      return;
+    }
+
+    // Default: role-based redirect
     const role = user.role?.toLowerCase?.() ?? user.role;
     if (role === 'teacher') {
       router.replace('/school/teacher');
@@ -381,13 +413,12 @@ export default function LoginPage() {
         }
       } else {
         await signIn(email.trim(), password);
-        if (role === 'teacher') {
-          router.push('/school/teacher');
-        }
+        // Navigation is handled by the useEffect([user, router]) above.
+        // signIn() sets the user state; the effect fires on the next render.
       }
     } catch (err) {
-      // Error is already handled by AuthContext
-      console.log('Auth error handled');
+      // Error is already set in AuthContext via setError()
+      console.error('[Login] sign in error:', err);
     }
   };
 

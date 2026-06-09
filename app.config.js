@@ -68,6 +68,14 @@ module.exports = {
           ],
         },
       ],
+      [
+        'expo-notifications',
+        {
+          icon: './assets/icon.png',
+          color: '#0B5FFF',
+          sounds: [],
+        },
+      ],
     ],
     extra: {
       // EAS Project ID

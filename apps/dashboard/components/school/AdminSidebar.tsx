@@ -27,6 +27,7 @@ import {
   MessageSquare,
   Crown,
   FileSpreadsheet,
+  Shield,
 } from 'lucide-react';
 
 export function AdminSidebar() {
@@ -51,6 +52,7 @@ export function AdminSidebar() {
     { icon: Megaphone, label: t('announcements'), href: `/school/${encodedSchoolId}/admin/announcements` },
     { icon: MessageCircle, label: t('messages'), href: `/school/${encodedSchoolId}/admin/messages` },
     { icon: MessageSquare, label: t('feedback'), href: `/school/${encodedSchoolId}/admin/feedback` },
+    { icon: Shield, label: t('moderation') || 'Moderation', href: `/school/${encodedSchoolId}/admin/moderation` },
     { icon: CalendarCheck, label: t('attendance'), href: `/school/${encodedSchoolId}/admin/attendance` },
     { icon: BookOpen, label: t('homework'), href: `/school/${encodedSchoolId}/admin/homework` },
     { icon: TrendingUp, label: t('progressReports'), href: `/school/${encodedSchoolId}/admin/progress-reports` },
