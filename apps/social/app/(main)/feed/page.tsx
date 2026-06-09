@@ -1,6 +1,5 @@
 import { createServerClient }  from '@supabase/ssr';
 import { cookies }              from 'next/headers';
-import { redirect }             from 'next/navigation';
 import FeedContainer            from '../../../components/feed/FeedContainer';
 import StoryBar                 from '../../../components/stories/StoryBar';
 import type { Metadata }        from 'next';
@@ -32,8 +31,8 @@ export default async function FeedPage() {
     },
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  // Community-first: guests can browse the feed (anon-read RLS returns
+  // public + approved posts). No auth gate here.
 
   // Fetch initial posts server-side (school + public, approved only)
   const { data: rows } = await supabase
