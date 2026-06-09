@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 import Avatar from '@/components/ui/Avatar';
 import { getSupabaseBrowserClient } from '@/lib/supabase';
+import EcosystemSwitcher from '@/components/layout/EcosystemSwitcher';
 
 export default function Header() {
   const { user, profile, loading, signOut } = useAuth();
@@ -137,6 +138,7 @@ export default function Header() {
         {/* User actions */}
         {!loading && (
           <div className="flex items-center gap-3">
+            <EcosystemSwitcher />
             {user && profile ? (
               <div className="relative">
                 <button

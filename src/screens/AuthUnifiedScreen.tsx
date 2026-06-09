@@ -19,6 +19,7 @@ import { supabase, signInWithEmail, signUpWithEmail, signInWithGoogle, signInWit
 import Constants from 'expo-constants';
 import * as WebBrowser from 'expo-web-browser';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import { setRememberMe as persistRememberMe } from '../services/rememberMe';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -318,7 +319,7 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
     route?.params?.mode === 'register' ? 'register' : 'signin'
   );
   const [loading, setLoading] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [selectedRole, setSelectedRole] = useState<RoleType>('parent');
   const [showRolePicker, setShowRolePicker] = useState(false);
 
@@ -735,7 +736,11 @@ export const AuthUnifiedScreen: React.FC<AuthUnifiedScreenProps> = ({ navigation
       };
       
       await setUserData(userData);
-      
+
+      // Persist the "keep me signed in" choice so SplashRoute can decide
+      // whether to keep the session alive on the next cold launch.
+      await persistRememberMe(rememberMe);
+
       // After successful login, always navigate to Welcome screen
       // Welcome screen will check school associations and route accordingly
       const navigationTarget = 'Welcome';

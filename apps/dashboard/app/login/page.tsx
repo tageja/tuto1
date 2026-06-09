@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
-import { supabase } from '../../lib/supabase';
+import { supabase, setRememberMe as setRememberMePreference } from '../../lib/supabase';
 import {
   Select,
   SelectContent,
@@ -303,7 +303,7 @@ export default function LoginPage() {
   const [name, setName] = useState('');
   const [role, setRole] = useState<'teacher' | 'parent' | 'student' | 'school_admin'>('parent');
   const [schoolCode, setSchoolCode] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [isClient, setIsClient] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -412,6 +412,9 @@ export default function LoginPage() {
           setSuccessMessage(t('confirmEmailSent') || 'Please check your email to confirm your account. Click the link in the email to complete registration.');
         }
       } else {
+        // Apply the "keep me signed in" choice before authenticating so the
+        // session lands in localStorage (persistent) or sessionStorage (per-session).
+        setRememberMePreference(rememberMe);
         await signIn(email.trim(), password);
         // Navigation is handled by the useEffect([user, router]) above.
         // signIn() sets the user state; the effect fires on the next render.

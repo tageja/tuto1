@@ -13,6 +13,60 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local');
 }
 
+const REMEMBER_ME_KEY = 'tuto-remember-me';
+
+/**
+ * Set the "keep me signed in" preference for this browser.
+ * When false, the auth session lives in sessionStorage (cleared when the
+ * browser/tab is closed); when true (default), it lives in localStorage and
+ * survives restarts. Call this BEFORE signing in so the session lands in the
+ * correct store.
+ */
+export function setRememberMe(value: boolean) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(REMEMBER_ME_KEY, value ? 'true' : 'false');
+    // Migrate any existing token to the now-correct store.
+    const target = value ? window.localStorage : window.sessionStorage;
+    const other = value ? window.sessionStorage : window.localStorage;
+    const existing = other.getItem('tuto-dashboard-auth');
+    if (existing !== null) {
+      target.setItem('tuto-dashboard-auth', existing);
+      other.removeItem('tuto-dashboard-auth');
+    }
+  } catch {
+    // Non-fatal: falls back to default storage behaviour.
+  }
+}
+
+function rememberMeEnabled(): boolean {
+  if (typeof window === 'undefined') return true;
+  return window.localStorage.getItem(REMEMBER_ME_KEY) !== 'false';
+}
+
+/**
+ * Storage adapter that routes the auth session to localStorage (persistent)
+ * or sessionStorage (per-session) based on the remember-me preference.
+ * SSR-safe: no-ops when window is unavailable.
+ */
+const rememberMeStorage = {
+  getItem: (key: string): string | null => {
+    if (typeof window === 'undefined') return null;
+    const store = rememberMeEnabled() ? window.localStorage : window.sessionStorage;
+    return store.getItem(key) ?? window.localStorage.getItem(key) ?? window.sessionStorage.getItem(key);
+  },
+  setItem: (key: string, value: string): void => {
+    if (typeof window === 'undefined') return;
+    const store = rememberMeEnabled() ? window.localStorage : window.sessionStorage;
+    store.setItem(key, value);
+  },
+  removeItem: (key: string): void => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.removeItem(key);
+    window.sessionStorage.removeItem(key);
+  },
+};
+
 // Create Supabase client for browser
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
@@ -21,6 +75,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true,
     // Set storage key to avoid conflicts
     storageKey: 'tuto-dashboard-auth',
+    // Route the session to localStorage or sessionStorage based on remember-me
+    storage: rememberMeStorage,
     // Add debug logging in development
     debug: process.env.NODE_ENV === 'development',
   },

@@ -7,6 +7,7 @@ import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/
 import { useTheme } from '../contexts/ThemeContext';
 import { StatusBar } from 'expo-status-bar';
 import { setCurrentScreen } from '../services/analytics';
+import { getRememberMe } from '../services/rememberMe';
 import { createStackNavigator } from '@react-navigation/stack';
 import { HomeScreen } from '../screens/HomeScreen';
 import { LoginScreen } from '../screens/LoginScreen';
@@ -246,7 +247,14 @@ const SplashRoute: React.FC<{ navigation: any }> = ({ navigation }) => {
 
     const run = async () => {
       const { data } = await supabase.auth.getSession();
-      const hasSession = !!data?.session;
+      let hasSession = !!data?.session;
+
+      // Honour the "keep me signed in" preference: if the user opted out, end
+      // their persisted session on cold launch so they must sign in again.
+      if (hasSession && !(await getRememberMe())) {
+        await supabase.auth.signOut();
+        hasSession = false;
+      }
 
       const elapsed = Date.now() - startRef.current;
       const remaining = Math.max(0, MIN_SPLASH_MS - elapsed);
