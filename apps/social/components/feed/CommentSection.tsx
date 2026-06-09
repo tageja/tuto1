@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Image                                from 'next/image';
 import { getSupabaseBrowserClient }         from '@/lib/supabase';
 import { useFeedInvalidation }              from '@/contexts/FeedInvalidationContext';
+import { useAuthGate }                       from '@/contexts/AuthGateContext';
 
 interface Comment {
   id:        string;
@@ -34,6 +35,7 @@ export default function CommentSection({ postId }: { postId: string }) {
   // cause useEffect to fire in an infinite loop due to referential inequality).
   const supabase        = getSupabaseBrowserClient();
   const { invalidateFeed } = useFeedInvalidation();
+  const { promptAuth }     = useAuthGate();
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading,  setLoading]  = useState(true);
@@ -87,12 +89,14 @@ export default function CommentSection({ postId }: { postId: string }) {
   const handleSend = useCallback(async () => {
     const trimmed = text.trim();
     if (!trimmed || sending) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { promptAuth('Đăng nhập để bình luận.'); return; }
+
     setSending(true);
     setText('');
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
 
       const { data: profile } = await supabase
         .from('social_profiles')

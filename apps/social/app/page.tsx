@@ -1,18 +1,10 @@
 import { redirect } from 'next/navigation';
-import { createSupabaseServerClient } from '@/lib/supabase-server';
 
 /**
- * Root page — checks auth and redirects accordingly.
- * Authenticated → /feed
- * Unauthenticated → /login (also handled by middleware, this is a fallback)
+ * Root page — community-first front door.
+ * Everyone (signed in or guest) lands on the public feed; guests can browse and
+ * are prompted to sign in only when they try to interact.
  */
-export default async function RootPage() {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (user) {
-    redirect('/feed');
-  } else {
-    redirect('/login');
-  }
+export default function RootPage() {
+  redirect('/feed');
 }

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useI18n } from '../../contexts/I18nContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { handoffTo } from '../../lib/ecosystem';
 import { Menu, X } from 'lucide-react';
 
 const SOCIAL_URL = process.env.NEXT_PUBLIC_SOCIAL_URL ?? 'http://localhost:3001';
@@ -39,6 +40,11 @@ export default function WebHomePage() {
     });
     window.location.href = `${SOCIAL_URL}/auth/sso?${params.toString()}`;
   }, [router]);
+
+  const handleCoursesClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    void handoffTo('courses');
+  }, []);
 
   // Teachers should go to teacher dashboard, not landing page
   useEffect(() => {
@@ -80,6 +86,13 @@ export default function WebHomePage() {
             <Link href="/school" className="text-sm font-semibold text-gray-600 hover:text-primary transition-colors">
               {t('landing.nav.schoolDashboard')}
             </Link>
+            <a
+              href="#"
+              onClick={handleCoursesClick}
+              className="text-sm font-semibold text-gray-600 hover:text-primary transition-colors cursor-pointer"
+            >
+              {t('landing.nav.courses')}
+            </a>
           </nav>
 
           {/* Actions */}
@@ -144,6 +157,13 @@ export default function WebHomePage() {
               <Link href="/school" className="block text-base font-semibold text-gray-600">
                 {t('landing.nav.schoolDashboard')}
               </Link>
+              <a
+                href="#"
+                onClick={handleCoursesClick}
+                className="block text-base font-semibold text-gray-600 cursor-pointer"
+              >
+                {t('landing.nav.courses')}
+              </a>
               <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
                 <div className="flex gap-4">
                   <button onClick={() => setLang('vi')} className={`font-semibold ${lang === 'vi' ? 'text-gray-900 font-bold' : 'text-gray-500'}`}>VI</button>

@@ -14,6 +14,7 @@ const viFlat: Dict = {
   features: 'Tính năng',
   subjects: 'Môn học',
   community: 'Cộng đồng',
+  courses: 'Học tại nhà',
   login: 'Đăng nhập',
   help: 'Trợ giúp',
   // Login page translations
@@ -530,6 +531,7 @@ const enFlat: Dict = {
   features: 'Features',
   subjects: 'Subjects',
   community: 'Community',
+  courses: 'Home Learning',
   login: 'Login',
   help: 'Help',
   // Login page translations

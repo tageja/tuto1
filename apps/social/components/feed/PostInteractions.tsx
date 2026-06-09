@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase';
+import { useAuthGate }              from '@/contexts/AuthGateContext';
 import ShareModal                   from './ShareModal';
 
 type ReactionType = 'like' | 'applaud' | 'curious';
@@ -36,6 +37,7 @@ export default function PostInteractions({
   saved: initialSaved,
 }: Props) {
   const supabase = getSupabaseBrowserClient();
+  const { promptAuth } = useAuthGate();
 
   const [counts,       setCounts]       = useState(initialCounts);
   const [userReaction, setUserReaction] = useState<ReactionType | null>(initialReaction ?? null);
@@ -48,7 +50,7 @@ export default function PostInteractions({
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) { promptAuth('Đăng nhập để bày tỏ cảm xúc với bài viết.'); return; }
 
       const isToggling = userReaction === type;
 
@@ -83,7 +85,7 @@ export default function PostInteractions({
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) { promptAuth('Đăng nhập để lưu bài viết.'); return; }
 
       setSaved((prev) => !prev);
 

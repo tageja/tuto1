@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase';
+import { useAuthGate } from '@/contexts/AuthGateContext';
 
 interface Props {
   targetProfileId: string;
@@ -14,17 +15,20 @@ export default function ProfileFollowButton({
 }: Props) {
   const [following, setFollowing] = useState(initialFollowing);
   const [loading, setLoading] = useState(false);
+  const { promptAuth } = useAuthGate();
 
   const handleClick = async () => {
     if (loading) return;
+
+    const supabase = getSupabaseBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { promptAuth('Đăng nhập để theo dõi người dùng này.'); return; }
+
     setLoading(true);
     const prev = following;
     setFollowing(!following);
 
     try {
-      const supabase = getSupabaseBrowserClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
 
       const { data: myProfile } = await supabase
         .from('social_profiles')
