@@ -8,6 +8,7 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -27,6 +28,8 @@ import type { SocialPost, ReactionType, SocialProfile } from '../../types/social
 import type { FeedTab }                  from '../../services/social/feed.service';
 import type { SocialStackParamList }     from '../../navigation/SocialStack';
 import type { SocialTabParamList }      from '../../navigation/SocialTabs';
+import { promptSocialSignIn }            from '../../utils/socialAuthGate';
+import { openCourses }                   from '../../services/ecosystem';
 
 type NavProp = StackNavigationProp<SocialStackParamList> & {
   navigate: (name: keyof SocialTabParamList | keyof SocialStackParamList, params?: object) => void;
@@ -140,6 +143,10 @@ export default function SocialFeedScreen() {
 
   // ── Reactions ────────────────────────────────────────────────────────────
   const handleReact = useCallback(async (postId: string, type: ReactionType) => {
+    if (!profile) {
+      promptSocialSignIn(navigation, 'Đăng nhập để bày tỏ cảm xúc với bài viết.');
+      return;
+    }
     // Optimistic update
     setPosts((prev) =>
       prev.map((p) => {
@@ -169,9 +176,13 @@ export default function SocialFeedScreen() {
       // Revert on failure
       handleRefresh();
     }
-  }, [posts, handleRefresh]);
+  }, [posts, handleRefresh, profile, navigation]);
 
   const handleSave = useCallback(async (postId: string) => {
+    if (!profile) {
+      promptSocialSignIn(navigation, 'Đăng nhập để lưu bài viết.');
+      return;
+    }
     setPosts((prev) =>
       prev.map((p) =>
         p.id === postId ? { ...p, saved: !p.saved, savesCount: p.savesCount + (p.saved ? -1 : 1) } : p,
@@ -184,7 +195,22 @@ export default function SocialFeedScreen() {
     } catch (err) {
       handleRefresh();
     }
-  }, [posts, handleRefresh]);
+  }, [posts, handleRefresh, profile, navigation]);
+
+  // ── Ecosystem switcher: School Dashboard + Courses (subtle, always visible) ─
+  const handleEcosystem = useCallback(() => {
+    Alert.alert('Hệ sinh thái Tuto', 'Chuyển đến ứng dụng khác trong hệ sinh thái Tuto.', [
+      {
+        text: 'Trường học (LMS)',
+        onPress: () => navigation.navigate('Welcome' as never),
+      },
+      {
+        text: 'Học tại nhà (Khoá học)',
+        onPress: () => { void openCourses(); },
+      },
+      { text: 'Đóng', style: 'cancel' },
+    ]);
+  }, [navigation]);
 
   // ── Render helpers ───────────────────────────────────────────────────────
   const handleNewPost = useCallback((post: SocialPost) => {
@@ -251,9 +277,13 @@ export default function SocialFeedScreen() {
         onTabChange={(tab) => setActiveTab(tab)}
         authorAvatarUrl={profile?.avatarUrl}
         authorInitial={profile?.displayName?.charAt(0).toUpperCase()}
-        onComposerPress={() => setCreatePostVisible(true)}
+        onComposerPress={() => {
+          if (!profile) { promptSocialSignIn(navigation, 'Đăng nhập để đăng bài.'); return; }
+          setCreatePostVisible(true);
+        }}
         onAvatarPress={() => profile && navigation.navigate('SocialProfile', { userId: profile.id })}
         onSearchPress={() => navigation.navigate('Search')}
+        onEcosystemPress={handleEcosystem}
         onBackPress={() => navigation.getParent()?.getParent()?.navigate('HomeTab' as never)}
       />
     </>
@@ -302,7 +332,13 @@ export default function SocialFeedScreen() {
       />
 
       {/* FAB — navigates to full-screen CreatePost for complex post types */}
-      <Pressable style={styles.fab} onPress={() => navigation.navigate('CreatePost')}>
+      <Pressable
+        style={styles.fab}
+        onPress={() => {
+          if (!profile) { promptSocialSignIn(navigation, 'Đăng nhập để đăng bài.'); return; }
+          navigation.navigate('CreatePost');
+        }}
+      >
         <MaterialIcons name="add" size={28} color="#fff" />
       </Pressable>
 

@@ -19,6 +19,7 @@ interface Props {
   onComposerPress?: () => void;
   onAvatarPress?:   () => void;
   onSearchPress?:   () => void;
+  onEcosystemPress?: () => void;
   onBackPress?:     () => void;
 }
 
@@ -36,6 +37,7 @@ export default function FeedHeader({
   onComposerPress,
   onAvatarPress,
   onSearchPress,
+  onEcosystemPress,
   onBackPress,
 }: Props) {
   const { t } = useLanguage();
@@ -102,6 +104,15 @@ export default function FeedHeader({
         {onSearchPress && (
           <Pressable style={styles.searchBtn} onPress={onSearchPress}>
             <MaterialIcons name="search" size={24} color="#6B7280" />
+          </Pressable>
+        )}
+        {onEcosystemPress && (
+          <Pressable
+            style={styles.searchBtn}
+            onPress={onEcosystemPress}
+            accessibilityLabel="Chuyển ứng dụng Tuto"
+          >
+            <MaterialIcons name="apps" size={24} color="#6B7280" />
           </Pressable>
         )}
       </View>

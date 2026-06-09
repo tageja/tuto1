@@ -9,6 +9,7 @@ import { StatusBar } from 'expo-status-bar';
 import { setCurrentScreen } from '../services/analytics';
 import { getRememberMe } from '../services/rememberMe';
 import { createStackNavigator } from '@react-navigation/stack';
+import { SocialStackNavigator } from './SocialStack';
 import { HomeScreen } from '../screens/HomeScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
@@ -142,6 +143,8 @@ export type RootStackParamList = {
   Bookings: undefined;
   Feed: undefined;
   Comments: undefined;
+  // Community (tuto.social) — full social stack, guest-browsable
+  Social: undefined;
   // School screens
   SchoolInvitation: undefined;
   SchoolDashboard: undefined;
@@ -262,9 +265,14 @@ const SplashRoute: React.FC<{ navigation: any }> = ({ navigation }) => {
       if (cancelled) return;
       setTimeout(() => {
         if (cancelled) return;
-        // Route through Welcome (same as AuthUnifiedScreen does) so school
-        // associations and role are resolved fresh before entering the app.
-        navigation.replace(hasSession ? 'Welcome' : 'Login');
+        // Community-first: everyone (guest or signed in) lands on the social
+        // feed. Guests browse via anon RLS and are prompted to sign in on
+        // interaction; signed-in users reach the School Dashboard and Courses
+        // via the subtle ecosystem entries in the feed header.
+        // `hasSession` is intentionally unused for routing now but still drives
+        // the remember-me sign-out above.
+        void hasSession;
+        navigation.replace('Social');
       }, remaining);
     };
 
@@ -414,6 +422,8 @@ export const AppNavigator = () => {
         <Stack.Screen name="Bookings" component={BookingsScreen} />
         <Stack.Screen name="Feed" component={FeedScreen} />
         <Stack.Screen name="Comments" component={CommentsScreen as any} options={{ presentation: 'modal' }} />
+        {/* Community-first front door: full tuto.social stack, guest-browsable */}
+        <Stack.Screen name="Social" component={SocialStackNavigator} />
         
         {/* School screens */}
         <Stack.Screen name="SchoolInvitation" component={SchoolInvitationScreen} />
