@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
@@ -42,8 +42,7 @@ export default async function FollowingPage({ params }: Props) {
     },
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  // Community-first: following lists are public (anon-read RLS).
 
   const { data: profileRow } = await supabase
     .from('social_profiles')

@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies }             from 'next/headers';
-import { notFound, redirect }  from 'next/navigation';
+import { notFound }            from 'next/navigation';
 import FeedPost                from '../../../../components/feed/FeedPost';
 import CommentSection          from '../../../../components/feed/CommentSection';
 import type { Metadata }       from 'next';
@@ -30,8 +30,8 @@ export default async function PostDetailPage({ params }: Props) {
     },
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  // Community-first: post detail is public (anon-read RLS). Interactions are
+  // gated client-side via the auth-gate modal.
 
   const { data: row, error } = await supabase
     .from('social_posts')

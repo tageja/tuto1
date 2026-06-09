@@ -1,5 +1,5 @@
 import { createSupabaseServerClient } from '@/lib/supabase-server';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfilePostGrid from '@/components/profile/ProfilePostGrid';
@@ -73,7 +73,8 @@ export default async function ProfilePage({ params }: Props) {
 
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  // Community-first: profiles are public. Own-profile / follow state below
+  // only applies to signed-in viewers.
 
   // Use ilike for case-insensitive match (URL may have different casing than DB)
   const { data: row } = await supabase
@@ -96,16 +97,20 @@ export default async function ProfilePage({ params }: Props) {
   }
   const profile = mapRowToProfile(r, schoolName);
 
-  const { data: myProfile } = await supabase
-    .from('social_profiles')
-    .select('id')
-    .eq('user_id', user.id)
-    .single();
+  let myProfile: { id: string } | null = null;
+  if (user) {
+    const { data } = await supabase
+      .from('social_profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+    myProfile = (data as { id: string } | null) ?? null;
+  }
 
-  const isOwnProfile = myProfile?.id === profile.id;
+  const isOwnProfile = !!myProfile && myProfile.id === profile.id;
 
   let initialFollowing = false;
-  if (!isOwnProfile && myProfile) {
+  if (user && !isOwnProfile && myProfile) {
     const { data: followRow } = await supabase
       .from('social_follows')
       .select('id')
