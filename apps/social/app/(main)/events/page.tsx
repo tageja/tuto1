@@ -34,7 +34,8 @@ export default async function EventsPage() {
       id, event, content, created_at, school_id,
       author:social_profiles!social_posts_author_id_fkey(
         id, username, display_name, avatar_url, role, school_id
-      )
+      ),
+      rsvp_count:social_event_rsvps(count)
     `)
     .eq('post_type', 'event')
     .in('moderation_status', ['ai_reviewed', 'parent_approved'])
@@ -68,8 +69,10 @@ export default async function EventsPage() {
       ) : (
         <div className="space-y-4">
           {events.map((r) => {
-            const ev = r.event as { title: string; date: string; location?: string; rsvpCount?: number };
-            const a  = r.author as Record<string, unknown> ?? {};
+            const ev  = r.event as { title: string; date: string; location?: string };
+            const a   = r.author as Record<string, unknown> ?? {};
+            const rc  = r.rsvp_count as { count: number }[] | null;
+            const rsvpLive = Array.isArray(rc) && rc.length > 0 ? (rc[0].count ?? 0) : 0;
             return (
               <Link key={r.id} href={`/post/${r.id}`} className="card block hover:shadow-md transition-shadow">
                 <div className="flex gap-4">
@@ -97,8 +100,8 @@ export default async function EventsPage() {
                         )}
                         <span className="text-xs text-gray-500">{a.display_name as string}</span>
                       </div>
-                      {ev.rsvpCount != null && ev.rsvpCount > 0 && (
-                        <span className="text-xs text-gray-500">{ev.rsvpCount} người tham gia</span>
+                      {rsvpLive > 0 && (
+                        <span className="text-xs text-gray-500">{rsvpLive} người tham gia</span>
                       )}
                     </div>
                   </div>

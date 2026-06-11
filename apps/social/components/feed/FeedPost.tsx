@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link            from 'next/link';
 import Image           from 'next/image';
 import PostInteractions from './PostInteractions';
 import PostOptionsDropdown from './PostOptionsDropdown';
 import InlineComments   from './InlineComments';
 import { cn }          from '../../lib/utils';
+import { getSupabaseBrowserClient } from '../../lib/supabase';
+import { useAuthGate } from '../../contexts/AuthGateContext';
 
 interface FeedPostData {
   id:               string;
@@ -212,32 +214,100 @@ function PhotoGrid({ urls }: { urls: string[] }) {
 // ---------- Event card (with RSVP) ----------
 
 function EventCard({ postId, event }: { postId: string; event: NonNullable<FeedPostData['event']> }) {
+  const { promptAuth }            = useAuthGate();
   const [rsvpCount, setRsvpCount] = useState(event.rsvpCount);
   const [rsvped,    setRsvped]    = useState(false);
+  const [loading,   setLoading]   = useState(false);
+
+  // Hydrate: fetch live count + viewer's existing RSVP from DB
+  useEffect(() => {
+    const supabase = getSupabaseBrowserClient();
+    let cancelled = false;
+
+    async function hydrate() {
+      // Live count from social_event_rsvps
+      const { count } = await supabase
+        .from('social_event_rsvps')
+        .select('id', { count: 'exact', head: true })
+        .eq('post_id', postId)
+        .neq('status', 'not_going');
+
+      if (!cancelled && count != null) setRsvpCount(count);
+
+      // Viewer's existing RSVP
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || cancelled) return;
+
+      const { data: profile } = await supabase
+        .from('social_profiles').select('id').eq('user_id', user.id).maybeSingle();
+      if (!profile || cancelled) return;
+
+      const { data: existing } = await supabase
+        .from('social_event_rsvps')
+        .select('status')
+        .eq('post_id', postId)
+        .eq('profile_id', profile.id)
+        .maybeSingle();
+
+      if (!cancelled && existing && existing.status !== 'not_going') setRsvped(true);
+    }
+
+    hydrate();
+    return () => { cancelled = true; };
+  }, [postId]);
 
   const handleRsvp = async () => {
-    // Optimistic update; RsvpButton does the real DB write in M4
-    setRsvped(true);
-    setRsvpCount((n) => n + 1);
+    const supabase = getSupabaseBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { promptAuth('Đăng nhập để đăng ký tham gia sự kiện.'); return; }
+
+    const { data: profile } = await supabase
+      .from('social_profiles').select('id').eq('user_id', user.id).maybeSingle();
+    if (!profile) return;
+
+    setLoading(true);
+    if (rsvped) {
+      // Toggle off — mark not_going
+      await supabase.from('social_event_rsvps').upsert(
+        { post_id: postId, profile_id: profile.id, status: 'not_going' },
+        { onConflict: 'post_id,profile_id' },
+      );
+      setRsvped(false);
+      setRsvpCount((n) => Math.max(0, n - 1));
+    } else {
+      // RSVP going
+      await supabase.from('social_event_rsvps').upsert(
+        { post_id: postId, profile_id: profile.id, status: 'going' },
+        { onConflict: 'post_id,profile_id' },
+      );
+      setRsvped(true);
+      setRsvpCount((n) => n + 1);
+    }
+    setLoading(false);
   };
 
   return (
     <div className="border border-blue-200 bg-blue-50 rounded-xl p-4 mb-3">
       <p className="font-bold text-blue-800 mb-1.5">{event.title}</p>
-      <p className="text-sm text-blue-700">📅 {new Date(event.date).toLocaleDateString('vi-VN', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-      {event.location && <p className="text-sm text-blue-700 mt-0.5">📍 {event.location}</p>}
+      <p className="text-sm text-blue-700">
+        {new Date(event.date).toLocaleDateString('vi-VN', {
+          weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+          hour: '2-digit', minute: '2-digit',
+        })}
+      </p>
+      {event.location && <p className="text-sm text-blue-700 mt-0.5">{event.location}</p>}
       <div className="flex items-center justify-between mt-3">
         <p className="text-xs text-blue-500">{rsvpCount} người tham gia</p>
         <button
           type="button"
           onClick={handleRsvp}
-          disabled={rsvped}
+          disabled={loading}
           className={cn('px-4 py-1.5 rounded-full text-sm font-semibold transition-colors',
             rsvped
-              ? 'bg-blue-600 text-white cursor-default'
-              : 'bg-primary text-white hover:bg-blue-700'
+              ? 'bg-blue-600 text-white hover:bg-blue-700'
+              : 'bg-primary text-white hover:bg-blue-700',
+            loading && 'opacity-60 cursor-not-allowed',
           )}
-          data-post-id={postId}
         >
           {rsvped ? '✓ Đã tham gia' : 'Tham gia'}
         </button>
