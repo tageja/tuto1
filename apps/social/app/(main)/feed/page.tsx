@@ -2,6 +2,10 @@ import { createServerClient }  from '@supabase/ssr';
 import { cookies }              from 'next/headers';
 import FeedContainer            from '../../../components/feed/FeedContainer';
 import StoryBar                 from '../../../components/stories/StoryBar';
+import LeftRail                 from '../../../components/layout/LeftRail';
+import RightRail                from '../../../components/layout/RightRail';
+import MobileTabBar             from '../../../components/layout/MobileTabBar';
+import FeedComposerWrapper      from '../../../components/feed/FeedComposerWrapper';
 import type { Metadata }        from 'next';
 
 export const metadata: Metadata = {
@@ -9,7 +13,6 @@ export const metadata: Metadata = {
   description: 'Chia sẻ thành tích học tập, sự kiện và cập nhật từ trường của bạn.',
 };
 
-// Columns explicitly selected for SSR hydration
 const POST_QUERY = `
   *,
   author:social_profiles!social_posts_author_id_fkey(
@@ -31,10 +34,6 @@ export default async function FeedPage() {
     },
   );
 
-  // Community-first: guests can browse the feed (anon-read RLS returns
-  // public + approved posts). No auth gate here.
-
-  // Fetch initial posts server-side (school + public, approved only)
   const { data: rows } = await supabase
     .from('social_posts')
     .select(POST_QUERY)
@@ -42,7 +41,6 @@ export default async function FeedPage() {
     .order('created_at', { ascending: false })
     .limit(20);
 
-  // Map DB rows to the shape FeedContainer expects
   const initialPosts = (rows ?? []).map((row) => {
     const a = row.author as Record<string, unknown> ?? {};
     return {
@@ -79,9 +77,27 @@ export default async function FeedPage() {
   });
 
   return (
-    <main className="max-w-xl mx-auto px-4 py-6">
-      <StoryBar />
-      <FeedContainer initialPosts={initialPosts as never} />
-    </main>
+    <>
+      {/* 3-column layout */}
+      <div className="max-w-6xl mx-auto px-4 py-4">
+        <div className="lg:grid lg:grid-cols-[280px_minmax(0,600px)_320px] lg:gap-6 lg:justify-center">
+          {/* Left rail */}
+          <LeftRail />
+
+          {/* Center feed */}
+          <main className="min-w-0">
+            <StoryBar />
+            <FeedComposerWrapper />
+            <FeedContainer initialPosts={initialPosts as never} />
+          </main>
+
+          {/* Right rail */}
+          <RightRail />
+        </div>
+      </div>
+
+      {/* Mobile bottom tab bar */}
+      <MobileTabBar />
+    </>
   );
 }

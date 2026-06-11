@@ -80,6 +80,13 @@ export default function Header() {
     })();
   }, [profile?.id]);
 
+  // Update document.title with unread badge
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const base = 'Cộng đồng Tuto';
+    document.title = unreadCount > 0 ? `(${unreadCount}) ${base}` : base;
+  }, [unreadCount]);
+
   async function handleSignOut() {
     await signOut();
     router.push('/login');
@@ -128,9 +135,11 @@ export default function Header() {
             Thông báo
             {unreadCount > 0 && (
               <span
-                className="absolute -top-1 -right-2 w-2 h-2 rounded-full bg-red-500"
+                className="absolute -top-2 -right-3 min-w-[18px] h-[18px] bg-red-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold px-1"
                 aria-label={`${unreadCount} thông báo chưa đọc`}
-              />
+              >
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
             )}
           </Link>
         </nav>

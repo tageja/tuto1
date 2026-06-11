@@ -1,12 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import Link            from 'next/link';
 import Image           from 'next/image';
 import PostInteractions from './PostInteractions';
 import PostOptionsDropdown from './PostOptionsDropdown';
+import InlineComments   from './InlineComments';
 import { cn }          from '../../lib/utils';
 
-// Mirrors the SocialPost mobile type (subset used in web)
 interface FeedPostData {
   id:               string;
   postType:         string;
@@ -28,7 +29,7 @@ interface FeedPostData {
     role:        string;
     verified:    boolean;
     username?:   string;
-    schoolId?:  string;
+    schoolId?:   string;
   };
   event?:       { title: string; date: string; location?: string; rsvpCount: number } | null;
   assignment?:  { subject: string; dueDate: string } | null;
@@ -84,10 +85,6 @@ function formatTimeAgo(iso: string): string {
   return new Date(iso).toLocaleDateString('vi-VN');
 }
 
-// --------------------------------------------------------------------------
-// Achievement gradient card
-// --------------------------------------------------------------------------
-
 const ACHIEVEMENT_GRADIENT: Record<string, string> = {
   academic:    'from-amber-400 to-orange-500',
   streak:      'from-blue-500 to-teal-500',
@@ -95,7 +92,6 @@ const ACHIEVEMENT_GRADIENT: Record<string, string> = {
   first:       'from-emerald-500 to-green-600',
   certificate: 'from-amber-400 to-yellow-400',
 };
-
 const ACHIEVEMENT_EMOJI: Record<string, string> = {
   academic: '🏆', streak: '🔥', score: '⭐', first: '🎀', certificate: '📜',
 };
@@ -103,7 +99,6 @@ const ACHIEVEMENT_EMOJI: Record<string, string> = {
 function AchievementHeader({ achievement }: { achievement: NonNullable<FeedPostData['achievement']> }) {
   const gradient = ACHIEVEMENT_GRADIENT[achievement.type] ?? ACHIEVEMENT_GRADIENT.academic;
   const emoji    = ACHIEVEMENT_EMOJI[achievement.type]    ?? '🏆';
-
   return (
     <div className={cn('flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r mb-3', gradient)}>
       <span className="text-3xl">{emoji}</span>
@@ -113,20 +108,145 @@ function AchievementHeader({ achievement }: { achievement: NonNullable<FeedPostD
           <p className="text-sm opacity-80">{achievement.description}</p>
         )}
       </div>
-      <Image
-        src="/images/tuto-logo.png"
-        alt="Tuto"
-        width={24}
-        height={24}
-        className="opacity-40"
-      />
+      <Image src="/images/tuto-logo.png" alt="Tuto" width={24} height={24} className="opacity-40" />
     </div>
   );
 }
 
-// --------------------------------------------------------------------------
-// Main component
-// --------------------------------------------------------------------------
+// ---------- Lightbox ----------
+
+function Lightbox({
+  urls,
+  startIndex,
+  onClose,
+}: {
+  urls: string[];
+  startIndex: number;
+  onClose: () => void;
+}) {
+  const [idx, setIdx] = useState(startIndex);
+  return (
+    <div
+      className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center"
+      onClick={onClose}
+    >
+      <button
+        type="button"
+        className="absolute top-4 right-4 text-white text-2xl p-2 hover:bg-white/10 rounded-full"
+        onClick={onClose}
+        aria-label="Đóng"
+      >
+        ×
+      </button>
+      {idx > 0 && (
+        <button
+          type="button"
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-white text-3xl p-2 hover:bg-white/10 rounded-full"
+          onClick={(e) => { e.stopPropagation(); setIdx((i) => i - 1); }}
+          aria-label="Trước"
+        >
+          ‹
+        </button>
+      )}
+      {idx < urls.length - 1 && (
+        <button
+          type="button"
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-white text-3xl p-2 hover:bg-white/10 rounded-full"
+          onClick={(e) => { e.stopPropagation(); setIdx((i) => i + 1); }}
+          aria-label="Tiếp"
+        >
+          ›
+        </button>
+      )}
+      <div className="relative max-w-[90vw] max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+        <Image
+          src={urls[idx]}
+          alt={`Ảnh ${idx + 1}`}
+          width={1200}
+          height={900}
+          className="object-contain max-h-[90vh] max-w-[90vw]"
+          unoptimized
+        />
+        <p className="text-center text-white/60 text-sm mt-2">{idx + 1} / {urls.length}</p>
+      </div>
+    </div>
+  );
+}
+
+// ---------- Photo grid ----------
+
+function PhotoGrid({ urls }: { urls: string[] }) {
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const shown    = urls.slice(0, 4);
+  const overflow = urls.length - 4;
+
+  return (
+    <>
+      <div className={cn('grid gap-1 mb-3 rounded-xl overflow-hidden', shown.length === 1 ? 'grid-cols-1' : 'grid-cols-2')}>
+        {shown.map((url, i) => {
+          const isLast = i === 3 && overflow > 0;
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setLightboxIdx(i)}
+              className={cn('relative', shown.length === 1 ? 'aspect-video' : 'aspect-square')}
+            >
+              <Image src={url} alt="" fill className="object-cover" sizes="400px" unoptimized />
+              {isLast && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                  <span className="text-white text-2xl font-bold">+{overflow}</span>
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      {lightboxIdx !== null && (
+        <Lightbox urls={urls} startIndex={lightboxIdx} onClose={() => setLightboxIdx(null)} />
+      )}
+    </>
+  );
+}
+
+// ---------- Event card (with RSVP) ----------
+
+function EventCard({ postId, event }: { postId: string; event: NonNullable<FeedPostData['event']> }) {
+  const [rsvpCount, setRsvpCount] = useState(event.rsvpCount);
+  const [rsvped,    setRsvped]    = useState(false);
+
+  const handleRsvp = async () => {
+    // Optimistic update; RsvpButton does the real DB write in M4
+    setRsvped(true);
+    setRsvpCount((n) => n + 1);
+  };
+
+  return (
+    <div className="border border-blue-200 bg-blue-50 rounded-xl p-4 mb-3">
+      <p className="font-bold text-blue-800 mb-1.5">{event.title}</p>
+      <p className="text-sm text-blue-700">📅 {new Date(event.date).toLocaleDateString('vi-VN', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+      {event.location && <p className="text-sm text-blue-700 mt-0.5">📍 {event.location}</p>}
+      <div className="flex items-center justify-between mt-3">
+        <p className="text-xs text-blue-500">{rsvpCount} người tham gia</p>
+        <button
+          type="button"
+          onClick={handleRsvp}
+          disabled={rsvped}
+          className={cn('px-4 py-1.5 rounded-full text-sm font-semibold transition-colors',
+            rsvped
+              ? 'bg-blue-600 text-white cursor-default'
+              : 'bg-primary text-white hover:bg-blue-700'
+          )}
+          data-post-id={postId}
+        >
+          {rsvped ? '✓ Đã tham gia' : 'Tham gia'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ---------- Main component ----------
 
 interface FeedPostProps {
   post: FeedPostData;
@@ -142,67 +262,40 @@ export default function FeedPost({ post, currentProfileId, onBlockAuthor }: Feed
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
-          {/* Avatar — links to profile if username available */}
           {post.author.username ? (
             <Link href={`/profile/${encodeURIComponent(post.author.username)}`} className="flex-shrink-0 hover:opacity-90">
               {post.author.avatarUrl ? (
-                <Image
-                  src={post.author.avatarUrl}
-                  alt={post.author.displayName}
-                  width={44}
-                  height={44}
-                  className="rounded-full object-cover"
-                />
+                <Image src={post.author.avatarUrl} alt={post.author.displayName} width={44} height={44} className="rounded-full object-cover" />
               ) : (
-                <div className="w-11 h-11 rounded-full bg-gray-200 flex items-center justify-center text-base font-bold text-gray-600">
-                  {initials}
-                </div>
+                <div className="w-11 h-11 rounded-full bg-gray-200 flex items-center justify-center text-base font-bold text-gray-600">{initials}</div>
               )}
             </Link>
           ) : (
             <div className="flex-shrink-0">
               {post.author.avatarUrl ? (
-                <Image
-                  src={post.author.avatarUrl}
-                  alt={post.author.displayName}
-                  width={44}
-                  height={44}
-                  className="rounded-full object-cover"
-                />
+                <Image src={post.author.avatarUrl} alt={post.author.displayName} width={44} height={44} className="rounded-full object-cover" />
               ) : (
-                <div className="w-11 h-11 rounded-full bg-gray-200 flex items-center justify-center text-base font-bold text-gray-600">
-                  {initials}
-                </div>
+                <div className="w-11 h-11 rounded-full bg-gray-200 flex items-center justify-center text-base font-bold text-gray-600">{initials}</div>
               )}
             </div>
           )}
 
-          {/* Name row + role chip + timestamp — each link is a sibling, never nested */}
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               {post.author.username ? (
-                <Link
-                  href={`/profile/${encodeURIComponent(post.author.username)}`}
-                  className="font-semibold text-gray-900 hover:underline"
-                >
+                <Link href={`/profile/${encodeURIComponent(post.author.username)}`} className="font-semibold text-gray-900 hover:underline">
                   {post.author.displayName}
                 </Link>
               ) : (
                 <span className="font-semibold text-gray-900">{post.author.displayName}</span>
               )}
-
               {isSchoolAdmin(post.author.role) && post.author.schoolId ? (
-                <Link
-                  href={`/school/${post.author.schoolId}`}
-                  className={cn('role-badge', ROLE_COLOR[post.author.role])}
-                >
-                  {ROLE_LABEL[post.author.role] ?? post.author.role}
-                  {post.author.verified && ' ✓'}
+                <Link href={`/school/${post.author.schoolId}`} className={cn('role-badge', ROLE_COLOR[post.author.role])}>
+                  {ROLE_LABEL[post.author.role] ?? post.author.role}{post.author.verified && ' ✓'}
                 </Link>
               ) : (
                 <span className={cn('role-badge', ROLE_COLOR[post.author.role])}>
-                  {ROLE_LABEL[post.author.role] ?? post.author.role}
-                  {post.author.verified && ' ✓'}
+                  {ROLE_LABEL[post.author.role] ?? post.author.role}{post.author.verified && ' ✓'}
                 </span>
               )}
             </div>
@@ -238,7 +331,7 @@ export default function FeedPost({ post, currentProfileId, onBlockAuthor }: Feed
         </Link>
       )}
 
-      {/* Subject chips — filter empty strings (Bug #8) */}
+      {/* Subject chips */}
       {post.subjects.filter((s) => s.trim().length > 0).length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-3">
           {post.subjects.filter((s) => s.trim().length > 0).map((s) => (
@@ -250,32 +343,14 @@ export default function FeedPost({ post, currentProfileId, onBlockAuthor }: Feed
       )}
 
       {/* Location */}
-      {post.location && (
-        <p className="text-xs text-gray-400 mb-3">📍 {post.location}</p>
-      )}
+      {post.location && <p className="text-xs text-gray-400 mb-3">📍 {post.location}</p>}
 
-      {/* Photo grid */}
-      {post.mediaUrls.length > 0 && (
-        <div className={cn('grid gap-1 mb-3 rounded-xl overflow-hidden', post.mediaUrls.length === 1 ? 'grid-cols-1' : 'grid-cols-2')}>
-          {post.mediaUrls.slice(0, 4).map((url, i) => (
-            <div key={i} className={cn('relative', post.mediaUrls.length === 1 ? 'aspect-video' : 'aspect-square')}>
-              <Image src={url} alt="" fill className="object-cover" />
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Photo grid with lightbox */}
+      {post.mediaUrls.length > 0 && <PhotoGrid urls={post.mediaUrls} />}
 
       {/* Event card */}
       {post.postType === 'event' && post.event && (
-        <div className="border border-blue-200 bg-blue-50 rounded-xl p-4 mb-3">
-          <p className="font-bold text-blue-800 mb-2">{post.event.title}</p>
-          <p className="text-sm text-blue-700">
-            📅 {new Date(post.event.date).toLocaleDateString('vi-VN')}
-          </p>
-          {post.event.location && <p className="text-sm text-blue-700">📍 {post.event.location}</p>}
-          <p className="text-xs text-blue-500 mt-1">{post.event.rsvpCount} người quan tâm</p>
-          <button className="btn-primary mt-3 text-sm py-2 w-full">Tham gia</button>
-        </div>
+        <EventCard postId={post.id} event={post.event} />
       )}
 
       {/* Assignment card */}
@@ -306,7 +381,7 @@ export default function FeedPost({ post, currentProfileId, onBlockAuthor }: Feed
         </div>
       )}
 
-      {/* Interactions */}
+      {/* Reaction aggregate + interactions */}
       <PostInteractions
         postId={post.id}
         initialCounts={post.reactions}
@@ -315,6 +390,9 @@ export default function FeedPost({ post, currentProfileId, onBlockAuthor }: Feed
         userReaction={post.userReaction}
         saved={post.saved}
       />
+
+      {/* Inline comment preview (top 2 + input) */}
+      <InlineComments postId={post.id} commentsCount={post.commentsCount} />
     </article>
   );
 }

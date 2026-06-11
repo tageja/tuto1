@@ -38,39 +38,27 @@ export default function PostOptionsDropdown({
     try {
       const supabase = getSupabaseBrowserClient();
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) throw new Error('Not logged in');
+      if (!session) throw new Error('Chưa đăng nhập');
 
       const { data: profile } = await supabase
         .from('social_profiles')
         .select('id')
         .eq('user_id', session.user.id)
         .maybeSingle();
+      if (!profile) throw new Error('Không tìm thấy hồ sơ');
 
-      if (!profile) throw new Error('Profile not found');
-
-      const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      if (!baseUrl) throw new Error('Supabase URL not configured');
-      const url = `${baseUrl}/functions/v1/social-reports`;
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          targetType: 'post',
-          targetId: postId,
-          reason: 'other',
-          description: '',
-        }),
+      const { error } = await supabase.from('social_reports').insert({
+        reporter_id: profile.id,
+        target_type: 'post',
+        target_id:   postId,
+        reason:      'other',
+        description: '',
       });
-
-      const json = await res.json();
-      if (!res.ok || json.error) throw new Error(json.error ?? 'Report failed');
+      if (error) throw error;
       setOpen(false);
     } catch (err) {
       console.error('Report error', err);
-      alert(err instanceof Error ? err.message : 'Report failed');
+      alert(err instanceof Error ? err.message : 'Báo cáo thất bại');
     } finally {
       setReporting(false);
     }
@@ -129,7 +117,7 @@ export default function PostOptionsDropdown({
             )}
           >
             <Flag className="w-4 h-4 text-amber-600" />
-            {reporting ? 'Submitting...' : 'Report'}
+            {reporting ? 'Đang gửi...' : 'Báo cáo'}
           </button>
           {!isOwnPost && (
             <button
@@ -142,7 +130,7 @@ export default function PostOptionsDropdown({
               )}
             >
               <Ban className="w-4 h-4" />
-              {blocking ? 'Blocking...' : 'Block user'}
+              {blocking ? 'Đang chặn...' : 'Chặn người dùng'}
             </button>
           )}
         </div>

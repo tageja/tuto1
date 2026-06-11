@@ -4,8 +4,9 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { getSupabaseBrowserClient }                  from '@/lib/supabase';
 import { useFeedInvalidation }                       from '@/contexts/FeedInvalidationContext';
 import { useAuthGate }                               from '@/contexts/AuthGateContext';
-import FeedPost     from './FeedPost';
-import FeedSkeleton from './FeedSkeleton';
+import FeedPost         from './FeedPost';
+import FeedSkeleton     from './FeedSkeleton';
+import SuggestedTeachers from './SuggestedTeachers';
 
 type FeedTab = 'school' | 'forYou' | 'following';
 
@@ -329,13 +330,18 @@ export default function FeedContainer({ initialPosts }: { initialPosts: Post[] }
           </div>
           )
         ) : (
-          posts.map((post) => (
-            <FeedPost
-              key={post.id}
-              post={post as never}
-              currentProfileId={userProfile?.id}
-              onBlockAuthor={(authorId) => setPosts((prev) => prev.filter((p) => p.author.id !== authorId))}
-            />
+          posts.map((post, idx) => (
+            <div key={post.id}>
+              <FeedPost
+                post={post as never}
+                currentProfileId={userProfile?.id}
+                onBlockAuthor={(authorId) => setPosts((prev) => prev.filter((p) => p.author.id !== authorId))}
+              />
+              {/* Insert SuggestedTeachers after every 5th post */}
+              {(idx + 1) % 5 === 0 && (
+                <SuggestedTeachers schoolId={userProfile?.schoolId ?? undefined} />
+              )}
+            </div>
           ))
         )}
       </div>

@@ -9,7 +9,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       <FeedInvalidationProvider>
         <FeedRefreshListener />
         <Header />
-        {children}
+        {/* pb-16 ensures content isn't hidden behind the MobileTabBar */}
+        <div className="pb-16 lg:pb-0">
+          {children}
+        </div>
       </FeedInvalidationProvider>
     </AuthGateProvider>
   );
