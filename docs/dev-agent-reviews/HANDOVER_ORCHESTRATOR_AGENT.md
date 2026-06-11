@@ -1,6 +1,132 @@
 # Orchestrator Agent Handover
 
-_Last updated: 2026-04-28 by agent session [Mobile OTA + Splash Fixes](56e589a4-07fa-4dea-a2ac-6d43c3adec8e)_
+_Last updated: 2026-06-11 by agent session [Community-First Redesign Round 2](a372fc83-827a-4076-a769-39e87edbec20)_  
+_Previously: 2026-06-09 [Community-First Ecosystem + Testing Prep](5512f35d-11e5-4c63-8078-a9cf4ce0ca20)_
+
+---
+
+## 🟢 CURRENT FOCUS — Community-First Redesign M1-M5 (2026-06-11)
+
+**Branch:** `communityFirstRedesign` (off `integration/community-first`)  
+**All milestones M0–M5 shipped.** Committed as `feat(social): M1-M5 Community-First Redesign [redesign-M1-M5]`.
+
+### What shipped in this round
+
+| Milestone | Scope | Key files |
+|---|---|---|
+| M0 | Branch, schema inventory, test account verification, notification seed | migrations 083–088 |
+| M1 | FeedComposerCard, multi-photo upload (social-media bucket), +N overflow, Lightbox, AchievementCard, 6 seeded posts | `FeedComposerCard.tsx`, `CreatePostModal.tsx`, `FeedPost.tsx`, `app/api/posts/route.ts` |
+| M2 | InlineComments, reaction aggregate row, Header bell badge (99+), /notifications page, document.title count, report via social_reports | `InlineComments.tsx`, `PostInteractions.tsx`, `Header.tsx`, `PostOptionsDropdown.tsx` |
+| M3 | 3-column lg layout, LeftRail, RightRail, MobileTabBar, SchoolBanner, stories direct DB (no edge fn) | `feed/page.tsx`, `LeftRail.tsx`, `RightRail.tsx`, `MobileTabBar.tsx`, `SchoolBanner.tsx`, `lib/stories.ts` |
+| M4 | social_event_rsvps table+RLS (migration 085), /events hub, EventCard RSVP, 5-tab school page, school_branding cover/logo | `events/page.tsx`, `SchoolProfileClient.tsx`, `school/[schoolId]/page.tsx` |
+| M5 | /saved page, SuggestedTeachers (every 5th post), block → social_blocks, freshness labels | `saved/page.tsx`, `SuggestedTeachers.tsx`, `FeedContainer.tsx` |
+
+### Known gaps (non-blocking, next agent picks up)
+1. **EventCard RSVP write** — optimistic count only; needs full `social_event_rsvps` upsert + `social_posts.event.rsvpCount` update.
+2. **`increment_story_view` RPC** — does not exist; gracefully caught but view_count stays 0. Add the RPC or a trigger.
+3. **RSVP hydration on reload** — EventCard doesn't fetch viewer's existing RSVP state on mount; button always shows "Tham gia".
+4. **class-groups proposal** — PR description outline below; do NOT build yet.
+
+### Class-Groups Proposal (for PR description)
+> **Proposal: social_class_groups (do NOT implement yet)**
+>
+> Allow cross-school topic groups modelled on Facebook Groups. Each group has:
+> - `social_class_groups(id, name, school_id nullable, description, avatar_url, member_count)`
+> - `social_group_members(group_id, profile_id, role admin|member, joined_at)` — RLS: member sees group
+> - Groups appear in LeftRail "Nhóm của tôi"; top-level `/groups` hub
+> - Posts gain optional `group_id` FK; feed can filter by group
+> - Moderation follows school: school_admin can appoint group admins
+> - Phase 1: school-scoped groups only; Phase 2: cross-school (opt-in by admin)
+
+---
+
+## Previous Focus — Community-First Ecosystem (2026-06-09)
+
+The product was re-oriented from **LMS-first** to **community/social-first**: the
+community feed (tuto.social) is now the front door for everyone (guests included,
+Facebook-style); sign-in is prompted only when a guest tries to interact. Signed-in
+users get a subtle ecosystem switcher to the **School Dashboard (LMS)** and
+**Home-Learning Courses (pro.tuto.asia)**, with SSO so they stay logged in across apps.
+
+**Integration branch:** `integration/community-first` (latest: `c21abbd`)  
+**Courses branch:** `agent-x-integration` (med app — does NOT auto-promote; promote manually)  
+**Vercel team:** `tarun-tagejas-projects` (`team_lEgbPvI9vppuQCVFpFCJVA8P`)
+
+### Apps, projects & live state (all verified 2026-06-09)
+
+| App | Path | Vercel project | Domain(s) | State |
+|---|---|---|---|---|
+| Social feed | `apps/social/` (Next.js, port **3001**) | `tuto-social` | `tuto.social`, `www.tuto.social` | LIVE; feed/search/profile/post guest-browsable (200/404, no `/login` redirect) |
+| Web dashboard / LMS | `apps/dashboard/` (Next.js, port **3000**) | `tutomain` (`prj_6Y9UtN0EeUuO2W8VsHi1iaGyUzzC`) | `tutoglobal.com`, `tuto.asia` | LIVE; `NEXT_PUBLIC_SOCIAL_URL=https://tuto.social` set (Prod+Dev) |
+| Courses / NurseEd | `apps/med/` (Next.js, `agent-x-integration`) | `med` (`prj_23SdtfcC8eLN0p6rjPRaHX7PHkRl`) | `pro.tuto.asia` | LIVE; `/auth/sso` → `307 /auth/login?next=/learn/courses` ✅ |
+| Mobile | `src/` (Expo) | — (EAS) | App Store `6757738235` | Code merged on integration branch; feed-first; **EAS build pending** |
+
+> ⚠️ `tuto1` (`prj_B8gh5MqVM8Hp6RxXg92uG74LDMYQ`) is a **redundant duplicate** dashboard
+> project that auto-builds every branch as previews and lacks Supabase env on its
+> **Preview** environment → those preview builds fail and send "build failed" emails.
+> It is NOT a real serving project. To silence: add `NEXT_PUBLIC_SUPABASE_URL` +
+> `NEXT_PUBLIC_SUPABASE_ANON_KEY` to its Preview env, OR disable auto-deploy for
+> non-production branches. (Prod+Dev env already added.)
+
+### What shipped in this work
+
+- **Mobile:** `AppNavigator` Splash routes everyone into `Social` (community feed); new
+  `SocialStack`/`SocialTabs`; `SocialFeedScreen` gates react/save/compose/post behind
+  `promptSocialSignIn` (`src/utils/socialAuthGate.ts`) for guests; `FeedHeader` apps-grid
+  icon → ecosystem; `src/services/ecosystem.ts` `openCourses()` opens pro.tuto.asia w/ SSO;
+  remember-me via `src/services/rememberMe.ts` (AsyncStorage) honored in Splash + `AuthUnifiedScreen`.
+- **Social web:** `app/page.tsx` → redirect `/feed`; `middleware.ts` gates only
+  `AUTH_REQUIRED_PREFIXES` (create/messages/notifications/settings/dashboard/profile/edit);
+  guest gates removed from feed, post detail, profiles, followers/following, search;
+  `contexts/AuthGateContext.tsx` modal; `components/layout/EcosystemSwitcher.tsx`; `lib/ecosystem.ts`.
+- **Dashboard web:** remember-me (`lib/supabase.ts` `rememberMeStorage` localStorage/sessionStorage);
+  `app/(home)/page.tsx` "Courses" link w/ SSO handoff; `lib/ecosystem.ts`; `app/auth/sso/route.ts`.
+  **Build fix:** module-scope `supabase = createClient(url, key)` now falls back to placeholders
+  when env is absent (was crashing `next build` page-data collection with `supabaseUrl is required`).
+- **Courses (med):** `apps/med/app/auth/sso/route.ts` SSO receiver (sets session, upserts `nursed_profiles`).
+- **SSO receiving routes** exist in all three web apps at `/auth/sso` (accept `access_token`/`refresh_token`).
+- **Supabase Auth:** `tuto.social` redirect URLs added by the project owner (done 2026-06-09).
+
+### Open / non-blocking
+- `tuto1`/`med` preview-build email noise (config cleanup — see warning above).
+- Reconcile `integration/community-first` with `main` before merging (branch is behind `main`).
+- Feed-first **mobile EAS build** + App Store submission (needs credentials).
+
+---
+
+## 🧪 NEXT TASK — Phased E2E Testing (Playwright)
+
+**Goal:** thorough end-to-end testing, **local first then a production smoke pass**, web then mobile.
+Playwright **1.60.0** is installed. Run `npx playwright install chromium` first.
+
+**Local dev servers** (run from repo root; both need their existing `.env.local`):
+```bash
+# Terminal A — social feed
+cd apps/social && npm run dev        # http://localhost:3001
+# Terminal B — dashboard / LMS
+cd apps/dashboard && npm run dev     # http://localhost:3000
+# Courses (apps/med) has no local .env.local → test against https://pro.tuto.asia
+```
+
+**Phases:**
+1. **Community-first (local, :3001):** guest can browse `/feed`, `/search`, `/profile/:username`,
+   `/post/:id`, followers/following (all 200/404, never redirect to `/login`). Guest clicking
+   react / comment / follow / compose / create → **auth-gate modal** appears. Sign in with a test
+   account → the gated interaction now succeeds.
+2. **Persistent login / remember-me (local):** with remember-me ON the session is in
+   `localStorage` (key `tuto-dashboard-auth` on dashboard; supabase key on social) and survives
+   reload; OFF → `sessionStorage`, cleared on tab close. Verify on both social and dashboard login.
+3. **Ecosystem / SSO handoff:** signed in on social → EcosystemSwitcher → School (dashboard) and
+   Courses; confirm session carries over (no re-login). Courses SSO is validated against
+   `pro.tuto.asia/auth/sso` (302/307 to `/auth/login` when no tokens; signed-in handoff lands on `/learn/courses`).
+4. **Production smoke (both):** `tuto.social/feed`=200 guest, auth gate + real sign-in;
+   `pro.tuto.asia/auth/sso`=307; `tutoglobal.com` loads with the "Courses" link.
+5. **Mobile (Expo, later):** Splash → community feed as front door; guest gating on
+   react/save/compose; ecosystem alert → dashboard/courses; remember-me sign-out behavior.
+
+**Test accounts:** see [Test Accounts](#test-accounts) below (shared Supabase Auth across all apps;
+`tarun@tutoglobal.com` works everywhere). Note: a `social_profiles` row may need to exist for full
+social interactions — create one via the app sign-up/profile flow if a fresh account is used.
 
 ---
 
@@ -24,7 +150,8 @@ _Last updated: 2026-04-28 by agent session [Mobile OTA + Splash Fixes](56e589a4-
 
 - **Project:** `fkjeggdxqifqqwhuqpgm.supabase.co`
 - **Key tables:** `public.users`, `school_users`, `school_teachers`, `schools`, `school_branding`, `platform_feedback`
-- **Storage buckets:** `school-logos` (legacy), `school-branding` (active — logo + header)
+- **Social tables (migrations 044–088):** `social_profiles`, `social_posts`, `social_likes`, `social_comments`, `social_comment_likes`, `social_saves`, `social_notifications`, `social_stories`, `social_story_views`, `social_story_reactions`, `social_reports`, `social_blocks`, `social_mutes`, `social_conversations`, `social_messages`, `social_follows`, `social_event_rsvps`
+- **Storage buckets:** `school-logos` (legacy), `school-branding` (active — logo + header), `social-media` (photo posts — public-read, auth-write, migration 083)
 - **Logo sync rule:** `uploadLogo()` in `src/services/settings/branding.ts` must update BOTH `school_branding.logo_url` AND `schools.logo_url` — critical for splash screen
 
 ---
