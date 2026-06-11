@@ -1,3 +1,5 @@
+'use client';
+
 import Link            from 'next/link';
 import Image           from 'next/image';
 import PostInteractions from './PostInteractions';
@@ -236,10 +238,10 @@ export default function FeedPost({ post, currentProfileId, onBlockAuthor }: Feed
         </Link>
       )}
 
-      {/* Subject chips */}
-      {post.subjects.length > 0 && (
+      {/* Subject chips — filter empty strings (Bug #8) */}
+      {post.subjects.filter((s) => s.trim().length > 0).length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-3">
-          {post.subjects.map((s) => (
+          {post.subjects.filter((s) => s.trim().length > 0).map((s) => (
             <span key={s} className="text-xs font-medium text-primary bg-blue-50 rounded-full px-2.5 py-1">
               #{s}
             </span>
