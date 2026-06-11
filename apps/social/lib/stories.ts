@@ -117,8 +117,9 @@ export async function markViewed(storyId: string): Promise<void> {
     { onConflict: 'story_id,viewer_id' },
   );
 
-  // Increment view count
-  await supabase.rpc('increment_story_view', { story_id: storyId }).catch(() => {});
+  // Increment view count via DB RPC (migration 082)
+  const { error: rpcErr } = await supabase.rpc('increment_story_view', { story_id: storyId });
+  if (rpcErr) console.error('[stories] increment_story_view failed:', rpcErr.message);
 }
 
 export async function reactToStory(storyId: string, reaction = 'emoji'): Promise<void> {
