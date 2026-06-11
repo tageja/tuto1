@@ -107,34 +107,35 @@ export default function PostInteractions({
 
   return (
     <>
-      <div className="flex items-center gap-1 pt-3 border-t border-gray-100">
+      <div className="flex items-center gap-0.5 sm:gap-1 pt-3 border-t border-gray-100">
         {reactions.map((type) => (
           <button
             key={type}
             onClick={() => handleReact(type)}
             disabled={isPending}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            className={`flex items-center gap-1 px-1.5 sm:px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
               userReaction === type
                 ? 'bg-primary/10 text-primary'
                 : 'text-gray-500 hover:bg-gray-100'
             }`}
           >
             <span>{REACTION_ICON[type]}</span>
-            <span>{REACTION_LABEL[type]}</span>
+            {/* Hide text labels on very small screens to prevent wrapping */}
+            <span className="hidden sm:inline">{REACTION_LABEL[type]}</span>
             <span className="text-xs font-semibold">{counts[type] ?? 0}</span>
           </button>
         ))}
 
         <div className="flex-1" />
 
-        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm text-gray-500 hover:bg-gray-100">
+        <button className="flex items-center gap-1 px-1.5 sm:px-3 py-1.5 rounded-full text-sm text-gray-500 hover:bg-gray-100 whitespace-nowrap">
           <span>💬</span>
           <span className="text-xs font-semibold">{commentsCount}</span>
         </button>
 
         <button
           onClick={() => setShareOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm text-gray-500 hover:bg-gray-100"
+          className="flex items-center gap-1 px-1.5 sm:px-3 py-1.5 rounded-full text-sm text-gray-500 hover:bg-gray-100"
           aria-label="Chia sẻ"
         >
           <span>📤</span>
@@ -143,7 +144,7 @@ export default function PostInteractions({
         <button
           onClick={handleSave}
           disabled={isPending}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+          className={`flex items-center gap-1 px-1.5 sm:px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
             saved ? 'text-primary' : 'text-gray-500 hover:bg-gray-100'
           }`}
         >
