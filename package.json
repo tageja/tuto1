@@ -166,6 +166,7 @@
     "@babel/preset-flow": "^7.27.1",
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
+    "@playwright/test": "^1.60.0",
     "@types/node": "^24.9.1",
     "@types/node-fetch": "^2.6.11",
     "@types/pg": "^8.10.9",
@@ -191,5 +192,22 @@
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
-  "private": true
+  "private": true,
+  "description": "A comprehensive React Native application for educational technology, featuring both general learning features and school-specific functionality.",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tageja/tuto1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/tageja/tuto1/issues"
+  },
+  "homepage": "https://github.com/tageja/tuto1#readme"
 }
