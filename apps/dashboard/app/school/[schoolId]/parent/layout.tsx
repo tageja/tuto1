@@ -10,6 +10,7 @@ import { useSchool } from '../../../../contexts/SchoolContext';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useEffect, useState, useRef } from 'react';
 import { NotificationBell } from '../../../../components/notifications/NotificationBell';
+import EcosystemSwitcher from '../../../../components/layout/EcosystemSwitcher';
 import { checkParentSchoolAccess } from '../../../../lib/school/parentAccess';
 import { ParentPinModal } from '../../../../components/school/ParentPinModal';
 
@@ -235,6 +236,7 @@ export default function ParentLayoutURLBased({ children }: { children: React.Rea
               <SchoolDropdown />
 
               {/* Notifications */}
+              <EcosystemSwitcher />
               <NotificationBell role="parent" schoolIdOverride={schoolId} />
 
               {/* User Avatar with Dropdown */}

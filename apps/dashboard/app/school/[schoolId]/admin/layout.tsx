@@ -10,6 +10,7 @@ import { useSchool } from '../../../../contexts/SchoolContext';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useEffect, useState, useRef } from 'react';
 import { NotificationBell } from '../../../../components/notifications/NotificationBell';
+import EcosystemSwitcher from '../../../../components/layout/EcosystemSwitcher';
 
 export default function AdminLayoutURLBased({ children }: { children: React.ReactNode }) {
   const { lang, setLang } = useI18n();
@@ -94,6 +95,9 @@ export default function AdminLayoutURLBased({ children }: { children: React.Reac
 
               {/* School Dropdown */}
               <SchoolDropdown />
+
+              {/* Ecosystem Switcher */}
+              <EcosystemSwitcher />
 
               {/* Notifications */}
               <NotificationBell role="admin" schoolIdOverride={schoolId} />

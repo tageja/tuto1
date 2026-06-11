@@ -22,7 +22,7 @@ export interface LeaderboardTeacher {
 export default async function LeaderboardPage() {
   const supabase = await createSupabaseServerClient();
 
-  const { data: teacherRows } = await supabase
+  const { data: teacherRows, error: teacherError } = await supabase
     .from('social_profiles')
     .select(
       'id, username, display_name, avatar_url, shield_count, shield_rank, subjects, is_verified, follower_count',
@@ -30,6 +30,18 @@ export default async function LeaderboardPage() {
     .eq('role', 'teacher')
     .order('shield_count', { ascending: false })
     .limit(50);
+
+  if (teacherError) {
+    console.error('[LeaderboardPage] query error:', teacherError.message);
+    return (
+      <main className="max-w-3xl mx-auto px-4 py-8">
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <p className="text-lg font-semibold text-gray-700 mb-2">Không thể tải bảng xếp hạng</p>
+          <p className="text-sm text-gray-400">{teacherError.message}</p>
+        </div>
+      </main>
+    );
+  }
 
   const teachers = (teacherRows ?? []) as LeaderboardTeacher[];
 

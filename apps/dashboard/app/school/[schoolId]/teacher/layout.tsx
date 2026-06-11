@@ -10,6 +10,7 @@ import { useSchool } from '../../../../contexts/SchoolContext';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useEffect, useState, useRef } from 'react';
 import { NotificationBell } from '../../../../components/notifications/NotificationBell';
+import EcosystemSwitcher from '../../../../components/layout/EcosystemSwitcher';
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {
   const { lang, setLang } = useI18n();
@@ -82,6 +83,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
                 <span className="uppercase font-medium">{lang}</span>
               </button>
               <SchoolDropdown />
+              <EcosystemSwitcher />
               <NotificationBell role="admin" schoolIdOverride={schoolId} />
               <div className="relative" ref={menuRef}>
                 <button
