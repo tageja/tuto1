@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getSupabaseBrowserClient }                  from '@/lib/supabase';
 import { useFeedInvalidation }                       from '@/contexts/FeedInvalidationContext';
+import { useAuthGate }                               from '@/contexts/AuthGateContext';
 import FeedPost     from './FeedPost';
 import FeedSkeleton from './FeedSkeleton';
 
@@ -36,7 +37,7 @@ interface Post {
   createdAt:    string;
 }
 
-const TABS: { key: FeedTab; label: string }[] = [
+const ALL_TABS: { key: FeedTab; label: string }[] = [
   { key: 'school',    label: 'Trường học' },
   { key: 'forYou',   label: 'Dành cho bạn' },
   { key: 'following', label: 'Đang theo dõi' },
@@ -63,9 +64,9 @@ function mapRow(row: Record<string, unknown>): Post {
     author: {
       id:          (a.id as string) ?? '',
       username:    (a.username as string) ?? '',
-      displayName: (a.display_name as string) ?? 'Unknown',
+      displayName: (a.display_name as string) || 'Tác giả',
       avatarUrl:   a.avatar_url as string | undefined,
-      role:        (a.role as string) ?? 'guest',
+      role:        (a.role as string) || 'parent',
       verified:    (a.is_verified as boolean) ?? false,
       schoolId:    a.school_id as string | undefined,
     },
@@ -85,12 +86,19 @@ interface UserProfile {
 export default function FeedContainer({ initialPosts }: { initialPosts: Post[] }) {
   const supabase                    = getSupabaseBrowserClient();
   const { feedVersion }             = useFeedInvalidation();
-  const [activeTab,    setActiveTab]    = useState<FeedTab>('school');
+  const { promptAuth }              = useAuthGate();
+  const [isGuest,      setIsGuest]      = useState(true);
+  const [activeTab,    setActiveTab]    = useState<FeedTab>('forYou');
   const [posts,        setPosts]        = useState<Post[]>(initialPosts);
   const [loading,      setLoading]      = useState(false);
   const [hasMore,      setHasMore]      = useState(true);
   const [feedError,    setFeedError]    = useState<string | null>(null);
   const [userProfile,  setUserProfile]  = useState<UserProfile | null>(null);
+
+  // Tabs visible to current viewer: guests only see forYou + following
+  const visibleTabs = isGuest
+    ? ALL_TABS.filter((t) => t.key !== 'school')
+    : ALL_TABS;
 
   const didInitialLoad = useRef(false);
   const cursorRef      = useRef<string | null>(null);
@@ -101,7 +109,11 @@ export default function FeedContainer({ initialPosts }: { initialPosts: Post[] }
   useEffect(() => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setIsGuest(true);
+        return;
+      }
+      setIsGuest(false);
       const { data } = await supabase
         .from('social_profiles')
         .select('id, school_id')
@@ -142,7 +154,13 @@ export default function FeedContainer({ initialPosts }: { initialPosts: Post[] }
         .limit(21);
 
       // Tab-specific filters
-      if (tab === 'school' && activeProfile?.schoolId) {
+      if (tab === 'school') {
+        if (!activeProfile?.schoolId) {
+          // Signed-in user with no school — return empty so CTA renders
+          if (reset) setPosts([]);
+          setHasMore(false);
+          return;
+        }
         query = query.eq('school_id', activeProfile.schoolId);
       } else if (tab === 'following') {
         if (followedIds.length === 0) {
@@ -236,9 +254,9 @@ export default function FeedContainer({ initialPosts }: { initialPosts: Post[] }
 
   return (
     <div>
-      {/* Tab switcher */}
+      {/* Tab switcher — guests see forYou + following only */}
       <div className="flex border-b border-gray-200 mb-4 bg-white sticky top-0 z-10">
-        {TABS.map((tab) => (
+        {visibleTabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
@@ -279,6 +297,26 @@ export default function FeedContainer({ initialPosts }: { initialPosts: Post[] }
             </button>
           </div>
         ) : posts.length === 0 ? (
+          activeTab === 'school' && !isGuest && !userProfile?.schoolId ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center px-6">
+              <div className="w-14 h-14 rounded-full bg-orange-50 flex items-center justify-center mb-4">
+                <svg className="w-7 h-7 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                    d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+                </svg>
+              </div>
+              <p className="font-semibold text-gray-700 mb-1">Tham gia trường của bạn</p>
+              <p className="text-sm text-gray-400 mb-4 max-w-xs">
+                Kết nối với trường học để xem bài viết từ giáo viên và phụ huynh trong cùng trường.
+              </p>
+              <a
+                href="/settings"
+                className="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/90 transition-colors"
+              >
+                Tham gia trường
+              </a>
+            </div>
+          ) : (
           <div className="flex flex-col items-center justify-center py-20 text-center px-6">
             <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mb-4">
               <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -289,6 +327,7 @@ export default function FeedContainer({ initialPosts }: { initialPosts: Post[] }
             <p className="font-semibold text-gray-700 mb-1">Chưa có bài viết nào</p>
             <p className="text-sm text-gray-400">Hãy là người đầu tiên chia sẻ trong cộng đồng!</p>
           </div>
+          )
         ) : (
           posts.map((post) => (
             <FeedPost

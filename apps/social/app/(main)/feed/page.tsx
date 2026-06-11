@@ -50,7 +50,7 @@ export default async function FeedPage() {
       postType:         row.post_type,
       content:          row.content ?? '',
       mediaUrls:        row.media_urls ?? [],
-      subjects:         row.subjects ?? [],
+      subjects:         (row.subjects ?? []).filter((s: string) => s.trim().length > 0),
       location:         row.location,
       moderationStatus: row.moderation_status,
       reactions: {
@@ -64,9 +64,9 @@ export default async function FeedPage() {
       author: {
         id:          a.id ?? '',
         username:    a.username ?? '',
-        displayName: a.display_name ?? 'Unknown',
+        displayName: (a.display_name as string) || 'Tác giả',
         avatarUrl:   a.avatar_url,
-        role:        a.role ?? 'guest',
+        role:        (a.role as string) || 'parent',
         verified:    a.is_verified ?? false,
         schoolId:    a.school_id as string | undefined,
       },
