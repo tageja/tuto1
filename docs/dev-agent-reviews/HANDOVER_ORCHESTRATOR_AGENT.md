@@ -1,11 +1,63 @@
 # Orchestrator Agent Handover
 
-_Last updated: 2026-06-11 by agent session [Community-First Redesign Round 3](a372fc83-827a-4076-a769-39e87edbec20)_  
-_Previously: [Community-First Redesign Round 2](a372fc83-827a-4076-a769-39e87edbec20)_
+_Last updated: 2026-06-11 by agent session [Domain Consolidation Phase 1](a372fc83-827a-4076-a769-39e87edbec20)_  
+_Previously: [Community-First Redesign Round 3](a372fc83-827a-4076-a769-39e87edbec20)_
 
 ---
 
-## 🟢 CURRENT FOCUS — Community-First Redesign Round 3 Gap Fixes (2026-06-11)
+## 🟢 CURRENT FOCUS — Domain Consolidation + Company Site (2026-06-11)
+
+**Branch:** `domainConsolidation` (off `communityFirstRedesign`, pushed to origin)
+
+### Target domain map
+
+| Domain | Serves | Vercel project | Status |
+|---|---|---|---|
+| `tuto.asia` | Community feed | tuto-social | 🔄 Phase 3 (USER ACTION needed) |
+| `tuto.social` | 301 → `tuto.asia` | tuto-social | 🔄 Phase 3 |
+| `school.tuto.asia` | School dashboard | tuto1 / dashboard | 🔄 Phase 2 (USER ACTION needed) |
+| `tutoglobal.com` | Company/marketing site | **tuto-company** (NEW) | 🔄 Phase 4 (USER ACTION needed) |
+| `pro.tuto.asia` | Courses | unchanged | ✅ untouched |
+
+### Phase 1 — Company site ✅ DONE
+
+- **`apps/company/`** — new Next.js 16 app, static-first, Tailwind, VN/EN cookie toggle
+- Pages: Home (hero, products, how-it-works, AI section, lead form), `/terms`, `/privacy`
+- `company_leads` Supabase table (migration 085, anon-INSERT-only RLS, no SELECT)
+- Vercel project `tuto-company` created under `tarun-tagejas-projects`
+- **Preview/Production URL:** `https://tuto-company.vercel.app`
+- Inspect: `https://vercel.com/tarun-tagejas-projects/tuto-company/2gxsNbGEWowMDuHeRWcooP6dhyDs`
+- Env vars set in Vercel: `NEXT_PUBLIC_SUPABASE_URL/KEY`, social/dashboard/courses URLs
+
+### Phase 2 — Dashboard → school.tuto.asia ⏸ WAITING FOR USER ACTION
+
+**[USER ACTION REQUIRED]**
+1. Vercel → `tuto1` (dashboard) project → Settings → Domains → add `school.tuto.asia`
+   - If tuto.asia DNS is NOT on Vercel nameservers, add CNAME at registrar: `school → cname.vercel-dns.com`
+2. Supabase Auth → URL Configuration → add `https://school.tuto.asia/**` to Redirect URLs
+
+After user completes both, executor can:
+- Update `NEXT_PUBLIC_DASHBOARD_URL=https://school.tuto.asia` in all Vercel projects (social, med, courses)
+- Grep and fix `tutoglobal.com` / `tuto.asia` references in `apps/`, `src/`
+
+### Phase 3 — tuto.asia → community feed ⏸ WAITING (Phase 2 first)
+
+**[USER ACTION REQUIRED after Phase 2 verified]**
+1. Vercel → dashboard project → remove `tuto.asia`; then tuto-social → add `tuto.asia` (primary)
+2. Supabase Auth → add `https://tuto.asia/**` to Redirect URLs
+
+After user action, executor adds 301 redirect in `apps/social/next.config.js` and updates canonical URLs.
+
+### Phase 4 — tutoglobal.com → company site ⏸ WAITING (Phases 1–3 first)
+
+**[USER ACTION REQUIRED after Phases 1–3 verified]**
+1. Vercel → dashboard → remove `tutoglobal.com`; then tuto-company → add `tutoglobal.com` + `www`
+
+After user action, executor adds `/admin/:path*`, `/teacher/:path*`, `/parent/:path*`, `/login` → `school.tuto.asia` redirects in `apps/company/next.config.js`.
+
+---
+
+## Previous Focus — Community-First Redesign Round 3 Gap Fixes (earlier 2026-06-11)
 
 **Branch:** `communityFirstRedesign` (pushed + deployed to production)  
 **Preview/Production URL:** `https://tuto.social` (deployment `dpl_Ew6dBG4w6ycNZKHo3PjmbFGr8Taa`)  
