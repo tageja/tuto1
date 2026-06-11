@@ -81,8 +81,12 @@ export default async function FeedPage() {
       {/* 3-column layout */}
       <div className="max-w-6xl mx-auto px-4 py-4">
         <div className="lg:grid lg:grid-cols-[280px_minmax(0,600px)_320px] lg:gap-6 lg:justify-center">
-          {/* Left rail */}
-          <LeftRail />
+          {/* Left rail — sticky so it stays visible while scrolling */}
+          <div className="hidden lg:block">
+            <div className="sticky top-[3.75rem] self-start max-h-[calc(100vh-3.75rem)] overflow-y-auto">
+              <LeftRail />
+            </div>
+          </div>
 
           {/* Center feed */}
           <main className="min-w-0">
@@ -91,8 +95,12 @@ export default async function FeedPage() {
             <FeedContainer initialPosts={initialPosts as never} />
           </main>
 
-          {/* Right rail */}
-          <RightRail />
+          {/* Right rail — sticky so it stays visible while scrolling */}
+          <div className="hidden lg:block">
+            <div className="sticky top-[3.75rem] self-start max-h-[calc(100vh-3.75rem)] overflow-y-auto">
+              <RightRail />
+            </div>
+          </div>
         </div>
       </div>
 
