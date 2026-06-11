@@ -87,8 +87,8 @@ export default function ProfileHeader({
   }
 
   return (
-    <div className="relative">
-      {/* Cover */}
+    <div>
+      {/* Cover — relative context scoped here so the avatar is anchored to it */}
       <div className={`relative h-40 lg:h-56 w-full bg-gradient-to-r ${gradient}`}>
         {profile.coverUrl && (
           <Image
@@ -98,22 +98,22 @@ export default function ProfileHeader({
             className="object-cover"
           />
         )}
-      </div>
 
-      {/* Avatar */}
-      <div className="absolute -bottom-16 left-6 lg:left-10">
-        <div className="relative h-32 w-32 lg:h-40 lg:w-40 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden">
-          {profile.avatarUrl ? (
-            <Image src={profile.avatarUrl} alt={profile.displayName} fill className="object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-200 text-4xl font-bold text-gray-500">
-              {profile.displayName?.charAt(0) ?? '?'}
-            </div>
-          )}
+        {/* Avatar — positioned relative to the cover div only */}
+        <div className="absolute -bottom-16 left-6 lg:left-10">
+          <div className="relative h-32 w-32 lg:h-40 lg:w-40 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden">
+            {profile.avatarUrl ? (
+              <Image src={profile.avatarUrl} alt={profile.displayName} fill className="object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gray-200 text-4xl font-bold text-gray-500">
+                {profile.displayName?.charAt(0) ?? '?'}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Info */}
+      {/* Info — pt-20/24 clears the avatar that overhangs from the cover */}
       <div className="px-6 lg:px-10 pt-20 lg:pt-24 pb-6">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
           <div className="flex-1">
