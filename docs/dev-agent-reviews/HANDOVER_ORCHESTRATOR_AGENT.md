@@ -1,11 +1,37 @@
 # Orchestrator Agent Handover
 
-_Last updated: 2026-06-11 by agent session [Community-First Redesign Round 2](a372fc83-827a-4076-a769-39e87edbec20)_  
-_Previously: 2026-06-09 [Community-First Ecosystem + Testing Prep](5512f35d-11e5-4c63-8078-a9cf4ce0ca20)_
+_Last updated: 2026-06-11 by agent session [Community-First Redesign Round 3](a372fc83-827a-4076-a769-39e87edbec20)_  
+_Previously: [Community-First Redesign Round 2](a372fc83-827a-4076-a769-39e87edbec20)_
 
 ---
 
-## 🟢 CURRENT FOCUS — Community-First Redesign M1-M5 (2026-06-11)
+## 🟢 CURRENT FOCUS — Community-First Redesign Round 3 Gap Fixes (2026-06-11)
+
+**Branch:** `communityFirstRedesign` (pushed + deployed to production)  
+**Preview/Production URL:** `https://tuto.social` (deployment `dpl_Ew6dBG4w6ycNZKHo3PjmbFGr8Taa`)  
+**Inspector:** `https://vercel.com/tarun-tagejas-projects/tuto-social/Ew6dBG4w6ycNZKHo3PjmbFGr8Taa`
+
+### What shipped in Round 3
+
+| Task | Fix | Migration |
+|---|---|---|
+| T1 | RSVP real DB write + toggle off + hydration on reload + live count from `social_event_rsvps` | — |
+| T2 | `increment_story_view` RPC (security definer) created | migration 082 |
+| T3 | Photo posts + stories re-seeded with real school mobile photos (no receipts/screenshots) | migration 083 |
+| T4 | Public event seeded (Ngày hội Tuyển sinh) so guests see `/events` hub | migration 084 |
+| T5 | LeftRail + RightRail sticky: `sticky top-[3.75rem] max-h-[calc(100vh-3.75rem)] overflow-y-auto` | — |
+| T6 | All gated routes use `?redirectTo=` consistently (login page param) | — |
+| T7 | TypeScript errors fixed; branch pushed; production deployed to `tuto.social` | — |
+
+### Deploy note (for next agent)
+CLI `vercel deploy` preview builds (non-production) fail due to missing NEXT_PUBLIC_SUPABASE_* env vars in Vercel preview environment. Always use `vercel deploy --yes --prod` to deploy from this branch.
+
+### Known gaps (resolved in Round 3)
+All Round 2 gaps resolved. No new gaps introduced.
+
+---
+
+## Previous Focus — Community-First Redesign M1-M5 (2026-06-11)
 
 **Branch:** `communityFirstRedesign` (off `integration/community-first`)  
 **All milestones M0–M5 shipped.** Committed as `feat(social): M1-M5 Community-First Redesign [redesign-M1-M5]`.
