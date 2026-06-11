@@ -17,7 +17,7 @@ const POST_QUERY = `
 export default async function SavedPage() {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login?next=/saved');
+  if (!user) redirect('/login?redirectTo=/saved');
 
   const { data: profile } = await supabase
     .from('social_profiles')

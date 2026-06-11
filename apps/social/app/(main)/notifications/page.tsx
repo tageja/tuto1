@@ -9,7 +9,7 @@ export const metadata = {
 export default async function NotificationsPage() {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  if (!user) redirect('/login?redirectTo=/notifications');
 
   const { data: myProfile } = await supabase
     .from('social_profiles')
