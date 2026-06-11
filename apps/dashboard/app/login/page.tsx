@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
@@ -292,7 +292,7 @@ const styles = {
 };
 
 export default function LoginPage() {
-  const { signIn, signUp, signOut, loading, error, clearError, signInWithGoogle, firebaseUser, user } = useAuth();
+  const { signIn, signUp, signOut, loading, error, clearError, signInWithGoogle, firebaseUser, user, resetPassword } = useAuth();
   const router = useRouter();
   const { t, lang, setLang } = useI18n();
   const [recoveryStuck, setRecoveryStuck] = useState(false);
@@ -306,9 +306,22 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(true);
   const [isClient, setIsClient] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotSuccess, setForgotSuccess] = useState(false);
+  const [forgotError, setForgotError] = useState<string | null>(null);
+  const forgotInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setIsClient(true);
+    // Sync remember-me checkbox with persisted preference
+    try {
+      const stored = window.localStorage.getItem('tuto-remember-me');
+      if (stored === 'false') setRememberMe(false);
+    } catch {
+      // storage blocked — keep default true
+    }
   }, []);
 
   // Redirect as soon as profile is loaded (session recovered or fresh sign-in).
@@ -322,14 +335,27 @@ export default function LoginPage() {
     const redirectTo = new URLSearchParams(window.location.search).get('redirectTo');
 
     if (redirectTo === '/community') {
-      // SSO handoff: get current session tokens and redirect to social app
+      // SSO handoff: tokens in URL fragment — never reaches server, not in logs
+      const rawSocialRedirect = new URLSearchParams(window.location.search).get('socialRedirect');
+      const ALLOWED_SOCIAL_ORIGINS = [
+        'https://tuto.social',
+        'https://www.tuto.social',
+        'http://localhost:3001',
+      ];
+      const decodedSocialRedirect = rawSocialRedirect ? decodeURIComponent(rawSocialRedirect) : null;
+      const safePath = decodedSocialRedirect &&
+        ALLOWED_SOCIAL_ORIGINS.some((o) => decodedSocialRedirect.startsWith(o))
+        ? new URL(decodedSocialRedirect).pathname
+        : '/feed';
+
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session) {
-          const params = new URLSearchParams({
+          const fragment = new URLSearchParams({
             access_token:  session.access_token,
             refresh_token: session.refresh_token,
+            redirectTo:    safePath,
           });
-          window.location.href = `${SOCIAL_URL}/auth/sso?${params.toString()}`;
+          window.location.href = `${SOCIAL_URL}/auth/sso-exchange#${fragment.toString()}`;
         } else {
           router.replace('/home');
         }
@@ -426,7 +452,26 @@ export default function LoginPage() {
   };
 
   const handleForgotPassword = () => {
-    alert('Forgot password functionality coming soon!');
+    setForgotEmail(email);
+    setForgotSuccess(false);
+    setForgotError(null);
+    setShowForgotModal(true);
+    setTimeout(() => forgotInputRef.current?.focus(), 50);
+  };
+
+  const handleForgotSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail.trim()) return;
+    setForgotLoading(true);
+    setForgotError(null);
+    try {
+      await resetPassword(forgotEmail.trim());
+      setForgotSuccess(true);
+    } catch (err) {
+      setForgotError(err instanceof Error ? err.message : 'Failed to send reset email.');
+    } finally {
+      setForgotLoading(false);
+    }
   };
 
   if (!isClient) {
@@ -802,6 +847,57 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+      {/* ── Forgot-password modal ── */}
+      {showForgotModal && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '16px' }}
+          onClick={() => setShowForgotModal(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Reset password"
+        >
+          <div
+            style={{ background: '#fff', borderRadius: '16px', padding: '32px', maxWidth: '400px', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {forgotSuccess ? (
+              <>
+                <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', color: '#1F2937' }}>Check your email</h2>
+                <p style={{ color: '#6B7280', marginBottom: '24px' }}>We sent a password reset link to <strong>{forgotEmail}</strong>. Check your inbox and follow the link.</p>
+                <button onClick={() => setShowForgotModal(false)} style={{ width: '100%', padding: '12px', background: '#0B5FFF', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', fontSize: '15px' }}>
+                  Done
+                </button>
+              </>
+            ) : (
+              <form onSubmit={handleForgotSubmit}>
+                <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', color: '#1F2937' }}>Reset password</h2>
+                <p style={{ color: '#6B7280', marginBottom: '20px', fontSize: '14px' }}>Enter your email and we&apos;ll send you a reset link.</p>
+                <input
+                  ref={forgotInputRef}
+                  type="email"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  required
+                  autoComplete="email"
+                  style={{ width: '100%', padding: '12px 14px', border: '1px solid #D1D5DB', borderRadius: '10px', fontSize: '15px', marginBottom: '12px', boxSizing: 'border-box' }}
+                />
+                {forgotError && <p style={{ color: '#EF4444', fontSize: '13px', marginBottom: '10px' }}>{forgotError}</p>}
+                <button
+                  type="submit"
+                  disabled={forgotLoading}
+                  style={{ width: '100%', padding: '12px', background: forgotLoading ? '#9CA3AF' : '#0B5FFF', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 600, cursor: forgotLoading ? 'not-allowed' : 'pointer', fontSize: '15px' }}
+                >
+                  {forgotLoading ? 'Sending…' : 'Send reset link'}
+                </button>
+                <button type="button" onClick={() => setShowForgotModal(false)} style={{ width: '100%', marginTop: '10px', padding: '10px', background: 'transparent', border: '1px solid #E5E7EB', borderRadius: '10px', color: '#6B7280', cursor: 'pointer', fontSize: '14px' }}>
+                  Cancel
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

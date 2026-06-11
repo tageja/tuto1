@@ -34,11 +34,12 @@ export default function WebHomePage() {
       router.push('/login?redirectTo=/community');
       return;
     }
-    const params = new URLSearchParams({
+    // Tokens in URL fragment — never sent to server, not in access logs
+    const fragment = new URLSearchParams({
       access_token: session.access_token,
       refresh_token: session.refresh_token,
     });
-    window.location.href = `${SOCIAL_URL}/auth/sso?${params.toString()}`;
+    window.location.href = `${SOCIAL_URL}/auth/sso-exchange#${fragment.toString()}`;
   }, [router]);
 
   const handleCoursesClick = useCallback((e: React.MouseEvent) => {

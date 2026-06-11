@@ -25,11 +25,12 @@ export default function Header() {
       router.push('/login?redirectTo=/community');
       return;
     }
-    const params = new URLSearchParams({
+    // Tokens in fragment — never sent to server, not in access logs
+    const fragment = new URLSearchParams({
       access_token:  session.access_token,
       refresh_token: session.refresh_token,
     });
-    window.location.href = `${SOCIAL_URL}/auth/sso?${params.toString()}`;
+    window.location.href = `${SOCIAL_URL}/auth/sso-exchange#${fragment.toString()}`;
   }, [router]);
 
   const isActive = (path: string) => {
@@ -63,7 +64,7 @@ export default function Header() {
             {t('landing.nav.communityFeed')}
           </Link>
           <a
-            href={`${SOCIAL_URL}/auth/sso`}
+            href={`${SOCIAL_URL}/feed`}
             onClick={handleCommunityClick}
             className="text-sm font-semibold transition-colors text-gray-600 hover:text-[#0B5FFF] flex items-center gap-1.5"
           >
@@ -128,7 +129,7 @@ export default function Header() {
               {t('landing.nav.communityFeed')}
             </Link>
             <a
-              href={`${SOCIAL_URL}/auth/sso`}
+              href={`${SOCIAL_URL}/feed`}
               onClick={handleCommunityClick}
               className="text-sm font-semibold transition-colors text-gray-600 hover:text-[#0B5FFF] flex items-center gap-1.5"
             >
