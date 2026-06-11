@@ -57,7 +57,7 @@ export default function InlineComments({ postId, commentsCount }: Props) {
       .limit(2);
 
     const mapped = (data ?? []).reverse().map((r) => {
-      const a = r.author as Record<string, unknown> ?? {};
+      const a = (r.author as unknown as Record<string, unknown>) ?? {};
       return {
         id:        r.id as string,
         content:   r.content as string,
@@ -101,7 +101,7 @@ export default function InlineComments({ postId, commentsCount }: Props) {
         .single();
       if (!comment) return;
 
-      await supabase.rpc('increment_comments_count', { post_id: postId }).catch(() => {});
+      await supabase.rpc('increment_comments_count', { post_id: postId });
 
       setComments((prev) => [
         ...prev.slice(-1),

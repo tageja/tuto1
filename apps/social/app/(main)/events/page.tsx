@@ -70,7 +70,7 @@ export default async function EventsPage() {
         <div className="space-y-4">
           {events.map((r) => {
             const ev  = r.event as { title: string; date: string; location?: string };
-            const a   = r.author as Record<string, unknown> ?? {};
+            const a   = (r.author as unknown as Record<string, unknown>) ?? {};
             const rc  = r.rsvp_count as { count: number }[] | null;
             const rsvpLive = Array.isArray(rc) && rc.length > 0 ? (rc[0].count ?? 0) : 0;
             return (
