@@ -30,7 +30,7 @@ export default function Footer() {
         </div>
         <div>
           <p className="font-semibold mb-3 text-gray-300">{t('nav.contact')}</p>
-          <a href="mailto:hello@tuto.asia" className="text-gray-400 hover:text-white transition-colors">hello@tuto.asia</a>
+          <a href="mailto:support@tutoglobal.com" className="text-gray-400 hover:text-white transition-colors">support@tutoglobal.com</a>
         </div>
       </div>
       <div className="border-t border-gray-700 text-center text-xs text-gray-500 py-4">

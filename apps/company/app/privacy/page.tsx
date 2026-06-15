@@ -59,7 +59,7 @@ function PrivacyVi() {
 
       <h2>6. Liên hệ</h2>
       <p>
-        Mọi câu hỏi về quyền riêng tư: <a href="mailto:hello@tuto.asia">hello@tuto.asia</a>
+        Mọi câu hỏi về quyền riêng tư: <a href="mailto:support@tutoglobal.com">support@tutoglobal.com</a>
       </p>
     </>
   );
@@ -108,7 +108,7 @@ function PrivacyEn() {
 
       <h2>6. Contact</h2>
       <p>
-        Privacy questions: <a href="mailto:hello@tuto.asia">hello@tuto.asia</a>
+        Privacy questions: <a href="mailto:support@tutoglobal.com">support@tutoglobal.com</a>
       </p>
     </>
   );

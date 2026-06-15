@@ -71,7 +71,7 @@ function TermsVi() {
       </p>
 
       <h2>7. Liên hệ</h2>
-      <p>hello@tuto.asia</p>
+      <p>support@tutoglobal.com</p>
     </>
   );
 }
@@ -130,7 +130,7 @@ function TermsEn() {
       </p>
 
       <h2>7. Contact</h2>
-      <p>hello@tuto.asia</p>
+      <p>support@tutoglobal.com</p>
     </>
   );
 }

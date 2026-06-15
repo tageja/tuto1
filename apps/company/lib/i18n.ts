@@ -113,7 +113,7 @@ const vi = {
   'footer.tagline':  'learn • connect • grow',
   'footer.products': 'Sản phẩm',
   'footer.company':  'Công ty',
-  'footer.contact':  'Liên hệ: hello@tuto.asia',
+  'footer.contact':  'Liên hệ: support@tutoglobal.com',
 
   // Terms / Privacy titles
   'terms.title':   'Điều khoản Sử dụng',
@@ -220,7 +220,7 @@ const en: typeof vi = {
   'footer.tagline':  'learn • connect • grow',
   'footer.products': 'Products',
   'footer.company':  'Company',
-  'footer.contact':  'Contact: hello@tuto.asia',
+  'footer.contact':  'Contact: support@tutoglobal.com',
 
   'terms.title':   'Terms of Use',
   'privacy.title': 'Privacy Policy',
