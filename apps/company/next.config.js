@@ -18,6 +18,11 @@ const nextConfig = {
       { source: '/parent/:path*',    destination: `${DASHBOARD_URL}/parent/:path*`,    permanent: true },
       { source: '/login/:path*',     destination: `${DASHBOARD_URL}/login/:path*`,     permanent: true },
       { source: '/investors/:path*', destination: `${DASHBOARD_URL}/investors/:path*`, permanent: true },
+      // Canonical legal lives at /legal/*; keep short aliases working.
+      { source: '/privacy',          destination: '/legal/privacy',                    permanent: true },
+      { source: '/terms',            destination: '/legal/terms',                      permanent: true },
+      // Cookie policy depends on dashboard UI components; serve it from the dashboard.
+      { source: '/legal/cookies',    destination: `${DASHBOARD_URL}/legal/cookies`,    permanent: true },
     ];
   },
 };

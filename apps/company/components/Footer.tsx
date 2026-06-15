@@ -24,8 +24,9 @@ export default function Footer() {
         <div>
           <p className="font-semibold mb-3 text-gray-300">{t('footer.company')}</p>
           <ul className="space-y-2 text-gray-400">
-            <li><Link href="/terms"   className="hover:text-white transition-colors">{t('nav.terms')}</Link></li>
-            <li><Link href="/privacy" className="hover:text-white transition-colors">{t('nav.privacy')}</Link></li>
+            <li><Link href="/legal/terms"   className="hover:text-white transition-colors">{t('nav.terms')}</Link></li>
+            <li><Link href="/legal/privacy" className="hover:text-white transition-colors">{t('nav.privacy')}</Link></li>
+            <li><Link href="/support"       className="hover:text-white transition-colors">{t('nav.contact')}</Link></li>
           </ul>
         </div>
         <div>

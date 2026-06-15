@@ -26,8 +26,8 @@ export default function Header() {
         <nav className="hidden md:flex items-center gap-6 text-sm text-muted">
           <Link href="/#products" className="hover:text-primary transition-colors">{t('nav.products')}</Link>
           <Link href="/#about"    className="hover:text-primary transition-colors">{t('nav.about')}</Link>
-          <Link href="/terms"     className="hover:text-primary transition-colors">{t('nav.terms')}</Link>
-          <Link href="/privacy"   className="hover:text-primary transition-colors">{t('nav.privacy')}</Link>
+          <Link href="/legal/terms"   className="hover:text-primary transition-colors">{t('nav.terms')}</Link>
+          <Link href="/legal/privacy" className="hover:text-primary transition-colors">{t('nav.privacy')}</Link>
         </nav>
 
         {/* Right actions */}
