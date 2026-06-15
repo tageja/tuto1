@@ -1,8 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useMemo, useState } from 'react';
-import * as enTranslations from '../../../packages/i18n/src/en.json';
-import * as viTranslations from '../../../packages/i18n/src/vi.json';
+import * as enTranslations from '@/lib/i18n/en.json';
+import * as viTranslations from '@/lib/i18n/vi.json';
 
 type Lang = 'vi' | 'en';
 
