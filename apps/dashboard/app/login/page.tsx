@@ -338,6 +338,7 @@ export default function LoginPage() {
       // SSO handoff: tokens in URL fragment — never reaches server, not in logs
       const rawSocialRedirect = new URLSearchParams(window.location.search).get('socialRedirect');
       const ALLOWED_SOCIAL_ORIGINS = [
+        'https://tuto.asia',
         'https://tuto.social',
         'https://www.tuto.social',
         'http://localhost:3001',

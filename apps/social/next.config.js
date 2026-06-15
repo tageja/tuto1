@@ -25,7 +25,25 @@ const nextConfig = {
       },
     ],
   },
-  // Allow cross-origin requests from tuto.asia dashboard in dev
+  // Phase 3: tuto.social is retired as the primary host — 301 every request to
+  // tuto.asia (which now serves this same app) to preserve links/SEO.
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'tuto.social' }],
+        destination: 'https://tuto.asia/:path*',
+        permanent: true,
+      },
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.tuto.social' }],
+        destination: 'https://tuto.asia/:path*',
+        permanent: true,
+      },
+    ];
+  },
+  // Allow cross-origin requests from the dashboard in dev
   async headers() {
     return [
       {

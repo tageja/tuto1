@@ -9,7 +9,8 @@ interface Props {
 }
 
 export default function ShareModal({ postId, preview, onClose }: Props) {
-  const url = `https://tuto.social/post/${postId}`;
+  const base = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tuto.asia';
+  const url = `${base}/post/${postId}`;
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
