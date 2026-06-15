@@ -15,7 +15,7 @@ _Previously: [Community-First Redesign Round 3](a372fc83-827a-4076-a769-39e87edb
 |---|---|---|---|
 | `tuto.asia` | Community feed | tuto-social | 🔄 Phase 3 (USER ACTION needed) |
 | `tuto.social` | 301 → `tuto.asia` | tuto-social | 🔄 Phase 3 |
-| `school.tuto.asia` | School dashboard | tuto1 / dashboard | 🔄 Phase 2 (USER ACTION needed) |
+| `school.tuto.asia` | School dashboard | dashboard | ✅ Phase 2 done (live + SSL) |
 | `tutoglobal.com` | Company/marketing site | **tuto-company** (NEW) | 🔄 Phase 4 (USER ACTION needed) |
 | `pro.tuto.asia` | Courses | unchanged | ✅ untouched |
 
@@ -29,16 +29,41 @@ _Previously: [Community-First Redesign Round 3](a372fc83-827a-4076-a769-39e87edb
 - Inspect: `https://vercel.com/tarun-tagejas-projects/tuto-company/2gxsNbGEWowMDuHeRWcooP6dhyDs`
 - Env vars set in Vercel: `NEXT_PUBLIC_SUPABASE_URL/KEY`, social/dashboard/courses URLs
 
-### Phase 2 — Dashboard → school.tuto.asia ⏸ WAITING FOR USER ACTION
+### Phase 2 — Dashboard → school.tuto.asia ✅ DONE
 
-**[USER ACTION REQUIRED]**
-1. Vercel → `tuto1` (dashboard) project → Settings → Domains → add `school.tuto.asia`
-   - If tuto.asia DNS is NOT on Vercel nameservers, add CNAME at registrar: `school → cname.vercel-dns.com`
-2. Supabase Auth → URL Configuration → add `https://school.tuto.asia/**` to Redirect URLs
+**Vercel project:** `dashboard` (prj_WKBhPJjLeXHtGrsy0kybt2eXZUTp) — NOT `tuto1`.
+The `apps/dashboard/.vercel` links to project `dashboard`.
 
-After user completes both, executor can:
-- Update `NEXT_PUBLIC_DASHBOARD_URL=https://school.tuto.asia` in all Vercel projects (social, med, courses)
-- Grep and fix `tutoglobal.com` / `tuto.asia` references in `apps/`, `src/`
+**Critical fix — why dashboard builds kept failing on Vercel:**
+`vercel deploy` from inside `apps/dashboard` only uploads that folder, so every
+monorepo `packages/*` reference broke. Made the dashboard **fully self-contained**
+(same pattern that makes tuto-social deploy cleanly):
+- Added all 13 env vars to the `dashboard` Vercel project (were completely missing)
+- Inlined `packages/schemas/src/*` → `apps/dashboard/lib/schemas/`
+- Inlined `packages/i18n/{en,vi}.json` → `apps/dashboard/lib/i18n/`
+- Inlined `packages/shared/*` → `apps/dashboard/lib/shared/`
+- Rewrote `apps/dashboard/tsconfig.json` to drop `extends ../../packages/config` and
+  point `@tuto/shared` / `@tuto/schemas` aliases at the local copies
+- Cleared the broken project-level `installCommand` (`cd ../.. && npm install`) via API
+
+**Domain:** `school.tuto.asia` added to `dashboard` project, **verified**, SSL live.
+DNS: CNAME `school → cname.vercel-dns.com` at GoDaddy (USER done).
+Supabase redirect `https://school.tuto.asia/**` added (USER done).
+
+**Code/env changes:**
+- tuto-social Vercel env `NEXT_PUBLIC_DASHBOARD_URL=https://school.tuto.asia` (prod+preview;
+  was an empty string — latent bug). Local `apps/social/.env.local` updated too.
+- Cosmetic comment updates in `apps/social/lib/ecosystem.ts`, `apps/social/app/auth/sso/route.ts`,
+  `apps/social/app/auth/sso-exchange/page.tsx`, `apps/dashboard/app/auth/sso/route.ts`.
+- tuto-social redeployed to production (build-time inlines the new URL).
+
+**Verified (HTTP):** school.tuto.asia 200, /login 200, /auth/sso-exchange 200,
+tuto.social/feed 200, tutoglobal.com still 200 (parallel run intact).
+**Still to verify by USER:** interactive SSO round-trip with real login (dashboard ↔ social).
+
+**Note:** mobile `src/screens/settings/*` legal links still point at
+`www.tutoglobal.com/legal/{privacy,terms}` + `/support` — these are NOT dashboard SSO
+URLs (no SSO URLs exist in mobile src/services|config). Handle in Phase 4.
 
 ### Phase 3 — tuto.asia → community feed ⏸ WAITING (Phase 2 first)
 
