@@ -17,20 +17,35 @@ export const ECOSYSTEM_URLS: Record<Exclude<EcosystemApp, 'school'>, string> = {
   courses: process.env.NEXT_PUBLIC_COURSES_URL ?? 'https://pro.tuto.asia',
 };
 
-export async function handoffTo(target: Exclude<EcosystemApp, 'school'>): Promise<void> {
+/**
+ * Navigate to another ecosystem app carrying the current session via SSO.
+ * Tokens are passed in the URL fragment (#) so they are never sent to the
+ * server and do not appear in access logs or Referer headers.
+ *
+ * Falls back to plain navigation when there is no active session.
+ *
+ * @param redirectTo  Optional path on the target app to land on after SSO.
+ */
+export async function handoffTo(
+  target: Exclude<EcosystemApp, 'school'>,
+  redirectTo?: string,
+): Promise<void> {
   const base = ECOSYSTEM_URLS[target];
+  const ssoPath = target === 'feed' ? '/auth/sso-exchange' : '/auth/sso-exchange';
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.access_token && session?.refresh_token) {
-      const params = new URLSearchParams({
+      const fragment = new URLSearchParams({
         access_token: session.access_token,
         refresh_token: session.refresh_token,
+        ...(redirectTo ? { redirectTo } : {}),
       });
-      window.location.href = `${base}/auth/sso?${params.toString()}`;
+      window.location.href = `${base}${ssoPath}#${fragment.toString()}`;
       return;
     }
   } catch {
     // Fall through to plain navigation.
   }
-  window.location.href = base;
+  const dest = redirectTo ? `${base}${redirectTo}` : base;
+  window.location.href = dest;
 }
