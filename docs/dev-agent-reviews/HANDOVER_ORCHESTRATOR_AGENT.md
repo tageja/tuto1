@@ -1,17 +1,17 @@
 # Orchestrator Agent Handover
 
-_Last updated: 2026-06-15 by agent session Vercel Cleanup + Branch Reconcile_  
+_Last updated: 2026-06-15 by agent session Vercel Cleanup + Branch Reconcile + Dashboard Prod Deploy_  
 _Previously: [Legal Pages Restore + Mobile Release Status](a372fc83-827a-4076-a769-39e87edbec20)_
 
 ---
 
-## 🟢 CURRENT FOCUS — Vercel Project Cleanup + Branch Reconcile ✅ DONE (2026-06-15)
+## 🟢 CURRENT FOCUS — Infra Reconcile + Dashboard Prod Deploy ✅ DONE (2026-06-15)
 
-> **`main` is now the source of truth again.** It was stale (last real commit 2026-04-28) and
-> had **diverged** — production was running off the `domainConsolidation` feature branch while
-> `main` held 15 unmerged dashboard commits. Both have been reconciled into a single union on `main`.
+> **`main` is the source of truth.** Production `school.tuto.asia` now deploys from `main` (`e91e2e6`).
+> Supabase migration `054_platform_feedback` confirmed applied. All follow-ups from the branch
+> reconcile are complete.
 
-### A. Branch reconcile — `main` = union of everything (commit `cf91763`, PUSHED to `origin/main`)
+### A. Branch reconcile — `main` = union of everything (commit `cf91763` → `e91e2e6`, PUSHED)
 
 **Before:** `main` (`03f66e3`) and `domainConsolidation` (`fbf0420`) had diverged: `main` had **15
 commits not in domainConsolidation** (real dashboard features), and domainConsolidation had 73
@@ -37,19 +37,36 @@ domainConsolidation (`a2f7ce0`) and was therefore **missing** those 15 commits' 
 **Verification:** dashboard `tsc --noEmit` — the files I resolved are clean (remaining TS errors are
 pre-existing across the repo; `next.config.js` has `ignoreBuildErrors`+`ignoreDuringBuilds`, so builds pass).
 
-**End state:** `main` = `cf91763` (canonical). `domainConsolidation` (`fbf0420`) is now a clean
+**End state:** `main` = `e91e2e6` (canonical). `domainConsolidation` (`fbf0420`) is a clean
 **ancestor** of `main` (0 divergence, just behind) — fast-forwardable, no longer divergent.
 
-> ⚠️ **TWO FOLLOW-UPS for next agent / USER:**
-> 1. **Redeploy `school.tuto.asia` (dashboard project) from `main`** — production is still on
->    `a2f7ce0` and is missing platform-feedback API + logo-upload until a redeploy from `main`.
->    Deploy is CLI-driven (project is NOT git-connected): `cd apps/dashboard && vercel deploy --prod`.
-> 2. **Verify migration `054_platform_feedback.sql` is applied** in Supabase before relying on the
->    feedback API (the `platform_feedback` table is referenced in the Supabase section below, so it
->    is likely already applied — confirm).
->
-> Also: uncommitted **social i18n WIP** (VN/EN LanguageToggle/LanguageContext + feed/layout edits)
-> is still in the working tree on `domainConsolidation`, deliberately left uncommitted.
+### C. Supabase + dashboard production deploy ✅ DONE (2026-06-15)
+
+**Supabase verified (MCP `execute_sql` + `list_migrations`):**
+- Migration `054_platform_feedback` **applied** (`20260423033434`)
+- `public.platform_feedback` table exists
+- `public.is_tuto_admin()` function exists
+- No migration action needed.
+
+**Dashboard production deploy (`school.tuto.asia`, project `dashboard`):**
+- **Before:** prod on `a2f7ce0` (old `domainConsolidation`), missing platform-feedback API + logo upload
+- **First deploy attempt from `main` (`48c752c`) FAILED safely** — build error: layouts import
+  `EcosystemSwitcher` but the component was never committed (existed only as local uncommitted file).
+  Production stayed on old deployment (no downtime).
+- **Fix committed to `main`:** `e91e2e6` — added `apps/dashboard/components/layout/EcosystemSwitcher.tsx`
+  + updated `lib/ecosystem.ts` to fragment-based SSO handoff (`/auth/sso-exchange#tokens`).
+- **Second deploy SUCCEEDED:** `dpl_Gr9JrwgcmvMhRzyhG9eMMHbGEKw8` → aliased to `school.tuto.asia`.
+
+**Verified live (curl, 2026-06-15):**
+- `school.tuto.asia/login` 200 · `/tutoadmin/feedback` 200 · `/tutoadmin/moderation` 200
+- `/repomap` 200 · `/favicon.ico` 200 (15406-byte real `.ico`)
+- `/api/platform-feedback` 401 without auth (route exists, auth gate working)
+- Build output includes `/api/platform-feedback`, `/api/tutoadmin/schools/[id]/logo`, `/school/.../admin/help`
+
+> Still uncommitted on `domainConsolidation` working tree: **social i18n WIP** (VN/EN LanguageToggle/
+> LanguageContext + feed/layout edits). The dashboard `ecosystem.ts` + `EcosystemSwitcher.tsx` fixes
+> are now on `main` but may still show as local modifications on `domainConsolidation` until that
+> branch is fast-forwarded to `main`.
 
 ### B. Vercel project cleanup (team `tarun-tagejas-projects`)
 
