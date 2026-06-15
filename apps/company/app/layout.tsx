@@ -7,14 +7,14 @@ import Footer from '@/components/Footer';
 import type { Locale }   from '@/lib/i18n';
 
 export const metadata: Metadata = {
-  title:       'Tuto — AI-integrated School LMS & Learning Community',
-  description: 'Tuto kết nối phụ huynh, học sinh, giáo viên và nhà trường — từ điểm danh, bài tập đến cộng đồng học tập. Miễn phí triển khai cho trường học.',
+  title:       'Tuto: AI-integrated School LMS & Learning Community',
+  description: 'Tuto kết nối phụ huynh, học sinh, giáo viên và nhà trường: từ điểm danh, bài tập đến cộng đồng học tập. Miễn phí triển khai cho trường học.',
   metadataBase: new URL('https://tutoglobal.com'),
   openGraph: {
     type:        'website',
     locale:      'vi_VN',
     siteName:    'Tuto',
-    title:       'Tuto — School LMS & Learning Community',
+    title:       'Tuto: School LMS & Learning Community',
     description: 'Quản lý trường học & cộng đồng học tập trong một nền tảng',
   },
 };

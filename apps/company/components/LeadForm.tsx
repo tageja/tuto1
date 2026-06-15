@@ -70,7 +70,7 @@ export default function LeadForm() {
           required
           className="w-full border border-border rounded-xl px-4 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/40"
         >
-          <option value="">—</option>
+          <option value="" disabled>{t('form.role.placeholder')}</option>
           {ROLE_VALUES.map((r) => (
             <option key={r} value={r}>{t(`form.role.${r}` as never)}</option>
           ))}

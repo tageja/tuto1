@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Header() {
@@ -10,9 +11,15 @@ export default function Header() {
     <header className="sticky top-0 z-50 bg-white border-b border-border">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl text-primary shrink-0">
-          <span className="bg-primary text-white px-2 py-0.5 rounded-lg text-base">tuto</span>
-          <span className="text-on-surface hidden sm:block">global</span>
+        <Link href="/" className="flex items-center shrink-0" aria-label="Tuto">
+          <Image
+            src="/images/tuto-logo.png"
+            alt="Tuto"
+            width={252}
+            height={110}
+            priority
+            className="h-8 w-auto"
+          />
         </Link>
 
         {/* Nav */}
