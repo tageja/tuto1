@@ -1,13 +1,19 @@
 # Orchestrator Agent Handover
 
-_Last updated: 2026-06-15 by agent session [Domain Consolidation Phases 3–4](a372fc83-827a-4076-a769-39e87edbec20)_  
-_Previously: [Community-First Redesign Round 3](a372fc83-827a-4076-a769-39e87edbec20)_
+_Last updated: 2026-06-15 by agent session [Company Site Polish + Favicon + Email](a372fc83-827a-4076-a769-39e87edbec20)_  
+_Previously: [Domain Consolidation Phases 3–4](a372fc83-827a-4076-a769-39e87edbec20)_
 
 ---
 
 ## 🟢 CURRENT FOCUS — Domain Consolidation + Company Site ✅ ALL PHASES DONE (2026-06-15)
 
-**Branch:** `domainConsolidation` (off `communityFirstRedesign`). Commits: `6deb0a3` (phase 3), `c582292` (phase 4). Not yet pushed.
+**Branch:** `domainConsolidation` (off `communityFirstRedesign`) — **PUSHED to `origin/domainConsolidation`**, HEAD = `ddbaffc` (2026-06-15).
+Key commits: `6deb0a3` phase 3 · `c582292` phase 4 · `9b6f5b3`+`1ff18a2`+`6cce3eb` company-site polish/favicon · `ddbaffc` contact-email fix.
+
+> ⚠️ The working tree still holds **uncommitted community-redesign WIP** in `apps/social/*`
+> (i18n / LanguageContext / feed + layout components) plus assorted `docs/`, `tests/`,
+> `.vercel/` artifacts. These belong to a separate in-progress effort and were deliberately
+> **left uncommitted** — do not bundle them into domain/company commits.
 
 ### Final domain map (all LIVE + verified)
 
@@ -94,6 +100,37 @@ USER removed `tutoglobal.com`+`www` from dashboard, added them to tuto-company. 
 - Confirmed `tutoglobal.com` fully removed from `dashboard` project.
 
 **Remaining cleanup (optional, not blocking):** mobile `src/screens/settings/*` legal links still point at `www.tutoglobal.com/legal/{privacy,terms}` + `/support`; dashboard i18n string `Visit tutoglobal.com/investors` now relies on the `/investors` 308 redirect.
+
+### Phase 5 — Company site design polish + brand fixes ✅ DONE (2026-06-15)
+
+Post-launch polish of `tutoglobal.com` (project `tuto-company`) after USER design review.
+
+- **Icons:** replaced ALL emoji with `lucide-react` (already the monorepo standard in
+  social/dashboard/`packages/ui`). Chose Lucide over Canva (Canva content-license forbids
+  extracting elements as standalone assets; Lucide is MIT + has a RN variant for mobile).
+- **New sections:** About/mission, Investors & Partners (CTA → lead form), "Get the app"
+  band linking **iOS App Store** (`https://apps.apple.com/vn/app/tuto/id6757738235`).
+- **Visual pass:** hero gradient + animated blobs, browser-framed hero screenshot,
+  value-props strip, CSS load animation (instant, no hydration dependency), section
+  eyebrows, richer card hover, scroll-reveal (`components/Reveal.tsx`), captioned gallery.
+- **NO fabricated social proof** — USER confirmed none available; left out intentionally.
+- **Contact email:** corrected `hello@tuto.asia` → **`support@tutoglobal.com`** everywhere
+  (Footer, /privacy, /terms, i18n). Verified live.
+- **Favicon FIX (important):** the brand cube favicon was served by a `app/favicon.ico/route.ts`
+  that read `../../assets/favicon.ico` from the **monorepo root** — but per-app Vercel deploys
+  only upload the app folder, so the path 404'd in prod. Replaced with a real deployed
+  `app/favicon.ico` file in **company** (`tutoglobal.com`) and **social** (`tuto.asia`).
+  Both now serve the real 15 406-byte `.ico` (were 404 / 9-byte "Not Found").
+
+**Verified live (curl, 2026-06-15):**
+- tutoglobal.com 200 · www→308 · tuto.asia→307 `/feed` · www.tuto.asia→308 · tuto.social→308 `tuto.asia` · school.tuto.asia 200 · pro.tuto.asia 200
+- `support@tutoglobal.com` present, `hello@tuto.asia` gone
+- favicons: tutoglobal.com ✅ 15406 · tuto.asia ✅ 15406
+
+> ⚠️ **STILL BROKEN — `school.tuto.asia/favicon.ico` returns 9-byte "Not Found"** (dashboard
+> still uses the old root-reading `route.ts`). One-line fix: drop the route handler and add a
+> real `apps/dashboard/app/favicon.ico` file (`cp assets/favicon.ico apps/dashboard/app/`),
+> then redeploy `dashboard`. Not yet done (awaiting go-ahead).
 
 ---
 
