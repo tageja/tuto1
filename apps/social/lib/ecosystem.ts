@@ -14,7 +14,7 @@ import { getSupabaseBrowserClient } from '@/lib/supabase';
 export type EcosystemApp = 'feed' | 'school' | 'courses';
 
 export const ECOSYSTEM_URLS: Record<Exclude<EcosystemApp, 'feed'>, string> = {
-  // School dashboard / LMS (tuto.asia / tutoglobal.com)
+  // School dashboard / LMS (school.tuto.asia)
   school: process.env.NEXT_PUBLIC_DASHBOARD_URL ?? 'http://localhost:3000',
   // Home Learning / Courses (NurseEd at pro.tuto.asia)
   courses: process.env.NEXT_PUBLIC_COURSES_URL ?? 'https://pro.tuto.asia',

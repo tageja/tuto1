@@ -4,7 +4,7 @@
  * Fragment-based SSO exchange page (Social / tuto.social).
  *
  * Receives Supabase tokens via URL fragment (#) from another Tuto ecosystem
- * app (tutoglobal.com dashboard). Tokens in the fragment are never sent to
+ * app (school.tuto.asia dashboard). Tokens in the fragment are never sent to
  * the server and do not appear in access logs or browser history payloads.
  *
  * Flow:

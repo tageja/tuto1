@@ -1,5 +1,5 @@
 // apps/dashboard/app/auth/sso/route.ts
-// SSO receiving endpoint for the School Dashboard (tuto.asia / tutoglobal.com).
+// SSO receiving endpoint for the School Dashboard (school.tuto.asia).
 // Accepts Supabase session tokens forwarded from another ecosystem app
 // (tuto.social feed or pro.tuto.asia courses) and establishes a session here
 // without showing a login form.

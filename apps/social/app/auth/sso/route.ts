@@ -1,9 +1,9 @@
 // apps/social/app/auth/sso/route.ts
-// SSO entry point — receives Supabase session tokens from tuto.asia
+// SSO entry point — receives Supabase session tokens from school.tuto.asia
 // and establishes a session in tuto.social without showing a login form.
 //
 // Flow:
-//   tuto.asia (dashboard) → /auth/sso?access_token=...&refresh_token=... → /feed
+//   school.tuto.asia (dashboard) → /auth/sso?access_token=...&refresh_token=... → /feed
 
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
