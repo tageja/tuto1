@@ -28,6 +28,23 @@ const vi = {
   'hero.cta1':     'Miễn phí triển khai cho trường học',
   'hero.cta2':     'Xem cộng đồng trực tiếp',
   'hero.note':     'Hiện đang miễn phí hoàn toàn cho trường học. Số lượng có hạn.',
+  'hero.prop1':    'Miễn phí triển khai',
+  'hero.prop2':    'Song ngữ Việt & Anh',
+  'hero.prop3':    'Web & ứng dụng di động',
+
+  // Section eyebrows
+  'eyebrow.about':     'Về chúng tôi',
+  'eyebrow.products':  'Sản phẩm',
+  'eyebrow.gallery':   'Sản phẩm thực tế',
+  'eyebrow.how':       'Lợi ích',
+  'eyebrow.investors': 'Hợp tác',
+  'eyebrow.contact':   'Bắt đầu',
+
+  // App download
+  'app.title':    'Tuto trong tầm tay',
+  'app.subtitle': 'Tải ứng dụng Tuto cho phụ huynh, học sinh và giáo viên, theo dõi việc học mọi lúc mọi nơi.',
+  'app.cta':      'Tải trên App Store',
+  'app.note':     'Đã có trên iOS. Android sắp ra mắt.',
 
   // Products
   'products.title':     'Ba sản phẩm, một hệ sinh thái',
@@ -126,6 +143,21 @@ const en: typeof vi = {
   'hero.cta1':     'Free Setup for Schools',
   'hero.cta2':     'Explore the Community',
   'hero.note':     'Currently completely free for schools. Limited slots available.',
+  'hero.prop1':    'Free setup',
+  'hero.prop2':    'Bilingual VN & EN',
+  'hero.prop3':    'Web & mobile app',
+
+  'eyebrow.about':     'About us',
+  'eyebrow.products':  'Products',
+  'eyebrow.gallery':   'See it in action',
+  'eyebrow.how':       'Benefits',
+  'eyebrow.investors': 'Partnership',
+  'eyebrow.contact':   'Get started',
+
+  'app.title':    'Tuto in your pocket',
+  'app.subtitle': 'Download the Tuto app for parents, students and teachers, and follow learning anywhere, anytime.',
+  'app.cta':      'Download on the App Store',
+  'app.note':     'Available on iOS. Android coming soon.',
 
   'products.title':     'Three Products, One Ecosystem',
   'products.lms.name':  'School LMS/SIS',

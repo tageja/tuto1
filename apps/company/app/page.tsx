@@ -2,15 +2,17 @@ import { cookies }      from 'next/headers';
 import Image            from 'next/image';
 import {
   School, Users, GraduationCap, Building2, Presentation, Briefcase,
-  Check, ArrowRight,
+  Check, ArrowRight, Smartphone,
 }                       from 'lucide-react';
 import type { Locale }  from '@/lib/i18n';
 import { t }            from '@/lib/i18n';
 import LeadForm         from '@/components/LeadForm';
+import Reveal           from '@/components/Reveal';
 
 const SOCIAL_URL    = process.env.NEXT_PUBLIC_SOCIAL_URL    ?? 'https://tuto.asia';
 const DASHBOARD_URL = process.env.NEXT_PUBLIC_DASHBOARD_URL ?? 'https://school.tuto.asia';
 const COURSES_URL   = process.env.NEXT_PUBLIC_COURSES_URL   ?? 'https://pro.tuto.asia';
+const APP_STORE_URL = 'https://apps.apple.com/vn/app/tuto/id6757738235';
 
 // ─── product screenshots (relative to /public) ───────────────────────────────
 const SCREENSHOTS = {
@@ -32,38 +34,57 @@ export default async function HomePage() {
   return (
     <div>
       {/* ── HERO ─────────────────────────────────────────────────────── */}
-      <section className="bg-primary-light relative overflow-hidden">
-        <div className="max-w-6xl mx-auto px-4 py-16 md:py-24 grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <span className="inline-block bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full mb-4">
+      <section className="relative overflow-hidden bg-gradient-to-b from-primary-light via-primary-light/40 to-white">
+        {/* decorative blurred blobs */}
+        <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-primary/20 blur-3xl animate-blob" />
+        <div aria-hidden className="pointer-events-none absolute top-40 -left-32 w-80 h-80 rounded-full bg-accent/15 blur-3xl animate-blob" style={{ animationDelay: '4s' }} />
+
+        <div className="relative max-w-6xl mx-auto px-4 py-16 md:py-24 grid md:grid-cols-2 gap-12 items-center">
+          <div className="animate-fade-up">
+            <span className="inline-flex items-center gap-1.5 bg-white/70 backdrop-blur text-primary text-xs font-semibold px-3 py-1.5 rounded-full mb-5 ring-1 ring-primary/15">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
               {tr('hero.badge')}
             </span>
-            <h1 className="text-4xl md:text-5xl font-extrabold text-on-surface leading-tight mb-6">
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-on-surface leading-[1.1] mb-6">
               {tr('hero.title')}
             </h1>
-            <p className="text-lg text-muted mb-8 leading-relaxed">
+            <p className="text-lg text-muted mb-8 leading-relaxed max-w-xl">
               {tr('hero.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <a
                 href="#lead-form"
-                className="inline-flex items-center justify-center bg-primary text-white font-semibold px-6 py-3 rounded-xl hover:bg-primary-dark transition-colors"
+                className="inline-flex items-center justify-center gap-2 bg-primary text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-primary/25 hover:bg-primary-dark hover:shadow-primary/30 transition-all"
               >
-                {tr('hero.cta1')}
+                {tr('hero.cta1')} <ArrowRight size={18} />
               </a>
               <a
                 href={SOCIAL_URL}
                 target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center justify-center border border-primary text-primary font-semibold px-6 py-3 rounded-xl hover:bg-primary/5 transition-colors"
+                className="inline-flex items-center justify-center border border-primary/30 bg-white/60 text-primary font-semibold px-6 py-3 rounded-xl hover:bg-white transition-colors"
               >
                 {tr('hero.cta2')}
               </a>
             </div>
+            {/* value props */}
+            <div className="flex flex-wrap gap-x-5 gap-y-2 mt-6">
+              {[tr('hero.prop1'), tr('hero.prop2'), tr('hero.prop3')].map((prop) => (
+                <span key={prop} className="inline-flex items-center gap-1.5 text-sm font-medium text-on-surface/80">
+                  <Check size={15} strokeWidth={3} className="text-accent" /> {prop}
+                </span>
+              ))}
+            </div>
             <p className="text-xs text-muted mt-4 italic">{tr('hero.note')}</p>
           </div>
 
-          {/* Hero screenshot */}
-          <div className="relative rounded-2xl overflow-hidden border border-border shadow-sm">
+          {/* Hero screenshot in a browser frame */}
+          <div className="browser-frame animate-fade-up" style={{ animationDelay: '120ms' }}>
+            <div className="browser-bar">
+              <span className="browser-dot bg-[#FF5F57]" />
+              <span className="browser-dot bg-[#FEBC2E]" />
+              <span className="browser-dot bg-[#28C840]" />
+              <span className="ml-3 text-[11px] text-muted truncate">school.tuto.asia</span>
+            </div>
             <Image
               src={SCREENSHOTS.adminDash}
               alt="Tuto school dashboard"
@@ -77,16 +98,20 @@ export default async function HomePage() {
 
       {/* ── ABOUT / MISSION ──────────────────────────────────────────── */}
       <section id="about" className="py-20 bg-surface">
-        <div className="max-w-3xl mx-auto px-4 text-center">
+        <Reveal className="max-w-3xl mx-auto px-4 text-center">
+          <span className="section-eyebrow">{tr('eyebrow.about')}</span>
           <h2 className="section-title">{tr('about.title')}</h2>
           <p className="text-lg text-muted leading-relaxed mt-6">{tr('about.body')}</p>
-        </div>
+        </Reveal>
       </section>
 
       {/* ── PRODUCTS ─────────────────────────────────────────────────── */}
       <section id="products" className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="section-title">{tr('products.title')}</h2>
+          <div className="text-center">
+            <span className="section-eyebrow">{tr('eyebrow.products')}</span>
+            <h2 className="section-title">{tr('products.title')}</h2>
+          </div>
 
           <div className="grid md:grid-cols-3 gap-6 mt-12">
             {/* LMS/SIS */}
@@ -143,7 +168,10 @@ export default async function HomePage() {
       {/* ── SCREENSHOT GALLERY ───────────────────────────────────────── */}
       <section className="py-20 bg-surface">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="section-title">{tr('gallery.title')}</h2>
+          <div className="text-center">
+            <span className="section-eyebrow">{tr('eyebrow.gallery')}</span>
+            <h2 className="section-title">{tr('gallery.title')}</h2>
+          </div>
           <p className="text-center text-muted mb-12 max-w-2xl mx-auto">{tr('gallery.subtitle')}</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
@@ -168,7 +196,10 @@ export default async function HomePage() {
       {/* ── HOW IT WORKS ─────────────────────────────────────────────── */}
       <section id="how" className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="section-title">{tr('how.title')}</h2>
+          <div className="text-center">
+            <span className="section-eyebrow">{tr('eyebrow.how')}</span>
+            <h2 className="section-title">{tr('how.title')}</h2>
+          </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
             {(
@@ -211,18 +242,36 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── GET THE APP ──────────────────────────────────────────────── */}
+      <section className="py-20 bg-surface">
+        <Reveal className="max-w-4xl mx-auto px-4">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary-dark px-8 py-12 md:py-16 text-center text-white">
+            <div aria-hidden className="pointer-events-none absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/10 blur-2xl" />
+            <Smartphone size={40} className="mx-auto mb-4 opacity-90" />
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-3">{tr('app.title')}</h2>
+            <p className="text-blue-100 max-w-xl mx-auto mb-8">{tr('app.subtitle')}</p>
+            <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="app-store-btn mx-auto">
+              <Smartphone size={22} />
+              <span className="font-semibold">{tr('app.cta')}</span>
+            </a>
+            <p className="text-xs text-blue-200/80 mt-4">{tr('app.note')}</p>
+          </div>
+        </Reveal>
+      </section>
+
       {/* ── INVESTORS & PARTNERS ─────────────────────────────────────── */}
       <section id="investors" className="py-20 bg-white">
-        <div className="max-w-3xl mx-auto px-4 text-center">
+        <Reveal className="max-w-3xl mx-auto px-4 text-center">
+          <span className="section-eyebrow">{tr('eyebrow.investors')}</span>
           <h2 className="section-title">{tr('investors.title')}</h2>
           <p className="text-lg text-muted leading-relaxed mt-6 mb-8">{tr('investors.body')}</p>
           <a
             href="#lead-form"
-            className="inline-flex items-center gap-2 bg-primary text-white font-semibold px-6 py-3 rounded-xl hover:bg-primary-dark transition-colors"
+            className="inline-flex items-center gap-2 bg-primary text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-primary/20 hover:bg-primary-dark transition-all"
           >
             {tr('investors.cta')} <ArrowRight size={18} />
           </a>
-        </div>
+        </Reveal>
       </section>
 
       {/* ── LEAD FORM ────────────────────────────────────────────────── */}

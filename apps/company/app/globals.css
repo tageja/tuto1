@@ -9,13 +9,51 @@
 }
 
 @layer components {
+  .section-eyebrow {
+    @apply inline-block text-xs font-bold uppercase tracking-widest text-primary mb-3;
+  }
   .section-title {
-    @apply text-3xl md:text-4xl font-bold text-on-surface text-center mb-4;
+    @apply text-3xl md:text-4xl font-extrabold tracking-tight text-on-surface text-center mb-4;
   }
   .section-subtitle {
     @apply text-lg text-muted text-center mb-12 max-w-2xl mx-auto;
   }
   .card-hover {
-    @apply bg-white border border-border rounded-2xl p-6 hover:border-primary/40 transition-colors;
+    @apply bg-white border border-border rounded-2xl p-6 transition-all duration-300
+           hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1;
   }
+  /* Browser-window frame for product screenshots */
+  .browser-frame {
+    @apply rounded-2xl overflow-hidden border border-border bg-white
+           shadow-2xl shadow-primary/10 ring-1 ring-black/5;
+  }
+  .browser-bar {
+    @apply flex items-center gap-1.5 px-4 h-9 bg-surface border-b border-border;
+  }
+  .browser-dot {
+    @apply w-2.5 h-2.5 rounded-full;
+  }
+  .app-store-btn {
+    @apply inline-flex items-center gap-3 bg-on-surface text-white rounded-xl px-5 py-3
+           hover:bg-black transition-colors;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-[#3B82F6] bg-clip-text text-transparent;
+  }
+  @keyframes blob {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%      { transform: translate(20px, -30px) scale(1.08); }
+    66%      { transform: translate(-15px, 15px) scale(0.96); }
+  }
+  .animate-blob { animation: blob 14s ease-in-out infinite; }
+
+  /* CSS-only entrance for above-the-fold content (no JS/hydration dependency) */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .animate-fade-up { animation: fadeUp 0.7s ease-out both; }
 }
