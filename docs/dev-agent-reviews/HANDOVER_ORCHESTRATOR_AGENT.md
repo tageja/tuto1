@@ -1,6 +1,6 @@
 # Orchestrator Agent Handover
 
-_Last updated: 2026-06-15 by agent session Vercel Cleanup + Branch Reconcile + Dashboard Prod Deploy_  
+_Last updated: 2026-06-15 — deferred note: domainConsolidation fast-forward left for later (USER request)_  
 _Previously: [Legal Pages Restore + Mobile Release Status](a372fc83-827a-4076-a769-39e87edbec20)_
 
 ---
@@ -85,6 +85,26 @@ account-level ownership, not active serving config).
   are preserved (reversible — reconnect in the dashboard).
 - Left untouched (dead but harmless, no git auto-build): `tuto-landing`, `tuto-nursemed-hotfix`,
   `tuto-nursemed-practice-pilot`. Delete in the dashboard later if a minimal project list is wanted.
+
+### D. Deferred — fast-forward `domainConsolidation` → `main` (USER: leave for later, 2026-06-15)
+
+**Intentionally not done yet.** USER asked to pause this step and continue other work first.
+
+**Why it's safe to defer:** `domainConsolidation` (`fbf0420`) is a clean **ancestor** of `main`
+(`b7c02e8`) with **0 divergence** — no merge conflicts when fast-forwarding later.
+
+**What's blocking / why wait:** the active working tree is still checked out on `domainConsolidation`
+with **uncommitted social i18n WIP** (`apps/social/*` — LanguageContext, LanguageToggle, feed/layout
+components). Fast-forwarding now would either overwrite that WIP or require stashing first.
+
+**When ready, suggested steps:**
+1. Stash or commit the social i18n WIP: `git stash push -m "social i18n WIP" -- apps/social/`
+2. Fast-forward: `git checkout domainConsolidation && git merge main` (should be a clean FF)
+3. Unstash and continue i18n work on top of `main`'s latest
+4. Optionally retire `domainConsolidation` as a long-lived branch once i18n WIP lands on `main`
+
+**Note for agents:** the canonical handover lives on **`main`** (`docs/dev-agent-reviews/HANDOVER_ORCHESTRATOR_AGENT.md`).
+A checkout on `domainConsolidation` may show an **older copy** of this file until the fast-forward happens.
 
 ---
 
