@@ -1,23 +1,35 @@
 # Orchestrator Agent Handover
 
-_Last updated: 2026-06-11 by agent session [Domain Consolidation Phase 1](a372fc83-827a-4076-a769-39e87edbec20)_  
+_Last updated: 2026-06-15 by agent session [Domain Consolidation Phases 3–4](a372fc83-827a-4076-a769-39e87edbec20)_  
 _Previously: [Community-First Redesign Round 3](a372fc83-827a-4076-a769-39e87edbec20)_
 
 ---
 
-## 🟢 CURRENT FOCUS — Domain Consolidation + Company Site (2026-06-11)
+## 🟢 CURRENT FOCUS — Domain Consolidation + Company Site ✅ ALL PHASES DONE (2026-06-15)
 
-**Branch:** `domainConsolidation` (off `communityFirstRedesign`, pushed to origin)
+**Branch:** `domainConsolidation` (off `communityFirstRedesign`). Commits: `6deb0a3` (phase 3), `c582292` (phase 4). Not yet pushed.
 
-### Target domain map
+### Final domain map (all LIVE + verified)
 
 | Domain | Serves | Vercel project | Status |
 |---|---|---|---|
-| `tuto.asia` | Community feed | tuto-social | 🔄 Phase 3 (USER ACTION needed) |
-| `tuto.social` | 301 → `tuto.asia` | tuto-social | 🔄 Phase 3 |
-| `school.tuto.asia` | School dashboard | dashboard | ✅ Phase 2 done (live + SSL) |
-| `tutoglobal.com` | Company/marketing site | **tuto-company** (NEW) | 🔄 Phase 4 (USER ACTION needed) |
+| `tuto.asia` | Community feed (apex = primary) | tuto-social | ✅ live |
+| `www.tuto.asia` | 308 → `tuto.asia` | tuto-social | ✅ live |
+| `tuto.social` / `www.tuto.social` | 308 → `tuto.asia` (host-based redirect in next.config) | tuto-social | ✅ live |
+| `school.tuto.asia` | School dashboard | dashboard | ✅ live + SSL |
+| `tutoglobal.com` | Company/marketing site (apex = primary) | **tuto-company** | ✅ live |
+| `www.tutoglobal.com` | 308 → `tutoglobal.com` | tuto-company | ✅ live |
 | `pro.tuto.asia` | Courses | unchanged | ✅ untouched |
+
+**Storage:** Supabase was restricted (402, exceeded 1 GB free quota — 948 MB of orphaned HeyGen videos in `nursed-assets`). USER upgraded to Pro; restriction lifted. **Nothing was deleted.**
+
+**QA artifacts created this session (safe to delete):** auth user `qa.sso@tuto.test` / `TutoQA!2026` (email-confirmed, no school role); one `company_leads` row with `organisation=QA-Phase4-Smoke-Org`.
+
+### Verification (all PASS, via browser subagents + curl)
+- SSO round-trip social↔dashboard both directions, on both old and new domains; no 402/500.
+- `tuto.social → 308 → tuto.asia`; canonical/OG = `tuto.asia`.
+- `tutoglobal.com` legacy bookmarks (`/admin`, `/teacher`, `/parent`, `/login`, `/investors`, subpaths + query) → `308 → school.tuto.asia`.
+- Lead form on `tutoglobal.com` writes to `company_leads` (verified row).
 
 ### Phase 1 — Company site ✅ DONE
 
@@ -65,20 +77,23 @@ tuto.social/feed 200, tutoglobal.com still 200 (parallel run intact).
 `www.tutoglobal.com/legal/{privacy,terms}` + `/support` — these are NOT dashboard SSO
 URLs (no SSO URLs exist in mobile src/services|config). Handle in Phase 4.
 
-### Phase 3 — tuto.asia → community feed ⏸ WAITING (Phase 2 first)
+### Phase 3 — tuto.asia → community feed ✅ DONE (commit `6deb0a3`)
 
-**[USER ACTION REQUIRED after Phase 2 verified]**
-1. Vercel → dashboard project → remove `tuto.asia`; then tuto-social → add `tuto.asia` (primary)
-2. Supabase Auth → add `https://tuto.asia/**` to Redirect URLs
+USER did domain swap + Supabase `https://tuto.asia/**` redirect URL. Executor:
+- `apps/social/next.config.js`: host-based 308 `tuto.social`/`www.tuto.social` → `tuto.asia`
+- `apps/social/app/layout.tsx`: `metadataBase` + canonical/OG → `tuto.asia` (env `NEXT_PUBLIC_APP_URL`)
+- `apps/social/components/feed/ShareModal.tsx`: share links use `NEXT_PUBLIC_APP_URL`
+- `apps/dashboard/app/login/page.tsx`: added `https://tuto.asia` to allowed SSO redirect origins
+- Vercel: flipped apex/www so `tuto.asia` is primary; set prod env `tuto-social NEXT_PUBLIC_APP_URL` + `dashboard NEXT_PUBLIC_SOCIAL_URL` = `https://tuto.asia`; redeployed both.
 
-After user action, executor adds 301 redirect in `apps/social/next.config.js` and updates canonical URLs.
+### Phase 4 — tutoglobal.com → company site ✅ DONE (commit `c582292`)
 
-### Phase 4 — tutoglobal.com → company site ⏸ WAITING (Phases 1–3 first)
+USER removed `tutoglobal.com`+`www` from dashboard, added them to tuto-company. Executor:
+- `apps/company/next.config.js`: 308 redirects `/admin`, `/teacher`, `/parent`, `/login`, `/investors` (subpaths) → `${NEXT_PUBLIC_DASHBOARD_URL}` (`school.tuto.asia`)
+- Vercel: flipped apex/www so `tutoglobal.com` is primary; set prod env `tuto-company NEXT_PUBLIC_DASHBOARD_URL=https://school.tuto.asia`; redeployed.
+- Confirmed `tutoglobal.com` fully removed from `dashboard` project.
 
-**[USER ACTION REQUIRED after Phases 1–3 verified]**
-1. Vercel → dashboard → remove `tutoglobal.com`; then tuto-company → add `tutoglobal.com` + `www`
-
-After user action, executor adds `/admin/:path*`, `/teacher/:path*`, `/parent/:path*`, `/login` → `school.tuto.asia` redirects in `apps/company/next.config.js`.
+**Remaining cleanup (optional, not blocking):** mobile `src/screens/settings/*` legal links still point at `www.tutoglobal.com/legal/{privacy,terms}` + `/support`; dashboard i18n string `Visit tutoglobal.com/investors` now relies on the `/investors` 308 redirect.
 
 ---
 
