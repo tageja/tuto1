@@ -12,6 +12,15 @@ const vi = {
   'nav.language': 'EN',
   'nav.tryFree':  'Dùng thử miễn phí',
 
+  // About / mission
+  'about.title': 'Về Tuto',
+  'about.body':  'Tuto là nền tảng giáo dục kết nối phụ huynh, học sinh, giáo viên và nhà trường tại Việt Nam. Chúng tôi tin rằng công nghệ nên giúp việc học trở nên minh bạch, gần gũi và truyền cảm hứng, không chỉ là những con số. Sứ mệnh của chúng tôi là xây dựng một hệ sinh thái nơi nhà trường vận hành hiệu quả, giáo viên được ghi nhận, và phụ huynh luôn đồng hành cùng con.',
+
+  // Investors & partners
+  'investors.title': 'Nhà đầu tư & Đối tác',
+  'investors.body':  'Chúng tôi đang xây dựng hạ tầng giáo dục cho thị trường Việt Nam và tìm kiếm những đối tác cùng chung tầm nhìn. Nếu bạn là nhà đầu tư hoặc đối tác chiến lược, hãy trò chuyện cùng chúng tôi.',
+  'investors.cta':   'Liên hệ hợp tác',
+
   // Hero
   'hero.badge':    'Nền tảng giáo dục cho Việt Nam',
   'hero.title':    'Quản lý trường học & cộng đồng học tập trong một nền tảng',
@@ -31,6 +40,18 @@ const vi = {
   'products.courses.name':  'Khóa học trực tuyến',
   'products.courses.desc':  'Giáo viên tạo và bán khóa học ngắn; học sinh truy cập trên mọi thiết bị. Tích hợp sẵn với hồ sơ giáo viên trên cộng đồng.',
   'products.courses.cta':   'pro.tuto.asia',
+
+  // Gallery
+  'gallery.title':    'Khám phá bên trong Tuto',
+  'gallery.subtitle': 'Giao diện thực tế từ sản phẩm đang vận hành mỗi ngày tại các trường học.',
+  'gallery.cap.dashboard':  'Trang tổng quan',
+  'gallery.cap.payments':   'Học phí & thanh toán',
+  'gallery.cap.messages':   'Tin nhắn',
+  'gallery.cap.progress':   'Tiến bộ học sinh',
+  'gallery.cap.attendance': 'Điểm danh giáo viên',
+  'gallery.cap.records':    'Sổ điểm danh',
+  'gallery.cap.teacher':    'Bảng điều khiển giáo viên',
+  'gallery.cap.parent':     'Bảng điều khiển phụ huynh',
 
   // How it works
   'how.title':         'Ai được hưởng lợi?',
@@ -92,6 +113,13 @@ const en: typeof vi = {
   'nav.language': 'VI',
   'nav.tryFree':  'Free Setup',
 
+  'about.title': 'About Tuto',
+  'about.body':  'Tuto is an education platform connecting parents, students, teachers and schools across Vietnam. We believe technology should make learning transparent, human and inspiring, not just a set of numbers. Our mission is to build an ecosystem where schools run smoothly, teachers are recognised, and parents stay close to their child\'s journey.',
+
+  'investors.title': 'Investors & Partners',
+  'investors.body':  'We are building education infrastructure for the Vietnamese market and looking for partners who share the vision. If you are an investor or a strategic partner, we would love to talk.',
+  'investors.cta':   'Get in touch',
+
   'hero.badge':    'EdTech Platform for Vietnam',
   'hero.title':    'School Management & Learning Community in One Platform',
   'hero.subtitle': 'Tuto connects parents, students, teachers and schools: from attendance and homework to payments and a vibrant learning community.',
@@ -109,6 +137,17 @@ const en: typeof vi = {
   'products.courses.name':  'Online Courses',
   'products.courses.desc':  'Teachers create and sell short courses; students access on any device. Integrated with teacher profiles on the community.',
   'products.courses.cta':   'pro.tuto.asia',
+
+  'gallery.title':    'A look inside Tuto',
+  'gallery.subtitle': 'Real screens from a product running in schools every day.',
+  'gallery.cap.dashboard':  'Dashboard overview',
+  'gallery.cap.payments':   'Fees & payments',
+  'gallery.cap.messages':   'Messaging',
+  'gallery.cap.progress':   'Student progress',
+  'gallery.cap.attendance': 'Teacher attendance',
+  'gallery.cap.records':    'Attendance records',
+  'gallery.cap.teacher':    'Teacher dashboard',
+  'gallery.cap.parent':     'Parent dashboard',
 
   'how.title':         'Who benefits?',
   'how.school.title':  'Schools & Centers',

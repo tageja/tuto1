@@ -10,12 +10,21 @@ export const metadata: Metadata = {
   title:       'Tuto: AI-integrated School LMS & Learning Community',
   description: 'Tuto kết nối phụ huynh, học sinh, giáo viên và nhà trường: từ điểm danh, bài tập đến cộng đồng học tập. Miễn phí triển khai cho trường học.',
   metadataBase: new URL('https://tutoglobal.com'),
+  alternates: { canonical: '/' },
   openGraph: {
     type:        'website',
     locale:      'vi_VN',
     siteName:    'Tuto',
+    url:         'https://tutoglobal.com',
     title:       'Tuto: School LMS & Learning Community',
     description: 'Quản lý trường học & cộng đồng học tập trong một nền tảng',
+    images:      [{ url: '/images/tuto-logo.png', width: 252, height: 110, alt: 'Tuto' }],
+  },
+  twitter: {
+    card:        'summary_large_image',
+    title:       'Tuto: AI-integrated School LMS & Learning Community',
+    description: 'School management and a learning community in one platform.',
+    images:      ['/images/tuto-logo.png'],
   },
 };
 

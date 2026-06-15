@@ -1,5 +1,9 @@
 import { cookies }      from 'next/headers';
 import Image            from 'next/image';
+import {
+  School, Users, GraduationCap, Building2, Presentation, Briefcase,
+  Check, ArrowRight,
+}                       from 'lucide-react';
 import type { Locale }  from '@/lib/i18n';
 import { t }            from '@/lib/i18n';
 import LeadForm         from '@/components/LeadForm';
@@ -71,6 +75,14 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── ABOUT / MISSION ──────────────────────────────────────────── */}
+      <section id="about" className="py-20 bg-surface">
+        <div className="max-w-3xl mx-auto px-4 text-center">
+          <h2 className="section-title">{tr('about.title')}</h2>
+          <p className="text-lg text-muted leading-relaxed mt-6">{tr('about.body')}</p>
+        </div>
+      </section>
+
       {/* ── PRODUCTS ─────────────────────────────────────────────────── */}
       <section id="products" className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4">
@@ -79,7 +91,7 @@ export default async function HomePage() {
           <div className="grid md:grid-cols-3 gap-6 mt-12">
             {/* LMS/SIS */}
             <div className="card-hover flex flex-col">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4 text-xl">🏫</div>
+              <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4 text-primary"><School size={22} /></div>
               <h3 className="font-bold text-lg text-on-surface mb-2">{tr('products.lms.name')}</h3>
               <p className="text-sm text-muted flex-1 leading-relaxed">{tr('products.lms.desc')}</p>
               <div className="mt-4 rounded-xl overflow-hidden border border-border">
@@ -87,15 +99,15 @@ export default async function HomePage() {
               </div>
               <a
                 href={DASHBOARD_URL} target="_blank" rel="noopener noreferrer"
-                className="mt-4 text-primary text-sm font-medium hover:underline"
+                className="mt-4 inline-flex items-center gap-1 text-primary text-sm font-medium hover:gap-2 transition-all"
               >
-                {tr('products.lms.cta')} →
+                {tr('products.lms.cta')} <ArrowRight size={16} />
               </a>
             </div>
 
             {/* Community */}
             <div className="card-hover flex flex-col">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4 text-xl">🌐</div>
+              <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4 text-primary"><Users size={22} /></div>
               <h3 className="font-bold text-lg text-on-surface mb-2">{tr('products.community.name')}</h3>
               <p className="text-sm text-muted flex-1 leading-relaxed">{tr('products.community.desc')}</p>
               <div className="mt-4 rounded-xl overflow-hidden border border-border">
@@ -103,15 +115,15 @@ export default async function HomePage() {
               </div>
               <a
                 href={SOCIAL_URL} target="_blank" rel="noopener noreferrer"
-                className="mt-4 text-primary text-sm font-medium hover:underline"
+                className="mt-4 inline-flex items-center gap-1 text-primary text-sm font-medium hover:gap-2 transition-all"
               >
-                {tr('products.community.cta')} →
+                {tr('products.community.cta')} <ArrowRight size={16} />
               </a>
             </div>
 
             {/* Courses */}
             <div className="card-hover flex flex-col">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4 text-xl">📚</div>
+              <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4 text-primary"><GraduationCap size={22} /></div>
               <h3 className="font-bold text-lg text-on-surface mb-2">{tr('products.courses.name')}</h3>
               <p className="text-sm text-muted flex-1 leading-relaxed">{tr('products.courses.desc')}</p>
               <div className="mt-4 rounded-xl overflow-hidden border border-border">
@@ -119,9 +131,9 @@ export default async function HomePage() {
               </div>
               <a
                 href={COURSES_URL} target="_blank" rel="noopener noreferrer"
-                className="mt-4 text-primary text-sm font-medium hover:underline"
+                className="mt-4 inline-flex items-center gap-1 text-primary text-sm font-medium hover:gap-2 transition-all"
               >
-                {tr('products.courses.cta')} →
+                {tr('products.courses.cta')} <ArrowRight size={16} />
               </a>
             </div>
           </div>
@@ -129,22 +141,25 @@ export default async function HomePage() {
       </section>
 
       {/* ── SCREENSHOT GALLERY ───────────────────────────────────────── */}
-      <section className="py-16 bg-surface">
+      <section className="py-20 bg-surface">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <h2 className="section-title">{tr('gallery.title')}</h2>
+          <p className="text-center text-muted mb-12 max-w-2xl mx-auto">{tr('gallery.subtitle')}</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { src: SCREENSHOTS.adminDash,        alt: 'Admin dashboard' },
-              { src: SCREENSHOTS.adminPayments,     alt: 'Payments' },
-              { src: SCREENSHOTS.adminMessages,     alt: 'Messages' },
-              { src: SCREENSHOTS.parentProgress,    alt: 'Parent progress view' },
-              { src: SCREENSHOTS.teacherAttendance, alt: 'Teacher attendance' },
-              { src: SCREENSHOTS.adminAttendance,   alt: 'Attendance' },
-              { src: SCREENSHOTS.teacherDash,       alt: 'Teacher dashboard' },
-              { src: SCREENSHOTS.parentDash,        alt: 'Parent dashboard' },
-            ].map(({ src, alt }) => (
-              <div key={src} className="rounded-xl overflow-hidden border border-border">
-                <Image src={src} alt={alt} width={320} height={200} className="w-full object-cover" />
-              </div>
+              { src: SCREENSHOTS.adminDash,         label: tr('gallery.cap.dashboard') },
+              { src: SCREENSHOTS.adminPayments,     label: tr('gallery.cap.payments') },
+              { src: SCREENSHOTS.adminMessages,     label: tr('gallery.cap.messages') },
+              { src: SCREENSHOTS.parentProgress,    label: tr('gallery.cap.progress') },
+              { src: SCREENSHOTS.teacherAttendance, label: tr('gallery.cap.attendance') },
+              { src: SCREENSHOTS.adminAttendance,   label: tr('gallery.cap.records') },
+              { src: SCREENSHOTS.teacherDash,       label: tr('gallery.cap.teacher') },
+              { src: SCREENSHOTS.parentDash,        label: tr('gallery.cap.parent') },
+            ].map(({ src, label }) => (
+              <figure key={src} className="group rounded-xl overflow-hidden border border-border bg-white shadow-sm hover:shadow-md transition-shadow">
+                <Image src={src} alt={label} width={320} height={200} className="w-full object-cover" />
+                <figcaption className="px-3 py-2 text-xs font-medium text-muted border-t border-border">{label}</figcaption>
+              </figure>
             ))}
           </div>
         </div>
@@ -158,19 +173,19 @@ export default async function HomePage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
             {(
               [
-                { icon: '🏫', titleKey: 'how.school.title',   itemsKey: 'how.school.items'   },
-                { icon: '👨‍👩‍👧', titleKey: 'how.parent.title',   itemsKey: 'how.parent.items'   },
-                { icon: '👩‍🏫', titleKey: 'how.teacher.title', itemsKey: 'how.teacher.items' },
-                { icon: '🎯', titleKey: 'how.freelance.title',itemsKey: 'how.freelance.items'},
+                { Icon: Building2,    titleKey: 'how.school.title',    itemsKey: 'how.school.items'    },
+                { Icon: Users,        titleKey: 'how.parent.title',    itemsKey: 'how.parent.items'    },
+                { Icon: Presentation, titleKey: 'how.teacher.title',   itemsKey: 'how.teacher.items'   },
+                { Icon: Briefcase,    titleKey: 'how.freelance.title', itemsKey: 'how.freelance.items' },
               ] as const
-            ).map(({ icon, titleKey, itemsKey }) => (
+            ).map(({ Icon, titleKey, itemsKey }) => (
               <div key={titleKey} className="card-hover">
-                <div className="text-3xl mb-3">{icon}</div>
+                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4 text-primary"><Icon size={22} /></div>
                 <h3 className="font-bold text-on-surface mb-3">{tr(titleKey)}</h3>
                 <ul className="space-y-1.5">
                   {tr(itemsKey).split(' · ').map((item) => (
                     <li key={item} className="flex items-start gap-2 text-sm text-muted">
-                      <span className="text-accent mt-0.5 shrink-0">✓</span>
+                      <Check size={16} strokeWidth={3} className="text-accent mt-0.5 shrink-0" />
                       {item}
                     </li>
                   ))}
@@ -193,6 +208,20 @@ export default async function HomePage() {
             ))}
           </div>
           <p className="mt-6 text-blue-200 text-sm italic">{tr('ai.roadmap')}</p>
+        </div>
+      </section>
+
+      {/* ── INVESTORS & PARTNERS ─────────────────────────────────────── */}
+      <section id="investors" className="py-20 bg-white">
+        <div className="max-w-3xl mx-auto px-4 text-center">
+          <h2 className="section-title">{tr('investors.title')}</h2>
+          <p className="text-lg text-muted leading-relaxed mt-6 mb-8">{tr('investors.body')}</p>
+          <a
+            href="#lead-form"
+            className="inline-flex items-center gap-2 bg-primary text-white font-semibold px-6 py-3 rounded-xl hover:bg-primary-dark transition-colors"
+          >
+            {tr('investors.cta')} <ArrowRight size={18} />
+          </a>
         </div>
       </section>
 
