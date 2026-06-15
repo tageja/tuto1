@@ -1,14 +1,14 @@
 # Orchestrator Agent Handover
 
-_Last updated: 2026-06-15 by agent session [Company Site Polish + Favicon + Email](a372fc83-827a-4076-a769-39e87edbec20)_  
-_Previously: [Domain Consolidation Phases 3–4](a372fc83-827a-4076-a769-39e87edbec20)_
+_Last updated: 2026-06-15 by agent session [Legal Pages Restore + Mobile Release Status](a372fc83-827a-4076-a769-39e87edbec20)_  
+_Previously: [Company Site Polish + Favicon + Email](a372fc83-827a-4076-a769-39e87edbec20)_
 
 ---
 
 ## 🟢 CURRENT FOCUS — Domain Consolidation + Company Site ✅ ALL PHASES DONE (2026-06-15)
 
-**Branch:** `domainConsolidation` (off `communityFirstRedesign`) — **PUSHED to `origin/domainConsolidation`**, HEAD = `ddbaffc` (2026-06-15).
-Key commits: `6deb0a3` phase 3 · `c582292` phase 4 · `9b6f5b3`+`1ff18a2`+`6cce3eb` company-site polish/favicon · `ddbaffc` contact-email fix.
+**Branch:** `domainConsolidation` (off `communityFirstRedesign`) — **PUSHED to `origin/domainConsolidation`**, HEAD = `2ba69de` (2026-06-15).
+Key commits: `6deb0a3` phase 3 · `c582292` phase 4 · `9b6f5b3`+`1ff18a2`+`6cce3eb` company polish/favicon · `ddbaffc` contact-email fix · `a2f7ce0` handover · `2ba69de` legal/support pages + dashboard favicon.
 
 > ⚠️ The working tree still holds **uncommitted community-redesign WIP** in `apps/social/*`
 > (i18n / LanguageContext / feed + layout components) plus assorted `docs/`, `tests/`,
@@ -127,10 +127,62 @@ Post-launch polish of `tutoglobal.com` (project `tuto-company`) after USER desig
 - `support@tutoglobal.com` present, `hello@tuto.asia` gone
 - favicons: tutoglobal.com ✅ 15406 · tuto.asia ✅ 15406
 
-> ⚠️ **STILL BROKEN — `school.tuto.asia/favicon.ico` returns 9-byte "Not Found"** (dashboard
-> still uses the old root-reading `route.ts`). One-line fix: drop the route handler and add a
-> real `apps/dashboard/app/favicon.ico` file (`cp assets/favicon.ico apps/dashboard/app/`),
-> then redeploy `dashboard`. Not yet done (awaiting go-ahead).
+### Phase 6 — Apple-approved legal/support pages restored + dashboard favicon ✅ DONE (2026-06-15, commit `2ba69de`)
+
+**Why it mattered:** the mobile App Store build links to `www.tutoglobal.com/legal/{privacy,terms}`
+and `/support` (the URLs Apple reviewed). After Phase 4 moved `tutoglobal.com` to the company
+site, all three **404'd** — the approved legal links were dead for every existing app user.
+
+- Copied the **exact approved pages** from the dashboard (`apps/dashboard/app/legal/{privacy,terms,data-retention}`
+  + `app/support`) into the company app at the same paths; they render with the company header/footer.
+  (Privacy = full FERPA/COPPA policy, "Last Updated: December 26, 2024".)
+- Consolidated to one canonical set: **deleted** the old simplified `apps/company/app/{privacy,terms}`;
+  added `next.config.js` redirects `/privacy`→`/legal/privacy`, `/terms`→`/legal/terms`, and
+  `/legal/cookies`→`${DASHBOARD_URL}/legal/cookies` (cookies page needs dashboard UI components).
+- Header + Footer nav now point at `/legal/*`; Footer also links `/support`.
+- **Dashboard favicon FIXED** (previously the open item): dropped `apps/dashboard/app/favicon.ico/route.ts`,
+  shipped a real `apps/dashboard/app/favicon.ico` file, redeployed `dashboard`.
+
+**Verified live (curl, final 200 after redirects):** `tutoglobal.com/legal/privacy` · `/legal/terms` ·
+`/legal/data-retention` · `/support` · `/legal/cookies` · `/privacy` · `/terms` — all **200**.
+Favicons now the real 15406-byte `.ico` on **all three** domains incl. `school.tuto.asia`.
+
+> ✅ Existing app users benefit immediately — these are server-side web fixes; the installed app
+> only stores URLs, so **no app update was required** to repair the links.
+
+---
+
+## 📱 MOBILE APP — RELEASE STATUS (2026-06-15) ⚠️ READ BEFORE ANY MOBILE WORK
+
+**Store build:** version `2.2.0`, **build 24**, `runtimeVersion 2.1.1`, bundle `com.tutoapp.mobile`,
+App Store ID `6757738235`. EAS project `733e177d-32fa-4332-8f08-c29d11955816`; production channel = `production`.
+
+**Last OTA actually shipped to existing users:** update group `e456ebf8-fd7c-4b47-af9c-e9e38042a972`
+(runtime 2.1.1, android+ios, ~2026-04-28) — _"school logo splash, admin role relaunch, Help&Support
+submit, sign-out session, school code table."_ Confirmed via `eas update:list --branch production`.
+
+**Committed in git but NOT shipped to users** (no newer OTA, no newer build):
+- `502f27b` phase 1 — cross-app SSO handoff, remember-me, ecosystem switcher
+- `f4ebfd5` phase 3 — **community-first** (social feed as the app's front door + auth gate)
+- `82664bb` tuto.social integration merge
+
+→ Existing downloaders are still on the **pre-community-first** experience.
+
+**Domain consolidation impact on the installed app: NONE.** The app reads Supabase directly, uses
+`pro.tuto.asia` (unchanged), and links to `tutoglobal.com/legal/*` + `support@tutoglobal.com`
+(restored in Phase 6). No app push was needed for any domain work.
+
+**Active mobile branch:** `AppleLogin+homeRedesign2` (per repo history). Icons: nav migrated to
+**Phosphor** (`a36ef92`); some screens still import `@expo/vector-icons` MaterialIcons. Theme:
+primary `#0B5FFF`, Inter, light + dark (`src/theme/index.ts`).
+
+**To release the unshipped work (USER is deciding — do NOT push without explicit go-ahead):**
+- **OTA path:** `eas update --branch production --message "..."` — JS-only, works on runtime 2.1.1.
+  ⚠️ Community-first changes the app's primary front door; Apple discourages OTA that substantially
+  alters the app — prefer a **new build + submission** for that change.
+- **New build path:** `eas build --platform ios --profile production` → `eas submit -p ios`.
+- ⚠️ Confirm in **App Store Connect** that the live build is 24 and no newer submission exists, and
+  that the listing's Privacy Policy URL + Support URL still point at the (now-restored) `tutoglobal.com` links.
 
 ---
 
