@@ -1,11 +1,77 @@
 # Orchestrator Agent Handover
 
-_Last updated: 2026-06-15 by agent session [Legal Pages Restore + Mobile Release Status](a372fc83-827a-4076-a769-39e87edbec20)_  
-_Previously: [Company Site Polish + Favicon + Email](a372fc83-827a-4076-a769-39e87edbec20)_
+_Last updated: 2026-06-15 by agent session Vercel Cleanup + Branch Reconcile_  
+_Previously: [Legal Pages Restore + Mobile Release Status](a372fc83-827a-4076-a769-39e87edbec20)_
 
 ---
 
-## 🟢 CURRENT FOCUS — Domain Consolidation + Company Site ✅ ALL PHASES DONE (2026-06-15)
+## 🟢 CURRENT FOCUS — Vercel Project Cleanup + Branch Reconcile ✅ DONE (2026-06-15)
+
+> **`main` is now the source of truth again.** It was stale (last real commit 2026-04-28) and
+> had **diverged** — production was running off the `domainConsolidation` feature branch while
+> `main` held 15 unmerged dashboard commits. Both have been reconciled into a single union on `main`.
+
+### A. Branch reconcile — `main` = union of everything (commit `cf91763`, PUSHED to `origin/main`)
+
+**Before:** `main` (`03f66e3`) and `domainConsolidation` (`fbf0420`) had diverged: `main` had **15
+commits not in domainConsolidation** (real dashboard features), and domainConsolidation had 73
+commits not in main (domain/company/social work). Live `school.tuto.asia` deployed from
+domainConsolidation (`a2f7ce0`) and was therefore **missing** those 15 commits' features.
+
+**What was merged FROM `main` INTO the union** (the 15 commits — were absent from production):
+- Platform feedback (school admin → Tuto): API routes + email templates + **migration `054_platform_feedback.sql`**
+- Tutoadmin school **logo upload** route + UI
+- Import: DD/MM/YYYY dates + Vietnamese (CP1258) CSV support
+- Auth fixes: instant sign-in/out (never hang), lazy/Proxy Supabase client, profile-fetch timeout no longer signs the user out, user-schools scoped to admin's own schools
+- `/repomap` page, tutoadmin redirect/param fixes
+
+**5 merge conflicts hand-resolved as a UNION (no feature dropped):**
+- `apps/dashboard/lib/supabase.ts` — kept main's lazy **Proxy** client (build-safe) AND
+  domainConsolidation's **remember-me storage** adapter, wired together (`storage: rememberMeStorage`).
+- `apps/dashboard/contexts/AuthContext.tsx` (5 hunks) — kept "never sign out on a DB timeout"
+  (keep session, best-effort profile) + main's non-hanging `clearLocalAuthState()` + fire-and-forget
+  `signOut()`; signIn sets auth state immediately then does best-effort profile fetch.
+- `AdminSidebar.tsx` / `TutoAdminSidebar.tsx` — kept both new icons + both new menu items (Help, Feedback, Moderation).
+- Handover doc — kept the domainConsolidation (newer) version.
+
+**Verification:** dashboard `tsc --noEmit` — the files I resolved are clean (remaining TS errors are
+pre-existing across the repo; `next.config.js` has `ignoreBuildErrors`+`ignoreDuringBuilds`, so builds pass).
+
+**End state:** `main` = `cf91763` (canonical). `domainConsolidation` (`fbf0420`) is now a clean
+**ancestor** of `main` (0 divergence, just behind) — fast-forwardable, no longer divergent.
+
+> ⚠️ **TWO FOLLOW-UPS for next agent / USER:**
+> 1. **Redeploy `school.tuto.asia` (dashboard project) from `main`** — production is still on
+>    `a2f7ce0` and is missing platform-feedback API + logo-upload until a redeploy from `main`.
+>    Deploy is CLI-driven (project is NOT git-connected): `cd apps/dashboard && vercel deploy --prod`.
+> 2. **Verify migration `054_platform_feedback.sql` is applied** in Supabase before relying on the
+>    feedback API (the `platform_feedback` table is referenced in the Supabase section below, so it
+>    is likely already applied — confirm).
+>
+> Also: uncommitted **social i18n WIP** (VN/EN LanguageToggle/LanguageContext + feed/layout edits)
+> is still in the working tree on `domainConsolidation`, deliberately left uncommitted.
+
+### B. Vercel project cleanup (team `tarun-tagejas-projects`)
+
+**Serving assignments verified 100% correct (v9 API + curl):**
+`tuto-social`→`tuto.asia`(+www/tuto.social/www.tuto.social) · `tuto-company`→`tutoglobal.com`(+www) ·
+`dashboard`→`school.tuto.asia` · `med`→`pro.tuto.asia`(+med.tuto.asia). No stale serving attachments
+(the earlier "duplicate domain" worry was a false alarm — `get_project`/`domains inspect` list
+account-level ownership, not active serving config).
+
+**Changes made:**
+- Removed the repo-root `.vercel/` link (it pointed at the junk **`tuto1`** project → a plain
+  `vercel deploy` from root would have hit it). Deploys are per-app only.
+- **Disconnected git** from 3 dead projects all wired to `tageja/tuto1` — **`tuto1`, `tuto`,
+  `tutomain`** (old dashboard project, superseded by `dashboard`). They were rebuilding on every push
+  (`tuto1` erroring each time) → **this stops the "build failed" emails.** Projects + their env vars
+  are preserved (reversible — reconnect in the dashboard).
+- Left untouched (dead but harmless, no git auto-build): `tuto-landing`, `tuto-nursemed-hotfix`,
+  `tuto-nursemed-practice-pilot`. Delete in the dashboard later if a minimal project list is wanted.
+
+---
+
+## Previous Focus — Domain Consolidation + Company Site ✅ ALL PHASES DONE (2026-06-15)
 
 **Branch:** `domainConsolidation` (off `communityFirstRedesign`) — **PUSHED to `origin/domainConsolidation`**, HEAD = `2ba69de` (2026-06-15).
 Key commits: `6deb0a3` phase 3 · `c582292` phase 4 · `9b6f5b3`+`1ff18a2`+`6cce3eb` company polish/favicon · `ddbaffc` contact-email fix · `a2f7ce0` handover · `2ba69de` legal/support pages + dashboard favicon.
