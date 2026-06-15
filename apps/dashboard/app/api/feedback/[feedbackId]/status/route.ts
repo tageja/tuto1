@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '../../../../../lib/supabase';
-import { UpdateFeedbackStatusSchema } from '../../../../../../../packages/schemas/src/feedback';
+import { UpdateFeedbackStatusSchema } from '@/lib/schemas/feedback';
 
 /**
  * Update Feedback Status API Route

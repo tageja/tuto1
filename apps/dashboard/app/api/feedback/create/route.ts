@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '../../../../lib/supabase';
 import { resolveSchoolId } from '../../../../lib/school/resolveSchoolId';
-import { CreateFeedbackSchema } from '../../../../../../packages/schemas/src/feedback';
+import { CreateFeedbackSchema } from '@/lib/schemas/feedback';
 
 /**
  * Create Feedback API Route
