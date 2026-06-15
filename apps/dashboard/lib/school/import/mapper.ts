@@ -61,12 +61,72 @@ export function parseSubjects(value: string): string[] {
 }
 
 /**
- * Parse date string. Supports common formats.
+ * Parse date string into ISO YYYY-MM-DD.
+ * Supports common formats — preferring DD/MM/YYYY (Vietnamese / EU standard)
+ * over MM/DD/YYYY since this dashboard primarily serves VN schools.
+ *
+ * Accepted:
+ *   2018-01-21   (ISO)
+ *   21/01/2018   (DD/MM/YYYY — preferred for slash form)
+ *   21-01-2018   (DD-MM-YYYY)
+ *   1/21/2018    (MM/DD/YYYY — only when DD/MM interpretation is invalid, e.g. month > 12)
+ *   Anything else parseable by `new Date(...)` (e.g. "Jan 21 2018")
  */
-export function parseDate(value: string): string | null {
-  if (!value?.trim()) return null;
-  const v = value.trim();
+export function parseDate(value: string | number | Date): string | null {
+  if (value === null || value === undefined) return null;
+
+  // Excel can hand us a real Date object via xlsx with cellDates: true
+  if (value instanceof Date) {
+    if (isNaN(value.getTime())) return null;
+    return toIso(value.getFullYear(), value.getMonth() + 1, value.getDate());
+  }
+
+  // Excel serial number (days since 1900-01-01, with the 1900 leap-year bug)
+  if (typeof value === 'number' && Number.isFinite(value) && value > 0 && value < 100000) {
+    const ms = Math.round((value - 25569) * 86400 * 1000);
+    const d = new Date(ms);
+    if (!isNaN(d.getTime())) {
+      return toIso(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate());
+    }
+  }
+
+  const v = String(value).trim();
+  if (!v) return null;
+
+  // YYYY-MM-DD or YYYY/MM/DD
+  const isoMatch = v.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})$/);
+  if (isoMatch) {
+    const [, y, m, d] = isoMatch;
+    if (Number(m) >= 1 && Number(m) <= 12 && Number(d) >= 1 && Number(d) <= 31) {
+      return toIso(Number(y), Number(m), Number(d));
+    }
+    return null;
+  }
+
+  // DD/MM/YYYY, DD-MM-YYYY, DD.MM.YYYY (preferred — VN/EU)
+  const dmyMatch = v.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+  if (dmyMatch) {
+    const [, a, b, y] = dmyMatch;
+    const na = Number(a);
+    const nb = Number(b);
+
+    // Try DD/MM/YYYY first
+    if (na >= 1 && na <= 31 && nb >= 1 && nb <= 12) {
+      return toIso(Number(y), nb, na);
+    }
+    // Fall back to MM/DD/YYYY (e.g. "12/31/2018" — day > 12 forces this)
+    if (nb >= 1 && nb <= 31 && na >= 1 && na <= 12) {
+      return toIso(Number(y), na, nb);
+    }
+    return null;
+  }
+
+  // Last resort — let JS try
   const d = new Date(v);
   if (isNaN(d.getTime())) return null;
-  return d.toISOString().split('T')[0];
+  return toIso(d.getFullYear(), d.getMonth() + 1, d.getDate());
+}
+
+function toIso(y: number, m: number, d: number): string {
+  return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 }

@@ -28,15 +28,24 @@ import {
   Crown,
   FileSpreadsheet,
   Shield,
+  HelpCircle,
 } from 'lucide-react';
 
 export function AdminSidebar() {
   const pathname = usePathname();
   const { t } = useI18n();
-  const { selectedSchool, schoolIdFromUrl } = useSchool();
+  const { selectedSchool, schoolIdFromUrl, availableSchools } = useSchool();
 
-  // Use URL-based schoolId if available, otherwise use selectedSchool
-  const schoolId = schoolIdFromUrl || selectedSchool?.id || selectedSchool?.name || 'Sunrise International School';
+  // Resolution order: URL → selected school → first available school.
+  // (Previously hardcoded to "Sunrise International School", which sent every
+  // user to the wrong tenant when their selectedSchool wasn't loaded yet.)
+  const schoolId =
+    schoolIdFromUrl ||
+    selectedSchool?.id ||
+    selectedSchool?.name ||
+    availableSchools[0]?.id ||
+    availableSchools[0]?.name ||
+    '';
   const encodedSchoolId = encodeURIComponent(schoolId);
 
   // Check if we're on a URL-based route
@@ -63,6 +72,7 @@ export function AdminSidebar() {
     { icon: Activity, label: t('extracurricular'), href: `/school/${encodedSchoolId}/admin/extracurricular` },
     { icon: CreditCard, label: t('payments'), href: `/school/${encodedSchoolId}/admin/payments` },
     { icon: Crown, label: t('pricing') || 'Pricing', href: `/pricing` },
+    { icon: HelpCircle, label: t('helpAndSupport'), href: `/school/${encodedSchoolId}/admin/help` },
     { icon: Settings, label: t('settings'), href: `/school/${encodedSchoolId}/admin/settings` },
   ];
 
@@ -102,7 +112,8 @@ export function AdminSidebar() {
             if (pathname?.includes(item.href) || 
                 (item.label === t('teachers') && pathname?.includes('/teachers')) ||
                 (item.label === t('students') && pathname?.includes('/students')) ||
-                (item.label === t('dailyActivities') && pathname?.includes('/daily-activities'))) {
+                (item.label === t('dailyActivities') && pathname?.includes('/daily-activities')) ||
+                (item.label === t('helpAndSupport') && pathname?.includes('/admin/help'))) {
               isActive = true;
             }
 
